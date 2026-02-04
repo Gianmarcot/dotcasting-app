@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Bookmark, User, MessageSquare, Calendar, Settings, LogOut } from "lucide-react";
+import { Home, Bookmark, User, MessageSquare, Calendar, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -15,10 +16,19 @@ const navItems = [
 export const TalentSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { data: profile } = useProfile();
 
   const handleLogout = async () => {
     await signOut();
   };
+
+  const displayName = profile?.first_name 
+    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+    : user?.email?.split("@")[0] || "Utente";
+
+  const avatarInitial = profile?.first_name?.charAt(0).toUpperCase() 
+    || user?.email?.charAt(0).toUpperCase() 
+    || "U";
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border flex flex-col">
@@ -59,14 +69,14 @@ export const TalentSidebar = () => {
       <div className="p-4 border-t border-border">
         <div className="flex items-center gap-3 mb-4 px-2">
           <Avatar className="h-10 w-10">
-            <AvatarImage src="" />
+            <AvatarImage src={profile?.profile_photo_url || ""} />
             <AvatarFallback className="bg-muted text-foreground text-sm">
-              {user?.email?.charAt(0).toUpperCase() || "U"}
+              {avatarInitial}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground truncate">
-              {user?.email?.split("@")[0] || "Utente"}
+              {displayName}
             </p>
           </div>
         </div>
