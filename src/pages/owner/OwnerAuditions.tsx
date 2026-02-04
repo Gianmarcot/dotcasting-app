@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useAuditionEvents, useDeleteAuditionEvent, AuditionEvent } from "@/hooks/useAuditions";
 import { CreateAuditionDialog } from "@/components/auditions/CreateAuditionDialog";
+import { SlotParticipants } from "@/components/auditions/SlotParticipants";
 
 export const OwnerAuditions = () => {
   const { data: events, isLoading } = useAuditionEvents();
@@ -170,29 +171,35 @@ export const OwnerAuditions = () => {
                         </div>
 
                         {event.slots && event.slots.length > 0 ? (
-                          <div className="grid gap-2">
+                          <div className="grid gap-3">
                             {event.slots.map((slot) => (
                               <div
                                 key={slot.id}
-                                className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                className="p-3 rounded-lg bg-muted/50"
                               >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-sm font-medium">
-                                    {format(new Date(slot.start_datetime), "HH:mm")} -{" "}
-                                    {format(new Date(slot.end_datetime), "HH:mm")}
-                                  </span>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <span className="text-sm font-medium">
+                                      {format(new Date(slot.start_datetime), "HH:mm")} -{" "}
+                                      {format(new Date(slot.end_datetime), "HH:mm")}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">
+                                      {slot.bookings_count || 0}/{slot.capacity || 1}
+                                    </span>
+                                    {(slot.bookings_count || 0) >= (slot.capacity || 1) && (
+                                      <Badge variant="secondary" className="text-xs">
+                                        Pieno
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <Users className="h-4 w-4 text-muted-foreground" />
-                                  <span className="text-sm">
-                                    {slot.bookings_count || 0}/{slot.capacity || 1}
-                                  </span>
-                                  {(slot.bookings_count || 0) >= (slot.capacity || 1) && (
-                                    <Badge variant="secondary" className="text-xs">
-                                      Pieno
-                                    </Badge>
-                                  )}
-                                </div>
+                                <SlotParticipants
+                                  slotId={slot.id}
+                                  bookingsCount={slot.bookings_count || 0}
+                                />
                               </div>
                             ))}
                           </div>
