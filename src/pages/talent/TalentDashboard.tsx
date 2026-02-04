@@ -49,12 +49,8 @@ export const TalentDashboard = () => {
       <div className="flex flex-col lg:flex-row lg:items-center gap-6">
         {/* Welcome */}
         <div className="flex-shrink-0">
-          <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">
-            {it.dashboard.welcome}
-          </p>
-          <h1 className="text-4xl text-foreground capitalize">
-            {userName}
-          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">{it.dashboard.welcome}</p>
+          <h1 className="text-4xl text-foreground">{userName}</h1>
         </div>
 
         {/* Stats cards */}
@@ -65,7 +61,9 @@ export const TalentDashboard = () => {
               <div>
                 <p className="text-xs uppercase tracking-wider opacity-80 mb-1">
                   {it.dashboard.activeApplications.split(" ").map((w, i) => (
-                    <span key={i} className="block">{w}</span>
+                    <span key={i} className="block">
+                      {w}
+                    </span>
                   ))}
                 </p>
                 <button className="text-sm underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity">
@@ -80,12 +78,8 @@ export const TalentDashboard = () => {
           <Card className="bg-charcoal text-charcoal-foreground flex-1 max-w-sm border-0">
             <CardContent className="p-5 flex justify-between items-center">
               <div>
-                <p className="text-xs uppercase tracking-wider opacity-80 mb-1">
-                  {it.dashboard.profileCompletion}
-                </p>
-                <p className="text-xs opacity-70 mb-2 max-w-[180px]">
-                  {it.dashboard.profileCompletionHint}
-                </p>
+                <p className="text-xs uppercase tracking-wider opacity-80 mb-1">{it.dashboard.profileCompletion}</p>
+                <p className="text-xs opacity-70 mb-2 max-w-[180px]">{it.dashboard.profileCompletionHint}</p>
                 <button className="text-sm underline underline-offset-2 opacity-80 hover:opacity-100 transition-opacity">
                   {it.dashboard.goToProfile}
                 </button>
@@ -98,17 +92,12 @@ export const TalentDashboard = () => {
 
       {/* Castings section */}
       <div className="space-y-4">
-        <h2 className="text-sm uppercase tracking-wider text-muted-foreground">
-          {it.dashboard.castingsForYou}
-        </h2>
+        <h2 className="text-sm uppercase tracking-wider text-muted-foreground">{it.dashboard.castingsForYou}</h2>
 
         {/* Search */}
         <div className="relative max-w-lg">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={it.dashboard.searchPlaceholder}
-            className="pl-11 bg-card border-0 h-12"
-          />
+          <Input placeholder={it.dashboard.searchPlaceholder} className="pl-11 bg-card border-0 h-12" />
         </div>
 
         {/* Casting list */}
@@ -119,31 +108,23 @@ export const TalentDashboard = () => {
                 <div className="flex flex-col sm:flex-row">
                   {/* Image */}
                   <div className="sm:w-40 h-32 sm:h-auto flex-shrink-0">
-                    <img
-                      src={casting.image}
-                      alt={casting.title}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={casting.image} alt={casting.title} className="w-full h-full object-cover" />
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2">
-                      <h3 className="text-xl text-foreground">
-                        {casting.title}
-                      </h3>
+                      <h3 className="text-xl text-foreground">{casting.title}</h3>
                       <div className="space-y-1 text-sm text-muted-foreground">
                         <p>
-                          <span className="font-medium text-foreground">{it.dashboard.budget}:</span>{" "}
-                          {casting.budget}
+                          <span className="font-medium text-foreground">{it.dashboard.budget}:</span> {casting.budget}
                         </p>
                         <p>
                           <span className="font-medium text-foreground">{it.dashboard.location}:</span>{" "}
                           {casting.location}
                         </p>
                         <p>
-                          <span className="font-medium text-foreground">{it.dashboard.period}:</span>{" "}
-                          {casting.period}
+                          <span className="font-medium text-foreground">{it.dashboard.period}:</span> {casting.period}
                         </p>
                       </div>
                     </div>
