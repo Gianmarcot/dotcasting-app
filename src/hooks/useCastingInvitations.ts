@@ -117,7 +117,8 @@ export const useRespondToInvitation = () => {
       invitationId: string;
       status: "accepted" | "declined";
     }) => {
-      const { data, error } = await supabase
+      // Update the invitation status
+      const { data: invitation, error: updateError } = await supabase
         .from("casting_invitations")
         .update({
           status,
@@ -127,16 +128,44 @@ export const useRespondToInvitation = () => {
         .select()
         .single();
 
-      if (error) throw error;
-      return data;
+      if (updateError) throw updateError;
+
+      // If accepted, automatically create an application
+      if (status === "accepted" && invitation) {
+        // Check if application already exists
+        const { data: existingApp } = await supabase
+          .from("applications")
+          .select("id")
+          .eq("casting_id", invitation.casting_id)
+          .eq("talent_user_id", invitation.talent_user_id)
+          .maybeSingle();
+
+        if (!existingApp) {
+          const { error: appError } = await supabase
+            .from("applications")
+            .insert({
+              casting_id: invitation.casting_id,
+              talent_user_id: invitation.talent_user_id,
+              cover_note: "Candidatura da invito",
+            });
+
+          if (appError) {
+            console.error("Error creating application:", appError);
+            // Don't throw - invitation was already accepted
+          }
+        }
+      }
+
+      return invitation;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
+      queryClient.invalidateQueries({ queryKey: ["owner-applications"] });
       toast({
         title: variables.status === "accepted" ? "Invito accettato" : "Invito rifiutato",
         description:
           variables.status === "accepted"
-            ? "Puoi ora candidarti per questo casting."
+            ? "La tua candidatura è stata inviata automaticamente."
             : "Hai rifiutato l'invito.",
       });
     },
