@@ -19,14 +19,13 @@ interface ApplicationStatusDropdownProps {
 
 const statusConfig: Record<ApplicationStatus, { 
   icon: React.ElementType; 
-  bgColor: string;
 }> = {
-  submitted: { icon: Send, bgColor: "bg-info/20 text-info-foreground" },
-  shortlisted: { icon: Star, bgColor: "bg-success/20 text-success-foreground" },
-  hold: { icon: Clock, bgColor: "bg-warning/20 text-warning-foreground" },
-  rejected: { icon: X, bgColor: "bg-destructive/20 text-destructive-foreground" },
-  callback: { icon: Phone, bgColor: "bg-secondary/20 text-secondary-foreground" },
-  booked: { icon: CheckCircle, bgColor: "bg-primary/20 text-primary-foreground" },
+  submitted: { icon: Send },
+  shortlisted: { icon: Star },
+  hold: { icon: Clock },
+  rejected: { icon: X },
+  callback: { icon: Phone },
+  booked: { icon: CheckCircle },
 };
 
 const workflowOrder: ApplicationStatus[] = [
@@ -50,9 +49,9 @@ export const ApplicationStatusDropdown = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className={`gap-2 ${currentConfig.bgColor}`}
+          className="gap-2"
           disabled={disabled}
         >
           <CurrentIcon className="h-4 w-4" />
