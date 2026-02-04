@@ -29,7 +29,7 @@ export const TalentProfile = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fade-up max-w-7xl mx-auto">
+    <div className="space-y-6 animate-fade-up">
       {/* Header */}
       <div>
         <h1 className="text-2xl text-foreground">Il mio Profilo</h1>
