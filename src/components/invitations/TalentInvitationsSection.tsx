@@ -41,9 +41,9 @@ export const TalentInvitationsSection = () => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Mail className="h-4 w-4 text-primary" />
-        <h2 className="text-sm uppercase tracking-wider text-muted-foreground">
+      <div className="flex items-center gap-2 text-muted-foreground">
+        <Mail className="h-4 w-4" />
+        <h2 className="text-sm uppercase tracking-wider">
           {it.dashboard.invitations}
         </h2>
         <Badge variant="secondary" className="ml-2">

@@ -19,15 +19,14 @@ interface ApplicationStatusDropdownProps {
 
 const statusConfig: Record<ApplicationStatus, { 
   icon: React.ElementType; 
-  color: string;
   bgColor: string;
 }> = {
-  submitted: { icon: Send, color: "text-info", bgColor: "bg-info/20" },
-  shortlisted: { icon: Star, color: "text-success", bgColor: "bg-success/20" },
-  hold: { icon: Clock, color: "text-warning", bgColor: "bg-warning/20" },
-  rejected: { icon: X, color: "text-destructive", bgColor: "bg-destructive/20" },
-  callback: { icon: Phone, color: "text-secondary", bgColor: "bg-secondary/20" },
-  booked: { icon: CheckCircle, color: "text-primary", bgColor: "bg-primary/20" },
+  submitted: { icon: Send, bgColor: "bg-info/20 text-info-foreground" },
+  shortlisted: { icon: Star, bgColor: "bg-success/20 text-success-foreground" },
+  hold: { icon: Clock, bgColor: "bg-warning/20 text-warning-foreground" },
+  rejected: { icon: X, bgColor: "bg-destructive/20 text-destructive-foreground" },
+  callback: { icon: Phone, bgColor: "bg-secondary/20 text-secondary-foreground" },
+  booked: { icon: CheckCircle, bgColor: "bg-primary/20 text-primary-foreground" },
 };
 
 const workflowOrder: ApplicationStatus[] = [
@@ -53,7 +52,7 @@ export const ApplicationStatusDropdown = ({
         <Button
           variant="ghost"
           size="sm"
-          className={`gap-2 ${currentConfig.bgColor} ${currentConfig.color} hover:${currentConfig.bgColor}`}
+          className={`gap-2 ${currentConfig.bgColor}`}
           disabled={disabled}
         >
           <CurrentIcon className="h-4 w-4" />
@@ -74,7 +73,7 @@ export const ApplicationStatusDropdown = ({
                 onClick={() => onStatusChange(status)}
                 className={`gap-2 cursor-pointer ${isCurrentStatus ? "bg-muted" : ""}`}
               >
-                <Icon className={`h-4 w-4 ${config.color}`} />
+                <Icon className="h-4 w-4" />
                 <span>{it.applications.status[status]}</span>
                 {isCurrentStatus && (
                   <Badge variant="outline" className="ml-auto text-xs">
