@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Bookmark, User, MessageSquare, Calendar, LogOut } from "lucide-react";
+import { Home, Bookmark, User, MessageSquare, Calendar, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { icon: Home, label: it.nav.home, href: "/talent" },
+  { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
   { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
   { icon: Calendar, label: it.nav.auditions, href: "/talent/auditions" },
@@ -83,10 +84,10 @@ export const TalentSidebar = () => {
 
         <div className="space-y-1">
           <Link
-            to="/talent/profile"
+            to="/talent/settings"
             className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           >
-            <User className="h-4 w-4" />
+            <Settings className="h-4 w-4" />
             {it.nav.account}
           </Link>
           <button
