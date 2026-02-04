@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { it } from "@/lib/i18n";
 import { useAuth } from "@/contexts/AuthContext";
+import { TalentInvitationsSection } from "@/components/invitations/TalentInvitationsSection";
 
 import castingBeauty from "@/assets/casting-beauty.jpg";
 import castingFashion from "@/assets/casting-fashion.jpg";
@@ -89,6 +90,9 @@ export const TalentDashboard = () => {
           </Card>
         </div>
       </div>
+
+      {/* Invitations section */}
+      <TalentInvitationsSection />
 
       {/* Castings section */}
       <div className="space-y-4">

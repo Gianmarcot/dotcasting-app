@@ -44,6 +44,7 @@ export const it = {
     budget: "Budget",
     location: "Location",
     period: "Periodo",
+    invitations: "Inviti ai casting",
   },
 
   // Casting
@@ -172,6 +173,8 @@ export const it = {
     back: "Indietro",
     next: "Avanti",
     previous: "Precedente",
+    accept: "Accetta",
+    decline: "Rifiuta",
   },
 
   // Validation
