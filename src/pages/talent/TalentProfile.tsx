@@ -3,6 +3,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
 import { AboutMeSection } from "@/components/profile/AboutMeSection";
+import { MediaGallerySection } from "@/components/profile/MediaGallerySection";
 import { AppearanceSection } from "@/components/profile/AppearanceSection";
 import { SkillsSection } from "@/components/profile/SkillsSection";
 import { LanguagesSection } from "@/components/profile/LanguagesSection";
@@ -70,6 +71,9 @@ export const TalentProfile = () => {
 
           {/* About Me */}
           <AboutMeSection />
+
+          {/* Media Gallery */}
+          <MediaGallerySection />
 
           {/* Appearance */}
           <AppearanceSection />
