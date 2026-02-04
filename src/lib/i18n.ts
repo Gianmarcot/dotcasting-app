@@ -133,6 +133,13 @@ export const it = {
     },
   },
 
+  // Notifications
+  notifications: {
+    title: "Notifiche",
+    empty: "Nessuna notifica",
+    markAllRead: "Segna tutte come lette",
+  },
+
   // Backoffice
   backoffice: {
     dashboard: "Dashboard",
