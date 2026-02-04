@@ -202,6 +202,7 @@ export type Database = {
           responded_at: string | null
           status: string
           talent_user_id: string
+          updated_at: string
         }
         Insert: {
           casting_id: string
@@ -212,6 +213,7 @@ export type Database = {
           responded_at?: string | null
           status?: string
           talent_user_id: string
+          updated_at?: string
         }
         Update: {
           casting_id?: string
@@ -222,6 +224,7 @@ export type Database = {
           responded_at?: string | null
           status?: string
           talent_user_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
