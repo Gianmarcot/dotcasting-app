@@ -7,11 +7,13 @@ import { useApplications, useUpdateApplicationStatus, useApplicationStats, type 
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationCard } from "@/components/applications/ApplicationCard";
 import { ApplicationTalentDialog } from "@/components/applications/ApplicationTalentDialog";
+import { AssignAuditionSlotDialog } from "@/components/applications/AssignAuditionSlotDialog";
 
 export const OwnerApplications = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
   const [selectedProfile, setSelectedProfile] = useState<ApplicationWithDetails["profile"] | null>(null);
+  const [pendingBookedApplication, setPendingBookedApplication] = useState<ApplicationWithDetails | null>(null);
 
   const { data: applications, isLoading } = useApplications({
     statusFilter,
@@ -20,8 +22,23 @@ export const OwnerApplications = () => {
   const { data: stats } = useApplicationStats();
   const updateStatus = useUpdateApplicationStatus();
 
-  const handleStatusChange = (id: string, status: ApplicationStatus) => {
-    updateStatus.mutate({ id, status });
+  const handleStatusChange = (id: string, status: ApplicationStatus, application?: ApplicationWithDetails) => {
+    if (status === "booked" && application) {
+      // Show dialog to assign audition slot
+      setPendingBookedApplication(application);
+    } else {
+      updateStatus.mutate({ id, status });
+    }
+  };
+
+  const handleAuditionSlotAssigned = () => {
+    if (pendingBookedApplication) {
+      // Now update the status to booked
+      updateStatus.mutate({ 
+        id: pendingBookedApplication.id, 
+        status: "booked" 
+      });
+    }
   };
 
   const handleViewTalent = (application: ApplicationWithDetails) => {
@@ -72,7 +89,7 @@ export const OwnerApplications = () => {
                 <ApplicationCard
                   key={app.id}
                   application={app}
-                  onStatusChange={handleStatusChange}
+                  onStatusChange={(id, status) => handleStatusChange(id, status, app)}
                   onViewTalent={handleViewTalent}
                   isUpdating={updateStatus.isPending}
                 />
@@ -102,6 +119,14 @@ export const OwnerApplications = () => {
         profile={selectedProfile}
         open={!!selectedProfile}
         onOpenChange={(open) => !open && setSelectedProfile(null)}
+      />
+
+      {/* Assign Audition Slot Dialog */}
+      <AssignAuditionSlotDialog
+        open={!!pendingBookedApplication}
+        onOpenChange={(open) => !open && setPendingBookedApplication(null)}
+        application={pendingBookedApplication}
+        onSuccess={handleAuditionSlotAssigned}
       />
     </div>
   );
