@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,15 +18,30 @@ export const AuthPage = () => {
   const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Redirect if already logged in - check onboarding for talents
   useEffect(() => {
-    if (user && !authLoading && userRole) {
-      if (userRole === "owner" || userRole === "admin") {
-        navigate("/owner", { replace: true });
-      } else {
-        navigate("/talent", { replace: true });
+    const checkAndRedirect = async () => {
+      if (user && !authLoading && userRole) {
+        if (userRole === "owner" || userRole === "admin") {
+          navigate("/owner", { replace: true });
+        } else if (userRole === "talent") {
+          // Check if onboarding is complete
+          const { data } = await supabase
+            .from("profiles")
+            .select("onboarding_completed")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          
+          if (data?.onboarding_completed) {
+            navigate("/talent", { replace: true });
+          } else {
+            navigate("/talent/onboarding", { replace: true });
+          }
+        }
       }
-    }
+    };
+    
+    checkAndRedirect();
   }, [user, userRole, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
