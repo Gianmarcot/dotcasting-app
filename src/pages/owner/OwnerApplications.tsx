@@ -1,52 +1,35 @@
+import { useState } from "react";
 import { it } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Search, Filter, MoreVertical } from "lucide-react";
-
-const mockApplications = [
-  {
-    id: "1",
-    talent: { name: "Giulia Rossi", avatar: "" },
-    casting: "Modella per Campagna Beauty",
-    status: "submitted",
-    submittedAt: "2025-02-04",
-  },
-  {
-    id: "2",
-    talent: { name: "Marco Bianchi", avatar: "" },
-    casting: "Attore per Spot Fashion",
-    status: "shortlisted",
-    submittedAt: "2025-02-03",
-  },
-  {
-    id: "3",
-    talent: { name: "Sara Verdi", avatar: "" },
-    casting: "Ballerina per Spot Fitness",
-    status: "hold",
-    submittedAt: "2025-02-03",
-  },
-  {
-    id: "4",
-    talent: { name: "Luca Ferrari", avatar: "" },
-    casting: "Modello per Campagna Beauty",
-    status: "rejected",
-    submittedAt: "2025-02-02",
-  },
-];
-
-const statusColors: Record<string, string> = {
-  submitted: "bg-info/20 text-info",
-  shortlisted: "bg-success/20 text-success",
-  rejected: "bg-destructive/20 text-destructive",
-  hold: "bg-warning/20 text-warning",
-  callback: "bg-secondary/20 text-secondary",
-  booked: "bg-primary/20 text-primary",
-};
+import { Skeleton } from "@/components/ui/skeleton";
+import { FileX2 } from "lucide-react";
+import { useApplications, useUpdateApplicationStatus, useApplicationStats, type ApplicationStatus, type ApplicationWithDetails } from "@/hooks/useApplications";
+import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
+import { ApplicationCard } from "@/components/applications/ApplicationCard";
+import { ApplicationTalentDialog } from "@/components/applications/ApplicationTalentDialog";
 
 export const OwnerApplications = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
+  const [selectedProfile, setSelectedProfile] = useState<ApplicationWithDetails["profile"] | null>(null);
+
+  const { data: applications, isLoading } = useApplications({
+    statusFilter,
+    searchQuery,
+  });
+  const { data: stats } = useApplicationStats();
+  const updateStatus = useUpdateApplicationStatus();
+
+  const handleStatusChange = (id: string, status: ApplicationStatus) => {
+    updateStatus.mutate({ id, status });
+  };
+
+  const handleViewTalent = (application: ApplicationWithDetails) => {
+    if (application.profile) {
+      setSelectedProfile(application.profile);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
@@ -54,66 +37,72 @@ export const OwnerApplications = () => {
           {it.backoffice.applications}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Gestisci tutte le candidature ricevute
+          Gestisci tutte le candidature ricevute per i tuoi casting
         </p>
       </div>
 
-      {/* Search and filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cerca candidature..."
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline">
-          <Filter className="h-4 w-4 mr-2" />
-          {it.common.filter}
-        </Button>
-      </div>
+      {/* Filters */}
+      <ApplicationFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        stats={stats}
+      />
 
       {/* Applications list */}
       <Card className="border-0 shadow-sm">
         <CardContent className="p-0">
-          <div className="divide-y divide-border">
-            {mockApplications.map((app) => (
-              <div
-                key={app.id}
-                className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-muted text-foreground text-sm">
-                      {app.talent.name.split(" ").map(n => n[0]).join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-foreground">
-                      {app.talent.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {app.casting}
-                    </p>
+          {isLoading ? (
+            <div className="divide-y divide-border">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-4 p-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2 flex-1">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-48" />
                   </div>
+                  <Skeleton className="h-8 w-24" />
                 </div>
-
-                <div className="flex items-center gap-4">
-                  <Badge className={statusColors[app.status]}>
-                    {it.applications.status[app.status as keyof typeof it.applications.status]}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(app.submittedAt).toLocaleDateString("it-IT")}
-                  </span>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : applications && applications.length > 0 ? (
+            <div className="divide-y divide-border">
+              {applications.map((app) => (
+                <ApplicationCard
+                  key={app.id}
+                  application={app}
+                  onStatusChange={handleStatusChange}
+                  onViewTalent={handleViewTalent}
+                  isUpdating={updateStatus.isPending}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <FileX2 className="h-12 w-12 text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-1">
+                Nessuna candidatura trovata
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
+                {statusFilter !== "all" 
+                  ? `Non ci sono candidature con stato "${it.applications.status[statusFilter]}"`
+                  : searchQuery 
+                    ? "Nessun risultato per la tua ricerca" 
+                    : "Le candidature appariranno qui quando i talent si candideranno ai tuoi casting"
+                }
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
+
+      {/* Talent Detail Dialog */}
+      <ApplicationTalentDialog
+        profile={selectedProfile}
+        open={!!selectedProfile}
+        onOpenChange={(open) => !open && setSelectedProfile(null)}
+      />
     </div>
   );
 };
