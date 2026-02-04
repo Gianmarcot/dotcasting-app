@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreVertical, Calendar, MapPin, Euro, Edit, Trash2, Play, Pause } from "lucide-react";
+import { MoreVertical, Calendar, MapPin, Euro, Edit, Trash2, Play, Pause, RotateCcw } from "lucide-react";
 import { it } from "@/lib/i18n";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
@@ -44,13 +44,26 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
     return start || end;
   };
 
-  const getNextStatus = () => {
-    if (casting.status === "draft") return { label: "Pubblica", status: "active", icon: Play };
-    if (casting.status === "active") return { label: "Chiudi", status: "closed", icon: Pause };
-    return null;
+  const getStatusActions = () => {
+    const actions = [];
+    if (casting.status === "draft") {
+      actions.push({ label: "Pubblica", status: "active", icon: Play });
+    }
+    if (casting.status === "active") {
+      actions.push({ label: "Chiudi", status: "closed", icon: Pause });
+    }
+    if (casting.status === "closed") {
+      actions.push({ label: "Riapri", status: "active", icon: RotateCcw });
+    }
+    if (casting.status === "active" || casting.status === "closed") {
+      actions.push({ label: "Torna a bozza", status: "draft", icon: Edit });
+    }
+    return actions;
   };
 
-  const nextStatus = getNextStatus();
+  const statusActions = getStatusActions();
+
+  
 
   return (
     <Card className="border-0 shadow-sm">
@@ -114,12 +127,15 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
                   {it.common.edit}
                 </DropdownMenuItem>
                 
-                {nextStatus && (
-                  <DropdownMenuItem onClick={() => onStatusChange(casting.id, nextStatus.status)}>
-                    <nextStatus.icon className="h-4 w-4 mr-2" />
-                    {nextStatus.label}
+                {statusActions.map((action) => (
+                  <DropdownMenuItem 
+                    key={action.status} 
+                    onClick={() => onStatusChange(casting.id, action.status)}
+                  >
+                    <action.icon className="h-4 w-4 mr-2" />
+                    {action.label}
                   </DropdownMenuItem>
-                )}
+                ))}
                 
                 <DropdownMenuSeparator />
                 
