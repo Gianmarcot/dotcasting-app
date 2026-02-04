@@ -44,7 +44,7 @@
     --input: 40 15% 85%;
     --ring: 345 65% 35%;
 
-    --radius: 1.5rem;
+    --radius: 0.5rem;
 
     /* Sidebar */
     --sidebar-background: 40 25% 97%;
@@ -117,7 +117,7 @@
     --charcoal-foreground: 220 15% 10%;
     --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
-    --radius: 1.5rem;
+    --radius: 0.5rem;
   }
 }
 
