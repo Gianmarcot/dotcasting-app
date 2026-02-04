@@ -82,7 +82,7 @@ export const OwnerCompanies = () => {
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-foreground text-lg">
+                    <h3 className="text-foreground text-lg">
                       {company.name}
                     </h3>
                     <p className="text-sm text-muted-foreground capitalize">

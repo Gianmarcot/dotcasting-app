@@ -78,7 +78,7 @@ export const ProfilePhotoSection = () => {
             </button>
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-foreground">Foto profilo</h3>
+            <h3 className="text-foreground">Foto profilo</h3>
             <p className="text-sm text-muted-foreground mb-3">
               Carica una foto professionale. Formato: JPG, PNG. Max 5MB.
             </p>

@@ -129,7 +129,7 @@ export const TalentDashboard = () => {
                   {/* Content */}
                   <div className="flex-1 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="space-y-2">
-                      <h3 className="text-xl font-medium text-foreground">
+                      <h3 className="text-xl text-foreground">
                         {casting.title}
                       </h3>
                       <div className="space-y-1 text-sm text-muted-foreground">

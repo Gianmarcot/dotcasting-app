@@ -68,7 +68,7 @@ export const OwnerCastings = () => {
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <h3 className="font-medium text-foreground text-lg">
+                    <h3 className="text-foreground text-lg">
                       {casting.title}
                     </h3>
                     <Badge className={statusColors[casting.status]}>
