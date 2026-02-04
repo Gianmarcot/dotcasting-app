@@ -1,154 +1,159 @@
 
-# Piano: Galleria Media per il Profilo Talent
+# Piano: Gestione Completa Casting lato Owner
 
-## Obiettivo
-Aggiungere una sezione galleria media al profilo talent che permetta di caricare foto aggiuntive e video per mostrare il proprio portfolio.
+## Panoramica
+Implementare un sistema completo per creare, modificare, eliminare e gestire lo stato dei casting dalla sezione Owner. La pagina attuale utilizza dati mock - la trasformeremo in un'interfaccia funzionale collegata al database.
 
----
+## Funzionalita Principali
 
-## Panoramica delle Modifiche
+### 1. Lista Casting con Dati Reali
+- Visualizzazione di tutti i casting dal database (tabella `castings`)
+- Conteggio candidature in tempo reale dalla tabella `applications`
+- Filtri per stato (bozza, attivo, chiuso)
+- Nome azienda recuperato dalla tabella `companies`
 
-La galleria media permettera ai talent di:
-- Caricare foto aggiuntive (oltre alla foto profilo principale)
-- Caricare video di presentazione o showreel
-- Riordinare i media tramite drag & drop
-- Eliminare media non piu necessari
-- Visualizzare i media in una griglia con lightbox
+### 2. Creazione/Modifica Casting
+Form completo con tutti i campi disponibili:
+- Titolo (obbligatorio)
+- Descrizione
+- Categoria (film, spot, moda, evento, ecc.)
+- Azienda cliente (selezione da companies esistenti)
+- Location (array di citta)
+- Date (inizio e fine)
+- Compenso (importo + tipo + valuta)
+- Immagine di copertina (opzionale)
 
----
+### 3. Gestione Stato
+- Transizioni: Bozza -> Attivo -> Chiuso
+- Pulsanti rapidi per cambiare stato
+- Conferma prima di chiudere un casting attivo
 
-## Modifiche al Database
-
-### 1. Nuova Tabella `talent_media`
-
-| Colonna | Tipo | Descrizione |
-|---------|------|-------------|
-| `id` | uuid | Chiave primaria |
-| `profile_id` | uuid | Riferimento al profilo |
-| `media_type` | text | "photo" o "video" |
-| `url` | text | URL del file nello storage |
-| `thumbnail_url` | text | URL della thumbnail (per video) |
-| `title` | text | Titolo opzionale |
-| `sort_order` | integer | Ordine di visualizzazione |
-| `created_at` | timestamp | Data creazione |
-| `updated_at` | timestamp | Data ultimo aggiornamento |
-
-### 2. Nuovo Bucket Storage `talent-media`
-
-- Bucket pubblico per foto e video dei talent
-- Organizzazione: `{user_id}/{media_type}/{filename}`
-
-### 3. Politiche RLS
-
-- Visualizzazione pubblica dei media
-- Solo il proprietario puo inserire/modificare/eliminare i propri media
+### 4. Eliminazione
+- Eliminazione soft o hard con conferma
+- Verifica candidature esistenti prima di eliminare
 
 ---
 
-## Nuovi File da Creare
+## Dettagli Tecnici
 
-### Componenti UI
+### Nuovi File da Creare
 
 ```text
-src/components/profile/
-  MediaGallerySection.tsx    <- Componente principale galleria
-  MediaUploadButton.tsx      <- Bottone upload con selezione tipo
-  MediaGridItem.tsx          <- Singolo elemento nella griglia
-  MediaLightbox.tsx          <- Visualizzazione fullscreen
+src/hooks/useCastings.ts
+   - Hook principale per fetch, create, update, delete casting
+   - Query con join su companies e count applications
+
+src/components/castings/CastingFormDialog.tsx
+   - Dialog modale per creazione/modifica
+   - Form con validazione Zod
+   - Selezione azienda da dropdown
+
+src/components/castings/CastingCard.tsx
+   - Card singola con info casting
+   - Menu azioni (modifica, cambia stato, elimina)
+
+src/components/castings/CastingFilters.tsx
+   - Filtri per stato e ricerca testuale
+
+src/components/castings/DeleteCastingDialog.tsx
+   - Dialog conferma eliminazione
 ```
 
-### Hooks
+### Modifiche a File Esistenti
 
 ```text
-src/hooks/
-  useTalentMedia.ts          <- Query e mutations per i media
+src/pages/owner/OwnerCastings.tsx
+   - Rimozione mock data
+   - Integrazione hooks reali
+   - Stati loading/empty/error
+
+src/lib/i18n.ts
+   - Nuove traduzioni per form e messaggi
 ```
 
----
+### Schema Hook `useCastings`
 
-## Dettagli Implementativi
+```typescript
+// Query - lista con relazioni
+const { data, isLoading } = useQuery({
+  queryKey: ["owner-castings", filters],
+  queryFn: async () => {
+    const { data } = await supabase
+      .from("castings")
+      .select(`
+        *,
+        company:companies(id, name),
+        applications(count)
+      `)
+      .order("created_at", { ascending: false });
+    return data;
+  }
+});
 
-### MediaGallerySection.tsx
+// Mutations
+- useCreateCasting()
+- useUpdateCasting()
+- useDeleteCasting()
+- useUpdateCastingStatus()
+```
 
-Componente principale che:
-- Mostra una griglia responsive di foto/video
-- Include bottone per aggiungere nuovi media
-- Permette di eliminare media esistenti
-- Gestisce stati di caricamento
+### Form Fields Mapping
+
+| Campo UI | Colonna DB | Tipo |
+|----------|-----------|------|
+| Titolo | title | text (required) |
+| Descrizione | description | text |
+| Categoria | category | text |
+| Azienda | company_id | uuid (FK) |
+| Location | locations | text[] |
+| Data Inizio | start_date | date |
+| Data Fine | end_date | date |
+| Importo | compensation_amount | numeric |
+| Tipo Compenso | compensation_type | text |
+| Valuta | currency | text |
+| Cover | cover_image_url | text |
+| Stato | status | text |
+
+### Flusso UX
 
 ```text
-+--------------------------------------------------+
-|  GALLERIA MEDIA                          [+ Add] |
-+--------------------------------------------------+
-|  +-------+  +-------+  +-------+  +-------+      |
-|  | Foto  |  | Foto  |  | Video |  | Foto  |      |
-|  |   1   |  |   2   |  |   1   |  |   3   |      |
-|  +-------+  +-------+  +-------+  +-------+      |
-|                                                  |
-|  +-------+  +-------+                            |
-|  | Foto  |  |  + +  |  <- Placeholder upload     |
-|  |   4   |  |       |                            |
-|  +-------+  +-------+                            |
-+--------------------------------------------------+
+1. Owner apre /owner/castings
+   -> Vede lista casting reali (o empty state)
+
+2. Click "Crea Casting"
+   -> Apre dialog con form vuoto
+   -> Compila campi -> Salva come bozza
+
+3. Click su card casting
+   -> Menu con opzioni:
+      - Modifica (apre dialog precompilato)
+      - Pubblica / Chiudi (cambia stato)
+      - Elimina (conferma)
+
+4. Filtri in alto per stato
+   -> Aggiorna query in tempo reale
 ```
 
-### useTalentMedia.ts
-
-Hook con:
-- `useTalentMedia()` - Query per recuperare i media del profilo
-- `useUploadMedia()` - Mutation per caricare nuovi file
-- `useDeleteMedia()` - Mutation per eliminare media
-- `useUpdateMediaOrder()` - Mutation per riordinare
-
-### Flusso Upload
-
-1. Utente clicca "Aggiungi Media"
-2. Seleziona tipo (foto/video) e file
-3. File caricato su storage bucket `talent-media`
-4. Record creato in tabella `talent_media`
-5. Griglia aggiornata automaticamente
+### Gestione Immagine Cover (Opzionale)
+- Upload su Supabase Storage bucket `casting-covers`
+- Resize/ottimizzazione lato client
+- Preview nel form
 
 ---
 
-## Integrazione nel Profilo
+## Passaggi Implementazione
 
-Il componente `MediaGallerySection` verra aggiunto nella colonna principale del profilo, dopo la sezione "About Me":
-
-```tsx
-// TalentProfile.tsx
-<div className="lg:col-span-2 space-y-6">
-  <AboutMeSection />
-  <MediaGallerySection />  // <- Nuova sezione
-  <AppearanceSection />
-  <SkillsSection />
-  <LanguagesSection />
-</div>
-```
+1. **Hook useCastings** - Logica dati completa
+2. **CastingCard** - Componente card riutilizzabile
+3. **CastingFormDialog** - Form creazione/modifica
+4. **DeleteCastingDialog** - Conferma eliminazione
+5. **CastingFilters** - Barra filtri
+6. **OwnerCastings refactor** - Integrazione componenti
+7. **Traduzioni i18n** - Testi italiani
 
 ---
 
-## Limiti e Validazioni
-
-| Parametro | Valore |
-|-----------|--------|
-| Max dimensione foto | 10MB |
-| Max dimensione video | 100MB |
-| Formati foto | JPG, PNG, WEBP |
-| Formati video | MP4, MOV, WEBM |
-| Max numero media | 20 per profilo |
-
----
-
-## Riepilogo File
-
-| File | Azione |
-|------|--------|
-| Database | Creare tabella `talent_media` |
-| Storage | Creare bucket `talent-media` |
-| `src/hooks/useTalentMedia.ts` | Creare nuovo |
-| `src/components/profile/MediaGallerySection.tsx` | Creare nuovo |
-| `src/components/profile/MediaUploadButton.tsx` | Creare nuovo |
-| `src/components/profile/MediaGridItem.tsx` | Creare nuovo |
-| `src/pages/talent/TalentProfile.tsx` | Aggiungere MediaGallerySection |
-| `src/lib/i18n.ts` | Aggiungere traduzioni galleria |
-
+## Note
+- Il database ha gia la tabella `castings` con RLS policies per owner/admin
+- Nessuna migrazione necessaria - lo schema e gia pronto
+- Le companies sono gestite separatamente (pagina OwnerCompanies)
