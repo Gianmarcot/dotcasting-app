@@ -6,7 +6,7 @@ export const OwnerLayout = () => {
     <div className="min-h-screen bg-background">
       <OwnerSidebar />
       <main className="ml-64 min-h-screen">
-        <div className="p-8 pt-24 max-w-7xl mx-auto">
+        <div className="p-8 pt-12 max-w-7xl mx-auto">
           <Outlet />
         </div>
       </main>
