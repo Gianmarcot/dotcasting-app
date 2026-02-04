@@ -63,8 +63,8 @@ export const MediaGridItem = ({
 
       {/* Drag Handle */}
       <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="p-1.5 bg-background/80 rounded-md cursor-grab">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        <div className="p-1.5 bg-background/80 rounded-md cursor-grab text-muted-foreground">
+          <GripVertical className="h-4 w-4" />
         </div>
       </div>
 

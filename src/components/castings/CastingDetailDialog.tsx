@@ -56,8 +56,8 @@ export const CastingDetailDialog = ({ open, onOpenChange, casting }: CastingDeta
 
           {/* Dates */}
           {(casting.start_date || casting.end_date) && (
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
               <span>
                 {casting.start_date && format(new Date(casting.start_date), "d MMMM yyyy", { locale: itLocale })}
                 {casting.start_date && casting.end_date && " - "}
@@ -68,16 +68,16 @@ export const CastingDetailDialog = ({ open, onOpenChange, casting }: CastingDeta
 
           {/* Locations */}
           {casting.locations && casting.locations.length > 0 && (
-            <div className="flex items-start gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <MapPin className="h-4 w-4 mt-0.5" />
               <span>{casting.locations.join(", ")}</span>
             </div>
           )}
 
           {/* Compensation */}
           {casting.compensation_type && (
-            <div className="flex items-center gap-2 text-sm">
-              <Banknote className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Banknote className="h-4 w-4" />
               <span>
                 {casting.compensation_type}
                 {casting.compensation_amount && ` - ${casting.compensation_amount} ${casting.currency || "EUR"}`}

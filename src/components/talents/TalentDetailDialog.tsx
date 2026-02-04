@@ -92,10 +92,10 @@ export const TalentDetailDialog = ({
   }) => {
     if (!value) return null;
     return (
-      <div className="flex items-center gap-3 py-2">
-        <Icon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+      <div className="flex items-center gap-3 py-2 text-muted-foreground">
+        <Icon className="h-4 w-4 flex-shrink-0" />
         <div>
-          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="text-xs">{label}</p>
           <p className="text-sm text-foreground">{value}</p>
         </div>
       </div>
