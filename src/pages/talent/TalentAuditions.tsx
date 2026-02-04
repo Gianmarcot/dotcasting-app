@@ -2,107 +2,232 @@ import { it } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Video } from "lucide-react";
-
-const mockAuditions = [
-  {
-    id: "1",
-    title: "Provino Campagna Beauty",
-    casting: "Modella per Campagna Beauty",
-    date: "2025-02-15T10:00:00",
-    location: "Studio ABC, Via Roma 15, Milano",
-    isVirtual: false,
-    status: "confirmed",
-  },
-  {
-    id: "2",
-    title: "Video Call Spot Fashion",
-    casting: "Attrice per Spot Fashion",
-    date: "2025-02-18T14:30:00",
-    location: null,
-    isVirtual: true,
-    virtualLink: "https://meet.google.com/abc-xyz",
-    status: "invited",
-  },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar, MapPin, Video, Clock, ExternalLink } from "lucide-react";
+import { format, formatDistanceToNow, isPast, isFuture } from "date-fns";
+import { it as itLocale } from "date-fns/locale";
+import {
+  useTalentAuditionBookings,
+  useUpdateBookingStatus,
+  AuditionBooking,
+} from "@/hooks/useAuditions";
 
 const statusColors: Record<string, string> = {
-  invited: "bg-info text-info-foreground",
-  confirmed: "bg-success text-success-foreground",
+  invited: "bg-info/10 text-info border-info/20",
+  confirmed: "bg-success/10 text-success border-success/20",
   declined: "bg-muted text-muted-foreground",
-  reschedule_requested: "bg-warning text-warning-foreground",
+  reschedule_requested: "bg-warning/10 text-warning border-warning/20",
+};
+
+const statusLabels: Record<string, string> = {
+  invited: "Invitato",
+  confirmed: "Confermato",
+  declined: "Rifiutato",
+  reschedule_requested: "Riprogrammazione richiesta",
+};
+
+interface AuditionCardProps {
+  booking: AuditionBooking;
+  onConfirm: () => void;
+  onDecline: () => void;
+  isPending: boolean;
+}
+
+const AuditionCard = ({ booking, onConfirm, onDecline, isPending }: AuditionCardProps) => {
+  const slot = booking.slot;
+  const event = slot?.audition_event;
+  const slotDate = slot ? new Date(slot.start_datetime) : null;
+  const isUpcoming = slotDate ? isFuture(slotDate) : false;
+  const isPastEvent = slotDate ? isPast(slotDate) : false;
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardContent className="p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-foreground font-medium">
+                {event?.title || "Provino"}
+              </h3>
+              <Badge className={statusColors[booking.status || "invited"]}>
+                {statusLabels[booking.status || "invited"]}
+              </Badge>
+              {isPastEvent && (
+                <Badge variant="outline" className="text-xs">
+                  Passato
+                </Badge>
+              )}
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {event?.casting?.title}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 text-sm text-muted-foreground">
+              {slotDate && (
+                <>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {format(slotDate, "EEEE d MMMM yyyy", { locale: itLocale })}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {format(slotDate, "HH:mm")}
+                    {slot?.end_datetime && ` - ${format(new Date(slot.end_datetime), "HH:mm")}`}
+                  </span>
+                </>
+              )}
+              {event?.is_virtual ? (
+                <span className="flex items-center gap-1">
+                  <Video className="h-4 w-4" />
+                  {it.auditions.virtual}
+                </span>
+              ) : event?.location_text ? (
+                <span className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  {event.location_text}
+                </span>
+              ) : null}
+            </div>
+
+            {isUpcoming && slotDate && (
+              <p className="text-xs text-primary">
+                {formatDistanceToNow(slotDate, { addSuffix: true, locale: itLocale })}
+              </p>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {booking.status === "invited" && isUpcoming && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onDecline}
+                  disabled={isPending}
+                >
+                  {it.auditions.decline}
+                </Button>
+                <Button size="sm" onClick={onConfirm} disabled={isPending}>
+                  {it.auditions.confirm}
+                </Button>
+              </>
+            )}
+
+            {booking.status === "confirmed" && event?.is_virtual && event.virtual_link_url && isUpcoming && (
+              <Button size="sm" variant="outline" asChild>
+                <a href={event.virtual_link_url} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4 mr-1" />
+                  Partecipa
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export const TalentAuditions = () => {
+  const { data: bookings, isLoading } = useTalentAuditionBookings();
+  const updateStatus = useUpdateBookingStatus();
+
+  const handleConfirm = (bookingId: string) => {
+    updateStatus.mutate({ bookingId, status: "confirmed" });
+  };
+
+  const handleDecline = (bookingId: string) => {
+    updateStatus.mutate({ bookingId, status: "declined" });
+  };
+
+  // Separate upcoming and past bookings
+  const now = new Date();
+  const upcomingBookings = bookings?.filter((b) => {
+    const slotDate = b.slot?.start_datetime ? new Date(b.slot.start_datetime) : null;
+    return slotDate && isFuture(slotDate);
+  }) || [];
+
+  const pastBookings = bookings?.filter((b) => {
+    const slotDate = b.slot?.start_datetime ? new Date(b.slot.start_datetime) : null;
+    return slotDate && isPast(slotDate);
+  }) || [];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-fade-up">
+        <div>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-64 mt-2" />
+        </div>
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <Skeleton key={i} className="h-32 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="space-y-8 animate-fade-up">
       <div>
-        <h1 className="text-2xl text-foreground">
-          {it.auditions.title}
-        </h1>
+        <h1 className="text-2xl text-foreground">{it.auditions.title}</h1>
         <p className="text-muted-foreground mt-1">
           I tuoi prossimi provini e appuntamenti
         </p>
       </div>
 
+      {/* Upcoming auditions */}
       <div className="space-y-4">
-        {mockAuditions.map((audition) => (
-          <Card key={audition.id} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-foreground">
-                      {audition.title}
-                    </h3>
-                    <Badge className={statusColors[audition.status]}>
-                      {it.auditions.status[audition.status as keyof typeof it.auditions.status]}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {audition.casting}
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(audition.date).toLocaleDateString("it-IT", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    {audition.isVirtual ? (
-                      <span className="flex items-center gap-1">
-                        <Video className="h-4 w-4" />
-                        {it.auditions.virtual}
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        {audition.location}
-                      </span>
-                    )}
-                  </div>
-                </div>
+        <h2 className="text-sm uppercase tracking-wider text-muted-foreground">
+          {it.auditions.upcoming}
+        </h2>
 
-                {audition.status === "invited" && (
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      {it.auditions.decline}
-                    </Button>
-                    <Button size="sm">
-                      {it.auditions.confirm}
-                    </Button>
-                  </div>
-                )}
-              </div>
+        {upcomingBookings.length > 0 ? (
+          <div className="space-y-4">
+            {upcomingBookings.map((booking) => (
+              <AuditionCard
+                key={booking.id}
+                booking={booking}
+                onConfirm={() => handleConfirm(booking.id)}
+                onDecline={() => handleDecline(booking.id)}
+                isPending={updateStatus.isPending}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card className="border-0 shadow-sm">
+            <CardContent className="p-8 text-center">
+              <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                Nessun provino in programma
+              </p>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
+
+      {/* Past auditions */}
+      {pastBookings.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-sm uppercase tracking-wider text-muted-foreground">
+            {it.auditions.past}
+          </h2>
+
+          <div className="space-y-4 opacity-70">
+            {pastBookings.map((booking) => (
+              <AuditionCard
+                key={booking.id}
+                booking={booking}
+                onConfirm={() => {}}
+                onDecline={() => {}}
+                isPending={false}
+              />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
