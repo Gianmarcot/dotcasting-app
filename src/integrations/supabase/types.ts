@@ -192,6 +192,47 @@ export type Database = {
           },
         ]
       }
+      casting_invitations: {
+        Row: {
+          casting_id: string
+          created_at: string
+          id: string
+          invited_by_user_id: string
+          message: string | null
+          responded_at: string | null
+          status: string
+          talent_user_id: string
+        }
+        Insert: {
+          casting_id: string
+          created_at?: string
+          id?: string
+          invited_by_user_id: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          talent_user_id: string
+        }
+        Update: {
+          casting_id?: string
+          created_at?: string
+          id?: string
+          invited_by_user_id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          talent_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "casting_invitations_casting_id_fkey"
+            columns: ["casting_id"]
+            isOneToOne: false
+            referencedRelation: "castings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       casting_roles: {
         Row: {
           casting_id: string

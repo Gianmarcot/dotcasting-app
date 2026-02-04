@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { useTalentMediaByProfileId } from "@/hooks/useTalentMediaByProfileId";
 import { TalentExportDialog } from "./TalentExportDialog";
+import { InviteTalentDialog } from "@/components/invitations/InviteTalentDialog";
 import {
   MapPin,
   User,
@@ -26,6 +27,7 @@ import {
   Download,
   Play,
   Image as ImageIcon,
+  Send,
 } from "lucide-react";
 
 interface TalentDetailDialogProps {
@@ -65,6 +67,7 @@ export const TalentDetailDialog = ({
   onOpenChange,
 }: TalentDetailDialogProps) => {
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { data: media, isLoading: mediaLoading } = useTalentMediaByProfileId(
     talent?.id || null
   );
@@ -126,14 +129,24 @@ export const TalentDetailDialog = ({
                     </p>
                   )}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowExportDialog(true)}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Esporta PDF
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setShowInviteDialog(true)}
+                  >
+                    <Send className="h-4 w-4 mr-2" />
+                    Invita
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowExportDialog(true)}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Esporta PDF
+                  </Button>
+                </div>
               </div>
               {/* Categories */}
               {talent.talent_categories && talent.talent_categories.length > 0 && (
@@ -329,6 +342,14 @@ export const TalentDetailDialog = ({
         media={media || []}
         open={showExportDialog}
         onOpenChange={setShowExportDialog}
+      />
+
+      {/* Invite dialog */}
+      <InviteTalentDialog
+        open={showInviteDialog}
+        onOpenChange={setShowInviteDialog}
+        talentUserId={talent.user_id}
+        talentName={fullName}
       />
     </>
   );
