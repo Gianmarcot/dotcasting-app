@@ -181,6 +181,23 @@ export const it = {
     passwordMin: "La password deve avere almeno 8 caratteri",
     passwordMatch: "Le password non coincidono",
   },
+
+  // Onboarding
+  onboarding: {
+    title: "Completa il tuo profilo",
+    subtitle: "Pochi passi per iniziare la tua carriera nel casting",
+    step1Title: "Seleziona i tuoi ruoli",
+    step1Description: "Che tipo di talento sei?",
+    step2Title: "Informazioni base",
+    step2Description: "Raccontaci di te",
+    step3Title: "Foto profilo",
+    step3Description: "Mostra il tuo volto",
+    complete: "Completa",
+    completeLater: "Completa dopo",
+    photoOptional: "Carica una foto professionale (opzionale)",
+    photoFormat: "Formato: JPG, PNG. Massimo 5MB.",
+    removePhoto: "Rimuovi foto",
+  },
 };
 
 export type TranslationKey = keyof typeof it;

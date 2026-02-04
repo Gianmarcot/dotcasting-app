@@ -479,7 +479,9 @@ export type Database = {
           gender: string | null
           id: string
           last_name: string | null
+          onboarding_completed: boolean | null
           profile_photo_url: string | null
+          talent_categories: string[] | null
           updated_at: string
           user_id: string
           visibility_settings: Json | null
@@ -495,7 +497,9 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string | null
+          onboarding_completed?: boolean | null
           profile_photo_url?: string | null
+          talent_categories?: string[] | null
           updated_at?: string
           user_id: string
           visibility_settings?: Json | null
@@ -511,7 +515,9 @@ export type Database = {
           gender?: string | null
           id?: string
           last_name?: string | null
+          onboarding_completed?: boolean | null
           profile_photo_url?: string | null
+          talent_categories?: string[] | null
           updated_at?: string
           user_id?: string
           visibility_settings?: Json | null

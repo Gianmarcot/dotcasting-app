@@ -21,6 +21,7 @@ import TalentApplications from "./pages/talent/TalentApplications";
 import TalentMessages from "./pages/talent/TalentMessages";
 import TalentAuditions from "./pages/talent/TalentAuditions";
 import TalentProfile from "./pages/talent/TalentProfile";
+import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
 // Owner pages
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
@@ -46,6 +47,16 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
+            
+            {/* Talent onboarding - protected but outside layout */}
+            <Route
+              path="/talent/onboarding"
+              element={
+                <ProtectedRoute allowedRoles={["talent"]}>
+                  <TalentOnboarding />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Talent routes */}
             <Route
