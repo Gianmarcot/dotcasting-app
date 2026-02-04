@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Camera } from "lucide-react";
 
 export const TalentProfile = () => {
   const { user } = useAuth();
+  const { data: profile, isLoading } = useProfile();
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -23,6 +25,34 @@ export const TalentProfile = () => {
     country: "Italia",
     bio: "",
   });
+
+  // Populate form with profile data when loaded
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.first_name || "",
+        lastName: profile.last_name || "",
+        gender: profile.gender || "",
+        ethnicity: profile.ethnicity || "",
+        birthDate: profile.birth_date || "",
+        city: profile.city || "",
+        country: profile.country || "Italia",
+        bio: profile.bio || "",
+      });
+    }
+  }, [profile]);
+
+  const avatarInitial = profile?.first_name?.charAt(0).toUpperCase() 
+    || user?.email?.charAt(0).toUpperCase() 
+    || "U";
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -56,9 +86,9 @@ export const TalentProfile = () => {
           <div className="flex items-center gap-6">
             <div className="relative">
               <Avatar className="h-24 w-24">
-                <AvatarImage src="" />
+                <AvatarImage src={profile?.profile_photo_url || ""} />
                 <AvatarFallback className="text-2xl bg-muted">
-                  {user?.email?.charAt(0).toUpperCase() || "U"}
+                  {avatarInitial}
                 </AvatarFallback>
               </Avatar>
               <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors">
