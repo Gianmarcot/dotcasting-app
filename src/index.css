@@ -130,6 +130,10 @@
     font-family: 'Tenor Sans', serif;
     @apply tracking-tight;
   }
+
+  h1, h2 {
+    @apply uppercase font-normal tracking-wide;
+  }
 }
 
 @layer components {
