@@ -21,6 +21,7 @@ import TalentApplications from "./pages/talent/TalentApplications";
 import TalentMessages from "./pages/talent/TalentMessages";
 import TalentAuditions from "./pages/talent/TalentAuditions";
 import TalentProfile from "./pages/talent/TalentProfile";
+import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
 // Owner pages
@@ -72,6 +73,7 @@ const App = () => (
               <Route path="messages" element={<TalentMessages />} />
               <Route path="auditions" element={<TalentAuditions />} />
               <Route path="profile" element={<TalentProfile />} />
+              <Route path="settings" element={<TalentSettings />} />
             </Route>
 
             {/* Owner/Admin routes */}
