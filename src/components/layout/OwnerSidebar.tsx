@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
@@ -40,10 +41,9 @@ export const OwnerSidebar = () => {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6">
-        <Link to="/owner" className="flex items-center gap-1">
-          <span className="text-muted-foreground text-sm">dot</span>
-          <span className="text-xl font-semibold text-foreground">Casting</span>
-          <span className="ml-2 text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded">Admin</span>
+        <Link to="/owner" className="flex items-center gap-3">
+          <img src={logo} alt="dotCasting" className="h-7" />
+          <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded">Admin</span>
         </Link>
       </div>
 
