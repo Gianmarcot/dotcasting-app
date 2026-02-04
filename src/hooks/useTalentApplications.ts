@@ -19,6 +19,10 @@ export interface TalentApplication {
     description: string | null;
     start_date: string | null;
     end_date: string | null;
+    locations: string[] | null;
+    compensation_type: string | null;
+    compensation_amount: number | null;
+    currency: string | null;
     company: {
       id: string;
       name: string;
@@ -50,6 +54,10 @@ export const useTalentApplications = () => {
             description,
             start_date,
             end_date,
+            locations,
+            compensation_type,
+            compensation_amount,
+            currency,
             company:companies(id, name)
           )
         `)

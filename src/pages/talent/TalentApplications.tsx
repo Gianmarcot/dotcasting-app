@@ -20,7 +20,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MoreVertical, Eye, Undo2, XCircle, Calendar, Building2, FileText } from "lucide-react";
-import { useTalentApplications, useWithdrawApplication, type TalentApplicationStatus } from "@/hooks/useTalentApplications";
+import { useTalentApplications, useWithdrawApplication, type TalentApplicationStatus, type TalentApplication } from "@/hooks/useTalentApplications";
+import { CastingDetailDialog } from "@/components/castings/CastingDetailDialog";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useState } from "react";
@@ -42,6 +43,7 @@ export const TalentApplications = () => {
   const { data: applications, isLoading } = useTalentApplications();
   const withdrawMutation = useWithdrawApplication();
   const [selectedApp, setSelectedApp] = useState<{ id: string; action: "withdraw" | "reactivate" } | null>(null);
+  const [viewingCasting, setViewingCasting] = useState<TalentApplication["casting"] | null>(null);
 
   const handleWithdraw = (id: string) => {
     setSelectedApp({ id, action: "withdraw" });
@@ -123,6 +125,7 @@ export const TalentApplications = () => {
                   application={app}
                   onWithdraw={handleWithdraw}
                   onReactivate={handleReactivate}
+                  onViewCasting={setViewingCasting}
                   isUpdating={withdrawMutation.isPending}
                 />
               ))}
@@ -141,6 +144,7 @@ export const TalentApplications = () => {
                   application={app}
                   onWithdraw={handleWithdraw}
                   onReactivate={handleReactivate}
+                  onViewCasting={setViewingCasting}
                   isUpdating={withdrawMutation.isPending}
                 />
               ))}
@@ -172,34 +176,26 @@ export const TalentApplications = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Casting Detail Dialog */}
+      <CastingDetailDialog
+        open={!!viewingCasting}
+        onOpenChange={(open) => !open && setViewingCasting(null)}
+        casting={viewingCasting}
+      />
     </div>
   );
 };
 
 interface ApplicationCardProps {
-  application: {
-    id: string;
-    status: TalentApplicationStatus;
-    submitted_at: string;
-    cover_note: string | null;
-    casting: {
-      id: string;
-      title: string;
-      category: string | null;
-      start_date: string | null;
-      end_date: string | null;
-      company: {
-        id: string;
-        name: string;
-      } | null;
-    } | null;
-  };
+  application: TalentApplication;
   onWithdraw: (id: string) => void;
   onReactivate: (id: string) => void;
+  onViewCasting: (casting: TalentApplication["casting"]) => void;
   isUpdating: boolean;
 }
 
-const ApplicationCard = ({ application, onWithdraw, onReactivate, isUpdating }: ApplicationCardProps) => {
+const ApplicationCard = ({ application, onWithdraw, onReactivate, onViewCasting, isUpdating }: ApplicationCardProps) => {
   const config = statusConfig[application.status];
   const isWithdrawn = application.status === "withdrawn";
   const submittedDate = format(new Date(application.submitted_at), "d MMM yyyy", { locale: itLocale });
@@ -210,7 +206,10 @@ const ApplicationCard = ({ application, onWithdraw, onReactivate, isUpdating }: 
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-3">
-              <h3 className="text-foreground font-medium">
+              <h3 
+                className="text-foreground font-medium cursor-pointer hover:underline"
+                onClick={() => onViewCasting(application.casting)}
+              >
                 {application.casting?.title || "Casting sconosciuto"}
               </h3>
               <Badge className={config.color}>{config.label}</Badge>
@@ -250,7 +249,7 @@ const ApplicationCard = ({ application, onWithdraw, onReactivate, isUpdating }: 
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onViewCasting(application.casting)}>
                 <Eye className="h-4 w-4 mr-2" />
                 Visualizza casting
               </DropdownMenuItem>
