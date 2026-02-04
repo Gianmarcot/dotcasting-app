@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { it } from "@/lib/i18n";
-import { useTalents, useTalentFilterOptions, TalentFilters } from "@/hooks/useTalents";
+import { useTalents, useTalentFilterOptions, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
 import { TalentFiltersComponent } from "@/components/talents/TalentFilters";
 import { TalentCard } from "@/components/talents/TalentCard";
+import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
 
 export const OwnerTalents = () => {
   const [filters, setFilters] = useState<TalentFilters>({});
+  const [selectedTalent, setSelectedTalent] = useState<TalentWithAttributes | null>(null);
   
   const { data: talents, isLoading } = useTalents(filters);
   const { data: filterOptions } = useTalentFilterOptions();
@@ -77,14 +79,18 @@ export const OwnerTalents = () => {
             <TalentCard
               key={talent.id}
               talent={talent}
-              onClick={() => {
-                // TODO: Open talent detail modal or navigate to profile
-                console.log("View talent:", talent.id);
-              }}
+              onClick={() => setSelectedTalent(talent)}
             />
           ))}
         </div>
       )}
+
+      {/* Talent detail modal */}
+      <TalentDetailDialog
+        talent={selectedTalent}
+        open={!!selectedTalent}
+        onOpenChange={(open) => !open && setSelectedTalent(null)}
+      />
     </div>
   );
 };
