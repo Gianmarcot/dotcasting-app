@@ -52,7 +52,7 @@ export const OwnerAuditions = () => {
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <h3 className="font-medium text-foreground text-lg">
+                  <h3 className="text-foreground text-lg">
                     {audition.title}
                   </h3>
                   <p className="text-sm text-muted-foreground">

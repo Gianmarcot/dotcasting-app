@@ -53,7 +53,7 @@ export const TalentApplications = () => {
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <h3 className="font-medium text-foreground">
+                  <h3 className="text-foreground">
                     {app.castingTitle}
                   </h3>
                   <p className="text-sm text-muted-foreground">{app.company}</p>

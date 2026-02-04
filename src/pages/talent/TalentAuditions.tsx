@@ -52,7 +52,7 @@ export const TalentAuditions = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-foreground">
+                    <h3 className="text-foreground">
                       {audition.title}
                     </h3>
                     <Badge className={statusColors[audition.status]}>

@@ -131,7 +131,7 @@
     @apply tracking-tight;
   }
 
-  h1, h2 {
+  h1, h2, h3, h4 {
     font-weight: 400;
     text-transform: uppercase;
     @apply tracking-wide;

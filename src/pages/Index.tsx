@@ -61,7 +61,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="h-8 w-8 text-secondary-foreground" />
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-3">
+              <h3 className="text-xl text-foreground mb-3">
                 Database Talenti
               </h3>
               <p className="text-muted-foreground">
@@ -72,7 +72,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-olive rounded-full flex items-center justify-center mx-auto mb-6">
                 <Film className="h-8 w-8 text-olive-foreground" />
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-3">
+              <h3 className="text-xl text-foreground mb-3">
                 Gestione Casting
               </h3>
               <p className="text-muted-foreground">
@@ -83,7 +83,7 @@ const Index = () => {
               <div className="w-16 h-16 bg-charcoal rounded-full flex items-center justify-center mx-auto mb-6">
                 <Target className="h-8 w-8 text-charcoal-foreground" />
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-3">
+              <h3 className="text-xl text-foreground mb-3">
                 Shortlist Smart
               </h3>
               <p className="text-muted-foreground">

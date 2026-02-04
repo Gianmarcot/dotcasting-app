@@ -64,7 +64,7 @@ export const OwnerTalents = () => {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-foreground truncate">
+                    <h3 className="text-foreground truncate">
                       {talent.name}
                     </h3>
                     <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
