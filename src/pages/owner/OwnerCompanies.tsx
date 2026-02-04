@@ -52,7 +52,7 @@ export const OwnerCompanies = () => {
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-foreground">
+          <h1 className="text-2xl text-foreground">
             {it.backoffice.companiesCRM}
           </h1>
           <p className="text-muted-foreground mt-1">

@@ -51,7 +51,7 @@ export const TalentSettings = () => {
   return (
     <div className="space-y-6 animate-fade-up max-w-3xl">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Impostazioni Account</h1>
+        <h1 className="text-2xl text-foreground">Impostazioni Account</h1>
         <p className="text-muted-foreground mt-1">
           Gestisci le impostazioni del tuo account e le preferenze
         </p>

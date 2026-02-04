@@ -50,7 +50,7 @@ export const OwnerApplications = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">
+        <h1 className="text-2xl text-foreground">
           {it.backoffice.applications}
         </h1>
         <p className="text-muted-foreground mt-1">

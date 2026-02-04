@@ -31,7 +31,7 @@ export const TalentProfile = () => {
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">Il mio Profilo</h1>
+        <h1 className="text-2xl text-foreground">Il mio Profilo</h1>
         <p className="text-muted-foreground mt-1">
           Completa il tuo profilo per aumentare le tue possibilità di essere selezionato
         </p>
