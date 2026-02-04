@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { it } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, MapPin, Video, Clock, ExternalLink } from "lucide-react";
+import { Calendar, MapPin, Video, Clock, ExternalLink, Settings2 } from "lucide-react";
 import { format, formatDistanceToNow, isPast, isFuture } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
@@ -11,6 +12,7 @@ import {
   useUpdateBookingStatus,
   AuditionBooking,
 } from "@/hooks/useAuditions";
+import { SelectAuditionSlotDialog } from "@/components/auditions/SelectAuditionSlotDialog";
 
 const statusColors: Record<string, string> = {
   invited: "bg-info/10 text-info border-info/20",
@@ -30,10 +32,11 @@ interface AuditionCardProps {
   booking: AuditionBooking;
   onConfirm: () => void;
   onDecline: () => void;
+  onSelectSlot: () => void;
   isPending: boolean;
 }
 
-const AuditionCard = ({ booking, onConfirm, onDecline, isPending }: AuditionCardProps) => {
+const AuditionCard = ({ booking, onConfirm, onDecline, onSelectSlot, isPending }: AuditionCardProps) => {
   const slot = booking.slot;
   const event = slot?.audition_event;
   const slotDate = slot ? new Date(slot.start_datetime) : null;
@@ -108,10 +111,23 @@ const AuditionCard = ({ booking, onConfirm, onDecline, isPending }: AuditionCard
                 >
                   {it.auditions.decline}
                 </Button>
-                <Button size="sm" onClick={onConfirm} disabled={isPending}>
-                  {it.auditions.confirm}
+                <Button size="sm" onClick={onSelectSlot} disabled={isPending}>
+                  <Settings2 className="h-4 w-4 mr-1" />
+                  Scegli orario
                 </Button>
               </>
+            )}
+
+            {booking.status === "confirmed" && isUpcoming && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSelectSlot}
+                disabled={isPending}
+              >
+                <Settings2 className="h-4 w-4 mr-1" />
+                Cambia orario
+              </Button>
             )}
 
             {booking.status === "confirmed" && event?.is_virtual && event.virtual_link_url && isUpcoming && (
@@ -130,6 +146,7 @@ const AuditionCard = ({ booking, onConfirm, onDecline, isPending }: AuditionCard
 };
 
 export const TalentAuditions = () => {
+  const [selectedBooking, setSelectedBooking] = useState<AuditionBooking | null>(null);
   const { data: bookings, isLoading } = useTalentAuditionBookings();
   const updateStatus = useUpdateBookingStatus();
 
@@ -141,8 +158,11 @@ export const TalentAuditions = () => {
     updateStatus.mutate({ bookingId, status: "declined" });
   };
 
+  const handleSelectSlot = (booking: AuditionBooking) => {
+    setSelectedBooking(booking);
+  };
+
   // Separate upcoming and past bookings
-  const now = new Date();
   const upcomingBookings = bookings?.filter((b) => {
     const slotDate = b.slot?.start_datetime ? new Date(b.slot.start_datetime) : null;
     return slotDate && isFuture(slotDate);
@@ -192,6 +212,7 @@ export const TalentAuditions = () => {
                 booking={booking}
                 onConfirm={() => handleConfirm(booking.id)}
                 onDecline={() => handleDecline(booking.id)}
+                onSelectSlot={() => handleSelectSlot(booking)}
                 isPending={updateStatus.isPending}
               />
             ))}
@@ -222,12 +243,20 @@ export const TalentAuditions = () => {
                 booking={booking}
                 onConfirm={() => {}}
                 onDecline={() => {}}
+                onSelectSlot={() => {}}
                 isPending={false}
               />
             ))}
           </div>
         </div>
       )}
+
+      {/* Select Slot Dialog */}
+      <SelectAuditionSlotDialog
+        open={!!selectedBooking}
+        onOpenChange={(open) => !open && setSelectedBooking(null)}
+        booking={selectedBooking}
+      />
     </div>
   );
 };
