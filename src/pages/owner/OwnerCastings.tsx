@@ -1,49 +1,133 @@
+import { useState } from "react";
 import { it } from "@/lib/i18n";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Plus, MoreVertical, Calendar, MapPin, Euro } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
-const mockCastings = [
-  {
-    id: "1",
-    title: "Modella per Campagna Beauty",
-    company: "Beauty Brand Srl",
-    status: "active",
-    applicationsCount: 24,
-    locations: ["Milano"],
-    compensation: 900,
-    dates: "12-14 Mar 2025",
-  },
-  {
-    id: "2",
-    title: "Attrice per Spot Fashion",
-    company: "Fashion House",
-    status: "active",
-    applicationsCount: 18,
-    locations: ["Milano"],
-    compensation: 1200,
-    dates: "20-22 Mar 2025",
-  },
-  {
-    id: "3",
-    title: "Ballerina per Spot Fitness",
-    company: "Fitness Co",
-    status: "draft",
-    applicationsCount: 0,
-    locations: ["Roma"],
-    compensation: 1500,
-    dates: "01-03 Apr 2025",
-  },
-];
+import { CastingCard } from "@/components/castings/CastingCard";
+import { CastingFilters } from "@/components/castings/CastingFilters";
+import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
+import { DeleteCastingDialog } from "@/components/castings/DeleteCastingDialog";
 
-const statusColors: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-success/20 text-success",
-  closed: "bg-destructive/20 text-destructive",
-};
+import {
+  useCastings,
+  useCreateCasting,
+  useUpdateCasting,
+  useUpdateCastingStatus,
+  useDeleteCasting,
+  type CastingWithRelations,
+} from "@/hooks/useCastings";
 
 export const OwnerCastings = () => {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchFilter, setSearchFilter] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedCasting, setSelectedCasting] = useState<CastingWithRelations | null>(null);
+
+  const { data: castings, isLoading } = useCastings({
+    status: statusFilter,
+    search: searchFilter,
+  });
+
+  const createMutation = useCreateCasting();
+  const updateMutation = useUpdateCasting();
+  const statusMutation = useUpdateCastingStatus();
+  const deleteMutation = useDeleteCasting();
+
+  const handleCreate = () => {
+    setSelectedCasting(null);
+    setFormOpen(true);
+  };
+
+  const handleEdit = (casting: CastingWithRelations) => {
+    setSelectedCasting(casting);
+    setFormOpen(true);
+  };
+
+  const handleDelete = (casting: CastingWithRelations) => {
+    setSelectedCasting(casting);
+    setDeleteOpen(true);
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    try {
+      await statusMutation.mutateAsync({ id, status });
+      toast({
+        title: "Stato aggiornato",
+        description: `Il casting è ora "${it.casting[status as keyof typeof it.casting] || status}"`,
+      });
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile aggiornare lo stato",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFormSubmit = async (data: Record<string, unknown>) => {
+    try {
+      const castingData = {
+        title: data.title as string,
+        description: (data.description as string) || null,
+        category: (data.category as string) || null,
+        company_id: (data.company_id as string) || null,
+        locations: data.locations 
+          ? (data.locations as string).split(",").map((l) => l.trim()).filter(Boolean)
+          : null,
+        start_date: (data.start_date as string) || null,
+        end_date: (data.end_date as string) || null,
+        compensation_amount: data.compensation_amount 
+          ? parseFloat(data.compensation_amount as string) 
+          : null,
+        compensation_type: (data.compensation_type as string) || null,
+        currency: (data.currency as string) || "EUR",
+      };
+
+      if (selectedCasting) {
+        await updateMutation.mutateAsync({ id: selectedCasting.id, ...castingData });
+        toast({
+          title: "Casting aggiornato",
+          description: "Le modifiche sono state salvate",
+        });
+      } else {
+        await createMutation.mutateAsync({ ...castingData, status: "draft" });
+        toast({
+          title: "Casting creato",
+          description: "Il nuovo casting è stato salvato come bozza",
+        });
+      }
+      setFormOpen(false);
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il casting",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedCasting) return;
+
+    try {
+      await deleteMutation.mutateAsync(selectedCasting.id);
+      toast({
+        title: "Casting eliminato",
+        description: "Il casting è stato eliminato con successo",
+      });
+      setDeleteOpen(false);
+    } catch (error) {
+      toast({
+        title: "Errore",
+        description: "Impossibile eliminare il casting",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
@@ -55,62 +139,61 @@ export const OwnerCastings = () => {
             Gestisci i casting della piattaforma
           </p>
         </div>
-        <Button>
+        <Button onClick={handleCreate}>
           <Plus className="h-4 w-4 mr-2" />
           {it.backoffice.createCasting}
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {mockCastings.map((casting) => (
-          <Card key={casting.id} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-foreground text-lg">
-                      {casting.title}
-                    </h3>
-                    <Badge className={statusColors[casting.status]}>
-                      {it.casting[casting.status as keyof typeof it.casting]}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {casting.company}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {casting.locations.join(", ")}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {casting.dates}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Euro className="h-4 w-4" />
-                      {casting.compensation}
-                    </span>
-                  </div>
-                </div>
+      <CastingFilters
+        status={statusFilter}
+        search={searchFilter}
+        onStatusChange={setStatusFilter}
+        onSearchChange={setSearchFilter}
+      />
 
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="text-2xl font-semibold text-foreground">
-                      {casting.applicationsCount}
-                    </p>
-                    <p className="text-xs text-muted-foreground">candidature</p>
-                  </div>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-4">
+        {isLoading ? (
+          <>
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+          </>
+        ) : castings && castings.length > 0 ? (
+          castings.map((casting) => (
+            <CastingCard
+              key={casting.id}
+              casting={casting}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onStatusChange={handleStatusChange}
+            />
+          ))
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Nessun casting trovato</p>
+            <Button variant="link" onClick={handleCreate}>
+              Crea il tuo primo casting
+            </Button>
+          </div>
+        )}
       </div>
+
+      <CastingFormDialog
+        casting={selectedCasting}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        onSubmit={handleFormSubmit}
+        isSubmitting={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <DeleteCastingDialog
+        casting={selectedCasting}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={deleteMutation.isPending}
+      />
     </div>
   );
 };
