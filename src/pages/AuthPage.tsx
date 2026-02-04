@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,19 @@ export const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !authLoading && userRole) {
+      if (userRole === "owner" || userRole === "admin") {
+        navigate("/owner", { replace: true });
+      } else {
+        navigate("/talent", { replace: true });
+      }
+    }
+  }, [user, userRole, authLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,23 +54,27 @@ export const AuthPage = () => {
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Credenziali non valide. Verifica email e password.");
+          } else if (error.message.includes("Email not confirmed")) {
+            toast.error("Email non confermata. Controlla la tua casella di posta.");
           } else {
             toast.error(error.message);
           }
         } else {
           toast.success("Accesso effettuato!");
-          navigate("/talent");
+          // Navigation will happen via useEffect when user state updates
         }
       } else {
         const { error } = await signUp(email, password);
         if (error) {
-          if (error.message.includes("already registered")) {
+          if (error.message.includes("already registered") || error.message.includes("User already registered")) {
             toast.error("Questa email è già registrata. Prova ad accedere.");
+            setIsLogin(true);
           } else {
             toast.error(error.message);
           }
         } else {
-          toast.success("Registrazione completata! Controlla la tua email per confermare l'account.");
+          toast.success("Registrazione completata! Puoi ora accedere.");
+          // With auto-confirm, the user will be logged in automatically via onAuthStateChange
         }
       }
     } catch (error) {
@@ -68,6 +83,18 @@ export const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Caricamento...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
