@@ -21,14 +21,14 @@ interface ApplicationFiltersProps {
   };
 }
 
-const statusFilters: { value: ApplicationStatus | "all"; label: string; icon?: React.ElementType; color?: string }[] = [
+const statusFilters: { value: ApplicationStatus | "all"; label: string; icon?: React.ElementType }[] = [
   { value: "all", label: "Tutte" },
-  { value: "submitted", label: "Inviate", icon: Send, color: "text-info" },
-  { value: "shortlisted", label: "Selezionate", icon: Star, color: "text-success" },
-  { value: "hold", label: "In attesa", icon: Clock, color: "text-warning" },
-  { value: "callback", label: "Callback", icon: Phone, color: "text-secondary" },
-  { value: "booked", label: "Confermate", icon: CheckCircle, color: "text-primary" },
-  { value: "rejected", label: "Rifiutate", icon: X, color: "text-destructive" },
+  { value: "submitted", label: "Inviate", icon: Send },
+  { value: "shortlisted", label: "Selezionate", icon: Star },
+  { value: "hold", label: "In attesa", icon: Clock },
+  { value: "callback", label: "Callback", icon: Phone },
+  { value: "booked", label: "Confermate", icon: CheckCircle },
+  { value: "rejected", label: "Rifiutate", icon: X },
 ];
 
 export const ApplicationFilters = ({
@@ -53,7 +53,7 @@ export const ApplicationFilters = ({
 
       {/* Status filter tabs */}
       <div className="flex flex-wrap gap-2">
-        {statusFilters.map(({ value, label, icon: Icon, color }) => {
+        {statusFilters.map(({ value, label, icon: Icon }) => {
           const isActive = statusFilter === value;
           const count = value === "all" ? stats?.total : stats?.[value];
 
@@ -65,7 +65,7 @@ export const ApplicationFilters = ({
               onClick={() => onStatusFilterChange(value)}
               className="gap-2"
             >
-              {Icon && <Icon className={`h-4 w-4 ${isActive ? "" : color}`} />}
+              {Icon && <Icon className="h-4 w-4" />}
               {label}
               {count !== undefined && count > 0 && (
                 <Badge 
