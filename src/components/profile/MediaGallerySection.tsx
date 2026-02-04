@@ -29,7 +29,7 @@ export const MediaGallerySection = () => {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="text-lg font-medium flex items-center gap-2">
-            <ImageIcon className="h-5 w-5 text-muted-foreground" />
+            <ImageIcon className="h-5 w-5" />
             Galleria Media
           </CardTitle>
           <MediaUploadButton disabled={isLoading} />
