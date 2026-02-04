@@ -44,7 +44,7 @@
     --input: 40 15% 85%;
     --ring: 345 65% 35%;
 
-    --radius: 0.5rem;
+    --radius: 1.5rem;
 
     /* Sidebar */
     --sidebar-background: 40 25% 97%;
@@ -69,8 +69,7 @@
     --olive-foreground: 40 25% 97%;
     --charcoal: 220 10% 25%;
     --charcoal-foreground: 40 25% 97%;
-    --font-sans:
-      "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
   }
 
@@ -116,9 +115,9 @@
     --olive-foreground: 220 15% 10%;
     --charcoal: 40 20% 85%;
     --charcoal-foreground: 220 15% 10%;
-    --font-sans:
-      "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
+    --radius: 1.5rem;
   }
 }
 
