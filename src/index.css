@@ -69,7 +69,9 @@
     --olive-foreground: 40 25% 97%;
     --charcoal: 220 10% 25%;
     --charcoal-foreground: 40 25% 97%;
-    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+    --font-sans:
+      "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+      Noto Color Emoji;
   }
 
   .dark {
@@ -114,7 +116,9 @@
     --olive-foreground: 220 15% 10%;
     --charcoal: 40 20% 85%;
     --charcoal-foreground: 220 15% 10%;
-    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+    --font-sans:
+      "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
+      Noto Color Emoji;
   }
 }
 
@@ -125,16 +129,24 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "DM Sans", system-ui, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Tenor Sans', serif;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Tenor Sans", serif;
     @apply tracking-tight;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-weight: 400;
     text-transform: uppercase;
     @apply tracking-wide;
