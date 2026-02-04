@@ -26,7 +26,7 @@ const Index = () => {
       {/* Hero */}
       <section className="pt-32 pb-20 px-6">
         <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-5xl sm:text-6xl font-semibold text-foreground leading-tight mb-6">
+          <h1 className="text-5xl sm:text-6xl text-foreground leading-tight mb-6">
             La piattaforma di casting
             <span className="text-primary"> più elegante</span> d'Italia
           </h1>
@@ -53,7 +53,7 @@ const Index = () => {
       {/* Features */}
       <section className="py-20 px-6 bg-card">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl font-semibold text-foreground text-center mb-12">
+          <h2 className="text-3xl text-foreground text-center mb-12">
             Tutto ciò di cui hai bisogno
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -97,7 +97,7 @@ const Index = () => {
       {/* CTA */}
       <section className="py-20 px-6">
         <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-semibold text-foreground mb-6">
+          <h2 className="text-3xl text-foreground mb-6">
             Pronto a iniziare?
           </h2>
           <p className="text-lg text-muted-foreground mb-8">

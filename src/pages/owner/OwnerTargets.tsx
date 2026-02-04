@@ -6,7 +6,7 @@ export const OwnerTargets = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl font-semibold text-foreground">
+        <h1 className="text-2xl text-foreground">
           {it.backoffice.targets}
         </h1>
         <p className="text-muted-foreground mt-1">

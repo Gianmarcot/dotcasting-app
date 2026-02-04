@@ -52,7 +52,7 @@ export const TalentDashboard = () => {
           <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">
             {it.dashboard.welcome}
           </p>
-          <h1 className="text-4xl font-semibold text-foreground capitalize">
+          <h1 className="text-4xl text-foreground capitalize">
             {userName}
           </h1>
         </div>
