@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import logo from "@/assets/logo.png";
 
 const navItems = [
   { icon: Home, label: it.nav.home, href: "/talent" },
@@ -35,9 +36,8 @@ export const TalentSidebar = () => {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6">
-        <Link to="/talent" className="flex items-center gap-1">
-          <span className="text-muted-foreground text-sm">dot</span>
-          <span className="text-xl font-semibold text-foreground">Casting</span>
+        <Link to="/talent" className="flex items-center">
+          <img src={logo} alt="dotCasting" className="h-7" />
         </Link>
       </div>
 
