@@ -132,7 +132,9 @@
   }
 
   h1, h2 {
-    @apply uppercase font-normal tracking-wide;
+    font-weight: 400;
+    text-transform: uppercase;
+    @apply tracking-wide;
   }
 }
 
