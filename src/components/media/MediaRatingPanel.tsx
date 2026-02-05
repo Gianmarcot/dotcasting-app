@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, Save, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Save, Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import {
   type MediaRating,
 } from "@/hooks/useMediaRatings";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface MediaRatingPanelProps {
   mediaId: string;
@@ -19,6 +20,8 @@ interface MediaRatingPanelProps {
   // Navigation props
   currentIndex?: number;
   totalCount?: number;
+  ratedCount?: number;
+  isCurrentRated?: boolean;
   onPrevious?: () => void;
   onNext?: () => void;
 }
@@ -29,6 +32,8 @@ export const MediaRatingPanel = ({
   onSaved,
   currentIndex,
   totalCount,
+  ratedCount = 0,
+  isCurrentRated = false,
   onPrevious,
   onNext,
 }: MediaRatingPanelProps) => {
@@ -138,26 +143,41 @@ export const MediaRatingPanel = ({
     <div className="space-y-4">
       {/* Navigation header */}
       {showNavigation && (
-        <div className="flex items-center justify-between pb-3 border-b border-border">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onPrevious}
-            className="h-8 w-8"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {currentIndex + 1} / {totalCount}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onNext}
-            className="h-8 w-8"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+        <div className="space-y-2 pb-3 border-b border-border">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onPrevious}
+              className="h-8 w-8"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex items-center gap-2">
+              {isCurrentRated && (
+                <Check className="h-4 w-4 text-primary" />
+              )}
+              <span className={cn(
+                "text-sm",
+                isCurrentRated ? "text-foreground font-medium" : "text-muted-foreground"
+              )}>
+                {currentIndex + 1} / {totalCount}
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onNext}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
+          {/* Rating progress indicator */}
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <Star className="h-3 w-3" />
+            <span>{ratedCount} di {totalCount} valutate</span>
+          </div>
         </div>
       )}
 
