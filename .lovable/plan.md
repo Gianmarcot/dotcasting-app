@@ -1,119 +1,216 @@
 
-## Piano: Semplificazione Header Messaggistica e Uniformità Sfondo
+
+## Piano: Sistema di Rating e Tag per Immagini Talent
 
 ### Panoramica
-Sostituire l'header attuale ("Centro messaggi" + sottotitolo) con il semplice titolo "Conversazioni" già presente nella sidebar, e rimuovere la Card wrapper per rendere il contenuto uniforme allo sfondo bianco del layout.
+Implementare un sistema che permetta agli Owner di valutare (rating da 1 a 5 stelle) e taggare le immagini/video dei Talent. Questo sistema sara' visibile solo agli Owner e permettera' di organizzare e filtrare il portfolio dei talent in base alla qualita' e ai tag assegnati.
 
 ---
 
-### Analisi Attuale
+### Architettura del Sistema
 
-**OwnerMessages.tsx (righe 61-71):**
-```tsx
-<div className="flex items-center justify-between mb-4">
-  <div>
-    <h1 className="text-2xl text-foreground">{it.backoffice.messagingCenter}</h1>
-    <p className="text-muted-foreground mt-1">Comunicazioni con i talenti</p>
-  </div>
-  <Button onClick={() => setNewThreadOpen(true)}>
-    <Plus className="h-4 w-4 mr-2" />
-    {it.messages.newMessage}
-  </Button>
-</div>
-```
-
-**TalentMessages.tsx (righe 54-58):**
-```tsx
-<div className="mb-4">
-  <h1 className="text-2xl text-foreground">{it.messages.title}</h1>
-  <p className="text-muted-foreground mt-1">Comunicazioni con la piattaforma</p>
-</div>
-```
-
-Il contenuto è avvolto in una `<Card>` che crea una distinzione visiva non necessaria dato che il layout padre (`OwnerLayout`) ha già uno sfondo bianco (`bg-white`).
+Il sistema di rating e tagging sara' separato dalla tabella `talent_media` per:
+1. Mantenere la separazione delle responsabilita' (media del talent vs valutazioni dell'owner)
+2. Permettere a diversi owner di avere valutazioni diverse
+3. Facilitare query e filtri
 
 ---
 
-### Modifiche Previste
+### 1. Modifiche al Database
 
-#### 1. OwnerMessages.tsx
+#### Nuova Tabella: `media_ratings`
 
-| Elemento | Modifica |
-|----------|----------|
-| Header principale | Rimuovere completamente (righe 61-71) |
-| Titolo "Conversazioni" nella sidebar | Aggiungere il pulsante "+" accanto |
-| Card wrapper | Rimuovere e usare un semplice `div` senza bordi/shadow |
-| Bordi interni | Mantenere solo `border-r` per separare lista da conversazione |
+| Colonna | Tipo | Descrizione |
+|---------|------|-------------|
+| `id` | uuid | Chiave primaria |
+| `media_id` | uuid | FK a talent_media.id |
+| `owner_user_id` | uuid | ID dell'owner che ha valutato |
+| `rating` | integer | Valore da 1 a 5 (stelle) |
+| `tags` | text[] | Array di tag assegnati |
+| `notes` | text | Note private dell'owner |
+| `created_at` | timestamp | Data creazione |
+| `updated_at` | timestamp | Ultimo aggiornamento |
 
-**Nuovo header sidebar (riga 78-80):**
-```tsx
-<div className="p-3 border-b flex items-center justify-between">
-  <h2 className="font-medium text-lg">Conversazioni</h2>
-  <Button size="icon" variant="ghost" onClick={() => setNewThreadOpen(true)}>
-    <Plus className="h-5 w-5" />
-  </Button>
-</div>
-```
-
-#### 2. TalentMessages.tsx
-
-| Elemento | Modifica |
-|----------|----------|
-| Header principale | Rimuovere completamente (righe 54-58) |
-| Titolo "Conversazioni" nella sidebar | Ingrandire leggermente per coerenza |
-| Card wrapper | Rimuovere e usare un semplice `div` |
-
----
-
-### Dettagli Tecnici
-
-**Container principale (entrambi i file):**
-```tsx
-// Da:
-<div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-up">
-  {/* Header rimosso */}
-  <Card className="flex-1 flex overflow-hidden border-0 shadow-sm">
-
-// A:
-<div className="h-[calc(100vh-6rem)] flex animate-fade-up">
-  {/* Nessun Card wrapper, direttamente il contenuto */}
-```
-
-**Layout uniforme:**
-- Rimuovere `<Card>` e usare `<div className="flex-1 flex overflow-hidden">`
-- Lo sfondo sarà automaticamente quello del layout padre (bianco)
-- Mantenere `border-r` sulla lista thread per separazione visiva
-- Regolare l'altezza per occupare più spazio verticale senza header
-
----
-
-### File da Modificare
-
-| File | Modifiche |
-|------|-----------|
-| `src/pages/owner/OwnerMessages.tsx` | Rimuovere header, rimuovere Card, spostare pulsante + nella sidebar |
-| `src/pages/talent/TalentMessages.tsx` | Rimuovere header, rimuovere Card |
-
----
-
-### Risultato Visivo Atteso
+#### RLS Policies
 
 ```text
-┌────────────────────────────────────────────────────────────────┐
-│ Conversazioni                [+]│                              │
-│─────────────────────────────────│                              │
-│ 👤 Mario Rossi          14:32  │    Seleziona una             │
-│    Fashion Week Milano          │    conversazione              │
-│    Ultimo messaggio...          │                              │
-│─────────────────────────────────│    o iniziane una nuova      │
-│ 👤 Laura Bianchi        Ieri   │                              │
-│    Casting XYZ                  │                              │
-│    Grazie per...                │                              │
-│                                 │                              │
-└─────────────────────────────────┴──────────────────────────────┘
+- Solo Owner/Admin possono creare, leggere, modificare ed eliminare rating
+- Ogni owner vede solo i propri rating
+- Constraint UNIQUE su (media_id, owner_user_id) per evitare duplicati
 ```
 
-- Sfondo uniforme bianco (come il resto del layout)
-- Titolo "Conversazioni" come unico header
-- Pulsante "+" integrato nell'header della lista (solo Owner)
-- Nessuna Card/bordo esterno, solo divisore verticale tra lista e messaggi
+---
+
+### 2. Nuovi Hook React
+
+#### `src/hooks/useMediaRatings.ts`
+
+| Hook | Descrizione |
+|------|-------------|
+| `useMediaRating(mediaId)` | Recupera rating e tag per un singolo media |
+| `useMediaRatingsForProfile(profileId)` | Recupera tutti i rating per i media di un talent |
+| `useSaveMediaRating` | Salva/aggiorna rating, tag e note |
+| `useDeleteMediaRating` | Elimina un rating |
+
+---
+
+### 3. Componenti UI
+
+#### 3.1 Componente Rating con Stelle
+
+**File:** `src/components/media/MediaRatingStars.tsx`
+
+```text
+┌─────────────────────────────────────┐
+│  ★ ★ ★ ★ ☆    Valutazione: 4/5     │
+│  (Click su stella per modificare)   │
+└─────────────────────────────────────┘
+```
+
+- 5 stelle cliccabili
+- Stato hover per preview
+- Indicatore visivo della valutazione corrente
+
+#### 3.2 Componente Tag Editor
+
+**File:** `src/components/media/MediaTagEditor.tsx`
+
+```text
+┌─────────────────────────────────────────────────────┐
+│ Tags: [Fashion] [Portrait] [Outdoor] [+ Aggiungi]  │
+│                                                     │
+│ ┌───────────────────────────────────────────────┐  │
+│ │ Digita un tag e premi Invio...                │  │
+│ └───────────────────────────────────────────────┘  │
+│                                                     │
+│ Suggerimenti: Beauty, Runway, Commercial, Sporty   │
+└─────────────────────────────────────────────────────┘
+```
+
+- Input per aggiungere nuovi tag
+- Tag esistenti come badge rimovibili
+- Suggerimenti basati su tag usati frequentemente
+
+#### 3.3 Componente Rating Panel Completo
+
+**File:** `src/components/media/MediaRatingPanel.tsx`
+
+Pannello che combina rating, tag e note:
+
+```text
+┌─────────────────────────────────────────────────────┐
+│ Valutazione Owner                              [X]  │
+│─────────────────────────────────────────────────────│
+│                                                     │
+│ Rating:  ★ ★ ★ ★ ☆                                 │
+│                                                     │
+│ Tags:                                               │
+│ [Fashion] [Portrait] [+ Aggiungi tag]              │
+│                                                     │
+│ Note private:                                       │
+│ ┌───────────────────────────────────────────────┐  │
+│ │ Ottima luce, posa naturale. Utile per...      │  │
+│ └───────────────────────────────────────────────┘  │
+│                                                     │
+│              [Salva]    [Annulla]                   │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+### 4. Integrazione nella UI Esistente
+
+#### 4.1 MediaGridItem (Vista Owner)
+
+Aggiungere overlay con rating visibile nella griglia:
+
+```text
+┌─────────────────────────────┐
+│                             │
+│      [Immagine Talent]      │
+│                             │
+│───────────────────────────│
+│ ★★★★☆  [Fashion][Portrait] │ <- Overlay bottom
+└─────────────────────────────┘
+```
+
+**Modifiche a `MediaGridItem.tsx`:**
+- Prop opzionale `showOwnerRating?: boolean`
+- Mostrare mini stelle e tag in overlay
+- Click su overlay apre il pannello rating
+
+#### 4.2 MediaLightbox (Vista Owner)
+
+Aggiungere pannello laterale nel lightbox per Owner:
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ [<]                         [IMMAGINE GRANDE]                          [>]  │
+│                                                                              │
+│                             ┌───────────────────┐                           │
+│                             │ Valutazione       │                           │
+│                             │ ★★★★☆            │                           │
+│                             │                   │                           │
+│                             │ Tags:             │                           │
+│                             │ [Fashion]         │                           │
+│                             │ [Portrait]        │                           │
+│                             │                   │                           │
+│                             │ Note:             │                           │
+│                             │ Ottima luce...    │                           │
+│                             └───────────────────┘                           │
+│                                                                              │
+│                              1 / 12                                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+**Modifiche a `MediaLightbox.tsx`:**
+- Prop opzionale `isOwnerView?: boolean`
+- Pannello laterale con rating/tag/note
+- Auto-save al cambio di immagine
+
+---
+
+### 5. File da Creare/Modificare
+
+| Operazione | File | Descrizione |
+|------------|------|-------------|
+| **CREATE** | `supabase/migrations/xxx_create_media_ratings.sql` | Tabella e RLS |
+| **CREATE** | `src/hooks/useMediaRatings.ts` | Hook per CRUD rating |
+| **CREATE** | `src/components/media/MediaRatingStars.tsx` | Componente stelle |
+| **CREATE** | `src/components/media/MediaTagEditor.tsx` | Editor tag |
+| **CREATE** | `src/components/media/MediaRatingPanel.tsx` | Pannello completo |
+| **MODIFY** | `src/components/profile/MediaGridItem.tsx` | Aggiungere overlay rating (Owner) |
+| **MODIFY** | `src/components/profile/MediaLightbox.tsx` | Aggiungere pannello laterale (Owner) |
+| **MODIFY** | `src/components/profile/MediaGallerySection.tsx` | Passare props Owner |
+| **MODIFY** | `src/components/talents/TalentDetailDialog.tsx` | Abilitare rating nella galleria |
+
+---
+
+### 6. Tag Suggeriti (Preimpostati)
+
+Lista di tag comuni che verranno suggeriti agli owner:
+
+```text
+Categoria Stile:
+- Fashion, Beauty, Commercial, Editorial, Runway, Sporty, Casual, Glamour
+
+Categoria Tecnica:
+- Portrait, Full-body, Close-up, Profile, Action, Lifestyle
+
+Categoria Ambiente:
+- Studio, Outdoor, Indoor, Urban, Nature, Beach
+
+Categoria Qualita':
+- Top Pick, Portfolio, Social, Web Only
+```
+
+---
+
+### Risultato Atteso
+
+1. Gli Owner possono valutare ogni media dei Talent con 1-5 stelle
+2. Gli Owner possono assegnare tag multipli ad ogni immagine
+3. Gli Owner possono aggiungere note private
+4. Le valutazioni sono visibili nella griglia e nel lightbox
+5. Sistema pronto per future feature di filtro/ricerca per rating/tag
+
