@@ -39,7 +39,7 @@ export const OwnerSidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card border-r border-border flex flex-col">
+    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card flex flex-col">
       {/* Logo */}
       <div className="p-6 flex items-center justify-between">
         <Link to="/owner" className="flex items-center gap-3">
@@ -76,7 +76,8 @@ export const OwnerSidebar = () => {
       </nav>
 
       {/* User section */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4">
+        <div className="border-t border-border mx-2 -mt-4 mb-4" />
         <div className="flex items-center gap-3 mb-3 px-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-primary text-primary-foreground text-sm">
