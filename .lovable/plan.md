@@ -1,105 +1,284 @@
 
 
-## Piano: Ridisposizione Pulsanti nel Dialog Talent
+## Piano: Implementazione Gestione Target con Criteri di Ricerca e Matching Automatico
 
-### Problema Attuale
-I tre pulsanti (Modifica, Invita, Esporta PDF) sono posizionati nell'header del dialog accanto al nome del talent. Quando lo spazio orizzontale è limitato, i pulsanti si sovrappongono al contenuto.
+### Panoramica
+Implementare un sistema completo di Target che permetta agli Owner di:
+1. Creare target di ricerca con criteri strutturati per ogni casting
+2. Salvare i criteri come template riutilizzabili
+3. Eseguire matching automatico dei talenti in base ai criteri
+4. Gestire shortlist manuali per ogni target
 
 ---
 
-### Soluzione Proposta
-Spostare i pulsanti in una sezione dedicata sotto l'header, disponendoli in modo che si adattino meglio allo spazio disponibile.
+### Architettura del Sistema
 
----
-
-### Modifiche
-
-**File: `src/components/talents/TalentDetailDialog.tsx`**
-
-#### Layout Attuale (Problematico)
-
-```
-┌─────────────────────────────────────────────────┐
-│ [Avatar]  Nome Cognome      [Mod] [Inv] [Exp]   │
-│           📍 Città, Paese                       │
-│           [Badge] [Badge] [Badge]               │
-└─────────────────────────────────────────────────┘
-```
-
-#### Layout Proposto
-
-```
-┌─────────────────────────────────────────────────┐
-│ [Avatar]  Nome Cognome                          │
-│           📍 Città, Paese                       │
-│           [Badge] [Badge] [Badge]               │
-│                                                 │
-│ [Modifica]    [Invita]    [Esporta PDF]         │
-└─────────────────────────────────────────────────┘
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                         CASTING                                  │
+│                           │                                      │
+│           ┌───────────────┼───────────────┐                      │
+│           ▼               ▼               ▼                      │
+│      [TARGET 1]      [TARGET 2]      [TARGET N]                  │
+│         │               │               │                        │
+│    criteria_json   criteria_json   criteria_json                 │
+│         │               │               │                        │
+│         ▼               ▼               ▼                        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐               │
+│  │  MATCHING   │  │  MATCHING   │  │  MATCHING   │               │
+│  │  TALENTI    │  │  TALENTI    │  │  TALENTI    │               │
+│  └─────────────┘  └─────────────┘  └─────────────┘               │
+│         │               │               │                        │
+│         ▼               ▼               ▼                        │
+│    [SHORTLIST]     [SHORTLIST]     [SHORTLIST]                   │
+│  (selezione manuale)                                             │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-### Dettagli Implementazione
+### 1. Database Schema
 
-1. **Rimuovere i pulsanti dall'header** (righe 135-163)
-   - Eliminare il div contenitore dei pulsanti dalla sezione `justify-between`
+**Nuova tabella: `casting_targets`**
 
-2. **Creare una nuova sezione pulsanti** dopo l'header
-   - Posizionare i pulsanti in una riga separata sotto le informazioni di base
-   - Utilizzare `flex flex-wrap gap-2` per adattarsi a diverse dimensioni schermo
-   - Aggiungere margine superiore per separazione visiva
+| Colonna | Tipo | Descrizione |
+|---------|------|-------------|
+| id | uuid | Primary key |
+| casting_id | uuid | FK -> castings.id |
+| name | text | Nome del target (es. "Modella 20-25 anni") |
+| description | text | Descrizione opzionale |
+| criteria_json | jsonb | Criteri di filtraggio strutturati |
+| created_at | timestamp | Data creazione |
+| updated_at | timestamp | Data modifica |
+| created_by_user_id | uuid | Chi ha creato il target |
 
-3. **Struttura JSX aggiornata**:
+**Nuova tabella: `target_shortlist`**
 
-```tsx
-{/* Header with photo and name */}
-<div className="flex items-start gap-4">
-  <Avatar className="h-20 w-20">...</Avatar>
-  <div className="flex-1 min-w-0">
-    <h2 className="text-xl font-medium text-foreground">{fullName}</h2>
-    {location && (
-      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-        <MapPin className="h-3 w-3" />
-        {location}
-      </p>
-    )}
-    {/* Categories */}
-    {talent.talent_categories && ...}
-  </div>
-</div>
+| Colonna | Tipo | Descrizione |
+|---------|------|-------------|
+| id | uuid | Primary key |
+| target_id | uuid | FK -> casting_targets.id |
+| profile_id | uuid | FK -> profiles.id (il talent) |
+| status | text | 'pending' / 'contacted' / 'confirmed' / 'rejected' |
+| notes | text | Note dell'owner sul talent |
+| added_at | timestamp | Quando aggiunto alla shortlist |
+| added_by_user_id | uuid | Chi ha aggiunto |
 
-{/* Action buttons - nuova sezione */}
-<div className="flex flex-wrap gap-2 pt-4 pb-2">
-  <Button variant="default" size="sm" onClick={...}>
-    <Pencil className="h-4 w-4 mr-2" />
-    Modifica
-  </Button>
-  <Button variant="outline" size="sm" onClick={...}>
-    <Send className="h-4 w-4 mr-2" />
-    Invita
-  </Button>
-  <Button variant="outline" size="sm" onClick={...}>
-    <Download className="h-4 w-4 mr-2" />
-    Esporta PDF
-  </Button>
-</div>
+**Struttura `criteria_json`:**
+
+```json
+{
+  "gender": ["M", "F"],
+  "age_min": 18,
+  "age_max": 30,
+  "cities": ["Milano", "Roma"],
+  "categories": ["Modello/Modella", "Attore/Attrice"],
+  "height_min": 170,
+  "height_max": 185,
+  "hair_colors": ["Biondo", "Castano"],
+  "eye_colors": ["Azzurri", "Verdi"],
+  "skills": ["Nuoto", "Danza classica"],
+  "languages": ["Inglese", "Francese"],
+  "has_tattoos": false,
+  "has_piercings": false
+}
 ```
 
 ---
 
-### File da Modificare
+### 2. RLS Policies
 
-| File | Modifica |
+```sql
+-- casting_targets: Solo Owner/Admin possono gestire
+CREATE POLICY "Owners can manage casting targets"
+ON public.casting_targets FOR ALL
+USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
+
+-- target_shortlist: Solo Owner/Admin possono gestire
+CREATE POLICY "Owners can manage shortlists"
+ON public.target_shortlist FOR ALL
+USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
+```
+
+---
+
+### 3. Componenti Frontend
+
+#### 3.1 Pagina OwnerTargets Ristrutturata
+
+**Flusso UI:**
+1. Lista casting attivi con conteggio target per ciascuno
+2. Click su casting -> mostra i target associati
+3. Possibilita' di creare nuovo target per il casting selezionato
+4. Per ogni target: visualizza criteri, numero match, shortlist
+
+#### 3.2 Nuovi Componenti
+
+| Componente | Descrizione |
+|------------|-------------|
+| `CastingTargetsList.tsx` | Lista dei target per un casting |
+| `CreateTargetDialog.tsx` | Dialog per creare/modificare un target |
+| `TargetCriteriaForm.tsx` | Form multi-step per definire i criteri |
+| `TargetMatchResults.tsx` | Visualizza talenti che matchano i criteri |
+| `TargetShortlist.tsx` | Gestione della shortlist manuale |
+| `ShortlistTalentCard.tsx` | Card talent nella shortlist con status/note |
+
+#### 3.3 Struttura Pagina
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│  TARGET E SHORTLIST                                        │
+│  Gestisci i target di ricerca per i tuoi casting           │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│  [Dropdown: Seleziona Casting]                             │
+│                                                            │
+├────────────────────────────────────────────────────────────┤
+│  TARGET PER "NOME CASTING"                [+ Nuovo Target] │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Target: Modella 20-25 anni                           │  │
+│  │ Criteri: F, 20-25 anni, Milano/Roma, 170-180cm       │  │
+│  │ Match: 45 talenti  |  Shortlist: 8 talenti           │  │
+│  │ [Vedi Match] [Gestisci Shortlist] [Modifica] [...]   │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                            │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │ Target: Attore giovane                               │  │
+│  │ Criteri: M, 25-35 anni, skills: Recitazione          │  │
+│  │ Match: 23 talenti  |  Shortlist: 5 talenti           │  │
+│  │ [Vedi Match] [Gestisci Shortlist] [Modifica] [...]   │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 4. Hooks React
+
+| Hook | Funzione |
 |------|----------|
-| `src/components/talents/TalentDetailDialog.tsx` | Riposizionare i pulsanti in sezione dedicata |
+| `useTargets(castingId)` | Fetch target per un casting |
+| `useCreateTarget()` | Mutation per creare target |
+| `useUpdateTarget()` | Mutation per modificare target |
+| `useDeleteTarget()` | Mutation per eliminare target |
+| `useTargetMatches(targetId)` | Esegue matching e ritorna talenti |
+| `useShortlist(targetId)` | Fetch shortlist per un target |
+| `useAddToShortlist()` | Aggiunge talent a shortlist |
+| `useRemoveFromShortlist()` | Rimuove talent da shortlist |
+| `useUpdateShortlistStatus()` | Aggiorna status nella shortlist |
+
+---
+
+### 5. Logica di Matching
+
+Il matching avviene lato client per flessibilita', utilizzando la funzione esistente `useTalents` come base:
+
+```typescript
+// Pseudocodice della logica di matching
+function matchTalentsWithCriteria(talents, criteria) {
+  return talents.filter(talent => {
+    // Genere
+    if (criteria.gender?.length && !criteria.gender.includes(talent.gender)) 
+      return false;
+    
+    // Eta'
+    const age = calculateAge(talent.birth_date);
+    if (criteria.age_min && age < criteria.age_min) return false;
+    if (criteria.age_max && age > criteria.age_max) return false;
+    
+    // Citta'
+    if (criteria.cities?.length && !criteria.cities.includes(talent.city)) 
+      return false;
+    
+    // Categorie
+    if (criteria.categories?.length) {
+      const hasCategory = criteria.categories.some(c => 
+        talent.talent_categories?.includes(c)
+      );
+      if (!hasCategory) return false;
+    }
+    
+    // Altezza
+    if (criteria.height_min && talent.attributes?.height < criteria.height_min) 
+      return false;
+    if (criteria.height_max && talent.attributes?.height > criteria.height_max) 
+      return false;
+    
+    // Colore capelli/occhi
+    if (criteria.hair_colors?.length && 
+        !criteria.hair_colors.includes(talent.attributes?.hair_color)) 
+      return false;
+    
+    // Skills, lingue, tatuaggi, piercing...
+    // ... logica simile
+    
+    return true;
+  });
+}
+```
+
+---
+
+### 6. File da Creare/Modificare
+
+| File | Azione | Descrizione |
+|------|--------|-------------|
+| `supabase/migrations/xxx_create_targets.sql` | Creare | Schema DB |
+| `src/hooks/useTargets.ts` | Creare | CRUD target |
+| `src/hooks/useShortlist.ts` | Creare | Gestione shortlist |
+| `src/hooks/useTargetMatching.ts` | Creare | Logica matching |
+| `src/components/targets/CastingTargetsList.tsx` | Creare | Lista target |
+| `src/components/targets/CreateTargetDialog.tsx` | Creare | Dialog creazione |
+| `src/components/targets/TargetCriteriaForm.tsx` | Creare | Form criteri |
+| `src/components/targets/TargetCard.tsx` | Creare | Card singolo target |
+| `src/components/targets/TargetMatchResults.tsx` | Creare | Risultati match |
+| `src/components/targets/TargetShortlist.tsx` | Creare | Gestione shortlist |
+| `src/components/targets/ShortlistTalentCard.tsx` | Creare | Card in shortlist |
+| `src/pages/owner/OwnerTargets.tsx` | Modificare | Pagina principale |
+| `src/lib/i18n.ts` | Modificare | Traduzioni |
+| `src/integrations/supabase/types.ts` | Auto-generato | Tipi aggiornati |
+
+---
+
+### 7. Fasi di Implementazione
+
+**Fase 1: Database**
+- Creare tabelle `casting_targets` e `target_shortlist`
+- Configurare RLS policies
+- Aggiungere foreign keys
+
+**Fase 2: Hooks Base**
+- `useTargets` con CRUD completo
+- `useShortlist` con gestione membri
+
+**Fase 3: UI Lista Target**
+- Ristrutturare `OwnerTargets.tsx`
+- Creare `CastingTargetsList` e `TargetCard`
+- Selettore casting
+
+**Fase 4: Creazione Target**
+- `CreateTargetDialog` con form criteri
+- Validazione e salvataggio `criteria_json`
+
+**Fase 5: Matching**
+- Implementare `useTargetMatching`
+- `TargetMatchResults` con griglia talenti
+- Pulsante "Aggiungi a Shortlist"
+
+**Fase 6: Gestione Shortlist**
+- `TargetShortlist` con lista membri
+- Status management (pending/contacted/confirmed)
+- Note per ogni talent
 
 ---
 
 ### Risultato Atteso
 
-1. I pulsanti non si sovrappongono piu' al nome o alle badge
-2. Layout responsive che si adatta a diverse dimensioni
-3. Migliore separazione visiva tra informazioni e azioni
-4. I pulsanti sono sempre accessibili e visibili
+1. Sistema completo per creare target di ricerca strutturati
+2. Matching automatico basato su criteri multipli
+3. Gestione shortlist con stati e note
+4. Interfaccia intuitiva integrata con i casting esistenti
+5. Dati persistenti in database con RLS appropriato
 
