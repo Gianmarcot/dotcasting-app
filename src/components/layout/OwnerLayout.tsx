@@ -3,7 +3,7 @@ import { OwnerSidebar } from "./OwnerSidebar";
 
 export const OwnerLayout = () => {
   return (
-    <div className="min-h-screen bg-[#E8DFD4]">
+    <div className="min-h-screen bg-[#1A1A1A]">
       <OwnerSidebar />
       <main className="fixed top-0 right-0 bottom-0 left-64 p-2">
         <div className="h-full bg-white rounded-[3rem] overflow-hidden">
