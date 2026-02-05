@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { it } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageSquare, ArrowLeft } from "lucide-react";
@@ -49,11 +50,18 @@ export const TalentMessages = () => {
   const participantInitials = participantName.split(" ").map(n => n[0]).join("").slice(0, 2);
 
   return (
-    <div className="w-[calc(100%+4rem)] -mx-8 h-[calc(100vh-2rem)] flex animate-fade-up">
-      <Card className="flex-1 flex overflow-hidden border-0 shadow-sm rounded-none">
+    <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-up">
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="text-2xl text-foreground">{it.messages.title}</h1>
+        <p className="text-muted-foreground mt-1">Comunicazioni con la piattaforma</p>
+      </div>
+
+      {/* Main content */}
+      <Card className="flex-1 flex overflow-hidden border-0 shadow-sm">
         {/* Thread list */}
         {showList && (
-          <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col bg-muted/30`}>
+          <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col`}>
             <div className="p-3 border-b">
               <h2 className="font-medium">Conversazioni</h2>
             </div>

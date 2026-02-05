@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { it } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -56,16 +57,26 @@ export const OwnerMessages = () => {
   const participantInitials = participantName.split(" ").map(n => n[0]).join("").slice(0, 2);
 
   return (
-    <div className="w-[calc(100%+4rem)] -mx-8 h-[calc(100vh-2rem)] flex animate-fade-up">
-      <Card className="flex-1 flex overflow-hidden border-0 shadow-sm rounded-none">
+    <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-up">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl text-foreground">{it.backoffice.messagingCenter}</h1>
+          <p className="text-muted-foreground mt-1">Comunicazioni con i talenti</p>
+        </div>
+        <Button onClick={() => setNewThreadOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          {it.messages.newMessage}
+        </Button>
+      </div>
+
+      {/* Main content */}
+      <Card className="flex-1 flex overflow-hidden border-0 shadow-sm">
         {/* Thread list */}
         {showList && (
-          <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col bg-muted/30`}>
-            <div className="p-3 border-b flex items-center justify-between">
+          <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col`}>
+            <div className="p-3 border-b">
               <h2 className="font-medium">Conversazioni</h2>
-              <Button size="icon" variant="ghost" onClick={() => setNewThreadOpen(true)}>
-                <Plus className="h-4 w-4" />
-              </Button>
             </div>
             <div className="flex-1 overflow-y-auto">
               <ThreadList
