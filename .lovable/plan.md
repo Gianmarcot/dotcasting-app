@@ -1,44 +1,77 @@
 
 
-## Piano: Modifica stile Progress Bar Completamento Profilo
+## Piano: Aggiornamento Stile Pulsanti Primary e Secondary
 
 ### Obiettivo
-Aggiornare lo stile della sezione progress bar secondo le specifiche:
-- Sfondo a tinta unita `#ECE5DE` (rimuovere gradiente)
-- Rimuovere il bordo dalla card
-- Progress bar: rosso (parte completata), bianco (parte non completata)
+Modificare lo stile dei pulsanti `default` (primary) e `secondary` per avere una forma a pillola (rounded-full) come nello screenshot di riferimento.
+
+### Analisi dello screenshot
+
+| Tipo | Sfondo | Bordo | Testo | Forma |
+|------|--------|-------|-------|-------|
+| Primary | Bordeaux (#8C1F3F circa) | Nessuno | Bianco | Pillola (rounded-full) |
+| Secondary | Trasparente | Scuro sottile | Scuro | Pillola (rounded-full) |
 
 ### Modifiche richieste
 
-**File: `src/components/profile/ProfileCompletionBar.tsx`**
+**File: `src/components/ui/button.tsx`**
 
-| Elemento | Prima | Dopo |
+| Variante | Prima | Dopo |
 |----------|-------|------|
-| Card (loading) | `bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20` | `bg-[#ECE5DE] border-0` |
-| Card (main) | `bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20` | `bg-[#ECE5DE] border-0` |
-| Progress bar | Classe default | Aggiungo `className="h-3 bg-white"` per sfondo bianco |
+| `default` (primary) | `rounded-md` (da base) | Aggiungo `rounded-full` |
+| `secondary` | `bg-secondary text-secondary-foreground` | `border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full` |
 
-### Dettaglio tecnico
+**File: `src/index.css`**
 
-La progress bar usa il componente `Progress` da `@radix-ui/react-progress`:
-- `bg-secondary` (grigio) è lo sfondo attuale della parte non completata
-- `bg-primary` (rosso) è già il colore della parte completata
+Aggiorno anche le classi CSS centralizzate per consistenza:
 
-Devo sovrascrivere solo il colore di sfondo della parte non completata passando la classe `bg-white` al componente Progress.
+| Classe | Prima | Dopo |
+|--------|-------|------|
+| `.dc-btn` | `rounded-md` | `rounded-full` (applicato a tutti i bottoni base) |
+| `.dc-btn-secondary` | `bg-secondary text-secondary-foreground` | `border border-foreground bg-transparent text-foreground hover:bg-muted` |
 
 ### Codice modificato
 
 ```tsx
-// Card - rimuovo gradiente e bordo
-<Card className="bg-[#ECE5DE] border-0">
-
-// Progress bar - sfondo bianco per parte non completata
-<Progress value={percentage} className="h-3 bg-white" />
+// src/components/ui/button.tsx
+const buttonVariants = cva(
+  "dc-btn",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-full h-10 px-6 py-2",
+        secondary: "border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full h-10 px-6 py-2",
+        // ... altre varianti
+      },
+      // ...
+    },
+  },
+);
 ```
+
+```css
+/* src/index.css */
+.dc-btn {
+  @apply inline-flex items-center justify-center gap-2 
+         whitespace-nowrap rounded-full text-sm font-medium /* rounded-full invece di rounded-md */
+         /* ... resto invariato */
+}
+
+.dc-btn-secondary {
+  @apply dc-btn border border-foreground bg-transparent text-foreground hover:bg-muted h-10 px-6 py-2;
+}
+```
+
+### Impatto sulle altre varianti
+
+- `outline`: mantiene il suo stile con bordo `border-input`, separato da secondary
+- `ghost`: nessun cambiamento
+- `destructive`: eredita `rounded-full` dalla base
+- `castingAction`: già ha `rounded-full`, nessun cambiamento
 
 ### Risultato atteso
 
-- Sfondo uniforme beige `#ECE5DE` senza bordo
-- Barra progress: rosso (completato) + bianco (non completato)
-- Nessun altro stile modificato
+- **Primary**: Pulsante bordeaux con forma pillola, testo bianco
+- **Secondary**: Pulsante trasparente con bordo scuro, forma pillola, testo scuro
+- Tutti i pulsanti avranno la forma a pillola come standard del design system
 
