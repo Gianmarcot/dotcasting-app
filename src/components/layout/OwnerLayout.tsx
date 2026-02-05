@@ -5,10 +5,12 @@ export const OwnerLayout = () => {
   return (
     <div className="min-h-screen bg-card">
       <OwnerSidebar />
-      <main className="ml-64 min-h-screen p-4">
-        <div className="min-h-[calc(100vh-2rem)] bg-background rounded-[3rem] overflow-hidden">
-          <div className="p-8 pt-12 max-w-7xl mx-auto">
-            <Outlet />
+      <main className="fixed top-0 right-0 bottom-0 left-64 p-2">
+        <div className="h-full bg-background rounded-[3rem] overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <div className="p-8 pt-12 max-w-7xl mx-auto">
+              <Outlet />
+            </div>
           </div>
         </div>
       </main>
