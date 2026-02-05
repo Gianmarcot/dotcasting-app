@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const navItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
@@ -39,12 +39,12 @@ export const OwnerSidebar = () => {
   };
 
   return (
-    <aside className="dc-sidebar">
+    <aside className="dc-sidebar-admin">
       {/* Logo */}
       <div className="dc-sidebar-header">
         <Link to="/owner" className="flex items-center gap-3">
-          <img src={logo} alt="dotCasting" className="h-7" />
-          <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded">Admin</span>
+          <img src={logoWhite} alt="dotCasting" className="h-7" />
+          <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Admin</span>
         </Link>
         <NotificationBell />
       </div>
@@ -59,7 +59,7 @@ export const OwnerSidebar = () => {
               <li key={item.href}>
                 <Link
                   to={item.href}
-                  className={isActive ? "dc-sidebar-nav-item-active" : "dc-sidebar-nav-item-inactive"}
+                  className={isActive ? "dc-sidebar-admin-nav-item-active" : "dc-sidebar-admin-nav-item-inactive"}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -72,21 +72,21 @@ export const OwnerSidebar = () => {
 
       {/* User section */}
       <div className="dc-sidebar-footer">
-        <div className="dc-sidebar-divider" />
-        <div className="dc-sidebar-user">
+        <div className="dc-sidebar-admin-divider" />
+        <div className="dc-sidebar-admin-user">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="dc-avatar-fallback-primary">
               {user?.email?.charAt(0).toUpperCase() || "A"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
+            <p className="text-sm font-medium text-[#333333] truncate">
               {user?.email?.split("@")[0] || "Admin"}
             </p>
           </div>
         </div>
 
-        <button onClick={handleLogout} className="dc-sidebar-action">
+        <button onClick={handleLogout} className="dc-sidebar-admin-action">
           <LogOut className="h-4 w-4" />
           {it.nav.logout}
         </button>
