@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { it } from "@/lib/i18n";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { MessageSquare, Plus, ArrowLeft } from "lucide-react";
@@ -57,87 +55,75 @@ export const OwnerMessages = () => {
   const participantInitials = participantName.split(" ").map(n => n[0]).join("").slice(0, 2);
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-up">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl text-foreground">{it.backoffice.messagingCenter}</h1>
-          <p className="text-muted-foreground mt-1">Comunicazioni con i talenti</p>
-        </div>
-        <Button onClick={() => setNewThreadOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          {it.messages.newMessage}
-        </Button>
-      </div>
-
-      {/* Main content */}
-      <Card className="flex-1 flex overflow-hidden border-0 shadow-sm">
-        {/* Thread list */}
-        {showList && (
-          <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col`}>
-            <div className="p-3 border-b">
-              <h2 className="font-medium">Conversazioni</h2>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <ThreadList
-                threads={threads}
-                selectedThreadId={selectedThreadId}
-                onSelectThread={setSelectedThreadId}
-                isLoading={threadsLoading}
-              />
-            </div>
+    <div className="h-[calc(100vh-6rem)] flex animate-fade-up">
+      {/* Thread list */}
+      {showList && (
+        <div className={`${isMobile ? "w-full" : "w-80"} border-r flex flex-col`}>
+          <div className="p-3 border-b flex items-center justify-between">
+            <h2 className="font-medium text-lg">Conversazioni</h2>
+            <Button size="icon" variant="ghost" onClick={() => setNewThreadOpen(true)}>
+              <Plus className="h-5 w-5" />
+            </Button>
           </div>
-        )}
+          <div className="flex-1 overflow-y-auto">
+            <ThreadList
+              threads={threads}
+              selectedThreadId={selectedThreadId}
+              onSelectThread={setSelectedThreadId}
+              isLoading={threadsLoading}
+            />
+          </div>
+        </div>
+      )}
 
-        {/* Conversation view */}
-        {showConversation && (
-          <div className="flex-1 flex flex-col">
-            {selectedThreadId ? (
-              <>
-                {/* Conversation header */}
-                <div className="p-3 border-b flex items-center gap-3">
-                  {isMobile && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSelectedThreadId(null)}
-                    >
-                      <ArrowLeft className="h-5 w-5" />
-                    </Button>
+      {/* Conversation view */}
+      {showConversation && (
+        <div className="flex-1 flex flex-col">
+          {selectedThreadId ? (
+            <>
+              {/* Conversation header */}
+              <div className="p-3 border-b flex items-center gap-3">
+                {isMobile && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSelectedThreadId(null)}
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                )}
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={participant?.profile_photo_url || undefined} />
+                  <AvatarFallback>{participantInitials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{participantName}</p>
+                  {selectedThread?.casting && (
+                    <p className="text-xs text-primary">{selectedThread.casting.title}</p>
                   )}
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={participant?.profile_photo_url || undefined} />
-                    <AvatarFallback>{participantInitials}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{participantName}</p>
-                    {selectedThread?.casting && (
-                      <p className="text-xs text-primary">{selectedThread.casting.title}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Messages */}
-                <ThreadView messages={messages} isLoading={messagesLoading} />
-
-                {/* Input */}
-                <MessageInput
-                  onSend={handleSendMessage}
-                  disabled={sendMessage.isPending}
-                />
-              </>
-            ) : (
-              <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                <div className="text-center">
-                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Seleziona una conversazione</p>
-                  <p className="text-sm mt-1">o iniziane una nuova</p>
                 </div>
               </div>
-            )}
-          </div>
-        )}
-      </Card>
+
+              {/* Messages */}
+              <ThreadView messages={messages} isLoading={messagesLoading} />
+
+              {/* Input */}
+              <MessageInput
+                onSend={handleSendMessage}
+                disabled={sendMessage.isPending}
+              />
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Seleziona una conversazione</p>
+                <p className="text-sm mt-1">o iniziane una nuova</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* New thread dialog */}
       <NewThreadDialog
