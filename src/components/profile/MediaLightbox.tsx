@@ -61,16 +61,19 @@ export const MediaLightbox = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex"
+      className="fixed inset-0 z-[100] bg-black flex"
       onClick={onClose}
     >
       {/* Main content area */}
-      <div className={cn("flex-1 relative", showRatingPanel && isOwnerView ? "pr-80" : "")}>
+      <div className={cn(
+        "flex-1 relative flex items-center justify-center",
+        showRatingPanel && isOwnerView ? "mr-80" : ""
+      )}>
         {/* Close Button */}
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-4 right-4 z-50 h-10 w-10"
+          className="absolute top-4 right-4 z-10 h-10 w-10 text-white hover:bg-white/10"
           onClick={onClose}
         >
           <X className="h-6 w-6" />
@@ -81,7 +84,7 @@ export const MediaLightbox = ({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-16 z-50 h-10 w-10"
+            className="absolute top-4 right-16 z-10 h-10 w-10 text-white hover:bg-white/10"
             onClick={(e) => {
               e.stopPropagation();
               setShowRatingPanel(!showRatingPanel);
@@ -101,66 +104,66 @@ export const MediaLightbox = ({
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-50 h-12 w-12"
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-14 w-14 text-white hover:bg-white/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handlePrevious();
               }}
             >
-              <ChevronLeft className="h-8 w-8" />
+              <ChevronLeft className="h-10 w-10" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-50 h-12 w-12"
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-14 w-14 text-white hover:bg-white/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleNext();
               }}
             >
-              <ChevronRight className="h-8 w-8" />
+              <ChevronRight className="h-10 w-10" />
             </Button>
           </>
         )}
 
-        {/* Media Content */}
+        {/* Media Content - Full screen */}
         <div
-          className="absolute inset-0 flex items-center justify-center p-16"
+          className="w-full h-full flex items-center justify-center p-4"
           onClick={(e) => e.stopPropagation()}
         >
           {currentMedia.media_type === "photo" ? (
             <img
               src={currentMedia.url}
               alt={currentMedia.title || "Media"}
-              className="max-w-full max-h-full object-contain rounded-lg"
+              className="max-w-full max-h-full object-contain"
             />
           ) : (
             <video
               src={currentMedia.url}
               controls
               autoPlay
-              className="max-w-full max-h-full rounded-lg"
+              className="max-w-full max-h-full"
             />
           )}
         </div>
 
         {/* Counter */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-muted-foreground">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white/70 bg-black/50 px-3 py-1 rounded-full">
           {currentIndex + 1} / {media.length}
         </div>
 
         {/* Title */}
         {currentMedia.title && (
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-foreground font-medium">
+          <div className="absolute bottom-14 left-1/2 -translate-x-1/2 text-white font-medium bg-black/50 px-4 py-1 rounded-full">
             {currentMedia.title}
           </div>
         )}
       </div>
 
-      {/* Rating Panel (Owner only) */}
+      {/* Rating Panel (Owner only) - Fixed on right side */}
       {isOwnerView && showRatingPanel && (
         <div
-          className="w-80 bg-background border-l border-border p-4 overflow-y-auto"
+          className="fixed right-0 top-0 bottom-0 w-80 bg-background border-l border-border p-4 overflow-y-auto z-[101]"
           onClick={(e) => e.stopPropagation()}
         >
           <MediaRatingPanel
