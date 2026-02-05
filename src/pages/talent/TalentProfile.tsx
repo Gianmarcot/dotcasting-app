@@ -4,9 +4,17 @@ import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
 import { AboutMeSection } from "@/components/profile/AboutMeSection";
 import { MediaGallerySection } from "@/components/profile/MediaGallerySection";
-import { AppearanceSection } from "@/components/profile/AppearanceSection";
+import { TalentRolesSection } from "@/components/profile/TalentRolesSection";
+import { MeasurementsSection } from "@/components/profile/MeasurementsSection";
+import { PhysicalFeaturesSection } from "@/components/profile/PhysicalFeaturesSection";
+import { AbilitiesSection } from "@/components/profile/AbilitiesSection";
 import { SkillsSection } from "@/components/profile/SkillsSection";
 import { LanguagesSection } from "@/components/profile/LanguagesSection";
+import { ContactInfoSection } from "@/components/profile/ContactInfoSection";
+import { AddressSection } from "@/components/profile/AddressSection";
+import { DocumentsSection } from "@/components/profile/DocumentsSection";
+import { WorkInfoSection } from "@/components/profile/WorkInfoSection";
+import { TravelSection } from "@/components/profile/TravelSection";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info, X } from "lucide-react";
 import { useState } from "react";
@@ -72,11 +80,20 @@ export const TalentProfile = () => {
           {/* About Me */}
           <AboutMeSection />
 
+          {/* Talent Roles */}
+          <TalentRolesSection />
+
           {/* Media Gallery */}
           <MediaGallerySection />
 
-          {/* Appearance */}
-          <AppearanceSection />
+          {/* Measurements */}
+          <MeasurementsSection />
+
+          {/* Physical Features */}
+          <PhysicalFeaturesSection />
+
+          {/* Abilities */}
+          <AbilitiesSection />
 
           {/* Skills */}
           <SkillsSection />
@@ -92,6 +109,21 @@ export const TalentProfile = () => {
 
           {/* Basic Info */}
           <BasicInfoSection />
+
+          {/* Contact Info */}
+          <ContactInfoSection />
+
+          {/* Address */}
+          <AddressSection />
+
+          {/* Documents */}
+          <DocumentsSection />
+
+          {/* Work Info */}
+          <WorkInfoSection />
+
+          {/* Travel */}
+          <TravelSection />
         </div>
       </div>
     </div>

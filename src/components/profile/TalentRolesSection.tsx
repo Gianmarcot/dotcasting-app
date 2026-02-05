@@ -1,0 +1,139 @@
+ import { useState, useEffect } from "react";
+ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+ import { Button } from "@/components/ui/button";
+ import { Checkbox } from "@/components/ui/checkbox";
+ import { Label } from "@/components/ui/label";
+ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+ import { Pencil, Check, X, Loader2 } from "lucide-react";
+ import { useProfile } from "@/hooks/useProfile";
+ import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+ import { toast } from "sonner";
+ import { TALENT_ROLES, REPRESENTATION_TYPES } from "@/lib/profileOptions";
+ 
+ export const TalentRolesSection = () => {
+   const { data: profile } = useProfile();
+   const updateProfile = useUpdateProfile();
+   const [isEditing, setIsEditing] = useState(false);
+ 
+   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+   const [representationType, setRepresentationType] = useState("");
+ 
+   useEffect(() => {
+     if (profile) {
+       setSelectedRoles(profile.talent_categories || []);
+       setRepresentationType(profile.representation_type || "");
+     }
+   }, [profile]);
+ 
+   const handleRoleToggle = (role: string) => {
+     setSelectedRoles(prev => 
+       prev.includes(role) 
+         ? prev.filter(r => r !== role)
+         : [...prev, role]
+     );
+   };
+ 
+   const handleSave = async () => {
+     try {
+       await updateProfile.mutateAsync({
+         talent_categories: selectedRoles,
+         representation_type: representationType || null,
+       });
+       setIsEditing(false);
+       toast.success("Ruoli aggiornati!");
+     } catch (error) {
+       toast.error("Errore durante il salvataggio");
+     }
+   };
+ 
+   const handleCancel = () => {
+     if (profile) {
+       setSelectedRoles(profile.talent_categories || []);
+       setRepresentationType(profile.representation_type || "");
+     }
+     setIsEditing(false);
+   };
+ 
+   const roleGroups = [
+     { key: "artistic", label: "Artistici", roles: TALENT_ROLES.artistic },
+     { key: "creative", label: "Tecnici Creativi", roles: TALENT_ROLES.creative },
+     { key: "production", label: "Produzione", roles: TALENT_ROLES.production },
+   ];
+ 
+   return (
+     <Card className="border-0 shadow-sm">
+       <CardHeader className="flex flex-row items-center justify-between pb-2">
+         <CardTitle className="text-lg">Ruoli e Talenti</CardTitle>
+         {isEditing ? (
+           <div className="flex gap-2">
+             <Button size="sm" variant="ghost" onClick={handleCancel}>
+               <X className="h-4 w-4" />
+             </Button>
+             <Button size="sm" onClick={handleSave} disabled={updateProfile.isPending}>
+               {updateProfile.isPending ? (
+                 <Loader2 className="h-4 w-4 animate-spin" />
+               ) : (
+                 <Check className="h-4 w-4" />
+               )}
+             </Button>
+           </div>
+         ) : (
+           <Button size="sm" variant="ghost" onClick={() => setIsEditing(true)}>
+             <Pencil className="h-4 w-4" />
+           </Button>
+         )}
+       </CardHeader>
+       <CardContent className="space-y-6">
+         {/* Representation Type */}
+         <div className="space-y-3">
+           <Label className="text-sm font-medium">Tipo di rappresentanza</Label>
+           <RadioGroup 
+             value={representationType} 
+             onValueChange={setRepresentationType}
+             disabled={!isEditing}
+             className="flex gap-4"
+           >
+             {REPRESENTATION_TYPES.map(type => (
+               <div key={type.value} className="flex items-center space-x-2">
+                 <RadioGroupItem value={type.value} id={type.value} />
+                 <Label htmlFor={type.value} className="font-normal">{type.label}</Label>
+               </div>
+             ))}
+           </RadioGroup>
+         </div>
+ 
+         {/* Role Groups */}
+         {roleGroups.map(group => (
+           <div key={group.key} className="space-y-3">
+             <Label className="text-sm font-medium text-muted-foreground">{group.label}</Label>
+             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+               {group.roles.map(role => (
+                 <div key={role} className="flex items-center space-x-2">
+                   <Checkbox
+                     id={role}
+                     checked={selectedRoles.includes(role)}
+                     onCheckedChange={() => handleRoleToggle(role)}
+                     disabled={!isEditing}
+                   />
+                   <Label htmlFor={role} className="text-sm font-normal cursor-pointer">
+                     {role}
+                   </Label>
+                 </div>
+               ))}
+             </div>
+           </div>
+         ))}
+ 
+         {!isEditing && selectedRoles.length > 0 && (
+           <div className="flex flex-wrap gap-2 pt-2">
+             {selectedRoles.map(role => (
+               <span key={role} className="dc-badge dc-badge-secondary">
+                 {role}
+               </span>
+             ))}
+           </div>
+         )}
+       </CardContent>
+     </Card>
+   );
+ };
