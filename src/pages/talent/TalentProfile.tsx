@@ -15,14 +15,11 @@ import { AddressSection } from "@/components/profile/AddressSection";
 import { DocumentsSection } from "@/components/profile/DocumentsSection";
 import { WorkInfoSection } from "@/components/profile/WorkInfoSection";
 import { TravelSection } from "@/components/profile/TravelSection";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info, X } from "lucide-react";
-import { useState } from "react";
+import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
 
 export const TalentProfile = () => {
   const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
-  const [showTip, setShowTip] = useState(true);
 
   const displayName = profile?.first_name 
     ? `${profile.first_name} ${profile.last_name || ""}`.trim()
@@ -46,20 +43,8 @@ export const TalentProfile = () => {
         </p>
       </div>
 
-      {/* Tip Banner */}
-      {showTip && (
-        <Alert className="bg-muted/50 border-muted">
-          <Info className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between">
-            <span>
-              Aggiungi tutti i dettagli rilevanti per te. Le sezioni lasciate vuote saranno visibili solo a te.
-            </span>
-            <button onClick={() => setShowTip(false)} className="ml-4">
-              <X className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-            </button>
-          </AlertDescription>
-        </Alert>
-      )}
+      {/* Profile Completion Progress */}
+      <ProfileCompletionBar />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
@@ -78,52 +63,82 @@ export const TalentProfile = () => {
           </div>
 
           {/* About Me */}
-          <AboutMeSection />
+          <div id="about-me">
+            <AboutMeSection />
+          </div>
 
           {/* Talent Roles */}
-          <TalentRolesSection />
+          <div id="talent-roles">
+            <TalentRolesSection />
+          </div>
 
           {/* Media Gallery */}
-          <MediaGallerySection />
+          <div id="media-gallery">
+            <MediaGallerySection />
+          </div>
 
           {/* Measurements */}
-          <MeasurementsSection />
+          <div id="measurements">
+            <MeasurementsSection />
+          </div>
 
           {/* Physical Features */}
-          <PhysicalFeaturesSection />
+          <div id="physical-features">
+            <PhysicalFeaturesSection />
+          </div>
 
           {/* Abilities */}
-          <AbilitiesSection />
+          <div id="abilities">
+            <AbilitiesSection />
+          </div>
 
           {/* Skills */}
-          <SkillsSection />
+          <div id="skills">
+            <SkillsSection />
+          </div>
 
           {/* Languages */}
-          <LanguagesSection />
+          <div id="languages">
+            <LanguagesSection />
+          </div>
         </div>
 
         {/* Right Sidebar */}
         <div className="space-y-6">
           {/* Profile Photo */}
-          <ProfilePhotoSection />
+          <div id="profile-photo">
+            <ProfilePhotoSection />
+          </div>
 
           {/* Basic Info */}
-          <BasicInfoSection />
+          <div id="basic-info">
+            <BasicInfoSection />
+          </div>
 
           {/* Contact Info */}
-          <ContactInfoSection />
+          <div id="contact-info">
+            <ContactInfoSection />
+          </div>
 
           {/* Address */}
-          <AddressSection />
+          <div id="address">
+            <AddressSection />
+          </div>
 
           {/* Documents */}
-          <DocumentsSection />
+          <div id="documents">
+            <DocumentsSection />
+          </div>
 
           {/* Work Info */}
-          <WorkInfoSection />
+          <div id="work-info">
+            <WorkInfoSection />
+          </div>
 
           {/* Travel */}
-          <TravelSection />
+          <div id="travel">
+            <TravelSection />
+          </div>
         </div>
       </div>
     </div>
