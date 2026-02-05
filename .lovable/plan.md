@@ -1,186 +1,146 @@
 
 
-## Piano: Aggiornamento Colori Badge e Tag con Palette Brand
+## Piano: Aggiornamento Stile Admin con Logo Bianco
 
 ### Panoramica
-Aggiornare le variabili CSS e i mapping di stato in tutta l'applicazione, utilizzando la palette brand fornita con sfumature che garantiscono un contrasto adeguato.
+Applicare lo sfondo beige scuro alla cornice e sidebar admin, e utilizzare la versione bianca/crema del logo dotCasting.
 
 ---
 
-### Palette Brand e Conversione HSL
+### Fase 1: Copiare il Logo Bianco nel Progetto
 
-| Colore | HEX | HSL | Uso Semantico |
-|--------|-----|-----|---------------|
-| Bordeaux | #A30A2B | 347 88% 34% | Negativo/Bloccante |
-| Blu | #708DC9 | 220 45% 61% | Info/Neutro |
-| Charcoal | #333333 | 0 0% 20% | Muted/Bozza |
-| Olive | #6A774C | 75 22% 38% | Secondario |
-| Verde brillante | #729128 | 75 57% 36% | Positivo/Attivo |
-| Giallo/Ambra | #C88500 | 39 100% 39% | In attesa/Sospeso |
+**Azione**: Copiare il file caricato dall'utente nella cartella assets
+
+| Origine | Destinazione |
+|---------|--------------|
+| `user-uploads://dotCasting_logo_creme@HD.png` | `src/assets/logo-white.png` |
 
 ---
 
-### Strategia Color Contrast
-
-Per garantire leggibilita' con sfondo tenue + testo colorato:
-
-| Uso | Sfondo (opacity) | Testo | Esempio |
-|-----|------------------|-------|---------|
-| Positivo | Verde 15% | Verde 100% | bg-[#729128]/15 text-[#729128] |
-| Sospeso | Giallo 15% | Giallo scuro | bg-[#C88500]/15 text-[#9A6700] |
-| Negativo | Rosso 15% | Rosso 100% | bg-[#A30A2B]/15 text-[#A30A2B] |
-| Info | Blu 15% | Blu scuro | bg-[#708DC9]/15 text-[#4A6A9C] |
-| Muted | Charcoal 10% | Charcoal | bg-[#333333]/10 text-[#333333] |
-
-Per il giallo/ambra, il testo usa una versione piu' scura (#9A6700) per migliorare il contrasto su sfondi chiari.
-
----
-
-### Fase 1: Aggiornamento Variabili CSS
+### Fase 2: Aggiornamento Variabili CSS
 
 **File: `src/index.css`**
 
-Aggiornare le variabili di colore semantiche:
+Aggiungere variabili specifiche per l'area admin:
 
-| Variabile | Valore Attuale | Nuovo Valore HSL |
-|-----------|----------------|-------------------|
-| --success | 142 70% 40% | 75 57% 36% |
-| --success-foreground | 0 0% 100% | 0 0% 100% |
-| --warning | 38 92% 50% | 39 100% 39% |
-| --warning-foreground | 0 0% 100% | 0 0% 15% |
-| --destructive | 0 72% 51% | 347 88% 34% |
-| --info | 200 80% 50% | 220 45% 61% |
-| --info-foreground | 0 0% 100% | 0 0% 100% |
+| Variabile | Valore HSL | HEX Equivalente |
+|-----------|------------|-----------------|
+| `--admin-bg` | 35 20% 88% | #E8DFD4 |
+| `--admin-content-bg` | 0 0% 100% | #FFFFFF |
+
+Aggiungere classe specifica per sidebar admin scura.
 
 ---
 
-### Fase 2: Aggiornamento Componenti
+### Fase 3: Aggiornamento OwnerLayout
 
-#### 2.1 CastingCard.tsx - Stati Casting
+**File: `src/components/layout/OwnerLayout.tsx`**
 
-```typescript
-const statusColors: Record<string, string> = {
-  draft: "bg-[#333333]/10 text-[#333333]",
-  active: "bg-[#729128]/15 text-[#729128]",
-  closed: "bg-[#A30A2B]/15 text-[#A30A2B]",
-};
-```
-
-#### 2.2 TalentApplications.tsx - Stati Candidature Talent
-
-```typescript
-const statusConfig: Record<TalentApplicationStatus, { 
-  label: string;
-  color: string;
-}> = {
-  submitted: { label: "Inviata", color: "bg-[#C88500]/15 text-[#9A6700]" },
-  shortlisted: { label: "Selezionata", color: "bg-[#729128]/15 text-[#729128]" },
-  hold: { label: "In attesa", color: "bg-[#C88500]/15 text-[#9A6700]" },
-  rejected: { label: "Rifiutata", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
-  callback: { label: "Richiamata", color: "bg-[#729128]/15 text-[#729128]" },
-  booked: { label: "Confermata", color: "bg-[#729128]/15 text-[#729128]" },
-  withdrawn: { label: "Ritirata", color: "bg-[#333333]/10 text-[#333333]" },
-};
-```
-
-#### 2.3 TalentAuditions.tsx - Stati Provini
-
-```typescript
-const statusColors: Record<string, string> = {
-  invited: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
-  confirmed: "bg-[#729128]/15 text-[#729128] border-[#729128]/20",
-  declined: "bg-[#A30A2B]/15 text-[#A30A2B] border-[#A30A2B]/20",
-  reschedule_requested: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
-};
-```
-
-#### 2.4 OwnerCompanies.tsx - Stati Aziende
-
-```typescript
-const statusColors: Record<string, string> = {
-  lead: "bg-[#C88500]/15 text-[#9A6700]",
-  active: "bg-[#729128]/15 text-[#729128]",
-  inactive: "bg-[#333333]/10 text-[#333333]",
-};
-```
-
-#### 2.5 OwnerDashboard.tsx - Candidature Recenti
-
-Aggiornare i colori inline:
-
-```typescript
-<span className={`text-xs px-2 py-1 rounded-full ${
-  app.status === "shortlisted" 
-    ? "bg-[#729128]/15 text-[#729128]" 
-    : "bg-[#C88500]/15 text-[#9A6700]"
-}`}>
-```
+| Elemento | Prima | Dopo |
+|----------|-------|------|
+| Container esterno | `bg-card` | `bg-[#E8DFD4]` |
+| Area contenuto | `bg-background` | `bg-white` |
 
 ---
 
-### Fase 3: Aggiornamento Badge Component
+### Fase 4: Aggiornamento OwnerSidebar
 
-**File: `src/components/ui/badge.tsx`**
+**File: `src/components/layout/OwnerSidebar.tsx`**
 
-Aggiornare le varianti per usare i nuovi colori con contrasto adeguato:
+1. Importare il nuovo logo bianco invece del logo standard
+2. Aggiornare la classe sidebar per usare sfondo scuro
+3. Adattare i colori testo e icone per visibilita' su sfondo scuro
 
-```typescript
-const badgeVariants = cva("dc-badge", {
-  variants: {
-    variant: {
-      default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-      secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-      destructive: "border-transparent bg-[#A30A2B] text-white hover:bg-[#A30A2B]/80",
-      outline: "text-foreground",
-      success: "border-transparent bg-[#729128] text-white",
-      warning: "border-transparent bg-[#C88500] text-white",
-      info: "border-transparent bg-[#708DC9] text-white",
-      muted: "border-transparent bg-[#333333]/15 text-[#333333]",
-    },
-  },
-});
+| Elemento | Prima | Dopo |
+|----------|-------|------|
+| Import logo | `logo.png` | `logo-white.png` |
+| Classe sidebar | `dc-sidebar` | `dc-sidebar-admin` |
+| Colore testo nav | `text-muted-foreground` | `text-[#333333]/70` |
+| Colore testo user | `text-foreground` | `text-[#333333]` |
+
+---
+
+### Fase 5: Nuove Classi CSS Admin
+
+**File: `src/index.css`**
+
+```css
+.dc-sidebar-admin {
+  @apply fixed left-0 top-0 z-40 h-screen w-64 bg-[#E8DFD4] flex flex-col;
+}
+
+.dc-sidebar-admin-nav-item-inactive {
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
+         text-[#333333]/70 hover:bg-[#333333]/10 hover:text-[#333333] 
+         transition-all duration-200;
+}
+
+.dc-sidebar-admin-nav-item-active {
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
+         bg-primary text-primary-foreground transition-all duration-200;
+}
+
+.dc-sidebar-admin-action {
+  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-sm 
+         text-[#333333]/70 hover:bg-[#333333]/10 hover:text-[#333333] 
+         transition-colors w-full text-left;
+}
+
+.dc-sidebar-admin-divider {
+  @apply border-t border-[#333333]/20 mx-2 -mt-4 mb-4;
+}
 ```
 
 ---
 
 ### Riepilogo File da Modificare
 
-| File | Tipo Modifica |
-|------|---------------|
-| `src/index.css` | Variabili CSS semantiche |
-| `src/components/ui/badge.tsx` | Varianti badge |
-| `src/components/castings/CastingCard.tsx` | statusColors |
-| `src/pages/talent/TalentApplications.tsx` | statusConfig |
-| `src/pages/talent/TalentAuditions.tsx` | statusColors |
-| `src/pages/owner/OwnerCompanies.tsx` | statusColors |
-| `src/pages/owner/OwnerDashboard.tsx` | Colori inline candidature |
+| File | Modifica |
+|------|----------|
+| `src/assets/logo-white.png` | Nuovo file (copia da upload) |
+| `src/index.css` | Variabili CSS admin + classi sidebar-admin |
+| `src/components/layout/OwnerLayout.tsx` | Sfondo cornice e contenuto |
+| `src/components/layout/OwnerSidebar.tsx` | Logo bianco + classi admin |
 
 ---
 
-### Sezione Tecnica: Contrast Ratio
+### Sezione Tecnica
 
-I colori scelti rispettano le linee guida WCAG per il contrasto:
+#### Struttura OwnerLayout Finale
 
-| Combinazione | Contrast Ratio | Livello |
-|--------------|----------------|---------|
-| #729128 su sfondo 15% | ~4.5:1 | AA |
-| #9A6700 su sfondo 15% | ~4.8:1 | AA |
-| #A30A2B su sfondo 15% | ~5.2:1 | AA |
-| #333333 su sfondo 10% | ~7:1 | AAA |
-| Bianco su #729128 | ~4.6:1 | AA |
-| Bianco su #C88500 | ~3.1:1 | AA Large |
-| Bianco su #A30A2B | ~5.8:1 | AA |
+```tsx
+<div className="min-h-screen bg-[#E8DFD4]">
+  <OwnerSidebar />
+  <main className="fixed top-0 right-0 bottom-0 left-64 p-2">
+    <div className="h-full bg-white rounded-[3rem] overflow-hidden">
+      {/* contenuto */}
+    </div>
+  </main>
+</div>
+```
 
-Per i badge con sfondo pieno (variant success/warning/destructive), il testo bianco garantisce leggibilita' ottimale.
+#### Import Logo in OwnerSidebar
+
+```tsx
+import logoWhite from "@/assets/logo-white.png";
+// ...
+<img src={logoWhite} alt="dotCasting" className="h-7" />
+```
+
+#### Classi Sidebar Admin
+
+La sidebar admin usa colori che garantiscono contrasto su sfondo beige scuro:
+- Testo inattivo: `#333333` al 70% opacita'
+- Hover: sfondo `#333333` al 10% opacita'
+- Stato attivo: mantiene `bg-primary text-primary-foreground` (bordeaux)
 
 ---
 
 ### Risultato Atteso
 
-1. Verde (#729128): stati attivi, confermati, selezionati, booked
-2. Giallo/Ambra (#C88500): stati in attesa, submitted, lead, invited
-3. Rosso (#A30A2B): stati rifiutati, chiusi, declinati
-4. Charcoal (#333333): stati bozza, inattivi, withdrawn
-5. Blu (#708DC9): informazioni neutre
-6. Contrasto adeguato su tutti i badge per accessibilita'
+1. Sidebar e cornice admin con sfondo beige scuro (#E8DFD4)
+2. Area contenuto bianca (#FFFFFF) con angoli arrotondati
+3. Logo bianco/crema visibile su sfondo scuro
+4. Navigazione leggibile con buon contrasto
+5. Coerenza visiva con l'immagine di riferimento
 
