@@ -90,6 +90,8 @@ export const TalentDetailDialog = ({
     });
   }
 
+  if (!talent) return null;
+
   const fullName =
     [talent.first_name, talent.last_name].filter(Boolean).join(" ") || "Senza nome";
   const initials =
