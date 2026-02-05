@@ -15,10 +15,10 @@ import {
 import { SelectAuditionSlotDialog } from "@/components/auditions/SelectAuditionSlotDialog";
 
 const statusColors: Record<string, string> = {
-  invited: "bg-info/10 text-info border-info/20",
-  confirmed: "bg-success/10 text-success border-success/20",
-  declined: "bg-muted text-muted-foreground",
-  reschedule_requested: "bg-warning/10 text-warning border-warning/20",
+  invited: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
+  confirmed: "bg-[#729128]/15 text-[#729128] border-[#729128]/20",
+  declined: "bg-[#A30A2B]/15 text-[#A30A2B] border-[#A30A2B]/20",
+  reschedule_requested: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
 };
 
 const statusLabels: Record<string, string> = {

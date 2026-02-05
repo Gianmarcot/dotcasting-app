@@ -42,9 +42,9 @@ const mockCompanies = [
 ];
 
 const statusColors: Record<string, string> = {
-  lead: "bg-warning/20 text-warning",
-  active: "bg-success/20 text-success",
-  inactive: "bg-muted text-muted-foreground",
+  lead: "bg-[#C88500]/15 text-[#9A6700]",
+  active: "bg-[#729128]/15 text-[#729128]",
+  inactive: "bg-[#333333]/10 text-[#333333]",
 };
 
 export const OwnerCompanies = () => {

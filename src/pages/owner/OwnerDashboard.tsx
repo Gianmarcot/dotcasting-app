@@ -92,10 +92,10 @@ export const OwnerDashboard = () => {
                   <p className="text-sm text-muted-foreground">{app.casting}</p>
                 </div>
                 <div className="text-right">
-                  <span className={`text-xs px-2 py-1 rounded ${
+                  <span className={`text-xs px-2 py-1 rounded-full ${
                     app.status === "shortlisted" 
-                      ? "bg-success/20 text-success" 
-                      : "bg-info/20 text-info"
+                      ? "bg-[#729128]/15 text-[#729128]" 
+                      : "bg-[#C88500]/15 text-[#9A6700]"
                   }`}>
                     {it.applications.status[app.status as keyof typeof it.applications.status]}
                   </span>
