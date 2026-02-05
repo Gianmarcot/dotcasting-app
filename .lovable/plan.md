@@ -1,246 +1,151 @@
 
 
-## Piano: Espansione completa dei campi profilo talent
+## Piano: Progress Bar Completamento Profilo
 
 ### Obiettivo
-Aggiungere al profilo talent tutti i campi visibili nei form di onboarding allegati, organizzati in sezioni editabili separate.
+Aggiungere una sezione interattiva in cima al profilo talent che mostri il livello di completamento con:
+- Barra di progresso visuale con percentuale
+- Emoji dinamica in base al livello
+- Frase simpatica contestuale
+- Suggerimenti su sezioni mancanti
+- Toggle per nascondere i suggerimenti
 
-### Analisi dei form allegati
-
-Dai tre screenshot di onboarding ho identificato i seguenti campi da aggiungere:
-
-**Step 1 - Competenze e Talenti**
-| Campo | Tipo | Note |
-|-------|------|------|
-| Talenti/Ruoli | Multi-select | 3 gruppi di ruoli (Artistici, Tecnici creativi, Produzione) |
-| Tipo rappresentanza | Radio | Agenzia vs Freelance |
-
-**Step 2 - Dati Anagrafici (estesi)**
-| Campo | Tipo | Note |
-|-------|------|------|
-| Telefono | Text + prefisso | Con selezione prefisso internazionale |
-| WhatsApp | Text + prefisso | Numero separato |
-| Nazionalita | Text/Select | Attualmente mancante |
-| CAP | Text | Codice postale |
-| Sesso | Radio | M/F (gia presente come gender) |
-| Residenza | Object | Stato, Citta, Via, CAP |
-| Domicilio | Object | Se diverso da residenza |
-| Codice Fiscale | Text | Documento fiscale italiano |
-| Citta di partenza | Array | Multiple citta per lavoro |
-| Fotocopia documento | File | Upload documento |
-| Passaporto | Boolean + Date | Ha passaporto + scadenza |
-| Link social | Object | Instagram, TikTok, YouTube, X, Amazon |
-| Sito web | Text | URL personale |
-| Figli minorenni | Boolean | Checkbox |
-| N. scarpe | Text | Numero di scarpe |
-| Taglie intimo | Object | Taglia + specifico |
-| Occupazione principale | Text | Lavoro attuale |
-| Patenti | Multi-select | AM, A, A1, A2, B, C, D, E, BE, CE, DE, Nautica |
-| Disponibilita viaggi | Object | Continenti + paesi |
-| Visti | Array | Nazioni visitabili + durata |
-| Partita IVA | Boolean + Text | Ha P.IVA + numero |
-
-**Step 3 - Dati Fisici (estesi)**
-| Campo | Tipo | Note |
-|-------|------|------|
-| Taglia giacca | Select | XS, S, M, L, XL, XXL |
-| Taglia pantaloni | Select | 38, 40, 42, ... |
-| Petto | Number (cm) | Misura torace |
-| Vita | Number (cm) | Misura vita |
-| Fianchi | Number (cm) | Misura fianchi |
-| Larghezza spalle | Number (cm) | Misura spalle |
-| Misura collo camicia | Number (cm) | Misura collo |
-| Misura scarpe | Select | 35-50 |
-| Lunghezza capelli | Select | Corti, Medi, Lunghi |
-| Tipologia capelli | Select | Lisci, Ricci, Mossi, Ricci Afro, Dread |
-| Lentiggini | Boolean | Checkbox |
-| Diastema | Boolean | Checkbox |
-| Piercing | Boolean | Checkbox |
-| Tatuaggi | Boolean | Checkbox |
-| Abilita | Multi-select | Danza, Palestra, Strumenti musicali, Canto, Sport |
-
-### Schema Database
-
-Devo aggiungere nuovi campi alle tabelle esistenti:
-
-**Tabella `profiles` - nuovi campi:**
-```sql
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS
-  phone_prefix text,
-  phone_number text,
-  whatsapp_prefix text,
-  whatsapp_number text,
-  nationality text,
-  postal_code text,
-  residence_address jsonb,  -- {state, city, street, postal_code}
-  domicile_address jsonb,   -- {state, city, street, postal_code}
-  fiscal_code text,
-  work_cities text[],
-  id_document_url text,
-  has_passport boolean DEFAULT false,
-  passport_expiry date,
-  social_links jsonb,       -- {instagram, tiktok, youtube, x, amazon}
-  website_url text,
-  has_minor_children boolean DEFAULT false,
-  main_occupation text,
-  driving_licenses text[],
-  travel_availability jsonb, -- {continents, countries}
-  visas jsonb,              -- [{country, duration}]
-  has_vat_number boolean DEFAULT false,
-  vat_number text,
-  representation_type text  -- 'agency' | 'freelance'
-```
-
-**Tabella `talent_attributes` - nuovi campi:**
-```sql
-ALTER TABLE talent_attributes ADD COLUMN IF NOT EXISTS
-  jacket_size text,
-  pants_size text,
-  chest number,
-  waist number,
-  hips number,
-  shoulder_width number,
-  neck_size number,
-  shoe_size text,
-  underwear_sizes jsonb,
-  hair_length text,
-  hair_type text,
-  has_freckles boolean DEFAULT false,
-  has_diastema boolean DEFAULT false,
-  has_piercings boolean DEFAULT false,
-  has_tattoos boolean DEFAULT false,
-  abilities text[]
-```
-
-### Nuovi componenti profilo
-
-Creare nuove sezioni per il profilo:
-
-| Componente | Descrizione |
-|------------|-------------|
-| `TalentRolesSection.tsx` | Selezione ruoli/talenti con i 3 gruppi |
-| `ContactInfoSection.tsx` | Telefono, WhatsApp, social links |
-| `AddressSection.tsx` | Residenza e domicilio |
-| `DocumentsSection.tsx` | Codice fiscale, passaporto, P.IVA, documento |
-| `WorkInfoSection.tsx` | Occupazione, citta di partenza, patenti |
-| `TravelSection.tsx` | Disponibilita viaggi e visti |
-| `MeasurementsSection.tsx` | Tutte le misure corporee dettagliate |
-| `PhysicalFeaturesSection.tsx` | Caratteristiche fisiche (lentiggini, piercing, ecc.) |
-| `AbilitiesSection.tsx` | Abilita specifiche (danza, sport, ecc.) |
-
-### Struttura aggiornata TalentProfile.tsx
+### Design (ispirato allo screenshot di riferimento)
 
 ```text
-TalentProfile
-├── Header (nome, location, genere)
-├── Main Content (2/3)
-│   ├── AboutMeSection (esistente)
-│   ├── TalentRolesSection (NUOVO)
-│   ├── MediaGallerySection (esistente)
-│   ├── MeasurementsSection (NUOVO - sostituisce AppearanceSection)
-│   ├── PhysicalFeaturesSection (NUOVO)
-│   ├── AbilitiesSection (NUOVO)
-│   ├── SkillsSection (esistente)
-│   └── LanguagesSection (esistente)
-└── Sidebar (1/3)
-    ├── ProfilePhotoSection (esistente)
-    ├── BasicInfoSection (esistente, esteso)
-    ├── ContactInfoSection (NUOVO)
-    ├── AddressSection (NUOVO)
-    ├── DocumentsSection (NUOVO)
-    ├── WorkInfoSection (NUOVO)
-    └── TravelSection (NUOVO)
+┌────────────────────────────────────────────────────────────────────────────────┐
+│  Forza del Profilo: 7/10  ████████████████░░░░░ 😊        🔗 Nascondi suggerimenti │
+│                                                                                │
+│  Sei sulla buona strada! Aggiungi ancora qualche dettaglio per brillare.      │
+│                                                                                │
+│  [+ Foto] [+ Misure] [+ Video] [+ Lingue]                                     │
+└────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Opzioni per i select
+### Sistema di calcolo completezza
 
-**Ruoli/Talenti (3 gruppi):**
-```javascript
-const TALENT_ROLES = {
-  artistic: [
-    "Modello/Modella", "Attore/Attrice", "Real people", "Steward/Promoter",
-    "Piedista", "Manista", "Presentatore/Presentatrice", "Speaker radiofonico",
-    "Doppiatore/Doppiatrice", "Stuntman", "Cantante", "Musicista",
-    "Ballerino/Ballerina", "Performer"
-  ],
-  creative: [
-    "Truccatore/Truccatrice", "Parrucchiere/Parrucchiera", "Fotografo/Fotografa",
-    "Social Media Manager", "DOP", "Direttore di produzione", "Videomaker",
-    "Content Creator", "Influencer", "Regista"
-  ],
-  production: [
-    "Attrezzista", "Fonico", "Assistente di produzione", "Operatore/Operatrice",
-    "Steadicam", "Driver", "Focus Puller", "Producer", "Location Manager", "Macchinista"
-  ]
-};
-```
+Definisco una lista di "check" pesati per calcolare la percentuale:
 
-**Tipologia capelli:**
-```javascript
-const HAIR_TYPES = ["Lisci", "Ricci", "Mossi", "Ricci Afro", "Dread"];
-```
+| Campo/Sezione | Peso | Descrizione |
+|---------------|------|-------------|
+| Foto profilo | 15 | `profile_photo_url` presente |
+| Nome completo | 10 | `first_name` + `last_name` |
+| Bio | 10 | `bio` con almeno 50 caratteri |
+| Ruoli/Talenti | 10 | `talent_categories` con almeno 1 elemento |
+| Altezza/Peso | 5 | `height` o `weight` presenti |
+| Misure corporee | 10 | Almeno 3 misure (chest, waist, hips, etc.) |
+| Colore capelli/occhi | 5 | `hair_color` + `eye_color` |
+| Lingue | 5 | `languages` con almeno 1 elemento |
+| Skills | 5 | `skills` con almeno 1 elemento |
+| Media (foto/video) | 15 | Almeno 3 media nella galleria |
+| Contatti | 5 | `phone_number` o `whatsapp_number` presente |
+| Indirizzo | 5 | `city` + `country` presenti |
 
-**Patenti:**
+**Totale: 100 punti**
+
+### Livelli ed Emoji
+
+| Percentuale | Emoji | Frase |
+|-------------|-------|-------|
+| 0-19% | 😴 | "Il tuo profilo sta ancora dormendo... sveglialo!" |
+| 20-39% | 😐 | "Ci stai lavorando, ma c'è ancora strada da fare!" |
+| 40-59% | 🙂 | "Sei sulla buona strada! Continua così." |
+| 60-79% | 😊 | "Ottimo lavoro! Aggiungi ancora qualche dettaglio per brillare." |
+| 80-94% | 🤩 | "Quasi perfetto! Manca pochissimo alla vetta!" |
+| 95-100% | 🌟 | "Profilo da star! Sei pronto per essere scoperto!" |
+
+### Suggerimenti dinamici
+
+Mostro pulsanti per le sezioni mancanti con scroll alla sezione corrispondente:
+
 ```javascript
-const DRIVING_LICENSES = [
-  "AM", "A", "A1", "A2", "B", "C", "D", "E", "BE", "CE", "D+E", "Patente Nautica"
+const missingSections = [
+  { key: 'photo', label: 'Foto profilo', anchor: 'profile-photo' },
+  { key: 'bio', label: 'Biografia', anchor: 'about-me' },
+  { key: 'roles', label: 'Ruoli', anchor: 'talent-roles' },
+  { key: 'media', label: 'Galleria Media', anchor: 'media-gallery' },
+  { key: 'measurements', label: 'Misure', anchor: 'measurements' },
+  { key: 'languages', label: 'Lingue', anchor: 'languages' },
+  { key: 'skills', label: 'Competenze', anchor: 'skills' },
+  { key: 'contact', label: 'Contatti', anchor: 'contact-info' },
 ];
 ```
-
-**Abilita:**
-```javascript
-const ABILITIES = ["Danza", "Palestra", "Strumenti musicali", "Canto", "Sport"];
-```
-
-### Piano di implementazione
-
-1. **Migrazione database**: Aggiungere tutti i nuovi campi alle tabelle `profiles` e `talent_attributes`
-
-2. **Aggiornare hooks**: Estendere `useUpdateProfile` e `useUpdateTalentAttributes` per gestire i nuovi campi
-
-3. **Aggiornare traduzioni**: Aggiungere tutte le nuove label in `src/lib/i18n.ts`
-
-4. **Creare nuovi componenti**: Implementare le 9 nuove sezioni del profilo
-
-5. **Aggiornare TalentProfile**: Integrare tutte le nuove sezioni nel layout
-
-6. **Rifattorizzare AppearanceSection**: Rinominare in `MeasurementsSection` e aggiungere tutti i campi misure
-
-### Gestione dati strutturati
-
-Per i campi complessi uso JSONB:
-- `residence_address`: `{state, city, street, postal_code}`
-- `social_links`: `{instagram, tiktok, youtube, x, amazon}`
-- `travel_availability`: `{continents: [], countries: []}`
-- `visas`: `[{country, duration}]`
-- `underwear_sizes`: `{size, specific}`
 
 ### File da creare/modificare
 
 | File | Azione |
 |------|--------|
-| Migrazione SQL | Creare nuovi campi database |
-| `src/hooks/useProfile.ts` | Nessuna modifica (gia dinamico) |
-| `src/hooks/useUpdateProfile.ts` | Estendere con nuovi campi |
-| `src/hooks/useTalentAttributes.ts` | Estendere con nuovi campi |
-| `src/lib/i18n.ts` | Aggiungere traduzioni |
-| `src/lib/profileOptions.ts` | NUOVO - costanti per select |
-| `src/components/profile/TalentRolesSection.tsx` | NUOVO |
-| `src/components/profile/ContactInfoSection.tsx` | NUOVO |
-| `src/components/profile/AddressSection.tsx` | NUOVO |
-| `src/components/profile/DocumentsSection.tsx` | NUOVO |
-| `src/components/profile/WorkInfoSection.tsx` | NUOVO |
-| `src/components/profile/TravelSection.tsx` | NUOVO |
-| `src/components/profile/MeasurementsSection.tsx` | NUOVO (sostituisce AppearanceSection) |
-| `src/components/profile/PhysicalFeaturesSection.tsx` | NUOVO |
-| `src/components/profile/AbilitiesSection.tsx` | NUOVO |
-| `src/pages/talent/TalentProfile.tsx` | Aggiornare layout |
+| `src/hooks/useProfileCompletion.ts` | NUOVO - Hook per calcolare completezza |
+| `src/components/profile/ProfileCompletionBar.tsx` | NUOVO - Componente progress bar |
+| `src/pages/talent/TalentProfile.tsx` | Aggiungere ProfileCompletionBar + id alle sezioni |
+| `src/lib/i18n.ts` | Aggiungere traduzioni per i messaggi |
+
+### Implementazione hook `useProfileCompletion`
+
+```typescript
+// Esempio struttura
+interface ProfileCompletionResult {
+  percentage: number;
+  score: number;
+  maxScore: number;
+  emoji: string;
+  message: string;
+  missingSections: Array<{
+    key: string;
+    label: string;
+    anchor: string;
+  }>;
+}
+```
+
+L'hook combina i dati da:
+- `useProfile()` - dati profilo base
+- `useTalentAttributes()` - attributi fisici
+- `useTalentMedia()` - media nella galleria
+
+### Componente `ProfileCompletionBar`
+
+Caratteristiche:
+- Card con sfondo leggero e bordo accent
+- Progress bar con animazione smooth
+- Emoji posizionata sopra la barra (come nello screenshot)
+- Toggle "Nascondi suggerimenti" con icona
+- Pulsanti suggerimento che scrollano alla sezione
+- Stato persistito in localStorage per nascondere
+
+### Stile CSS
+
+Uso le classi centralizzate `dc-*` esistenti + nuove:
+
+```css
+.dc-progress-bar {
+  @apply relative h-3 w-full overflow-hidden rounded-full bg-muted;
+}
+
+.dc-progress-indicator {
+  @apply h-full bg-primary transition-all duration-500 ease-out;
+}
+
+.dc-completion-card {
+  @apply dc-card bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20;
+}
+
+.dc-suggestion-chip {
+  @apply dc-btn-outline text-sm px-3 py-1 h-auto;
+}
+```
+
+### Interazioni
+
+1. **Click su suggerimento**: Scroll smooth alla sezione corrispondente
+2. **Toggle suggerimenti**: Nasconde/mostra area suggerimenti, salva preferenza in localStorage
+3. **Aggiornamento real-time**: Si aggiorna automaticamente quando i dati cambiano (tramite React Query)
 
 ### Risultato atteso
 
-- Profilo talent completo con tutti i campi visibili nei form di onboarding
-- Sezioni organizzate logicamente e editabili indipendentemente
-- Dati salvati correttamente nel database
-- UI coerente con il design system esistente (classi `dc-*`)
-- Tutti i campi opzionali per non bloccare l'utente
+- Progress bar visibile in cima alla pagina profilo
+- Feedback immediato sul livello di completamento
+- Suggerimenti actionable per guidare l'utente
+- Esperienza gamificata con emoji e frasi motivazionali
+- Persistenza preferenza "nascondi suggerimenti"
 
