@@ -3,17 +3,38 @@ import { ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTalentMedia, useDeleteMedia, type TalentMedia } from "@/hooks/useTalentMedia";
+import { 
+  useTalentMediaByProfileIdEditable, 
+  useDeleteMediaByProfileId, 
+  type TalentMedia as TalentMediaType 
+} from "@/hooks/useTalentMediaByProfileIdEditable";
 import { MediaGridItem } from "./MediaGridItem";
 import { MediaLightbox } from "./MediaLightbox";
 import { MediaUploadButton } from "./MediaUploadButton";
 
-export const MediaGallerySection = () => {
-  const { data: media, isLoading } = useTalentMedia();
-  const { mutate: deleteMedia, isPending: isDeleting } = useDeleteMedia();
+interface MediaGallerySectionProps {
+  externalProfileId?: string;
+  externalUserId?: string;
+}
+
+export const MediaGallerySection = ({ externalProfileId, externalUserId }: MediaGallerySectionProps) => {
+  const { data: ownMedia, isLoading: ownLoading } = useTalentMedia();
+  const { data: externalMedia, isLoading: externalLoading } = useTalentMediaByProfileIdEditable(externalProfileId);
+  const { mutate: deleteOwnMedia, isPending: isOwnDeleting } = useDeleteMedia();
+  const { mutate: deleteExternalMedia, isPending: isExternalDeleting } = useDeleteMediaByProfileId();
+  
+  const media = externalProfileId ? externalMedia : ownMedia;
+  const isLoading = externalProfileId ? externalLoading : ownLoading;
+  const isDeleting = externalProfileId ? isExternalDeleting : isOwnDeleting;
+  
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const handleDelete = (mediaItem: TalentMedia) => {
-    deleteMedia(mediaItem);
+  const handleDelete = (mediaItem: TalentMedia | TalentMediaType) => {
+    if (externalProfileId) {
+      deleteExternalMedia({ media: mediaItem as TalentMediaType, profileId: externalProfileId });
+    } else {
+      deleteOwnMedia(mediaItem as TalentMedia);
+    }
   };
 
   const openLightbox = (index: number) => {
@@ -32,7 +53,11 @@ export const MediaGallerySection = () => {
             <ImageIcon className="h-5 w-5" />
             Galleria Media
           </CardTitle>
-          <MediaUploadButton disabled={isLoading} />
+          <MediaUploadButton 
+            disabled={isLoading} 
+            externalProfileId={externalProfileId}
+            externalUserId={externalUserId}
+          />
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -67,7 +92,7 @@ export const MediaGallerySection = () => {
       {/* Lightbox */}
       {lightboxIndex !== null && media && (
         <MediaLightbox
-          media={media}
+          media={media as TalentMedia[]}
           currentIndex={lightboxIndex}
           onClose={closeLightbox}
           onNavigate={setLightboxIndex}

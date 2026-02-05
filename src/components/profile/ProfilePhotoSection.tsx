@@ -7,12 +7,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useProfileById } from "@/hooks/useProfileById";
+import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 
-export const ProfilePhotoSection = () => {
+interface ProfilePhotoSectionProps {
+  externalProfileId?: string;
+}
+
+export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionProps) => {
   const { user } = useAuth();
-  const { data: profile } = useProfile();
-  const updateProfile = useUpdateProfile();
+  const { data: ownProfile } = useProfile();
+  const { data: externalProfile } = useProfileById(externalProfileId);
+  const updateOwnProfile = useUpdateProfile();
+  const updateExternalProfile = useUpdateProfileById();
+  
+  const profile = externalProfileId ? externalProfile : ownProfile;
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -22,7 +32,10 @@ export const ProfilePhotoSection = () => {
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user?.id) return;
+    
+    // Use the profile's user_id for external profiles, or current user for own profile
+    const targetUserId = externalProfileId ? profile?.user_id : user?.id;
+    if (!file || !targetUserId) return;
 
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Il file è troppo grande. Massimo 5MB.");
@@ -32,7 +45,7 @@ export const ProfilePhotoSection = () => {
     setIsUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const filePath = `${user.id}/avatar.${fileExt}`;
+      const filePath = `${targetUserId}/avatar.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
@@ -44,7 +57,14 @@ export const ProfilePhotoSection = () => {
         .from("avatars")
         .getPublicUrl(filePath);
 
-      await updateProfile.mutateAsync({ profile_photo_url: publicUrl });
+      if (externalProfileId) {
+        await updateExternalProfile.mutateAsync({ 
+          profileId: externalProfileId, 
+          updates: { profile_photo_url: publicUrl } 
+        });
+      } else {
+        await updateOwnProfile.mutateAsync({ profile_photo_url: publicUrl });
+      }
       toast.success("Foto profilo aggiornata!");
     } catch (error) {
       console.error("Upload error:", error);

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ import {
   Play,
   Image as ImageIcon,
   Send,
+  Pencil,
 } from "lucide-react";
 
 interface TalentDetailDialogProps {
@@ -66,6 +68,7 @@ export const TalentDetailDialog = ({
   open,
   onOpenChange,
 }: TalentDetailDialogProps) => {
+  const navigate = useNavigate();
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { data: media, isLoading: mediaLoading } = useTalentMediaByProfileId(
@@ -132,6 +135,17 @@ export const TalentDetailDialog = ({
                 <div className="flex gap-2">
                   <Button
                     variant="default"
+                    size="sm"
+                    onClick={() => {
+                      onOpenChange(false);
+                      navigate(`/owner/talents/${talent.id}/edit`);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4 mr-2" />
+                    Modifica
+                  </Button>
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => setShowInviteDialog(true)}
                   >
