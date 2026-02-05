@@ -1,91 +1,91 @@
 
 
-## Piano: Cornice da 8px, fixed e miglioramenti sidebar
+## Piano: Border radius 1.5rem per Card, Dialog e Alert Dialog
 
 ### Obiettivo
-1. Ridurre la cornice da 16px (p-4) a 8px (p-2)
-2. Rendere la cornice fixed nella pagina
-3. Rimuovere il bordo destro dalla sidebar
-4. Aggiungere padding laterale al divisore orizzontale in basso nella sidebar
+Applicare un border radius uniforme di 1.5rem (24px) a tutte le Card e i Dialog dell'applicazione, incluse le card dei Talent, Casting e altre sezioni.
+
+### Analisi
+
+Le card come `TalentCard` e `CastingCard` utilizzano il componente base `Card` da `src/components/ui/card.tsx`. Aggiornando il componente base, tutte le istanze erediteranno automaticamente il nuovo stile.
+
+| Componente | Utilizza | Effetto della modifica |
+|------------|----------|------------------------|
+| `TalentCard` | `Card` base | Angoli arrotondati automatici |
+| `CastingCard` | `Card` base | Angoli arrotondati automatici |
+| Altre Card | `Card` base | Angoli arrotondati automatici |
+| Modal/Dialog | `Dialog` base | Angoli arrotondati automatici |
 
 ### Modifiche previste
 
-**1. Layout (`OwnerLayout.tsx` e `TalentLayout.tsx`)**
+**1. `src/components/ui/card.tsx`**
 
-Modificare il main wrapper per:
-- Cambiare `p-4` in `p-2` (8px invece di 16px)
-- Rendere il contenitore della cornice `fixed` con posizionamento corretto
-- Aggiustare l'altezza da `calc(100vh-2rem)` a `calc(100vh-1rem)` per compensare il nuovo padding
+Aggiornare il border radius del Card:
 
 ```tsx
-<main className="fixed top-0 right-0 bottom-0 left-64 p-2">
-  <div className="h-full bg-background rounded-[3rem] overflow-hidden">
-    <div className="h-full overflow-y-auto">
-      <div className="p-8 pt-12 max-w-7xl mx-auto">
-        <Outlet />
-      </div>
-    </div>
-  </div>
-</main>
+// Prima
+className={cn("rounded-lg border bg-card...", className)}
+
+// Dopo  
+className={cn("rounded-3xl border bg-card...", className)}
 ```
 
-Punti chiave:
-- `fixed top-0 right-0 bottom-0 left-64`: posizionamento fisso che inizia dopo la sidebar
-- `p-2`: cornice di 8px
-- `h-full` invece di `min-h-[calc(...)]`: occupa tutta l'altezza disponibile
-- Aggiunto wrapper con `overflow-y-auto` per gestire lo scroll del contenuto interno
+**2. `src/components/ui/dialog.tsx`**
 
-**2. Sidebar (`OwnerSidebar.tsx` e `TalentSidebar.tsx`)**
-
-Rimuovere il bordo destro:
-- Cambiare `border-r border-border` in nessun bordo (rimuovere completamente)
-
-Aggiungere padding al divisore:
-- Modificare il `div` della user section da `border-t border-border` a includere margine orizzontale: `mx-4 border-t border-border`
-- Oppure usare un `Separator` component con padding
+Aggiornare DialogContent:
 
 ```tsx
-{/* User section - prima */}
-<div className="p-4 border-t border-border">
+// Prima
+className={cn("... sm:rounded-lg", className)}
 
-{/* User section - dopo */}
-<div className="p-4">
-  <div className="border-t border-border mx-2 -mt-4 mb-4" />
-  ...
-</div>
+// Dopo
+className={cn("... sm:rounded-3xl", className)}
 ```
 
-O più semplicemente applicando il bordo con un elemento separato che abbia margini.
+**3. `src/components/ui/alert-dialog.tsx`**
+
+Aggiornare AlertDialogContent:
+
+```tsx
+// Prima
+className={cn("... sm:rounded-lg", className)}
+
+// Dopo
+className={cn("... sm:rounded-3xl", className)}
+```
+
+### Valori Tailwind
+
+| Classe | Valore |
+|--------|--------|
+| `rounded-lg` | 0.5rem (8px) - attuale |
+| `rounded-3xl` | 1.5rem (24px) - nuovo |
 
 ### File coinvolti
 
 | File | Azione |
 |------|--------|
-| `src/components/layout/OwnerLayout.tsx` | Cornice 8px + fixed |
-| `src/components/layout/TalentLayout.tsx` | Cornice 8px + fixed |
-| `src/components/layout/OwnerSidebar.tsx` | Rimuovere border-r + padding divisore |
-| `src/components/layout/TalentSidebar.tsx` | Rimuovere border-r + padding divisore |
+| `src/components/ui/card.tsx` | `rounded-lg` → `rounded-3xl` |
+| `src/components/ui/dialog.tsx` | `sm:rounded-lg` → `sm:rounded-3xl` |
+| `src/components/ui/alert-dialog.tsx` | `sm:rounded-lg` → `sm:rounded-3xl` |
 
-### Dettagli tecnici
+### Gerarchia visiva risultante
 
-**OwnerSidebar.tsx / TalentSidebar.tsx:**
-```tsx
-// Riga 42 (Owner) / Riga 37 (Talent) - rimuovere border-r
-<aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card flex flex-col">
-
-// Riga 79 (Owner) / Riga 72 (Talent) - divisore con padding
-<div className="px-4 pt-4">
-  <div className="border-t border-border" />
-</div>
-<div className="p-4 pt-3">
-  ...contenuto user section...
-</div>
+```text
+┌─────────────────────────────────────────┐
+│           Cornice esterna (3rem)        │
+│  ┌───────────────────────────────────┐  │
+│  │      Card/Sezioni (1.5rem)        │  │
+│  │                                   │  │
+│  └───────────────────────────────────┘  │
+└─────────────────────────────────────────┘
 ```
 
 ### Risultato atteso
 
-- Cornice più sottile (8px) attorno al contenuto
-- Layout fixed che non scrolla con la pagina
-- Sidebar senza bordo destro per un look più pulito
-- Divisore orizzontale con margini laterali per non toccare i bordi
+- Tutte le TalentCard con angoli arrotondati 1.5rem
+- Tutte le CastingCard con angoli arrotondati 1.5rem
+- Tutti i Dialog/Modal con angoli arrotondati 1.5rem
+- Design coerente e moderno in tutta l'applicazione
+- La cornice esterna (3rem) rimane più grande delle card interne (1.5rem)
 
