@@ -1,54 +1,69 @@
 
 
-## Piano: Uniformare Colore Bordo Radio Button e Checkbox
+## Piano: Sostituire Checkbox con Chips Selezionabili nella Sezione Ruoli
 
 ### Obiettivo
-Modificare il colore del bordo di radio button e checkbox quando sono deselezionati per allinearlo al colore del bordo dei pulsanti secondary (`border-foreground`).
+Modificare la sezione "Ruoli e Talenti" sostituendo le checkbox tradizionali con chips (badge) cliccabili per una selezione più moderna e visivamente accattivante.
 
-### Analisi corrente
+### Comportamento delle Chips
 
-| Componente | Bordo attuale (deselezionato) | Bordo richiesto |
-|------------|-------------------------------|-----------------|
-| Checkbox | `border-primary` (rosso bordeaux) | `border-foreground` (scuro) |
-| RadioGroupItem | `border-primary` (rosso bordeaux) | `border-foreground` (scuro) |
-| Button secondary | `border-foreground` (scuro) | - (riferimento) |
+| Stato | Stile |
+|-------|-------|
+| Non selezionato | Bordo scuro (`border-foreground`), sfondo trasparente, testo scuro |
+| Selezionato | Sfondo `primary` (bordeaux), testo bianco |
+| Hover | Leggero cambio di sfondo (`hover:bg-muted`) |
+| Disabilitato (non in modifica) | Opacità ridotta, cursor not-allowed |
 
 ### Modifiche richieste
 
-**File: `src/components/ui/checkbox.tsx`**
+**File: `src/components/profile/TalentRolesSection.tsx`**
 
-Cambio da `border-primary` a `border-foreground`:
+1. **Rimuovere import Checkbox** - Non più necessario
+2. **Sostituire layout checkbox** - Da griglia con checkbox a flex wrap con chips
+3. **Rimuovere la sezione badge finale** - Le chips saranno già visibili sia in editing che non
 
-```tsx
-// Prima
-"border border-primary ring-offset-background data-[state=checked]:bg-primary..."
+### Layout prima e dopo
 
-// Dopo  
-"border border-foreground ring-offset-background data-[state=checked]:bg-primary..."
+**Prima:**
+```
+[x] Modello/Modella    [x] Attore/Attrice    [ ] Real people
+[ ] Steward/Promoter   [ ] Piedista          [ ] Manista
 ```
 
-**File: `src/components/ui/radio-group.tsx`**
-
-Cambio da `border-primary` a `border-foreground`:
-
-```tsx
-// Prima
-"border border-primary text-primary ring-offset-background..."
-
-// Dopo
-"border border-foreground text-primary ring-offset-background..."
+**Dopo:**
+```
+[Modello/Modella] [Attore/Attrice] [Real people] [Steward/Promoter]
+[Piedista] [Manista] [Presentatore] [Speaker radiofonico] ...
 ```
 
-### Comportamento finale
+### Codice chips
 
-| Stato | Checkbox | Radio Button |
-|-------|----------|--------------|
-| Deselezionato | Bordo `foreground` (scuro) | Bordo `foreground` (scuro) |
-| Selezionato | Sfondo `primary` (bordeaux) + checkmark bianco | Cerchio `primary` (bordeaux) |
+```tsx
+{group.roles.map(role => (
+  <button
+    key={role}
+    type="button"
+    onClick={() => isEditing && handleRoleToggle(role)}
+    disabled={!isEditing}
+    className={cn(
+      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+      "border border-foreground",
+      selectedRoles.includes(role)
+        ? "bg-primary text-primary-foreground border-primary"
+        : "bg-transparent text-foreground hover:bg-muted",
+      !isEditing && "opacity-70 cursor-not-allowed"
+    )}
+  >
+    {role}
+  </button>
+))}
+```
 
 ### Risultato atteso
 
-- Checkbox e radio button deselezionati avranno lo stesso colore di bordo scuro dei pulsanti secondary
-- Quando selezionati manterranno il colore `primary` (bordeaux) per lo sfondo/indicatore
-- Design system più coerente in tutti i controlli form
+- Chips con forma a pillola coerente con i pulsanti del design system
+- Stile selezionato: bordeaux con testo bianco
+- Stile non selezionato: bordo scuro su sfondo trasparente
+- Interazione intuitiva: click per selezionare/deselezionare
+- Nessun cambiamento al "Tipo di rappresentanza" (rimane con radio button)
 
