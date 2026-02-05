@@ -274,6 +274,47 @@ export type Database = {
           },
         ]
       }
+      casting_targets: {
+        Row: {
+          casting_id: string
+          created_at: string
+          created_by_user_id: string | null
+          criteria_json: Json
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          casting_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          criteria_json?: Json
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          casting_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          criteria_json?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "casting_targets_casting_id_fkey"
+            columns: ["casting_id"]
+            isOneToOne: false
+            referencedRelation: "castings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       castings: {
         Row: {
           category: string | null
@@ -810,6 +851,51 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      target_shortlist: {
+        Row: {
+          added_at: string
+          added_by_user_id: string | null
+          id: string
+          notes: string | null
+          profile_id: string
+          status: string
+          target_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by_user_id?: string | null
+          id?: string
+          notes?: string | null
+          profile_id: string
+          status?: string
+          target_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by_user_id?: string | null
+          id?: string
+          notes?: string | null
+          profile_id?: string
+          status?: string
+          target_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "target_shortlist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "target_shortlist_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "casting_targets"
             referencedColumns: ["id"]
           },
         ]
