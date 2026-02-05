@@ -422,6 +422,47 @@ export type Database = {
         }
         Relationships: []
       }
+      media_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          media_id: string
+          notes: string | null
+          owner_user_id: string
+          rating: number | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_id: string
+          notes?: string | null
+          owner_user_id: string
+          rating?: number | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_id?: string
+          notes?: string | null
+          owner_user_id?: string
+          rating?: number | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_ratings_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "talent_media"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_participants: {
         Row: {
           id: string

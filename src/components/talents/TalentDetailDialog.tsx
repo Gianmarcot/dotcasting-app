@@ -13,8 +13,11 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { useTalentMediaByProfileId } from "@/hooks/useTalentMediaByProfileId";
+import { useMediaRatingsForProfile, type MediaRating } from "@/hooks/useMediaRatings";
 import { TalentExportDialog } from "./TalentExportDialog";
 import { InviteTalentDialog } from "@/components/invitations/InviteTalentDialog";
+import { MediaLightbox } from "@/components/profile/MediaLightbox";
+import { MediaRatingStars } from "@/components/media/MediaRatingStars";
 import {
   MapPin,
   User,
@@ -30,6 +33,7 @@ import {
   Image as ImageIcon,
   Send,
   Pencil,
+  Star,
 } from "lucide-react";
 
 interface TalentDetailDialogProps {
@@ -71,11 +75,20 @@ export const TalentDetailDialog = ({
   const navigate = useNavigate();
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  
   const { data: media, isLoading: mediaLoading } = useTalentMediaByProfileId(
     talent?.id || null
   );
+  const { data: ownerRatings } = useMediaRatingsForProfile(talent?.id || null);
 
-  if (!talent) return null;
+  // Create a map of media_id -> rating for quick lookup
+  const ratingsMap = new Map<string, MediaRating>();
+  if (ownerRatings) {
+    ownerRatings.forEach((rating) => {
+      ratingsMap.set(rating.media_id, rating);
+    });
+  }
 
   const fullName =
     [talent.first_name, talent.last_name].filter(Boolean).join(" ") || "Senza nome";
@@ -302,40 +315,69 @@ export const TalentDetailDialog = ({
 
             {!mediaLoading && media && media.length > 0 && (
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {media.map((item) => (
-                  <a
-                    key={item.id}
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative aspect-square rounded-lg overflow-hidden bg-muted group"
-                  >
-                    {item.media_type === "video" ? (
-                      <>
-                        {item.thumbnail_url ? (
-                          <img
-                            src={item.thumbnail_url}
-                            alt={item.title || "Video"}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <Play className="h-8 w-8 text-muted-foreground" />
+                {media.map((item, index) => {
+                  const itemRating = ratingsMap.get(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => setLightboxIndex(index)}
+                      className="relative aspect-square rounded-lg overflow-hidden bg-muted group cursor-pointer"
+                    >
+                      {item.media_type === "video" ? (
+                        <>
+                          {item.thumbnail_url ? (
+                            <img
+                              src={item.thumbnail_url}
+                              alt={item.title || "Video"}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-muted">
+                              <Play className="h-8 w-8 text-muted-foreground" />
+                            </div>
+                          )}
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                            <Play className="h-8 w-8 text-white" />
                           </div>
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                          <Play className="h-8 w-8 text-white" />
+                        </>
+                      ) : (
+                        <img
+                          src={item.url}
+                          alt={item.title || "Foto"}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      )}
+                      
+                      {/* Owner Rating Overlay */}
+                      {itemRating && (itemRating.rating || (itemRating.tags && itemRating.tags.length > 0)) && (
+                        <div className="absolute top-1 left-1 flex flex-col gap-0.5 pointer-events-none">
+                          {itemRating.rating && (
+                            <div className="flex items-center gap-0.5 bg-background/90 px-1 py-0.5 rounded">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`h-2.5 w-2.5 ${
+                                    star <= itemRating.rating!
+                                      ? "fill-amber-400 text-amber-400"
+                                      : "fill-transparent text-muted-foreground/40"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          )}
+                          {itemRating.tags && itemRating.tags.length > 0 && (
+                            <div className="flex flex-wrap gap-0.5">
+                              <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5">
+                                {itemRating.tags[0]}
+                                {itemRating.tags.length > 1 && ` +${itemRating.tags.length - 1}`}
+                              </Badge>
+                            </div>
+                          )}
                         </div>
-                      </>
-                    ) : (
-                      <img
-                        src={item.url}
-                        alt={item.title || "Foto"}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                      />
-                    )}
-                  </a>
-                ))}
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
@@ -347,6 +389,17 @@ export const TalentDetailDialog = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Lightbox with rating panel */}
+      {lightboxIndex !== null && media && (
+        <MediaLightbox
+          media={media}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+          isOwnerView={true}
+        />
+      )}
 
       {/* Export dialog */}
       <TalentExportDialog

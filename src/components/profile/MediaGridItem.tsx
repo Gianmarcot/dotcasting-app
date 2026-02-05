@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Trash2, GripVertical } from "lucide-react";
+import { Play, Trash2, GripVertical, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -13,13 +13,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Badge } from "@/components/ui/badge";
 import type { TalentMedia } from "@/hooks/useTalentMedia";
+import type { MediaRating } from "@/hooks/useMediaRatings";
 
 interface MediaGridItemProps {
   media: TalentMedia;
-  onDelete: (media: TalentMedia) => void;
+  onDelete?: (media: TalentMedia) => void;
   onClick: () => void;
   isDeleting?: boolean;
+  isOwnerView?: boolean;
+  ownerRating?: MediaRating | null;
+  showDeleteButton?: boolean;
 }
 
 export const MediaGridItem = ({
@@ -27,6 +32,9 @@ export const MediaGridItem = ({
   onDelete,
   onClick,
   isDeleting,
+  isOwnerView = false,
+  ownerRating,
+  showDeleteButton = true,
 }: MediaGridItemProps) => {
   const [imageError, setImageError] = useState(false);
 
@@ -61,46 +69,84 @@ export const MediaGridItem = ({
         )}
       </AspectRatio>
 
-      {/* Drag Handle */}
-      <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="p-1.5 bg-background/80 rounded-md cursor-grab text-muted-foreground">
-          <GripVertical className="h-4 w-4" />
+      {/* Drag Handle - only show when delete button is visible */}
+      {showDeleteButton && (
+        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="p-1.5 bg-background/80 rounded-md cursor-grab text-muted-foreground">
+            <GripVertical className="h-4 w-4" />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Owner Rating Overlay */}
+      {isOwnerView && ownerRating && (ownerRating.rating || (ownerRating.tags && ownerRating.tags.length > 0)) && (
+        <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none">
+          {ownerRating.rating && (
+            <div className="flex items-center gap-0.5 bg-background/90 px-1.5 py-0.5 rounded">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`h-3 w-3 ${
+                    star <= ownerRating.rating!
+                      ? "fill-amber-400 text-amber-400"
+                      : "fill-transparent text-muted-foreground/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+          {ownerRating.tags && ownerRating.tags.length > 0 && (
+            <div className="flex flex-wrap gap-0.5 max-w-full">
+              {ownerRating.tags.slice(0, 2).map((tag) => (
+                <Badge key={tag} variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                  {tag}
+                </Badge>
+              ))}
+              {ownerRating.tags.length > 2 && (
+                <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                  +{ownerRating.tags.length - 2}
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Delete Button */}
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="destructive"
-              size="icon"
-              className="h-8 w-8"
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Eliminare questo media?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Questa azione non può essere annullata. Il file verrà eliminato
-                definitivamente.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annulla</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => onDelete(media)}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      {showDeleteButton && onDelete && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-8 w-8"
+                disabled={isDeleting}
               >
-                Elimina
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Eliminare questo media?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Questa azione non può essere annullata. Il file verrà eliminato
+                  definitivamente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annulla</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(media)}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Elimina
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      )}
 
       {/* Title Overlay */}
       {media.title && (
