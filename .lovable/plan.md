@@ -1,284 +1,119 @@
 
-
-## Piano: Implementazione Gestione Target con Criteri di Ricerca e Matching Automatico
+## Piano: Semplificazione Header Messaggistica e Uniformità Sfondo
 
 ### Panoramica
-Implementare un sistema completo di Target che permetta agli Owner di:
-1. Creare target di ricerca con criteri strutturati per ogni casting
-2. Salvare i criteri come template riutilizzabili
-3. Eseguire matching automatico dei talenti in base ai criteri
-4. Gestire shortlist manuali per ogni target
+Sostituire l'header attuale ("Centro messaggi" + sottotitolo) con il semplice titolo "Conversazioni" già presente nella sidebar, e rimuovere la Card wrapper per rendere il contenuto uniforme allo sfondo bianco del layout.
 
 ---
 
-### Architettura del Sistema
+### Analisi Attuale
+
+**OwnerMessages.tsx (righe 61-71):**
+```tsx
+<div className="flex items-center justify-between mb-4">
+  <div>
+    <h1 className="text-2xl text-foreground">{it.backoffice.messagingCenter}</h1>
+    <p className="text-muted-foreground mt-1">Comunicazioni con i talenti</p>
+  </div>
+  <Button onClick={() => setNewThreadOpen(true)}>
+    <Plus className="h-4 w-4 mr-2" />
+    {it.messages.newMessage}
+  </Button>
+</div>
+```
+
+**TalentMessages.tsx (righe 54-58):**
+```tsx
+<div className="mb-4">
+  <h1 className="text-2xl text-foreground">{it.messages.title}</h1>
+  <p className="text-muted-foreground mt-1">Comunicazioni con la piattaforma</p>
+</div>
+```
+
+Il contenuto è avvolto in una `<Card>` che crea una distinzione visiva non necessaria dato che il layout padre (`OwnerLayout`) ha già uno sfondo bianco (`bg-white`).
+
+---
+
+### Modifiche Previste
+
+#### 1. OwnerMessages.tsx
+
+| Elemento | Modifica |
+|----------|----------|
+| Header principale | Rimuovere completamente (righe 61-71) |
+| Titolo "Conversazioni" nella sidebar | Aggiungere il pulsante "+" accanto |
+| Card wrapper | Rimuovere e usare un semplice `div` senza bordi/shadow |
+| Bordi interni | Mantenere solo `border-r` per separare lista da conversazione |
+
+**Nuovo header sidebar (riga 78-80):**
+```tsx
+<div className="p-3 border-b flex items-center justify-between">
+  <h2 className="font-medium text-lg">Conversazioni</h2>
+  <Button size="icon" variant="ghost" onClick={() => setNewThreadOpen(true)}>
+    <Plus className="h-5 w-5" />
+  </Button>
+</div>
+```
+
+#### 2. TalentMessages.tsx
+
+| Elemento | Modifica |
+|----------|----------|
+| Header principale | Rimuovere completamente (righe 54-58) |
+| Titolo "Conversazioni" nella sidebar | Ingrandire leggermente per coerenza |
+| Card wrapper | Rimuovere e usare un semplice `div` |
+
+---
+
+### Dettagli Tecnici
+
+**Container principale (entrambi i file):**
+```tsx
+// Da:
+<div className="h-[calc(100vh-8rem)] flex flex-col animate-fade-up">
+  {/* Header rimosso */}
+  <Card className="flex-1 flex overflow-hidden border-0 shadow-sm">
+
+// A:
+<div className="h-[calc(100vh-6rem)] flex animate-fade-up">
+  {/* Nessun Card wrapper, direttamente il contenuto */}
+```
+
+**Layout uniforme:**
+- Rimuovere `<Card>` e usare `<div className="flex-1 flex overflow-hidden">`
+- Lo sfondo sarà automaticamente quello del layout padre (bianco)
+- Mantenere `border-r` sulla lista thread per separazione visiva
+- Regolare l'altezza per occupare più spazio verticale senza header
+
+---
+
+### File da Modificare
+
+| File | Modifiche |
+|------|-----------|
+| `src/pages/owner/OwnerMessages.tsx` | Rimuovere header, rimuovere Card, spostare pulsante + nella sidebar |
+| `src/pages/talent/TalentMessages.tsx` | Rimuovere header, rimuovere Card |
+
+---
+
+### Risultato Visivo Atteso
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                         CASTING                                  │
-│                           │                                      │
-│           ┌───────────────┼───────────────┐                      │
-│           ▼               ▼               ▼                      │
-│      [TARGET 1]      [TARGET 2]      [TARGET N]                  │
-│         │               │               │                        │
-│    criteria_json   criteria_json   criteria_json                 │
-│         │               │               │                        │
-│         ▼               ▼               ▼                        │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐               │
-│  │  MATCHING   │  │  MATCHING   │  │  MATCHING   │               │
-│  │  TALENTI    │  │  TALENTI    │  │  TALENTI    │               │
-│  └─────────────┘  └─────────────┘  └─────────────┘               │
-│         │               │               │                        │
-│         ▼               ▼               ▼                        │
-│    [SHORTLIST]     [SHORTLIST]     [SHORTLIST]                   │
-│  (selezione manuale)                                             │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│ Conversazioni                [+]│                              │
+│─────────────────────────────────│                              │
+│ 👤 Mario Rossi          14:32  │    Seleziona una             │
+│    Fashion Week Milano          │    conversazione              │
+│    Ultimo messaggio...          │                              │
+│─────────────────────────────────│    o iniziane una nuova      │
+│ 👤 Laura Bianchi        Ieri   │                              │
+│    Casting XYZ                  │                              │
+│    Grazie per...                │                              │
+│                                 │                              │
+└─────────────────────────────────┴──────────────────────────────┘
 ```
 
----
-
-### 1. Database Schema
-
-**Nuova tabella: `casting_targets`**
-
-| Colonna | Tipo | Descrizione |
-|---------|------|-------------|
-| id | uuid | Primary key |
-| casting_id | uuid | FK -> castings.id |
-| name | text | Nome del target (es. "Modella 20-25 anni") |
-| description | text | Descrizione opzionale |
-| criteria_json | jsonb | Criteri di filtraggio strutturati |
-| created_at | timestamp | Data creazione |
-| updated_at | timestamp | Data modifica |
-| created_by_user_id | uuid | Chi ha creato il target |
-
-**Nuova tabella: `target_shortlist`**
-
-| Colonna | Tipo | Descrizione |
-|---------|------|-------------|
-| id | uuid | Primary key |
-| target_id | uuid | FK -> casting_targets.id |
-| profile_id | uuid | FK -> profiles.id (il talent) |
-| status | text | 'pending' / 'contacted' / 'confirmed' / 'rejected' |
-| notes | text | Note dell'owner sul talent |
-| added_at | timestamp | Quando aggiunto alla shortlist |
-| added_by_user_id | uuid | Chi ha aggiunto |
-
-**Struttura `criteria_json`:**
-
-```json
-{
-  "gender": ["M", "F"],
-  "age_min": 18,
-  "age_max": 30,
-  "cities": ["Milano", "Roma"],
-  "categories": ["Modello/Modella", "Attore/Attrice"],
-  "height_min": 170,
-  "height_max": 185,
-  "hair_colors": ["Biondo", "Castano"],
-  "eye_colors": ["Azzurri", "Verdi"],
-  "skills": ["Nuoto", "Danza classica"],
-  "languages": ["Inglese", "Francese"],
-  "has_tattoos": false,
-  "has_piercings": false
-}
-```
-
----
-
-### 2. RLS Policies
-
-```sql
--- casting_targets: Solo Owner/Admin possono gestire
-CREATE POLICY "Owners can manage casting targets"
-ON public.casting_targets FOR ALL
-USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-
--- target_shortlist: Solo Owner/Admin possono gestire
-CREATE POLICY "Owners can manage shortlists"
-ON public.target_shortlist FOR ALL
-USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-```
-
----
-
-### 3. Componenti Frontend
-
-#### 3.1 Pagina OwnerTargets Ristrutturata
-
-**Flusso UI:**
-1. Lista casting attivi con conteggio target per ciascuno
-2. Click su casting -> mostra i target associati
-3. Possibilita' di creare nuovo target per il casting selezionato
-4. Per ogni target: visualizza criteri, numero match, shortlist
-
-#### 3.2 Nuovi Componenti
-
-| Componente | Descrizione |
-|------------|-------------|
-| `CastingTargetsList.tsx` | Lista dei target per un casting |
-| `CreateTargetDialog.tsx` | Dialog per creare/modificare un target |
-| `TargetCriteriaForm.tsx` | Form multi-step per definire i criteri |
-| `TargetMatchResults.tsx` | Visualizza talenti che matchano i criteri |
-| `TargetShortlist.tsx` | Gestione della shortlist manuale |
-| `ShortlistTalentCard.tsx` | Card talent nella shortlist con status/note |
-
-#### 3.3 Struttura Pagina
-
-```text
-┌────────────────────────────────────────────────────────────┐
-│  TARGET E SHORTLIST                                        │
-│  Gestisci i target di ricerca per i tuoi casting           │
-├────────────────────────────────────────────────────────────┤
-│                                                            │
-│  [Dropdown: Seleziona Casting]                             │
-│                                                            │
-├────────────────────────────────────────────────────────────┤
-│  TARGET PER "NOME CASTING"                [+ Nuovo Target] │
-│                                                            │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │ Target: Modella 20-25 anni                           │  │
-│  │ Criteri: F, 20-25 anni, Milano/Roma, 170-180cm       │  │
-│  │ Match: 45 talenti  |  Shortlist: 8 talenti           │  │
-│  │ [Vedi Match] [Gestisci Shortlist] [Modifica] [...]   │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                            │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │ Target: Attore giovane                               │  │
-│  │ Criteri: M, 25-35 anni, skills: Recitazione          │  │
-│  │ Match: 23 talenti  |  Shortlist: 5 talenti           │  │
-│  │ [Vedi Match] [Gestisci Shortlist] [Modifica] [...]   │  │
-│  └──────────────────────────────────────────────────────┘  │
-│                                                            │
-└────────────────────────────────────────────────────────────┘
-```
-
----
-
-### 4. Hooks React
-
-| Hook | Funzione |
-|------|----------|
-| `useTargets(castingId)` | Fetch target per un casting |
-| `useCreateTarget()` | Mutation per creare target |
-| `useUpdateTarget()` | Mutation per modificare target |
-| `useDeleteTarget()` | Mutation per eliminare target |
-| `useTargetMatches(targetId)` | Esegue matching e ritorna talenti |
-| `useShortlist(targetId)` | Fetch shortlist per un target |
-| `useAddToShortlist()` | Aggiunge talent a shortlist |
-| `useRemoveFromShortlist()` | Rimuove talent da shortlist |
-| `useUpdateShortlistStatus()` | Aggiorna status nella shortlist |
-
----
-
-### 5. Logica di Matching
-
-Il matching avviene lato client per flessibilita', utilizzando la funzione esistente `useTalents` come base:
-
-```typescript
-// Pseudocodice della logica di matching
-function matchTalentsWithCriteria(talents, criteria) {
-  return talents.filter(talent => {
-    // Genere
-    if (criteria.gender?.length && !criteria.gender.includes(talent.gender)) 
-      return false;
-    
-    // Eta'
-    const age = calculateAge(talent.birth_date);
-    if (criteria.age_min && age < criteria.age_min) return false;
-    if (criteria.age_max && age > criteria.age_max) return false;
-    
-    // Citta'
-    if (criteria.cities?.length && !criteria.cities.includes(talent.city)) 
-      return false;
-    
-    // Categorie
-    if (criteria.categories?.length) {
-      const hasCategory = criteria.categories.some(c => 
-        talent.talent_categories?.includes(c)
-      );
-      if (!hasCategory) return false;
-    }
-    
-    // Altezza
-    if (criteria.height_min && talent.attributes?.height < criteria.height_min) 
-      return false;
-    if (criteria.height_max && talent.attributes?.height > criteria.height_max) 
-      return false;
-    
-    // Colore capelli/occhi
-    if (criteria.hair_colors?.length && 
-        !criteria.hair_colors.includes(talent.attributes?.hair_color)) 
-      return false;
-    
-    // Skills, lingue, tatuaggi, piercing...
-    // ... logica simile
-    
-    return true;
-  });
-}
-```
-
----
-
-### 6. File da Creare/Modificare
-
-| File | Azione | Descrizione |
-|------|--------|-------------|
-| `supabase/migrations/xxx_create_targets.sql` | Creare | Schema DB |
-| `src/hooks/useTargets.ts` | Creare | CRUD target |
-| `src/hooks/useShortlist.ts` | Creare | Gestione shortlist |
-| `src/hooks/useTargetMatching.ts` | Creare | Logica matching |
-| `src/components/targets/CastingTargetsList.tsx` | Creare | Lista target |
-| `src/components/targets/CreateTargetDialog.tsx` | Creare | Dialog creazione |
-| `src/components/targets/TargetCriteriaForm.tsx` | Creare | Form criteri |
-| `src/components/targets/TargetCard.tsx` | Creare | Card singolo target |
-| `src/components/targets/TargetMatchResults.tsx` | Creare | Risultati match |
-| `src/components/targets/TargetShortlist.tsx` | Creare | Gestione shortlist |
-| `src/components/targets/ShortlistTalentCard.tsx` | Creare | Card in shortlist |
-| `src/pages/owner/OwnerTargets.tsx` | Modificare | Pagina principale |
-| `src/lib/i18n.ts` | Modificare | Traduzioni |
-| `src/integrations/supabase/types.ts` | Auto-generato | Tipi aggiornati |
-
----
-
-### 7. Fasi di Implementazione
-
-**Fase 1: Database**
-- Creare tabelle `casting_targets` e `target_shortlist`
-- Configurare RLS policies
-- Aggiungere foreign keys
-
-**Fase 2: Hooks Base**
-- `useTargets` con CRUD completo
-- `useShortlist` con gestione membri
-
-**Fase 3: UI Lista Target**
-- Ristrutturare `OwnerTargets.tsx`
-- Creare `CastingTargetsList` e `TargetCard`
-- Selettore casting
-
-**Fase 4: Creazione Target**
-- `CreateTargetDialog` con form criteri
-- Validazione e salvataggio `criteria_json`
-
-**Fase 5: Matching**
-- Implementare `useTargetMatching`
-- `TargetMatchResults` con griglia talenti
-- Pulsante "Aggiungi a Shortlist"
-
-**Fase 6: Gestione Shortlist**
-- `TargetShortlist` con lista membri
-- Status management (pending/contacted/confirmed)
-- Note per ogni talent
-
----
-
-### Risultato Atteso
-
-1. Sistema completo per creare target di ricerca strutturati
-2. Matching automatico basato su criteri multipli
-3. Gestione shortlist con stati e note
-4. Interfaccia intuitiva integrata con i casting esistenti
-5. Dati persistenti in database con RLS appropriato
-
+- Sfondo uniforme bianco (come il resto del layout)
+- Titolo "Conversazioni" come unico header
+- Pulsante "+" integrato nell'header della lista (solo Owner)
+- Nessuna Card/bordo esterno, solo divisore verticale tra lista e messaggi
