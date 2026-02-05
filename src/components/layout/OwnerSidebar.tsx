@@ -39,9 +39,9 @@ export const OwnerSidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card flex flex-col">
+    <aside className="dc-sidebar">
       {/* Logo */}
-      <div className="p-6 flex items-center justify-between">
+      <div className="dc-sidebar-header">
         <Link to="/owner" className="flex items-center gap-3">
           <img src={logo} alt="dotCasting" className="h-7" />
           <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded">Admin</span>
@@ -50,8 +50,8 @@ export const OwnerSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 overflow-y-auto">
-        <ul className="space-y-1">
+      <nav className="dc-sidebar-nav">
+        <ul className="dc-sidebar-nav-list">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href || 
               (item.href !== "/owner" && location.pathname.startsWith(item.href));
@@ -59,12 +59,7 @@ export const OwnerSidebar = () => {
               <li key={item.href}>
                 <Link
                   to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
+                  className={isActive ? "dc-sidebar-nav-item-active" : "dc-sidebar-nav-item-inactive"}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -76,11 +71,11 @@ export const OwnerSidebar = () => {
       </nav>
 
       {/* User section */}
-      <div className="p-4">
-        <div className="border-t border-border mx-2 -mt-4 mb-4" />
-        <div className="flex items-center gap-3 mb-3 px-2">
+      <div className="dc-sidebar-footer">
+        <div className="dc-sidebar-divider" />
+        <div className="dc-sidebar-user">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+            <AvatarFallback className="dc-avatar-fallback-primary">
               {user?.email?.charAt(0).toUpperCase() || "A"}
             </AvatarFallback>
           </Avatar>
@@ -91,10 +86,7 @@ export const OwnerSidebar = () => {
           </div>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full text-left"
-        >
+        <button onClick={handleLogout} className="dc-sidebar-action">
           <LogOut className="h-4 w-4" />
           {it.nav.logout}
         </button>
