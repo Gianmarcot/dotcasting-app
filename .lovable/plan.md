@@ -1,91 +1,62 @@
 
 
-## Piano: Border radius 1.5rem per Card, Dialog e Alert Dialog
+## Piano: Sfondo bianco per Dialog e Alert Dialog
 
 ### Obiettivo
-Applicare un border radius uniforme di 1.5rem (24px) a tutte le Card e i Dialog dell'applicazione, incluse le card dei Talent, Casting e altre sezioni.
+Cambiare lo sfondo delle finestre di dialogo da `bg-background` (beige) a `bg-card` (bianco) per avere un contrasto visivo migliore e un aspetto più pulito.
 
-### Analisi
+### Situazione attuale
 
-Le card come `TalentCard` e `CastingCard` utilizzano il componente base `Card` da `src/components/ui/card.tsx`. Aggiornando il componente base, tutte le istanze erediteranno automaticamente il nuovo stile.
+Attualmente entrambi i componenti usano `bg-background`:
 
-| Componente | Utilizza | Effetto della modifica |
-|------------|----------|------------------------|
-| `TalentCard` | `Card` base | Angoli arrotondati automatici |
-| `CastingCard` | `Card` base | Angoli arrotondati automatici |
-| Altre Card | `Card` base | Angoli arrotondati automatici |
-| Modal/Dialog | `Dialog` base | Angoli arrotondati automatici |
+| Componente | Classe attuale | Colore risultante |
+|------------|----------------|-------------------|
+| `DialogContent` | `bg-background` | Beige (colore base) |
+| `AlertDialogContent` | `bg-background` | Beige (colore base) |
 
 ### Modifiche previste
 
-**1. `src/components/ui/card.tsx`**
+**1. `src/components/ui/dialog.tsx`**
 
-Aggiornare il border radius del Card:
-
-```tsx
-// Prima
-className={cn("rounded-lg border bg-card...", className)}
-
-// Dopo  
-className={cn("rounded-3xl border bg-card...", className)}
-```
-
-**2. `src/components/ui/dialog.tsx`**
-
-Aggiornare DialogContent:
+Cambiare lo sfondo del DialogContent:
 
 ```tsx
-// Prima
-className={cn("... sm:rounded-lg", className)}
+// Riga 39 - Prima
+"... bg-background p-6 ..."
 
 // Dopo
-className={cn("... sm:rounded-3xl", className)}
+"... bg-card p-6 ..."
 ```
 
-**3. `src/components/ui/alert-dialog.tsx`**
+**2. `src/components/ui/alert-dialog.tsx`**
 
-Aggiornare AlertDialogContent:
+Cambiare lo sfondo dell'AlertDialogContent:
 
 ```tsx
-// Prima
-className={cn("... sm:rounded-lg", className)}
+// Riga 37 - Prima
+"... bg-background p-6 ..."
 
 // Dopo
-className={cn("... sm:rounded-3xl", className)}
+"... bg-card p-6 ..."
 ```
-
-### Valori Tailwind
-
-| Classe | Valore |
-|--------|--------|
-| `rounded-lg` | 0.5rem (8px) - attuale |
-| `rounded-3xl` | 1.5rem (24px) - nuovo |
 
 ### File coinvolti
 
 | File | Azione |
 |------|--------|
-| `src/components/ui/card.tsx` | `rounded-lg` → `rounded-3xl` |
-| `src/components/ui/dialog.tsx` | `sm:rounded-lg` → `sm:rounded-3xl` |
-| `src/components/ui/alert-dialog.tsx` | `sm:rounded-lg` → `sm:rounded-3xl` |
+| `src/components/ui/dialog.tsx` | `bg-background` → `bg-card` |
+| `src/components/ui/alert-dialog.tsx` | `bg-background` → `bg-card` |
 
-### Gerarchia visiva risultante
+### Nota sui colori
 
-```text
-┌─────────────────────────────────────────┐
-│           Cornice esterna (3rem)        │
-│  ┌───────────────────────────────────┐  │
-│  │      Card/Sezioni (1.5rem)        │  │
-│  │                                   │  │
-│  └───────────────────────────────────┘  │
-└─────────────────────────────────────────┘
-```
+Nel design system del progetto:
+- `bg-background` = colore beige di sfondo generale
+- `bg-card` = bianco (usato per sidebar e card)
 
 ### Risultato atteso
 
-- Tutte le TalentCard con angoli arrotondati 1.5rem
-- Tutte le CastingCard con angoli arrotondati 1.5rem
-- Tutti i Dialog/Modal con angoli arrotondati 1.5rem
-- Design coerente e moderno in tutta l'applicazione
-- La cornice esterna (3rem) rimane più grande delle card interne (1.5rem)
+- Tutti i dialog avranno sfondo bianco
+- Maggiore contrasto con lo sfondo beige dell'applicazione
+- Aspetto più moderno e pulito
+- Coerenza con le card che già usano lo sfondo bianco
 
