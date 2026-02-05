@@ -169,6 +169,10 @@ export const MediaLightbox = ({
           <MediaRatingPanel
             key={currentMedia.id}
             mediaId={currentMedia.id}
+            currentIndex={currentIndex}
+            totalCount={media.length}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
           />
         </div>
       )}

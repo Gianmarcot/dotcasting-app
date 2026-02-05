@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, Save, Loader2 } from "lucide-react";
+import { Star, Save, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,21 @@ interface MediaRatingPanelProps {
   mediaId: string;
   compact?: boolean;
   onSaved?: () => void;
+  // Navigation props
+  currentIndex?: number;
+  totalCount?: number;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }
 
 export const MediaRatingPanel = ({
   mediaId,
   compact = false,
   onSaved,
+  currentIndex,
+  totalCount,
+  onPrevious,
+  onNext,
 }: MediaRatingPanelProps) => {
   const { data: existingRating, isLoading } = useMediaRating(mediaId);
   const { mutate: saveRating, isPending: isSaving } = useSaveMediaRating();
@@ -123,8 +132,35 @@ export const MediaRatingPanel = ({
     );
   }
 
+  const showNavigation = currentIndex !== undefined && totalCount !== undefined && totalCount > 1;
+
   return (
     <div className="space-y-4">
+      {/* Navigation header */}
+      {showNavigation && (
+        <div className="flex items-center justify-between pb-3 border-b border-border">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onPrevious}
+            className="h-8 w-8"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {currentIndex + 1} / {totalCount}
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onNext}
+            className="h-8 w-8"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+
       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
         <Star className="h-4 w-4" />
         Valutazione Owner
