@@ -1,97 +1,86 @@
 
-## Piano: Stile unificato per le Tabs con underline
+
+## Piano: Cornice arrotondata attorno al contenuto principale
 
 ### Obiettivo
-Creare uno stile uniforme, semplice e minimal per tutte le tabs dell'applicazione, con una linea sotto la tab attiva invece dello stile "pill" attuale.
+Creare una cornice bianca sottile attorno all'area del contenuto principale, mantenendo la sidebar al di fuori. La cornice avrà un border-radius di 3rem e overflow hidden, come mostrato nell'immagine di riferimento.
 
-### Situazione attuale
-
-L'applicazione utilizza due pattern diversi per i filtri con tabs:
-
-| Componente | Pattern attuale | Pagine |
-|------------|-----------------|--------|
-| `CastingFilters.tsx` | Radix UI Tabs (stile pill con sfondo) | Casting owner |
-| `ApplicationFilters.tsx` | Button con variant toggle | Candidature owner |
-
-### Approccio
-
-Modificare il componente UI base `Tabs` per avere uno stile underline minimal, in modo che tutte le pagine che lo utilizzano ereditino automaticamente il nuovo design. Inoltre, aggiornare `ApplicationFilters` per utilizzare il componente `Tabs` invece dei `Button`, garantendo uniformità.
-
-### Design proposto
+### Design
 
 ```text
-┌──────────────────────────────────────────────────┐
-│                                                  │
-│   Tutti    Bozza    Attivo    Chiuso            │
-│   ─────                                          │
-│                                                  │
-│   (linea sotto la tab attiva)                   │
-└──────────────────────────────────────────────────┘
+┌─────────┬────────────────────────────────────────────┐
+│         │ ┌────────────────────────────────────────┐ │
+│         │ │                                        │ │
+│ SIDEBAR │ │     CONTENUTO (con sfondo beige)       │ │
+│ (bianco)│ │                                        │ │
+│         │ │                                        │ │
+│         │ └────────────────────────────────────────┘ │
+└─────────┴────────────────────────────────────────────┘
+           └──────── cornice bianca ────────┘
 ```
 
-**Caratteristiche dello stile:**
-- Sfondo trasparente per la TabsList (nessun contenitore visibile)
-- Bordo inferiore sottile per separare le tabs dal contenuto
-- Linea colorata (primary) sotto la tab attiva
-- Transizione fluida al cambio tab
-- Nessuna ombra o effetti 3D
+La struttura prevede:
+- La sidebar rimane invariata (bianca, fixed a sinistra)
+- L'area principale ha una "cornice" bianca che la circonda
+- Il contenuto interno ha il solito sfondo beige con angoli arrotondati
+
+### Approccio tecnico
+
+L'idea è di aggiungere un wrapper attorno al contenuto principale con:
+- Sfondo bianco (come la sidebar)
+- Padding per creare lo spazio della cornice
+- Un contenitore interno con `rounded-[3rem]` e `overflow-hidden`
+- Il contenuto interno mantiene il colore di sfondo `bg-background`
 
 ### Modifiche previste
 
-**1. Aggiornare `src/components/ui/tabs.tsx`**
+**1. `src/components/layout/OwnerLayout.tsx`**
 
-Modificare gli stili di `TabsList` e `TabsTrigger`:
+Modificare la struttura del main:
 
-| Elemento | Stile attuale | Nuovo stile |
-|----------|---------------|-------------|
-| `TabsList` | `bg-muted rounded-md p-1` | `bg-transparent border-b border-border` |
-| `TabsTrigger` | `bg-background shadow-sm` (quando attivo) | `border-b-2 border-primary` (quando attivo) |
-
-**2. Aggiornare `src/components/applications/ApplicationFilters.tsx`**
-
-Convertire i `Button` in vere `Tabs` per uniformità:
-- Importare `Tabs`, `TabsList`, `TabsTrigger` 
-- Rimuovere la logica manuale di toggle
-- Mantenere le icone e i badge di conteggio
-
-### Dettagli tecnici
-
-**Nuovo stile TabsList:**
 ```tsx
-className={cn(
-  "inline-flex h-10 items-center gap-1 border-b border-border bg-transparent",
-  className,
-)}
+<main className="ml-64 min-h-screen bg-white p-4">
+  <div className="min-h-[calc(100vh-2rem)] bg-background rounded-[3rem] overflow-hidden">
+    <div className="p-8 pt-12 max-w-7xl mx-auto">
+      <Outlet />
+    </div>
+  </div>
+</main>
 ```
 
-**Nuovo stile TabsTrigger:**
-```tsx
-className={cn(
-  "inline-flex items-center justify-center whitespace-nowrap px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all border-b-2 border-transparent -mb-px",
-  "data-[state=active]:text-foreground data-[state=active]:border-primary",
-  "hover:text-foreground",
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-  "disabled:pointer-events-none disabled:opacity-50",
-  className,
-)}
-```
+Punti chiave:
+- `ml-64`: mantiene lo spazio per la sidebar
+- `bg-white`: sfondo bianco per la cornice
+- `p-4`: padding che crea lo spessore della cornice (circa 1rem su tutti i lati)
+- Wrapper interno con `rounded-[3rem]` per gli angoli arrotondati
+- `overflow-hidden` per nascondere contenuti che escono dai bordi arrotondati
+- `min-h-[calc(100vh-2rem)]`: altezza minima per occupare lo schermo meno il padding
 
-**Punti chiave:**
-- `-mb-px` per sovrapporre il bordo della lista
-- `border-b-2 border-transparent` come base
-- `data-[state=active]:border-primary` per la linea colorata
-- Transizione smooth per hover e active
+**2. `src/components/layout/TalentLayout.tsx`**
+
+Stessa modifica per mantenere coerenza tra i due layout:
+
+```tsx
+<main className="ml-64 min-h-screen bg-white p-4">
+  <div className="min-h-[calc(100vh-2rem)] bg-background rounded-[3rem] overflow-hidden">
+    <div className="p-8 pt-12 max-w-7xl mx-auto">
+      <Outlet />
+    </div>
+  </div>
+</main>
+```
 
 ### File coinvolti
 
 | File | Azione |
 |------|--------|
-| `src/components/ui/tabs.tsx` | Modifica stili base |
-| `src/components/applications/ApplicationFilters.tsx` | Refactor per usare Tabs |
+| `src/components/layout/OwnerLayout.tsx` | Aggiungere wrapper con cornice |
+| `src/components/layout/TalentLayout.tsx` | Aggiungere wrapper con cornice |
 
 ### Risultato atteso
 
-- Stile visivo coerente su tutte le pagine con filtri tabs
-- Design minimal e pulito con linea di accento sotto la tab attiva
-- Nessuna modifica necessaria alle pagine esistenti che già usano il componente Tabs (come CastingFilters)
-- Le icone e i badge in ApplicationFilters continueranno a funzionare all'interno delle TabsTrigger
+- Effetto visivo elegante con la cornice bianca che incornicia il contenuto
+- La sidebar resta fuori dalla cornice, mantenendo il design pulito
+- Angoli arrotondati (3rem) danno un aspetto moderno e morbido
+- Il layout è coerente sia per Owner che per Talent
+
