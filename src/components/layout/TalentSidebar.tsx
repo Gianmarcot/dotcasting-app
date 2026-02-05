@@ -34,9 +34,9 @@ export const TalentSidebar = () => {
     || "U";
 
   return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 bg-card flex flex-col">
+    <aside className="dc-sidebar">
       {/* Logo */}
-      <div className="p-6 flex items-center justify-between">
+      <div className="dc-sidebar-header">
         <Link to="/talent" className="flex items-center">
           <img src={logo} alt="dotCasting" className="h-7" />
         </Link>
@@ -44,20 +44,15 @@ export const TalentSidebar = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4">
-        <ul className="space-y-2">
+      <nav className="dc-sidebar-nav">
+        <ul className="dc-sidebar-nav-list">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
             return (
               <li key={item.href}>
                 <Link
                   to={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
+                  className={isActive ? "dc-sidebar-nav-item-active" : "dc-sidebar-nav-item-inactive"}
                 >
                   <item.icon className="h-5 w-5" />
                   {item.label}
@@ -69,12 +64,12 @@ export const TalentSidebar = () => {
       </nav>
 
       {/* User section */}
-      <div className="p-4">
-        <div className="border-t border-border mx-2 -mt-4 mb-4" />
-        <div className="flex items-center gap-3 mb-4 px-2">
-          <Avatar className="h-10 w-10">
+      <div className="dc-sidebar-footer">
+        <div className="dc-sidebar-divider" />
+        <div className="dc-sidebar-user mb-4">
+          <Avatar className="dc-avatar-md">
             <AvatarImage src={profile?.profile_photo_url || ""} />
-            <AvatarFallback className="bg-muted text-foreground text-sm">
+            <AvatarFallback className="dc-avatar-fallback">
               {avatarInitial}
             </AvatarFallback>
           </Avatar>
@@ -88,15 +83,12 @@ export const TalentSidebar = () => {
         <div className="space-y-1">
           <Link
             to="/talent/settings"
-            className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="dc-sidebar-action"
           >
             <Settings className="h-4 w-4" />
             {it.nav.account}
           </Link>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full text-left"
-          >
+          <button onClick={handleLogout} className="dc-sidebar-action">
             <LogOut className="h-4 w-4" />
             {it.nav.logout}
           </button>
