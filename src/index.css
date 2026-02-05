@@ -184,7 +184,7 @@
      ===================== */
   .dc-btn {
     @apply inline-flex items-center justify-center gap-2 
-           whitespace-nowrap rounded-md text-sm font-medium 
+           whitespace-nowrap rounded-full text-sm font-medium 
            ring-offset-background transition-all duration-200 
            focus-visible:outline-none focus-visible:ring-2 
            focus-visible:ring-ring focus-visible:ring-offset-2 
@@ -193,11 +193,11 @@
   }
 
   .dc-btn-primary {
-    @apply dc-btn bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm h-10 px-4 py-2;
+    @apply dc-btn bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm h-10 px-6 py-2;
   }
 
   .dc-btn-secondary {
-    @apply dc-btn bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-sm h-10 px-4 py-2;
+    @apply dc-btn border border-foreground bg-transparent text-foreground hover:bg-muted h-10 px-6 py-2;
   }
 
   .dc-btn-destructive {
