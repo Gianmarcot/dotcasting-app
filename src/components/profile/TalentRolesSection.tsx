@@ -1,10 +1,10 @@
- import { useState, useEffect } from "react";
- import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
- import { Button } from "@/components/ui/button";
- import { Checkbox } from "@/components/ui/checkbox";
- import { Label } from "@/components/ui/label";
- import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
- import { Pencil, Check, X, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Pencil, Check, X, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
  import { useProfile } from "@/hooks/useProfile";
  import { useUpdateProfile } from "@/hooks/useUpdateProfile";
  import { toast } from "sonner";
@@ -103,36 +103,30 @@
          </div>
  
          {/* Role Groups */}
-         {roleGroups.map(group => (
-           <div key={group.key} className="space-y-3">
-             <Label className="text-sm font-medium text-muted-foreground">{group.label}</Label>
-             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-               {group.roles.map(role => (
-                 <div key={role} className="flex items-center space-x-2">
-                   <Checkbox
-                     id={role}
-                     checked={selectedRoles.includes(role)}
-                     onCheckedChange={() => handleRoleToggle(role)}
-                     disabled={!isEditing}
-                   />
-                   <Label htmlFor={role} className="text-sm font-normal cursor-pointer">
-                     {role}
-                   </Label>
-                 </div>
-               ))}
-             </div>
-           </div>
-         ))}
- 
-         {!isEditing && selectedRoles.length > 0 && (
-           <div className="flex flex-wrap gap-2 pt-2">
-             {selectedRoles.map(role => (
-               <span key={role} className="dc-badge dc-badge-secondary">
-                 {role}
-               </span>
-             ))}
-           </div>
-         )}
+          {roleGroups.map(group => (
+            <div key={group.key} className="space-y-3">
+              <Label className="text-sm font-medium text-muted-foreground">{group.label}</Label>
+              <div className="flex flex-wrap gap-2">
+                {group.roles.map(role => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => isEditing && handleRoleToggle(role)}
+                    disabled={!isEditing}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors border",
+                      selectedRoles.includes(role)
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-transparent text-foreground border-foreground hover:bg-muted",
+                      !isEditing && "opacity-70 cursor-not-allowed"
+                    )}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
        </CardContent>
      </Card>
    );
