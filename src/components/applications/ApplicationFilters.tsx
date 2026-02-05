@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Star, Clock, X, Phone, CheckCircle } from "lucide-react";
 import { it } from "@/lib/i18n";
@@ -21,14 +21,14 @@ interface ApplicationFiltersProps {
   };
 }
 
-const statusFilters: { value: ApplicationStatus | "all"; label: string; icon?: React.ElementType }[] = [
+const statusFilters: { value: ApplicationStatus | "all"; label: string; Icon?: React.ElementType }[] = [
   { value: "all", label: "Tutte" },
-  { value: "submitted", label: "Inviate", icon: Send },
-  { value: "shortlisted", label: "Selezionate", icon: Star },
-  { value: "hold", label: "In attesa", icon: Clock },
-  { value: "callback", label: "Callback", icon: Phone },
-  { value: "booked", label: "Confermate", icon: CheckCircle },
-  { value: "rejected", label: "Rifiutate", icon: X },
+  { value: "submitted", label: "Inviate", Icon: Send },
+  { value: "shortlisted", label: "Selezionate", Icon: Star },
+  { value: "hold", label: "In attesa", Icon: Clock },
+  { value: "callback", label: "Callback", Icon: Phone },
+  { value: "booked", label: "Confermate", Icon: CheckCircle },
+  { value: "rejected", label: "Rifiutate", Icon: X },
 ];
 
 export const ApplicationFilters = ({
@@ -52,33 +52,28 @@ export const ApplicationFilters = ({
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex flex-wrap gap-2">
-        {statusFilters.map(({ value, label, icon: Icon }) => {
-          const isActive = statusFilter === value;
-          const count = value === "all" ? stats?.total : stats?.[value];
+      <Tabs value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as ApplicationStatus | "all")}>
+        <TabsList>
+          {statusFilters.map(({ value, label, Icon }) => {
+            const count = value === "all" ? stats?.total : stats?.[value];
 
-          return (
-            <Button
-              key={value}
-              variant={isActive ? "default" : "outline"}
-              size="sm"
-              onClick={() => onStatusFilterChange(value)}
-              className="gap-2"
-            >
-              {Icon && <Icon className="h-4 w-4" />}
-              {label}
-              {count !== undefined && count > 0 && (
-                <Badge 
-                  variant={isActive ? "secondary" : "outline"} 
-                  className="ml-1 text-xs px-1.5"
-                >
-                  {count}
-                </Badge>
-              )}
-            </Button>
-          );
-        })}
-      </div>
+            return (
+              <TabsTrigger key={value} value={value} className="gap-2">
+                {Icon && <Icon className="h-4 w-4" />}
+                {label}
+                {count !== undefined && count > 0 && (
+                  <Badge 
+                    variant="outline" 
+                    className="ml-1 text-xs px-1.5"
+                  >
+                    {count}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            );
+          })}
+        </TabsList>
+      </Tabs>
     </div>
   );
 };
