@@ -1,77 +1,54 @@
 
 
-## Piano: Aggiornamento Stile Pulsanti Primary e Secondary
+## Piano: Uniformare Colore Bordo Radio Button e Checkbox
 
 ### Obiettivo
-Modificare lo stile dei pulsanti `default` (primary) e `secondary` per avere una forma a pillola (rounded-full) come nello screenshot di riferimento.
+Modificare il colore del bordo di radio button e checkbox quando sono deselezionati per allinearlo al colore del bordo dei pulsanti secondary (`border-foreground`).
 
-### Analisi dello screenshot
+### Analisi corrente
 
-| Tipo | Sfondo | Bordo | Testo | Forma |
-|------|--------|-------|-------|-------|
-| Primary | Bordeaux (#8C1F3F circa) | Nessuno | Bianco | Pillola (rounded-full) |
-| Secondary | Trasparente | Scuro sottile | Scuro | Pillola (rounded-full) |
+| Componente | Bordo attuale (deselezionato) | Bordo richiesto |
+|------------|-------------------------------|-----------------|
+| Checkbox | `border-primary` (rosso bordeaux) | `border-foreground` (scuro) |
+| RadioGroupItem | `border-primary` (rosso bordeaux) | `border-foreground` (scuro) |
+| Button secondary | `border-foreground` (scuro) | - (riferimento) |
 
 ### Modifiche richieste
 
-**File: `src/components/ui/button.tsx`**
+**File: `src/components/ui/checkbox.tsx`**
 
-| Variante | Prima | Dopo |
-|----------|-------|------|
-| `default` (primary) | `rounded-md` (da base) | Aggiungo `rounded-full` |
-| `secondary` | `bg-secondary text-secondary-foreground` | `border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full` |
-
-**File: `src/index.css`**
-
-Aggiorno anche le classi CSS centralizzate per consistenza:
-
-| Classe | Prima | Dopo |
-|--------|-------|------|
-| `.dc-btn` | `rounded-md` | `rounded-full` (applicato a tutti i bottoni base) |
-| `.dc-btn-secondary` | `bg-secondary text-secondary-foreground` | `border border-foreground bg-transparent text-foreground hover:bg-muted` |
-
-### Codice modificato
+Cambio da `border-primary` a `border-foreground`:
 
 ```tsx
-// src/components/ui/button.tsx
-const buttonVariants = cva(
-  "dc-btn",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-full h-10 px-6 py-2",
-        secondary: "border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full h-10 px-6 py-2",
-        // ... altre varianti
-      },
-      // ...
-    },
-  },
-);
+// Prima
+"border border-primary ring-offset-background data-[state=checked]:bg-primary..."
+
+// Dopo  
+"border border-foreground ring-offset-background data-[state=checked]:bg-primary..."
 ```
 
-```css
-/* src/index.css */
-.dc-btn {
-  @apply inline-flex items-center justify-center gap-2 
-         whitespace-nowrap rounded-full text-sm font-medium /* rounded-full invece di rounded-md */
-         /* ... resto invariato */
-}
+**File: `src/components/ui/radio-group.tsx`**
 
-.dc-btn-secondary {
-  @apply dc-btn border border-foreground bg-transparent text-foreground hover:bg-muted h-10 px-6 py-2;
-}
+Cambio da `border-primary` a `border-foreground`:
+
+```tsx
+// Prima
+"border border-primary text-primary ring-offset-background..."
+
+// Dopo
+"border border-foreground text-primary ring-offset-background..."
 ```
 
-### Impatto sulle altre varianti
+### Comportamento finale
 
-- `outline`: mantiene il suo stile con bordo `border-input`, separato da secondary
-- `ghost`: nessun cambiamento
-- `destructive`: eredita `rounded-full` dalla base
-- `castingAction`: già ha `rounded-full`, nessun cambiamento
+| Stato | Checkbox | Radio Button |
+|-------|----------|--------------|
+| Deselezionato | Bordo `foreground` (scuro) | Bordo `foreground` (scuro) |
+| Selezionato | Sfondo `primary` (bordeaux) + checkmark bianco | Cerchio `primary` (bordeaux) |
 
 ### Risultato atteso
 
-- **Primary**: Pulsante bordeaux con forma pillola, testo bianco
-- **Secondary**: Pulsante trasparente con bordo scuro, forma pillola, testo scuro
-- Tutti i pulsanti avranno la forma a pillola come standard del design system
+- Checkbox e radio button deselezionati avranno lo stesso colore di bordo scuro dei pulsanti secondary
+- Quando selezionati manterranno il colore `primary` (bordeaux) per lo sfondo/indicatore
+- Design system più coerente in tutti i controlli form
 
