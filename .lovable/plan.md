@@ -1,72 +1,89 @@
 
 
-## Piano: Sfondo Sidebar Admin Scuro (#1A1A1A) con Testi Bianchi
+## Piano: Ridisposizione Pulsanti nel Dialog Talent
 
-### Panoramica
-Aggiornare lo sfondo della sidebar admin da beige (#E8DFD4) a nero/grigio scuro (#1A1A1A) con testi e icone in bianco per garantire visibilita' e contrasto.
-
----
-
-### Modifiche Richieste
-
-#### File: `src/index.css`
-
-Aggiornare tutte le classi `.dc-sidebar-admin-*`:
-
-| Classe | Proprieta' | Valore Attuale | Nuovo Valore |
-|--------|-----------|----------------|--------------|
-| `.dc-sidebar-admin` | background | `#E8DFD4` | `#1A1A1A` |
-| `.dc-sidebar-admin-nav-item-inactive` | text | `#333333/70` | `white/70` |
-| `.dc-sidebar-admin-nav-item-inactive` | hover:bg | `#333333/10` | `white/10` |
-| `.dc-sidebar-admin-nav-item-inactive` | hover:text | `#333333` | `white` |
-| `.dc-sidebar-admin-action` | text | `#333333/70` | `white/70` |
-| `.dc-sidebar-admin-action` | hover:bg | `#333333/10` | `white/10` |
-| `.dc-sidebar-admin-action` | hover:text | `#333333` | `white` |
-| `.dc-sidebar-admin-divider` | border | `#333333/20` | `white/20` |
+### Problema Attuale
+I tre pulsanti (Modifica, Invita, Esporta PDF) sono posizionati nell'header del dialog accanto al nome del talent. Quando lo spazio orizzontale è limitato, i pulsanti si sovrappongono al contenuto.
 
 ---
 
-#### File: `src/components/layout/OwnerSidebar.tsx`
-
-Aggiornare il colore del testo utente:
-
-| Elemento | Valore Attuale | Nuovo Valore |
-|----------|----------------|--------------|
-| Nome utente | `text-[#333333]` | `text-white` |
+### Soluzione Proposta
+Spostare i pulsanti in una sezione dedicata sotto l'header, disponendoli in modo che si adattino meglio allo spazio disponibile.
 
 ---
 
-### Codice CSS Aggiornato
+### Modifiche
 
-```css
-.dc-sidebar-admin {
-  @apply fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] flex flex-col;
-}
+**File: `src/components/talents/TalentDetailDialog.tsx`**
 
-.dc-sidebar-admin-nav-item-inactive {
-  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
-         text-white/70 hover:bg-white/10 hover:text-white 
-         transition-all duration-200;
-}
+#### Layout Attuale (Problematico)
 
-.dc-sidebar-admin-nav-item-active {
-  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
-         bg-primary text-primary-foreground transition-all duration-200;
-}
+```
+┌─────────────────────────────────────────────────┐
+│ [Avatar]  Nome Cognome      [Mod] [Inv] [Exp]   │
+│           📍 Città, Paese                       │
+│           [Badge] [Badge] [Badge]               │
+└─────────────────────────────────────────────────┘
+```
 
-.dc-sidebar-admin-action {
-  @apply flex items-center gap-3 px-4 py-2 rounded-lg text-sm 
-         text-white/70 hover:bg-white/10 hover:text-white 
-         transition-colors w-full text-left;
-}
+#### Layout Proposto
 
-.dc-sidebar-admin-divider {
-  @apply border-t border-white/20 mx-2 -mt-4 mb-4;
-}
+```
+┌─────────────────────────────────────────────────┐
+│ [Avatar]  Nome Cognome                          │
+│           📍 Città, Paese                       │
+│           [Badge] [Badge] [Badge]               │
+│                                                 │
+│ [Modifica]    [Invita]    [Esporta PDF]         │
+└─────────────────────────────────────────────────┘
+```
 
-.dc-sidebar-admin-user {
-  @apply flex items-center gap-3 mb-3 px-2;
-}
+---
+
+### Dettagli Implementazione
+
+1. **Rimuovere i pulsanti dall'header** (righe 135-163)
+   - Eliminare il div contenitore dei pulsanti dalla sezione `justify-between`
+
+2. **Creare una nuova sezione pulsanti** dopo l'header
+   - Posizionare i pulsanti in una riga separata sotto le informazioni di base
+   - Utilizzare `flex flex-wrap gap-2` per adattarsi a diverse dimensioni schermo
+   - Aggiungere margine superiore per separazione visiva
+
+3. **Struttura JSX aggiornata**:
+
+```tsx
+{/* Header with photo and name */}
+<div className="flex items-start gap-4">
+  <Avatar className="h-20 w-20">...</Avatar>
+  <div className="flex-1 min-w-0">
+    <h2 className="text-xl font-medium text-foreground">{fullName}</h2>
+    {location && (
+      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+        <MapPin className="h-3 w-3" />
+        {location}
+      </p>
+    )}
+    {/* Categories */}
+    {talent.talent_categories && ...}
+  </div>
+</div>
+
+{/* Action buttons - nuova sezione */}
+<div className="flex flex-wrap gap-2 pt-4 pb-2">
+  <Button variant="default" size="sm" onClick={...}>
+    <Pencil className="h-4 w-4 mr-2" />
+    Modifica
+  </Button>
+  <Button variant="outline" size="sm" onClick={...}>
+    <Send className="h-4 w-4 mr-2" />
+    Invita
+  </Button>
+  <Button variant="outline" size="sm" onClick={...}>
+    <Download className="h-4 w-4 mr-2" />
+    Esporta PDF
+  </Button>
+</div>
 ```
 
 ---
@@ -75,16 +92,14 @@ Aggiornare il colore del testo utente:
 
 | File | Modifica |
 |------|----------|
-| `src/index.css` | Classi sidebar admin (sfondo scuro + testi bianchi) |
-| `src/components/layout/OwnerSidebar.tsx` | Colore testo utente |
+| `src/components/talents/TalentDetailDialog.tsx` | Riposizionare i pulsanti in sezione dedicata |
 
 ---
 
 ### Risultato Atteso
 
-1. Sidebar admin con sfondo nero/grigio scuro (#1A1A1A)
-2. Testi e icone in bianco con opacita' 70% per stato inattivo
-3. Hover con sfondo bianco al 10% e testo bianco pieno
-4. Logo bianco/crema ben visibile su sfondo scuro
-5. Contrasto ottimale per accessibilita'
+1. I pulsanti non si sovrappongono piu' al nome o alle badge
+2. Layout responsive che si adatta a diverse dimensioni
+3. Migliore separazione visiva tra informazioni e azioni
+4. I pulsanti sono sempre accessibili e visibili
 
