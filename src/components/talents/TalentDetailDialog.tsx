@@ -114,7 +114,7 @@ export const TalentDetailDialog = ({
           </DialogHeader>
 
           {/* Header with photo and name */}
-          <div className="flex items-start gap-4 pb-4">
+          <div className="flex items-start gap-4 pb-2">
             <Avatar className="h-20 w-20">
               <AvatarImage src={talent.profile_photo_url || undefined} alt={fullName} />
               <AvatarFallback className="bg-muted text-foreground text-2xl">
@@ -122,46 +122,13 @@ export const TalentDetailDialog = ({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h2 className="text-xl font-medium text-foreground">{fullName}</h2>
-                  {location && (
-                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                      <MapPin className="h-3 w-3" />
-                      {location}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => {
-                      onOpenChange(false);
-                      navigate(`/owner/talents/${talent.id}/edit`);
-                    }}
-                  >
-                    <Pencil className="h-4 w-4 mr-2" />
-                    Modifica
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowInviteDialog(true)}
-                  >
-                    <Send className="h-4 w-4 mr-2" />
-                    Invita
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowExportDialog(true)}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Esporta PDF
-                  </Button>
-                </div>
-              </div>
+              <h2 className="text-xl font-medium text-foreground">{fullName}</h2>
+              {location && (
+                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                  <MapPin className="h-3 w-3" />
+                  {location}
+                </p>
+              )}
               {/* Categories */}
               {talent.talent_categories && talent.talent_categories.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-3">
@@ -173,6 +140,37 @@ export const TalentDetailDialog = ({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 pb-4">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => {
+                onOpenChange(false);
+                navigate(`/owner/talents/${talent.id}/edit`);
+              }}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Modifica
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowInviteDialog(true)}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Invita
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowExportDialog(true)}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Esporta PDF
+            </Button>
           </div>
 
           {/* Bio */}
