@@ -8,6 +8,7 @@ import {
   useDeleteMediaByProfileId, 
   type TalentMedia as TalentMediaType 
 } from "@/hooks/useTalentMediaByProfileIdEditable";
+import { useMediaRatingsForProfile, type MediaRating } from "@/hooks/useMediaRatings";
 import { MediaGridItem } from "./MediaGridItem";
 import { MediaLightbox } from "./MediaLightbox";
 import { MediaUploadButton } from "./MediaUploadButton";
@@ -15,19 +16,35 @@ import { MediaUploadButton } from "./MediaUploadButton";
 interface MediaGallerySectionProps {
   externalProfileId?: string;
   externalUserId?: string;
+  isOwnerView?: boolean;
+  showDeleteButton?: boolean;
 }
 
-export const MediaGallerySection = ({ externalProfileId, externalUserId }: MediaGallerySectionProps) => {
+export const MediaGallerySection = ({ 
+  externalProfileId, 
+  externalUserId,
+  isOwnerView = false,
+  showDeleteButton = true,
+}: MediaGallerySectionProps) => {
   const { data: ownMedia, isLoading: ownLoading } = useTalentMedia();
   const { data: externalMedia, isLoading: externalLoading } = useTalentMediaByProfileIdEditable(externalProfileId);
   const { mutate: deleteOwnMedia, isPending: isOwnDeleting } = useDeleteMedia();
   const { mutate: deleteExternalMedia, isPending: isExternalDeleting } = useDeleteMediaByProfileId();
+  const { data: ownerRatings } = useMediaRatingsForProfile(isOwnerView ? externalProfileId : null);
   
   const media = externalProfileId ? externalMedia : ownMedia;
   const isLoading = externalProfileId ? externalLoading : ownLoading;
   const isDeleting = externalProfileId ? isExternalDeleting : isOwnDeleting;
   
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Create a map of media_id -> rating for quick lookup
+  const ratingsMap = new Map<string, MediaRating>();
+  if (ownerRatings) {
+    ownerRatings.forEach((rating) => {
+      ratingsMap.set(rating.media_id, rating);
+    });
+  }
 
   const handleDelete = (mediaItem: TalentMedia | TalentMediaType) => {
     if (externalProfileId) {
@@ -53,11 +70,13 @@ export const MediaGallerySection = ({ externalProfileId, externalUserId }: Media
             <ImageIcon className="h-5 w-5" />
             Galleria Media
           </CardTitle>
-          <MediaUploadButton 
-            disabled={isLoading} 
-            externalProfileId={externalProfileId}
-            externalUserId={externalUserId}
-          />
+          {showDeleteButton && (
+            <MediaUploadButton 
+              disabled={isLoading} 
+              externalProfileId={externalProfileId}
+              externalUserId={externalUserId}
+            />
+          )}
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -72,9 +91,12 @@ export const MediaGallerySection = ({ externalProfileId, externalUserId }: Media
                 <MediaGridItem
                   key={item.id}
                   media={item}
-                  onDelete={handleDelete}
+                  onDelete={showDeleteButton ? handleDelete : undefined}
                   onClick={() => openLightbox(index)}
                   isDeleting={isDeleting}
+                  isOwnerView={isOwnerView}
+                  ownerRating={ratingsMap.get(item.id)}
+                  showDeleteButton={showDeleteButton}
                 />
               ))}
             </div>
@@ -92,10 +114,11 @@ export const MediaGallerySection = ({ externalProfileId, externalUserId }: Media
       {/* Lightbox */}
       {lightboxIndex !== null && media && (
         <MediaLightbox
-          media={media as TalentMedia[]}
+          media={media}
           currentIndex={lightboxIndex}
           onClose={closeLightbox}
           onNavigate={setLightboxIndex}
+          isOwnerView={isOwnerView}
         />
       )}
     </>
