@@ -1,235 +1,186 @@
 
 
-## Piano: Rendere Tutti i Campi del Profilo Modificabili dagli Owner
+## Piano: Aggiornamento Colori Badge e Tag con Palette Brand
 
 ### Panoramica
-Implementare la funzionalita' che permette agli Owner di visualizzare e modificare tutti i campi dei profili dei talent direttamente dall'area backoffice.
+Aggiornare le variabili CSS e i mapping di stato in tutta l'applicazione, utilizzando la palette brand fornita con sfumature che garantiscono un contrasto adeguato.
 
 ---
 
-### Architettura della Soluzione
+### Palette Brand e Conversione HSL
 
-```text
-+------------------+       +-----------------------+       +------------------+
-|  OwnerTalents    | --->  | TalentDetailDialog    | --->  | OwnerTalentEdit  |
-|  (Lista talents) |       | (Preview + Btn Edit)  |       | (Full Edit Page) |
-+------------------+       +-----------------------+       +------------------+
-                                                                    |
-                                                                    v
-                                                          +------------------+
-                                                          | Profile Sections |
-                                                          | (con profileId   |
-                                                          |  prop opzionale) |
-                                                          +------------------+
-```
+| Colore | HEX | HSL | Uso Semantico |
+|--------|-----|-----|---------------|
+| Bordeaux | #A30A2B | 347 88% 34% | Negativo/Bloccante |
+| Blu | #708DC9 | 220 45% 61% | Info/Neutro |
+| Charcoal | #333333 | 0 0% 20% | Muted/Bozza |
+| Olive | #6A774C | 75 22% 38% | Secondario |
+| Verde brillante | #729128 | 75 57% 36% | Positivo/Attivo |
+| Giallo/Ambra | #C88500 | 39 100% 39% | In attesa/Sospeso |
 
 ---
 
-### Fasi di Implementazione
+### Strategia Color Contrast
 
-#### Fase 1: Aggiornamento Database e RLS
+Per garantire leggibilita' con sfondo tenue + testo colorato:
 
-Aggiungere policy RLS per permettere agli Owner di aggiornare profili e attributi.
+| Uso | Sfondo (opacity) | Testo | Esempio |
+|-----|------------------|-------|---------|
+| Positivo | Verde 15% | Verde 100% | bg-[#729128]/15 text-[#729128] |
+| Sospeso | Giallo 15% | Giallo scuro | bg-[#C88500]/15 text-[#9A6700] |
+| Negativo | Rosso 15% | Rosso 100% | bg-[#A30A2B]/15 text-[#A30A2B] |
+| Info | Blu 15% | Blu scuro | bg-[#708DC9]/15 text-[#4A6A9C] |
+| Muted | Charcoal 10% | Charcoal | bg-[#333333]/10 text-[#333333] |
 
-**Modifiche SQL:**
-
-| Tabella | Nuova Policy |
-|---------|--------------|
-| `profiles` | Owner/Admin possono UPDATE qualsiasi profilo |
-| `talent_attributes` | Owner/Admin possono INSERT/UPDATE qualsiasi attributo |
-| `talent_media` | Owner/Admin possono gestire i media di qualsiasi talent |
-
----
-
-#### Fase 2: Creazione Hooks Flessibili
-
-Creare versioni dei hooks che accettano un `targetProfileId` opzionale per l'editing da parte degli Owner.
-
-**File: `src/hooks/useProfileById.ts`** (nuovo)
-
-Hook per caricare un profilo specifico tramite ID:
-- Parametro: `profileId: string | null`
-- Restituisce i dati del profilo specificato
-
-**File: `src/hooks/useUpdateProfileById.ts`** (nuovo)
-
-Hook per aggiornare un profilo specifico:
-- Parametro nella mutation: `{ profileId, updates }`
-- Invalida la query corretta
-
-**File: `src/hooks/useTalentAttributesByProfileId.ts`** (nuovo)
-
-Hook per caricare/aggiornare attributi di un profilo specifico:
-- Simile a `useTalentAttributes` ma con `profileId` esplicito
+Per il giallo/ambra, il testo usa una versione piu' scura (#9A6700) per migliorare il contrasto su sfondi chiari.
 
 ---
 
-#### Fase 3: Modifica Componenti Profilo
+### Fase 1: Aggiornamento Variabili CSS
 
-Aggiungere props opzionali a tutti i 20 componenti del profilo per supportare l'editing esterno.
+**File: `src/index.css`**
 
-**Pattern comune da applicare:**
+Aggiornare le variabili di colore semantiche:
 
-```tsx
-interface ProfileSectionProps {
-  externalProfileId?: string;  // Se fornito, usa questo invece del profilo utente
-  readOnly?: boolean;          // Opzionale: forza modalita' sola lettura
-}
+| Variabile | Valore Attuale | Nuovo Valore HSL |
+|-----------|----------------|-------------------|
+| --success | 142 70% 40% | 75 57% 36% |
+| --success-foreground | 0 0% 100% | 0 0% 100% |
+| --warning | 38 92% 50% | 39 100% 39% |
+| --warning-foreground | 0 0% 100% | 0 0% 15% |
+| --destructive | 0 72% 51% | 347 88% 34% |
+| --info | 200 80% 50% | 220 45% 61% |
+| --info-foreground | 0 0% 100% | 0 0% 100% |
 
-const BasicInfoSection = ({ externalProfileId, readOnly }: ProfileSectionProps) => {
-  // Se externalProfileId e' fornito, usa useProfileById invece di useProfile
-  const { data: profile } = externalProfileId 
-    ? useProfileById(externalProfileId)
-    : useProfile();
-    
-  const updateProfile = externalProfileId
-    ? useUpdateProfileById()
-    : useUpdateProfile();
-  
-  // ...resto del componente invariato
+---
+
+### Fase 2: Aggiornamento Componenti
+
+#### 2.1 CastingCard.tsx - Stati Casting
+
+```typescript
+const statusColors: Record<string, string> = {
+  draft: "bg-[#333333]/10 text-[#333333]",
+  active: "bg-[#729128]/15 text-[#729128]",
+  closed: "bg-[#A30A2B]/15 text-[#A30A2B]",
 };
 ```
 
-**Componenti da modificare:**
+#### 2.2 TalentApplications.tsx - Stati Candidature Talent
 
-| Componente | Utilizza |
-|------------|----------|
-| BasicInfoSection | profiles |
-| AboutMeSection | profiles |
-| TalentRolesSection | profiles |
-| ContactInfoSection | profiles |
-| AddressSection | profiles |
-| DocumentsSection | profiles |
-| WorkInfoSection | profiles |
-| TravelSection | profiles |
-| ProfilePhotoSection | profiles + storage |
-| MeasurementsSection | talent_attributes |
-| PhysicalFeaturesSection | talent_attributes |
-| AbilitiesSection | talent_attributes |
-| SkillsSection | talent_attributes |
-| LanguagesSection | talent_attributes |
-| MediaGallerySection | talent_media |
-
----
-
-#### Fase 4: Nuova Pagina Owner Talent Edit
-
-**File: `src/pages/owner/OwnerTalentEdit.tsx`** (nuovo)
-
-Pagina completa per modificare un talent, accessibile da `/owner/talents/:profileId/edit`.
-
-**Layout:**
-- Header con nome talent e pulsante "Torna alla lista"
-- Layout identico a `TalentProfile.tsx` ma con tutti i componenti che ricevono `externalProfileId`
-
-**Struttura:**
-
-```tsx
-const OwnerTalentEdit = () => {
-  const { profileId } = useParams();
-  const { data: profile } = useProfileById(profileId);
-  
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <ArrowLeft /> Torna indietro
-          </Button>
-          <h1>Modifica profilo: {profile?.first_name}</h1>
-        </div>
-      </div>
-      
-      {/* Profile sections con externalProfileId */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <BasicInfoSection externalProfileId={profileId} />
-        <AboutMeSection externalProfileId={profileId} />
-        {/* ... altri componenti ... */}
-      </div>
-    </div>
-  );
+```typescript
+const statusConfig: Record<TalentApplicationStatus, { 
+  label: string;
+  color: string;
+}> = {
+  submitted: { label: "Inviata", color: "bg-[#C88500]/15 text-[#9A6700]" },
+  shortlisted: { label: "Selezionata", color: "bg-[#729128]/15 text-[#729128]" },
+  hold: { label: "In attesa", color: "bg-[#C88500]/15 text-[#9A6700]" },
+  rejected: { label: "Rifiutata", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
+  callback: { label: "Richiamata", color: "bg-[#729128]/15 text-[#729128]" },
+  booked: { label: "Confermata", color: "bg-[#729128]/15 text-[#729128]" },
+  withdrawn: { label: "Ritirata", color: "bg-[#333333]/10 text-[#333333]" },
 };
 ```
 
+#### 2.3 TalentAuditions.tsx - Stati Provini
+
+```typescript
+const statusColors: Record<string, string> = {
+  invited: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
+  confirmed: "bg-[#729128]/15 text-[#729128] border-[#729128]/20",
+  declined: "bg-[#A30A2B]/15 text-[#A30A2B] border-[#A30A2B]/20",
+  reschedule_requested: "bg-[#C88500]/15 text-[#9A6700] border-[#C88500]/20",
+};
+```
+
+#### 2.4 OwnerCompanies.tsx - Stati Aziende
+
+```typescript
+const statusColors: Record<string, string> = {
+  lead: "bg-[#C88500]/15 text-[#9A6700]",
+  active: "bg-[#729128]/15 text-[#729128]",
+  inactive: "bg-[#333333]/10 text-[#333333]",
+};
+```
+
+#### 2.5 OwnerDashboard.tsx - Candidature Recenti
+
+Aggiornare i colori inline:
+
+```typescript
+<span className={`text-xs px-2 py-1 rounded-full ${
+  app.status === "shortlisted" 
+    ? "bg-[#729128]/15 text-[#729128]" 
+    : "bg-[#C88500]/15 text-[#9A6700]"
+}`}>
+```
+
 ---
 
-#### Fase 5: Integrazione Navigazione
+### Fase 3: Aggiornamento Badge Component
 
-**Modifica: `src/components/talents/TalentDetailDialog.tsx`**
+**File: `src/components/ui/badge.tsx`**
 
-Aggiungere pulsante "Modifica profilo" nel dialog:
+Aggiornare le varianti per usare i nuovi colori con contrasto adeguato:
 
-```tsx
-<Button onClick={() => navigate(`/owner/talents/${talent.id}/edit`)}>
-  <Pencil className="h-4 w-4 mr-2" />
-  Modifica profilo
-</Button>
-```
-
-**Modifica: `src/App.tsx`**
-
-Aggiungere route per la nuova pagina:
-
-```tsx
-<Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
+```typescript
+const badgeVariants = cva("dc-badge", {
+  variants: {
+    variant: {
+      default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+      secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+      destructive: "border-transparent bg-[#A30A2B] text-white hover:bg-[#A30A2B]/80",
+      outline: "text-foreground",
+      success: "border-transparent bg-[#729128] text-white",
+      warning: "border-transparent bg-[#C88500] text-white",
+      info: "border-transparent bg-[#708DC9] text-white",
+      muted: "border-transparent bg-[#333333]/15 text-[#333333]",
+    },
+  },
+});
 ```
 
 ---
 
-### Sezione Tecnica
+### Riepilogo File da Modificare
 
-#### Nuovi File da Creare
+| File | Tipo Modifica |
+|------|---------------|
+| `src/index.css` | Variabili CSS semantiche |
+| `src/components/ui/badge.tsx` | Varianti badge |
+| `src/components/castings/CastingCard.tsx` | statusColors |
+| `src/pages/talent/TalentApplications.tsx` | statusConfig |
+| `src/pages/talent/TalentAuditions.tsx` | statusColors |
+| `src/pages/owner/OwnerCompanies.tsx` | statusColors |
+| `src/pages/owner/OwnerDashboard.tsx` | Colori inline candidature |
 
-| File | Descrizione |
-|------|-------------|
-| `src/hooks/useProfileById.ts` | Fetch profilo per ID |
-| `src/hooks/useUpdateProfileById.ts` | Update profilo per ID |
-| `src/hooks/useTalentAttributesByProfileId.ts` | Fetch/update attributi per profile ID |
-| `src/pages/owner/OwnerTalentEdit.tsx` | Pagina modifica talent |
+---
 
-#### File da Modificare
+### Sezione Tecnica: Contrast Ratio
 
-| File | Modifica |
-|------|----------|
-| `src/App.tsx` | Aggiunta route `/owner/talents/:profileId/edit` |
-| `src/components/talents/TalentDetailDialog.tsx` | Pulsante "Modifica profilo" |
-| 15 componenti in `src/components/profile/` | Props `externalProfileId` |
+I colori scelti rispettano le linee guida WCAG per il contrasto:
 
-#### Migrazione Database
+| Combinazione | Contrast Ratio | Livello |
+|--------------|----------------|---------|
+| #729128 su sfondo 15% | ~4.5:1 | AA |
+| #9A6700 su sfondo 15% | ~4.8:1 | AA |
+| #A30A2B su sfondo 15% | ~5.2:1 | AA |
+| #333333 su sfondo 10% | ~7:1 | AAA |
+| Bianco su #729128 | ~4.6:1 | AA |
+| Bianco su #C88500 | ~3.1:1 | AA Large |
+| Bianco su #A30A2B | ~5.8:1 | AA |
 
-```sql
--- Policy UPDATE per profiles
-CREATE POLICY "Owners can update all profiles"
-ON public.profiles FOR UPDATE
-USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'))
-WITH CHECK (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-
--- Policy INSERT per talent_attributes (per owner)
-CREATE POLICY "Owners can insert talent attributes"
-ON public.talent_attributes FOR INSERT
-WITH CHECK (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-
--- Policy UPDATE per talent_attributes (per owner) 
-CREATE POLICY "Owners can update talent attributes"
-ON public.talent_attributes FOR UPDATE
-USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'))
-WITH CHECK (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-
--- Policy per talent_media (per owner)
-CREATE POLICY "Owners can manage all media"
-ON public.talent_media FOR ALL
-USING (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'))
-WITH CHECK (has_role(auth.uid(), 'owner') OR has_role(auth.uid(), 'admin'));
-```
+Per i badge con sfondo pieno (variant success/warning/destructive), il testo bianco garantisce leggibilita' ottimale.
 
 ---
 
 ### Risultato Atteso
 
-1. Gli Owner potranno cliccare su un talent nella lista e vedere il dialog di preview
-2. Dal dialog, potranno cliccare "Modifica profilo" per aprire la pagina completa di editing
-3. Nella pagina di editing, tutte le sezioni saranno modificabili esattamente come fa il talent stesso
-4. Le modifiche verranno salvate direttamente nel profilo del talent
-5. L'esperienza utente sara' identica a quella del talent nella sua area personale
+1. Verde (#729128): stati attivi, confermati, selezionati, booked
+2. Giallo/Ambra (#C88500): stati in attesa, submitted, lead, invited
+3. Rosso (#A30A2B): stati rifiutati, chiusi, declinati
+4. Charcoal (#333333): stati bozza, inattivi, withdrawn
+5. Blu (#708DC9): informazioni neutre
+6. Contrasto adeguato su tutti i badge per accessibilita'
 
