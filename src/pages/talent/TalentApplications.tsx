@@ -30,13 +30,13 @@ const statusConfig: Record<TalentApplicationStatus, {
   label: string;
   color: string;
 }> = {
-  submitted: { label: "Inviata", color: "bg-info text-info-foreground" },
-  shortlisted: { label: "Selezionata", color: "bg-success text-success-foreground" },
-  hold: { label: "In attesa", color: "bg-warning text-warning-foreground" },
-  rejected: { label: "Rifiutata", color: "bg-destructive text-destructive-foreground" },
-  callback: { label: "Richiamata", color: "bg-secondary text-secondary-foreground" },
-  booked: { label: "Confermata", color: "bg-primary text-primary-foreground" },
-  withdrawn: { label: "Ritirata", color: "bg-muted text-muted-foreground" },
+  submitted: { label: "Inviata", color: "bg-[#C88500]/15 text-[#9A6700]" },
+  shortlisted: { label: "Selezionata", color: "bg-[#729128]/15 text-[#729128]" },
+  hold: { label: "In attesa", color: "bg-[#C88500]/15 text-[#9A6700]" },
+  rejected: { label: "Rifiutata", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
+  callback: { label: "Richiamata", color: "bg-[#729128]/15 text-[#729128]" },
+  booked: { label: "Confermata", color: "bg-[#729128]/15 text-[#729128]" },
+  withdrawn: { label: "Ritirata", color: "bg-[#333333]/10 text-[#333333]" },
 };
 
 export const TalentApplications = () => {

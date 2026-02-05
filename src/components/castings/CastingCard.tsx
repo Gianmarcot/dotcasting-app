@@ -15,9 +15,9 @@ import { it as itLocale } from "date-fns/locale";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 
 const statusColors: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-success/20 text-success",
-  closed: "bg-destructive/20 text-destructive",
+  draft: "bg-[#333333]/10 text-[#333333]",
+  active: "bg-[#729128]/15 text-[#729128]",
+  closed: "bg-[#A30A2B]/15 text-[#A30A2B]",
 };
 
 interface CastingCardProps {
