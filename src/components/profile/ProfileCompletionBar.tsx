@@ -32,21 +32,21 @@
      }
    };
  
-   if (isLoading) {
-     return (
-       <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
-         <CardContent className="py-4">
-           <div className="h-16 animate-pulse bg-muted/50 rounded" />
-         </CardContent>
-       </Card>
-     );
-   }
+  if (isLoading) {
+    return (
+      <Card className="bg-[#ECE5DE] border-0">
+        <CardContent className="py-4">
+          <div className="h-16 animate-pulse bg-muted/50 rounded" />
+        </CardContent>
+      </Card>
+    );
+  }
  
    const scoreOutOf10 = Math.round(percentage / 10);
  
-   return (
-     <Card className="bg-gradient-to-r from-primary/5 to-secondary/5 border-primary/20">
-       <CardContent className="py-4 space-y-3">
+  return (
+    <Card className="bg-[#ECE5DE] border-0">
+      <CardContent className="py-4 space-y-3">
          {/* Header row */}
          <div className="flex items-center justify-between">
            <div className="flex items-center gap-3">
@@ -77,13 +77,13 @@
            </Button>
          </div>
  
-         {/* Progress bar */}
-         <div className="relative">
-           <Progress value={percentage} className="h-3" />
-           <span className="absolute right-0 -top-5 text-xs text-muted-foreground">
-             {percentage}%
-           </span>
-         </div>
+          {/* Progress bar */}
+          <div className="relative">
+            <Progress value={percentage} className="h-3 bg-white" />
+            <span className="absolute right-0 -top-5 text-xs text-muted-foreground">
+              {percentage}%
+            </span>
+          </div>
  
          {/* Message */}
          <p className="text-sm text-muted-foreground">{message}</p>
