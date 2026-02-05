@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, X, PanelRightOpen, PanelRightClose } from "l
 import { Button } from "@/components/ui/button";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { cn } from "@/lib/utils";
+import { type MediaRating } from "@/hooks/useMediaRatings";
 
 // Minimal media type for lightbox
 interface LightboxMedia {
@@ -19,6 +20,7 @@ interface MediaLightboxProps {
   onClose: () => void;
   onNavigate: (index: number) => void;
   isOwnerView?: boolean;
+  ratingsMap?: Map<string, MediaRating>;
 }
 
 export const MediaLightbox = ({
@@ -27,9 +29,13 @@ export const MediaLightbox = ({
   onClose,
   onNavigate,
   isOwnerView = false,
+  ratingsMap,
 }: MediaLightboxProps) => {
   const currentMedia = media[currentIndex];
   const [showRatingPanel, setShowRatingPanel] = useState(isOwnerView);
+
+  // Calculate rated media count
+  const ratedCount = ratingsMap ? Array.from(ratingsMap.values()).filter(r => r.rating !== null).length : 0;
 
   const handlePrevious = useCallback(() => {
     const newIndex = currentIndex > 0 ? currentIndex - 1 : media.length - 1;
@@ -175,6 +181,8 @@ export const MediaLightbox = ({
             mediaId={currentMedia.id}
             currentIndex={currentIndex}
             totalCount={media.length}
+            ratedCount={ratedCount}
+            isCurrentRated={ratingsMap?.has(currentMedia.id) && ratingsMap.get(currentMedia.id)?.rating !== null}
             onPrevious={handlePrevious}
             onNext={handleNext}
           />

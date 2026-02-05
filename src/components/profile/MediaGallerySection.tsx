@@ -119,6 +119,7 @@ export const MediaGallerySection = ({
           onClose={closeLightbox}
           onNavigate={setLightboxIndex}
           isOwnerView={isOwnerView}
+          ratingsMap={ratingsMap}
         />
       )}
     </>
