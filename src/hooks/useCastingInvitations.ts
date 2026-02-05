@@ -70,6 +70,39 @@ export const useCreateInvitation = () => {
     }) => {
       if (!user) throw new Error("User not authenticated");
 
+      // Check if there's an existing invitation
+      const { data: existingInvitation } = await supabase
+        .from("casting_invitations")
+        .select("id, status")
+        .eq("casting_id", castingId)
+        .eq("talent_user_id", talentUserId)
+        .maybeSingle();
+
+      // If there's a pending invitation, don't allow a new one
+      if (existingInvitation?.status === "pending") {
+        throw new Error("Questo talent ha già un invito in attesa per questo casting");
+      }
+
+      // If there's an existing non-pending invitation, update it to pending
+      if (existingInvitation) {
+        const { data, error } = await supabase
+          .from("casting_invitations")
+          .update({
+            status: "pending",
+            message: message || null,
+            invited_by_user_id: user.id,
+            responded_at: null,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existingInvitation.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
+
+      // Create a new invitation
       const { data, error } = await supabase
         .from("casting_invitations")
         .insert({
@@ -81,16 +114,12 @@ export const useCreateInvitation = () => {
         .select()
         .single();
 
-      if (error) {
-        if (error.code === "23505") {
-          throw new Error("Questo talent è già stato invitato per questo casting");
-        }
-        throw error;
-      }
+      if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
+      queryClient.invalidateQueries({ queryKey: ["check-invitation", variables.castingId, variables.talentUserId] });
       toast({
         title: "Invito inviato",
         description: "Il talent è stato invitato a candidarsi per il casting.",
@@ -188,6 +217,7 @@ export const useCheckExistingInvitation = (castingId: string, talentUserId: stri
         .select("id, status")
         .eq("casting_id", castingId)
         .eq("talent_user_id", talentUserId)
+        .eq("status", "pending")
         .maybeSingle();
 
       if (error) throw error;
