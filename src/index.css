@@ -458,6 +458,38 @@
   }
 
   /* =====================
+     ADMIN SIDEBAR
+     ===================== */
+  .dc-sidebar-admin {
+    @apply fixed left-0 top-0 z-40 h-screen w-64 bg-[#E8DFD4] flex flex-col;
+  }
+
+  .dc-sidebar-admin-nav-item-inactive {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
+           text-[#333333]/70 hover:bg-[#333333]/10 hover:text-[#333333] 
+           transition-all duration-200;
+  }
+
+  .dc-sidebar-admin-nav-item-active {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium 
+           bg-primary text-primary-foreground transition-all duration-200;
+  }
+
+  .dc-sidebar-admin-action {
+    @apply flex items-center gap-3 px-4 py-2 rounded-lg text-sm 
+           text-[#333333]/70 hover:bg-[#333333]/10 hover:text-[#333333] 
+           transition-colors w-full text-left;
+  }
+
+  .dc-sidebar-admin-divider {
+    @apply border-t border-[#333333]/20 mx-2 -mt-4 mb-4;
+  }
+
+  .dc-sidebar-admin-user {
+    @apply flex items-center gap-3 mb-3 px-2;
+  }
+
+  /* =====================
      TYPOGRAPHY
      ===================== */
   .dc-heading-1 {
