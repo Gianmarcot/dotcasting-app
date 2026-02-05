@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X, PanelRightOpen, PanelRightClose } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
@@ -59,9 +60,12 @@ export const MediaLightbox = ({
 
   if (!currentMedia) return null;
 
-  return (
+  // Guard for SSR environments
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] bg-black flex"
+      className="fixed inset-0 z-[9999] bg-black flex"
       onClick={onClose}
     >
       {/* Main content area */}
@@ -163,7 +167,7 @@ export const MediaLightbox = ({
       {/* Rating Panel (Owner only) - Fixed on right side */}
       {isOwnerView && showRatingPanel && (
         <div
-          className="fixed right-0 top-0 bottom-0 w-80 bg-background border-l border-border p-4 overflow-y-auto z-[101]"
+          className="fixed right-0 top-0 bottom-0 w-80 bg-background border-l border-border p-4 overflow-y-auto z-[10000]"
           onClick={(e) => e.stopPropagation()}
         >
           <MediaRatingPanel
@@ -176,6 +180,7 @@ export const MediaLightbox = ({
           />
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
