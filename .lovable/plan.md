@@ -1,170 +1,246 @@
 
 
-## Piano: Centralizzazione degli stili CSS con classi componente
+## Piano: Espansione completa dei campi profilo talent
 
 ### Obiettivo
-Ristrutturare il sistema di styling per centralizzare tutti gli stili degli elementi UI in classi CSS definite in `src/index.css`, permettendo modifiche globali senza dover editare i singoli componenti React.
+Aggiungere al profilo talent tutti i campi visibili nei form di onboarding allegati, organizzati in sezioni editabili separate.
 
-### Approccio
+### Analisi dei form allegati
 
-Creare un sistema di classi CSS semantiche nel layer `@layer components` di Tailwind, raggruppate per categoria:
+Dai tre screenshot di onboarding ho identificato i seguenti campi da aggiungere:
+
+**Step 1 - Competenze e Talenti**
+| Campo | Tipo | Note |
+|-------|------|------|
+| Talenti/Ruoli | Multi-select | 3 gruppi di ruoli (Artistici, Tecnici creativi, Produzione) |
+| Tipo rappresentanza | Radio | Agenzia vs Freelance |
+
+**Step 2 - Dati Anagrafici (estesi)**
+| Campo | Tipo | Note |
+|-------|------|------|
+| Telefono | Text + prefisso | Con selezione prefisso internazionale |
+| WhatsApp | Text + prefisso | Numero separato |
+| Nazionalita | Text/Select | Attualmente mancante |
+| CAP | Text | Codice postale |
+| Sesso | Radio | M/F (gia presente come gender) |
+| Residenza | Object | Stato, Citta, Via, CAP |
+| Domicilio | Object | Se diverso da residenza |
+| Codice Fiscale | Text | Documento fiscale italiano |
+| Citta di partenza | Array | Multiple citta per lavoro |
+| Fotocopia documento | File | Upload documento |
+| Passaporto | Boolean + Date | Ha passaporto + scadenza |
+| Link social | Object | Instagram, TikTok, YouTube, X, Amazon |
+| Sito web | Text | URL personale |
+| Figli minorenni | Boolean | Checkbox |
+| N. scarpe | Text | Numero di scarpe |
+| Taglie intimo | Object | Taglia + specifico |
+| Occupazione principale | Text | Lavoro attuale |
+| Patenti | Multi-select | AM, A, A1, A2, B, C, D, E, BE, CE, DE, Nautica |
+| Disponibilita viaggi | Object | Continenti + paesi |
+| Visti | Array | Nazioni visitabili + durata |
+| Partita IVA | Boolean + Text | Ha P.IVA + numero |
+
+**Step 3 - Dati Fisici (estesi)**
+| Campo | Tipo | Note |
+|-------|------|------|
+| Taglia giacca | Select | XS, S, M, L, XL, XXL |
+| Taglia pantaloni | Select | 38, 40, 42, ... |
+| Petto | Number (cm) | Misura torace |
+| Vita | Number (cm) | Misura vita |
+| Fianchi | Number (cm) | Misura fianchi |
+| Larghezza spalle | Number (cm) | Misura spalle |
+| Misura collo camicia | Number (cm) | Misura collo |
+| Misura scarpe | Select | 35-50 |
+| Lunghezza capelli | Select | Corti, Medi, Lunghi |
+| Tipologia capelli | Select | Lisci, Ricci, Mossi, Ricci Afro, Dread |
+| Lentiggini | Boolean | Checkbox |
+| Diastema | Boolean | Checkbox |
+| Piercing | Boolean | Checkbox |
+| Tatuaggi | Boolean | Checkbox |
+| Abilita | Multi-select | Danza, Palestra, Strumenti musicali, Canto, Sport |
+
+### Schema Database
+
+Devo aggiungere nuovi campi alle tabelle esistenti:
+
+**Tabella `profiles` - nuovi campi:**
+```sql
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS
+  phone_prefix text,
+  phone_number text,
+  whatsapp_prefix text,
+  whatsapp_number text,
+  nationality text,
+  postal_code text,
+  residence_address jsonb,  -- {state, city, street, postal_code}
+  domicile_address jsonb,   -- {state, city, street, postal_code}
+  fiscal_code text,
+  work_cities text[],
+  id_document_url text,
+  has_passport boolean DEFAULT false,
+  passport_expiry date,
+  social_links jsonb,       -- {instagram, tiktok, youtube, x, amazon}
+  website_url text,
+  has_minor_children boolean DEFAULT false,
+  main_occupation text,
+  driving_licenses text[],
+  travel_availability jsonb, -- {continents, countries}
+  visas jsonb,              -- [{country, duration}]
+  has_vat_number boolean DEFAULT false,
+  vat_number text,
+  representation_type text  -- 'agency' | 'freelance'
+```
+
+**Tabella `talent_attributes` - nuovi campi:**
+```sql
+ALTER TABLE talent_attributes ADD COLUMN IF NOT EXISTS
+  jacket_size text,
+  pants_size text,
+  chest number,
+  waist number,
+  hips number,
+  shoulder_width number,
+  neck_size number,
+  shoe_size text,
+  underwear_sizes jsonb,
+  hair_length text,
+  hair_type text,
+  has_freckles boolean DEFAULT false,
+  has_diastema boolean DEFAULT false,
+  has_piercings boolean DEFAULT false,
+  has_tattoos boolean DEFAULT false,
+  abilities text[]
+```
+
+### Nuovi componenti profilo
+
+Creare nuove sezioni per il profilo:
+
+| Componente | Descrizione |
+|------------|-------------|
+| `TalentRolesSection.tsx` | Selezione ruoli/talenti con i 3 gruppi |
+| `ContactInfoSection.tsx` | Telefono, WhatsApp, social links |
+| `AddressSection.tsx` | Residenza e domicilio |
+| `DocumentsSection.tsx` | Codice fiscale, passaporto, P.IVA, documento |
+| `WorkInfoSection.tsx` | Occupazione, citta di partenza, patenti |
+| `TravelSection.tsx` | Disponibilita viaggi e visti |
+| `MeasurementsSection.tsx` | Tutte le misure corporee dettagliate |
+| `PhysicalFeaturesSection.tsx` | Caratteristiche fisiche (lentiggini, piercing, ecc.) |
+| `AbilitiesSection.tsx` | Abilita specifiche (danza, sport, ecc.) |
+
+### Struttura aggiornata TalentProfile.tsx
 
 ```text
-┌──────────────────────────────────────────────────────────────┐
-│                     src/index.css                             │
-├──────────────────────────────────────────────────────────────┤
-│  @layer base      → Design tokens (gia esistenti)            │
-│  @layer components → Classi componente centralizzate (NUOVO) │
-│  @layer utilities  → Utilities personalizzate                │
-└──────────────────────────────────────────────────────────────┘
+TalentProfile
+├── Header (nome, location, genere)
+├── Main Content (2/3)
+│   ├── AboutMeSection (esistente)
+│   ├── TalentRolesSection (NUOVO)
+│   ├── MediaGallerySection (esistente)
+│   ├── MeasurementsSection (NUOVO - sostituisce AppearanceSection)
+│   ├── PhysicalFeaturesSection (NUOVO)
+│   ├── AbilitiesSection (NUOVO)
+│   ├── SkillsSection (esistente)
+│   └── LanguagesSection (esistente)
+└── Sidebar (1/3)
+    ├── ProfilePhotoSection (esistente)
+    ├── BasicInfoSection (esistente, esteso)
+    ├── ContactInfoSection (NUOVO)
+    ├── AddressSection (NUOVO)
+    ├── DocumentsSection (NUOVO)
+    ├── WorkInfoSection (NUOVO)
+    └── TravelSection (NUOVO)
 ```
 
-### Struttura delle nuove classi CSS
+### Opzioni per i select
 
-**1. Elementi interattivi**
-| Classe | Descrizione |
-|--------|-------------|
-| `.dc-btn` | Stile base button |
-| `.dc-btn-primary` | Variante primaria (bordeaux) |
-| `.dc-btn-secondary` | Variante secondaria (olive) |
-| `.dc-btn-outline` | Variante outline |
-| `.dc-btn-ghost` | Variante ghost |
-| `.dc-btn-sm`, `.dc-btn-lg` | Dimensioni |
-
-**2. Form elements**
-| Classe | Descrizione |
-|--------|-------------|
-| `.dc-input` | Input field base |
-| `.dc-textarea` | Textarea base |
-| `.dc-select` | Select trigger |
-| `.dc-label` | Label form |
-| `.dc-checkbox` | Checkbox |
-
-**3. Layout containers**
-| Classe | Descrizione |
-|--------|-------------|
-| `.dc-card` | Card container |
-| `.dc-card-header` | Header card |
-| `.dc-card-content` | Content card |
-| `.dc-dialog` | Dialog/modal |
-| `.dc-sidebar` | Sidebar container |
-
-**4. Tipografia**
-| Classe | Descrizione |
-|--------|-------------|
-| `.dc-heading-1` | H1 |
-| `.dc-heading-2` | H2 |
-| `.dc-heading-3` | H3 |
-| `.dc-text` | Testo base |
-| `.dc-text-muted` | Testo secondario |
-| `.dc-text-sm` | Testo piccolo |
-
-**5. Elementi decorativi**
-| Classe | Descrizione |
-|--------|-------------|
-| `.dc-badge` | Badge base |
-| `.dc-badge-success` | Badge successo |
-| `.dc-badge-warning` | Badge warning |
-| `.dc-avatar` | Avatar |
-| `.dc-divider` | Divisore |
-
-### Esempio di implementazione
-
-**In `src/index.css`:**
-```css
-@layer components {
-  /* Buttons */
-  .dc-btn {
-    @apply inline-flex items-center justify-center gap-2 
-           whitespace-nowrap rounded-md text-sm font-medium 
-           ring-offset-background transition-all duration-200 
-           focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2 
-           disabled:pointer-events-none disabled:opacity-50;
-  }
-  
-  .dc-btn-primary {
-    @apply dc-btn bg-primary text-primary-foreground 
-           hover:bg-primary/90 shadow-sm h-10 px-4 py-2;
-  }
-  
-  .dc-btn-outline {
-    @apply dc-btn border border-input bg-card 
-           hover:bg-muted hover:text-foreground h-10 px-4 py-2;
-  }
-
-  /* Cards */
-  .dc-card {
-    @apply rounded-3xl border bg-card text-card-foreground shadow-sm;
-  }
-  
-  .dc-card-content {
-    @apply p-6;
-  }
-
-  /* Inputs */
-  .dc-input {
-    @apply flex h-10 w-full rounded-md border border-input 
-           bg-[hsl(var(--input-background))] px-3 py-2 text-base 
-           ring-offset-background placeholder:text-muted-foreground 
-           focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2 
-           disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
-  }
-
-  /* Dialog */
-  .dc-dialog {
-    @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg 
-           translate-x-[-50%] translate-y-[-50%] gap-4 border 
-           bg-card p-6 shadow-lg duration-200 rounded-3xl;
-  }
-}
+**Ruoli/Talenti (3 gruppi):**
+```javascript
+const TALENT_ROLES = {
+  artistic: [
+    "Modello/Modella", "Attore/Attrice", "Real people", "Steward/Promoter",
+    "Piedista", "Manista", "Presentatore/Presentatrice", "Speaker radiofonico",
+    "Doppiatore/Doppiatrice", "Stuntman", "Cantante", "Musicista",
+    "Ballerino/Ballerina", "Performer"
+  ],
+  creative: [
+    "Truccatore/Truccatrice", "Parrucchiere/Parrucchiera", "Fotografo/Fotografa",
+    "Social Media Manager", "DOP", "Direttore di produzione", "Videomaker",
+    "Content Creator", "Influencer", "Regista"
+  ],
+  production: [
+    "Attrezzista", "Fonico", "Assistente di produzione", "Operatore/Operatrice",
+    "Steadicam", "Driver", "Focus Puller", "Producer", "Location Manager", "Macchinista"
+  ]
+};
 ```
 
-**Nei componenti React:**
-```tsx
-// Prima (card.tsx)
-className={cn("rounded-3xl border bg-card text-card-foreground shadow-sm", className)}
-
-// Dopo
-className={cn("dc-card", className)}
+**Tipologia capelli:**
+```javascript
+const HAIR_TYPES = ["Lisci", "Ricci", "Mossi", "Ricci Afro", "Dread"];
 ```
 
-### File coinvolti
+**Patenti:**
+```javascript
+const DRIVING_LICENSES = [
+  "AM", "A", "A1", "A2", "B", "C", "D", "E", "BE", "CE", "D+E", "Patente Nautica"
+];
+```
+
+**Abilita:**
+```javascript
+const ABILITIES = ["Danza", "Palestra", "Strumenti musicali", "Canto", "Sport"];
+```
+
+### Piano di implementazione
+
+1. **Migrazione database**: Aggiungere tutti i nuovi campi alle tabelle `profiles` e `talent_attributes`
+
+2. **Aggiornare hooks**: Estendere `useUpdateProfile` e `useUpdateTalentAttributes` per gestire i nuovi campi
+
+3. **Aggiornare traduzioni**: Aggiungere tutte le nuove label in `src/lib/i18n.ts`
+
+4. **Creare nuovi componenti**: Implementare le 9 nuove sezioni del profilo
+
+5. **Aggiornare TalentProfile**: Integrare tutte le nuove sezioni nel layout
+
+6. **Rifattorizzare AppearanceSection**: Rinominare in `MeasurementsSection` e aggiungere tutti i campi misure
+
+### Gestione dati strutturati
+
+Per i campi complessi uso JSONB:
+- `residence_address`: `{state, city, street, postal_code}`
+- `social_links`: `{instagram, tiktok, youtube, x, amazon}`
+- `travel_availability`: `{continents: [], countries: []}`
+- `visas`: `[{country, duration}]`
+- `underwear_sizes`: `{size, specific}`
+
+### File da creare/modificare
 
 | File | Azione |
 |------|--------|
-| `src/index.css` | Aggiungere tutte le classi componente nel layer components |
-| `src/components/ui/button.tsx` | Sostituire classi inline con classi `dc-btn-*` |
-| `src/components/ui/card.tsx` | Sostituire con `dc-card`, `dc-card-header`, etc. |
-| `src/components/ui/input.tsx` | Sostituire con `dc-input` |
-| `src/components/ui/textarea.tsx` | Sostituire con `dc-textarea` |
-| `src/components/ui/select.tsx` | Sostituire con `dc-select` |
-| `src/components/ui/dialog.tsx` | Sostituire con `dc-dialog` |
-| `src/components/ui/alert-dialog.tsx` | Sostituire con `dc-dialog` |
-| `src/components/ui/badge.tsx` | Sostituire con `dc-badge-*` |
-| `src/components/layout/OwnerSidebar.tsx` | Usare classi `dc-sidebar-*` |
-| `src/components/layout/TalentSidebar.tsx` | Usare classi `dc-sidebar-*` |
-
-### Vantaggi
-
-1. **Controllo centralizzato**: modifichi una classe in `index.css` e si aggiorna ovunque
-2. **Coerenza garantita**: stesso aspetto per tutti gli elementi dello stesso tipo
-3. **Facilita manutenzione**: non devi cercare classi sparse nei componenti
-4. **Override semplici**: puoi ancora aggiungere classi extra con `className` prop
-5. **Namespace chiaro**: tutte le classi iniziano con `dc-` (dotCasting)
-
-### Convenzioni di naming
-
-- Prefisso `dc-` per tutte le classi (dotCasting)
-- Modificatori separati con `-`: `dc-btn-primary`, `dc-btn-sm`
-- Parti del componente: `dc-card-header`, `dc-card-content`
-- Stati: `dc-btn-active`, `dc-input-error`
+| Migrazione SQL | Creare nuovi campi database |
+| `src/hooks/useProfile.ts` | Nessuna modifica (gia dinamico) |
+| `src/hooks/useUpdateProfile.ts` | Estendere con nuovi campi |
+| `src/hooks/useTalentAttributes.ts` | Estendere con nuovi campi |
+| `src/lib/i18n.ts` | Aggiungere traduzioni |
+| `src/lib/profileOptions.ts` | NUOVO - costanti per select |
+| `src/components/profile/TalentRolesSection.tsx` | NUOVO |
+| `src/components/profile/ContactInfoSection.tsx` | NUOVO |
+| `src/components/profile/AddressSection.tsx` | NUOVO |
+| `src/components/profile/DocumentsSection.tsx` | NUOVO |
+| `src/components/profile/WorkInfoSection.tsx` | NUOVO |
+| `src/components/profile/TravelSection.tsx` | NUOVO |
+| `src/components/profile/MeasurementsSection.tsx` | NUOVO (sostituisce AppearanceSection) |
+| `src/components/profile/PhysicalFeaturesSection.tsx` | NUOVO |
+| `src/components/profile/AbilitiesSection.tsx` | NUOVO |
+| `src/pages/talent/TalentProfile.tsx` | Aggiornare layout |
 
 ### Risultato atteso
 
-- Tutti gli stili UI centralizzati in `src/index.css`
-- Componenti React puliti con solo riferimenti a classi CSS
-- Possibilita di cambiare look globale modificando un solo file
-- Mantenimento della flessibilita con override tramite `className`
+- Profilo talent completo con tutti i campi visibili nei form di onboarding
+- Sezioni organizzate logicamente e editabili indipendentemente
+- Dati salvati correttamente nel database
+- UI coerente con il design system esistente (classi `dc-*`)
+- Tutti i campi opzionali per non bloccare l'utente
 
