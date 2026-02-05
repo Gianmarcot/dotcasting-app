@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./useProfile";
+ import type { Json } from "@/integrations/supabase/types";
 
 export const useTalentAttributes = () => {
   const { data: profile } = useProfile();
@@ -35,6 +36,22 @@ export const useUpdateTalentAttributes = () => {
       eye_color?: string | null;
       skills?: string[] | null;
       languages?: string[] | null;
+       jacket_size?: string | null;
+       pants_size?: string | null;
+       chest?: number | null;
+       waist?: number | null;
+       hips?: number | null;
+       shoulder_width?: number | null;
+       neck_size?: number | null;
+       shoe_size?: string | null;
+       underwear_sizes?: Json | null;
+       hair_length?: string | null;
+       hair_type?: string | null;
+       has_freckles?: boolean;
+       has_diastema?: boolean;
+       has_piercings?: boolean;
+       has_tattoos?: boolean;
+       abilities?: string[] | null;
     }) => {
       if (!profile?.id) throw new Error("Profile not found");
 

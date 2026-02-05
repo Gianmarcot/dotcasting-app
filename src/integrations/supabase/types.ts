@@ -518,17 +518,40 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          domicile_address: Json | null
+          driving_licenses: string[] | null
           ethnicity: string | null
           first_name: string | null
+          fiscal_code: string | null
           gender: string | null
+          has_minor_children: boolean | null
+          has_passport: boolean | null
+          has_vat_number: boolean | null
           id: string
+          id_document_url: string | null
           last_name: string | null
+          main_occupation: string | null
+          nationality: string | null
           onboarding_completed: boolean | null
+          passport_expiry: string | null
+          phone_number: string | null
+          phone_prefix: string | null
+          postal_code: string | null
           profile_photo_url: string | null
+          representation_type: string | null
+          residence_address: Json | null
+          social_links: Json | null
           talent_categories: string[] | null
+          travel_availability: Json | null
           updated_at: string
           user_id: string
+          vat_number: string | null
+          visas: Json | null
           visibility_settings: Json | null
+          website_url: string | null
+          whatsapp_number: string | null
+          whatsapp_prefix: string | null
+          work_cities: string[] | null
         }
         Insert: {
           bio?: string | null
@@ -536,17 +559,40 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          domicile_address?: Json | null
+          driving_licenses?: string[] | null
           ethnicity?: string | null
           first_name?: string | null
+          fiscal_code?: string | null
           gender?: string | null
+          has_minor_children?: boolean | null
+          has_passport?: boolean | null
+          has_vat_number?: boolean | null
           id?: string
+          id_document_url?: string | null
           last_name?: string | null
+          main_occupation?: string | null
+          nationality?: string | null
           onboarding_completed?: boolean | null
+          passport_expiry?: string | null
+          phone_number?: string | null
+          phone_prefix?: string | null
+          postal_code?: string | null
           profile_photo_url?: string | null
+          representation_type?: string | null
+          residence_address?: Json | null
+          social_links?: Json | null
           talent_categories?: string[] | null
+          travel_availability?: Json | null
           updated_at?: string
           user_id: string
+          vat_number?: string | null
+          visas?: Json | null
           visibility_settings?: Json | null
+          website_url?: string | null
+          whatsapp_number?: string | null
+          whatsapp_prefix?: string | null
+          work_cities?: string[] | null
         }
         Update: {
           bio?: string | null
@@ -554,17 +600,40 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          domicile_address?: Json | null
+          driving_licenses?: string[] | null
           ethnicity?: string | null
           first_name?: string | null
+          fiscal_code?: string | null
           gender?: string | null
+          has_minor_children?: boolean | null
+          has_passport?: boolean | null
+          has_vat_number?: boolean | null
           id?: string
+          id_document_url?: string | null
           last_name?: string | null
+          main_occupation?: string | null
+          nationality?: string | null
           onboarding_completed?: boolean | null
+          passport_expiry?: string | null
+          phone_number?: string | null
+          phone_prefix?: string | null
+          postal_code?: string | null
           profile_photo_url?: string | null
+          representation_type?: string | null
+          residence_address?: Json | null
+          social_links?: Json | null
           talent_categories?: string[] | null
+          travel_availability?: Json | null
           updated_at?: string
           user_id?: string
+          vat_number?: string | null
+          visas?: Json | null
           visibility_settings?: Json | null
+          website_url?: string | null
+          whatsapp_number?: string | null
+          whatsapp_prefix?: string | null
+          work_cities?: string[] | null
         }
         Relationships: []
       }
@@ -599,48 +668,96 @@ export type Database = {
       }
       talent_attributes: {
         Row: {
+          abilities: string[] | null
           availability: Json | null
+          chest: number | null
           clothing_sizes: Json | null
           eye_color: string | null
           hair_color: string | null
+          hair_length: string | null
+          hair_type: string | null
+          has_diastema: boolean | null
+          has_freckles: boolean | null
+          has_piercings: boolean | null
+          has_tattoos: boolean | null
           height: number | null
+          hips: number | null
           id: string
+          jacket_size: string | null
           languages: string[] | null
           measurements: string | null
+          neck_size: number | null
           other_tags: string[] | null
+          pants_size: string | null
           profile_id: string
+          shoe_size: string | null
+          shoulder_width: number | null
           skills: string[] | null
+          underwear_sizes: Json | null
           updated_at: string
+          waist: number | null
           weight: number | null
         }
         Insert: {
+          abilities?: string[] | null
           availability?: Json | null
+          chest?: number | null
           clothing_sizes?: Json | null
           eye_color?: string | null
           hair_color?: string | null
+          hair_length?: string | null
+          hair_type?: string | null
+          has_diastema?: boolean | null
+          has_freckles?: boolean | null
+          has_piercings?: boolean | null
+          has_tattoos?: boolean | null
           height?: number | null
+          hips?: number | null
           id?: string
+          jacket_size?: string | null
           languages?: string[] | null
           measurements?: string | null
+          neck_size?: number | null
           other_tags?: string[] | null
+          pants_size?: string | null
           profile_id: string
+          shoe_size?: string | null
+          shoulder_width?: number | null
           skills?: string[] | null
+          underwear_sizes?: Json | null
           updated_at?: string
+          waist?: number | null
           weight?: number | null
         }
         Update: {
+          abilities?: string[] | null
           availability?: Json | null
+          chest?: number | null
           clothing_sizes?: Json | null
           eye_color?: string | null
           hair_color?: string | null
+          hair_length?: string | null
+          hair_type?: string | null
+          has_diastema?: boolean | null
+          has_freckles?: boolean | null
+          has_piercings?: boolean | null
+          has_tattoos?: boolean | null
           height?: number | null
+          hips?: number | null
           id?: string
+          jacket_size?: string | null
           languages?: string[] | null
           measurements?: string | null
+          neck_size?: number | null
           other_tags?: string[] | null
+          pants_size?: string | null
           profile_id?: string
+          shoe_size?: string | null
+          shoulder_width?: number | null
           skills?: string[] | null
+          underwear_sizes?: Json | null
           updated_at?: string
+          waist?: number | null
           weight?: number | null
         }
         Relationships: [
