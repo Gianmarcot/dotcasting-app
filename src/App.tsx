@@ -26,6 +26,7 @@ import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
 // Owner pages
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
+import OwnerTalentEdit from "./pages/owner/OwnerTalentEdit";
 import OwnerTalents from "./pages/owner/OwnerTalents";
 import OwnerCastings from "./pages/owner/OwnerCastings";
 import OwnerTargets from "./pages/owner/OwnerTargets";
@@ -87,6 +88,7 @@ const App = () => (
             >
               <Route index element={<OwnerDashboard />} />
               <Route path="talents" element={<OwnerTalents />} />
+              <Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
               <Route path="castings" element={<OwnerCastings />} />
               <Route path="targets" element={<OwnerTargets />} />
               <Route path="applications" element={<OwnerApplications />} />

@@ -6,12 +6,22 @@ import { Label } from "@/components/ui/label";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useProfileById } from "@/hooks/useProfileById";
+import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
 
-export const BasicInfoSection = () => {
-  const { data: profile } = useProfile();
-  const updateProfile = useUpdateProfile();
+interface BasicInfoSectionProps {
+  externalProfileId?: string;
+}
+
+export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) => {
+  const { data: ownProfile } = useProfile();
+  const { data: externalProfile } = useProfileById(externalProfileId);
+  const updateOwnProfile = useUpdateProfile();
+  const updateExternalProfile = useUpdateProfileById();
+  
+  const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -47,7 +57,7 @@ export const BasicInfoSection = () => {
 
   const handleSave = async () => {
     try {
-      await updateProfile.mutateAsync({
+      const updates = {
         first_name: formData.firstName,
         last_name: formData.lastName,
         gender: formData.gender,
@@ -55,7 +65,13 @@ export const BasicInfoSection = () => {
         birth_date: formData.birthDate || null,
         city: formData.city,
         country: formData.country,
-      });
+      };
+      
+      if (externalProfileId) {
+        await updateExternalProfile.mutateAsync({ profileId: externalProfileId, updates });
+      } else {
+        await updateOwnProfile.mutateAsync(updates);
+      }
       setIsEditing(false);
       toast.success("Informazioni aggiornate!");
     } catch (error) {
@@ -78,6 +94,8 @@ export const BasicInfoSection = () => {
     setIsEditing(false);
   };
 
+  const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -87,8 +105,8 @@ export const BasicInfoSection = () => {
             <Button size="sm" variant="ghost" onClick={handleCancel}>
               <X className="h-4 w-4" />
             </Button>
-            <Button size="sm" onClick={handleSave} disabled={updateProfile.isPending}>
-              {updateProfile.isPending ? (
+            <Button size="sm" onClick={handleSave} disabled={isPending}>
+              {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Check className="h-4 w-4" />

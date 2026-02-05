@@ -5,11 +5,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useProfileById } from "@/hooks/useProfileById";
+import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 
-export const AboutMeSection = () => {
-  const { data: profile } = useProfile();
-  const updateProfile = useUpdateProfile();
+interface AboutMeSectionProps {
+  externalProfileId?: string;
+}
+
+export const AboutMeSection = ({ externalProfileId }: AboutMeSectionProps) => {
+  const { data: ownProfile } = useProfile();
+  const { data: externalProfile } = useProfileById(externalProfileId);
+  const updateOwnProfile = useUpdateProfile();
+  const updateExternalProfile = useUpdateProfileById();
+  
+  const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
   const [bio, setBio] = useState("");
 
@@ -21,7 +31,11 @@ export const AboutMeSection = () => {
 
   const handleSave = async () => {
     try {
-      await updateProfile.mutateAsync({ bio });
+      if (externalProfileId) {
+        await updateExternalProfile.mutateAsync({ profileId: externalProfileId, updates: { bio } });
+      } else {
+        await updateOwnProfile.mutateAsync({ bio });
+      }
       setIsEditing(false);
       toast.success("Biografia aggiornata!");
     } catch (error) {
@@ -34,6 +48,8 @@ export const AboutMeSection = () => {
     setIsEditing(false);
   };
 
+  const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -43,8 +59,8 @@ export const AboutMeSection = () => {
             <Button size="sm" variant="ghost" onClick={handleCancel}>
               <X className="h-4 w-4" />
             </Button>
-            <Button size="sm" onClick={handleSave} disabled={updateProfile.isPending}>
-              {updateProfile.isPending ? (
+            <Button size="sm" onClick={handleSave} disabled={isPending}>
+              {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Check className="h-4 w-4" />

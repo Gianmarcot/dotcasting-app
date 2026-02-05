@@ -5,12 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Check, X, Loader2, Plus } from "lucide-react";
 import { useTalentAttributes, useUpdateTalentAttributes } from "@/hooks/useTalentAttributes";
+import { useTalentAttributesByProfileId, useUpdateTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
 
-export const LanguagesSection = () => {
-  const { data: attributes } = useTalentAttributes();
-  const updateAttributes = useUpdateTalentAttributes();
+interface LanguagesSectionProps {
+  externalProfileId?: string;
+}
+
+export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) => {
+  const { data: ownAttributes } = useTalentAttributes();
+  const { data: externalAttributes } = useTalentAttributesByProfileId(externalProfileId);
+  const updateOwnAttributes = useUpdateTalentAttributes();
+  const updateExternalAttributes = useUpdateTalentAttributesByProfileId();
+  
+  const attributes = externalProfileId ? externalAttributes : ownAttributes;
   const [isEditing, setIsEditing] = useState(false);
   const [languages, setLanguages] = useState<string[]>([]);
   const [newLanguage, setNewLanguage] = useState("");
@@ -34,7 +43,11 @@ export const LanguagesSection = () => {
 
   const handleSave = async () => {
     try {
-      await updateAttributes.mutateAsync({ languages });
+      if (externalProfileId) {
+        await updateExternalAttributes.mutateAsync({ profileId: externalProfileId, attributes: { languages } });
+      } else {
+        await updateOwnAttributes.mutateAsync({ languages });
+      }
       setIsEditing(false);
       toast.success("Lingue aggiornate!");
     } catch (error) {
@@ -47,6 +60,8 @@ export const LanguagesSection = () => {
     setIsEditing(false);
   };
 
+  const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -56,8 +71,8 @@ export const LanguagesSection = () => {
             <Button size="sm" variant="ghost" onClick={handleCancel}>
               <X className="h-4 w-4" />
             </Button>
-            <Button size="sm" onClick={handleSave} disabled={updateAttributes.isPending}>
-              {updateAttributes.isPending ? (
+            <Button size="sm" onClick={handleSave} disabled={isPending}>
+              {isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Check className="h-4 w-4" />

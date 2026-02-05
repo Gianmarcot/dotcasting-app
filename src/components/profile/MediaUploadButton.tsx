@@ -8,16 +8,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUploadMedia } from "@/hooks/useTalentMedia";
+import { useUploadMediaByProfileId } from "@/hooks/useTalentMediaByProfileIdEditable";
 
 interface MediaUploadButtonProps {
   disabled?: boolean;
+  externalProfileId?: string;
+  externalUserId?: string;
 }
 
-export const MediaUploadButton = ({ disabled }: MediaUploadButtonProps) => {
+export const MediaUploadButton = ({ disabled, externalProfileId, externalUserId }: MediaUploadButtonProps) => {
   const [selectedType, setSelectedType] = useState<"photo" | "video" | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
-  const { mutate: uploadMedia, isPending } = useUploadMedia();
+  const { mutate: uploadOwnMedia, isPending: isOwnPending } = useUploadMedia();
+  const { mutate: uploadExternalMedia, isPending: isExternalPending } = useUploadMediaByProfileId();
+
+  const isPending = externalProfileId ? isExternalPending : isOwnPending;
 
   const handleSelectType = (type: "photo" | "video") => {
     setSelectedType(type);
@@ -34,7 +40,16 @@ export const MediaUploadButton = ({ disabled }: MediaUploadButtonProps) => {
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      uploadMedia({ file, mediaType: type });
+      if (externalProfileId && externalUserId) {
+        uploadExternalMedia({ 
+          file, 
+          mediaType: type, 
+          profileId: externalProfileId, 
+          userId: externalUserId 
+        });
+      } else {
+        uploadOwnMedia({ file, mediaType: type });
+      }
     }
     // Reset input
     e.target.value = "";
