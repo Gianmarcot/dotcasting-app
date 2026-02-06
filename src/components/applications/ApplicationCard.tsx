@@ -1,10 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Eye, MessageSquare, Calendar } from "lucide-react";
 import { ApplicationStatusDropdown } from "./ApplicationStatusDropdown";
@@ -25,22 +25,26 @@ export const ApplicationCard = ({
   onViewTalent,
   isUpdating = false,
 }: ApplicationCardProps) => {
-  const fullName = `${application.profile?.first_name || ""} ${application.profile?.last_name || ""}`.trim() || "Talent";
-  const initials = fullName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const fullName =
+    `${application.profile?.first_name || ""} ${application.profile?.last_name || ""}`.trim() || "Talent";
+  const initials = fullName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
   const submittedDate = format(new Date(application.submitted_at), "d MMM yyyy", { locale: itLocale });
 
   return (
-    <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+    <div className="flex items-center justify-between p-4 transition-colors">
       <div className="flex items-center gap-4">
         <Avatar className="h-12 w-12 cursor-pointer" onClick={() => onViewTalent?.(application)}>
           <AvatarImage src={application.profile?.profile_photo_url || undefined} alt={fullName} />
-          <AvatarFallback className="bg-muted text-foreground">
-            {initials}
-          </AvatarFallback>
+          <AvatarFallback className="bg-muted text-foreground">{initials}</AvatarFallback>
         </Avatar>
-        
+
         <div className="space-y-1">
-          <p 
+          <p
             className="font-medium text-foreground cursor-pointer hover:underline"
             onClick={() => onViewTalent?.(application)}
           >
@@ -52,9 +56,7 @@ export const ApplicationCard = ({
               <span className="text-muted-foreground/70"> • {application.casting.company.name}</span>
             )}
           </p>
-          {application.profile?.city && (
-            <p className="text-xs text-muted-foreground">{application.profile.city}</p>
-          )}
+          {application.profile?.city && <p className="text-xs text-muted-foreground">{application.profile.city}</p>}
         </div>
       </div>
 
@@ -64,10 +66,8 @@ export const ApplicationCard = ({
           onStatusChange={(status) => onStatusChange(application.id, status)}
           disabled={isUpdating}
         />
-        
-        <span className="text-sm text-muted-foreground whitespace-nowrap">
-          {submittedDate}
-        </span>
+
+        <span className="text-sm text-muted-foreground whitespace-nowrap">{submittedDate}</span>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
