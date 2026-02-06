@@ -10,6 +10,7 @@ import { Users } from "lucide-react";
 export const OwnerTalents = () => {
   const [filters, setFilters] = useState<TalentFilters>({});
   const [selectedTalent, setSelectedTalent] = useState<TalentWithAttributes | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   
   const { data: talents, isLoading } = useTalents(filters);
   const { data: filterOptions } = useTalentFilterOptions();
@@ -79,7 +80,10 @@ export const OwnerTalents = () => {
             <TalentCard
               key={talent.id}
               talent={talent}
-              onClick={() => setSelectedTalent(talent)}
+              onClick={() => {
+                setSelectedTalent(talent);
+                setDialogOpen(true);
+              }}
             />
           ))}
         </div>
@@ -88,8 +92,8 @@ export const OwnerTalents = () => {
       {/* Talent detail modal */}
       <TalentDetailDialog
         talent={selectedTalent}
-        open={!!selectedTalent}
-        onOpenChange={(open) => !open && setSelectedTalent(null)}
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
       />
     </div>
   );
