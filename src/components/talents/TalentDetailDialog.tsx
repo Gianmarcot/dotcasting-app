@@ -322,7 +322,10 @@ export const TalentDetailDialog = ({
                   return (
                     <div
                       key={item.id}
-                      onClick={() => setLightboxIndex(index)}
+                      onClick={() => {
+                        onOpenChange(false); // Close dialog first
+                        setLightboxIndex(index);
+                      }}
                       className="relative aspect-square rounded-lg overflow-hidden bg-muted group cursor-pointer"
                     >
                       {item.media_type === "video" ? (
@@ -397,9 +400,13 @@ export const TalentDetailDialog = ({
         <MediaLightbox
           media={media}
           currentIndex={lightboxIndex}
-          onClose={() => setLightboxIndex(null)}
+          onClose={() => {
+            setLightboxIndex(null);
+            onOpenChange(true); // Reopen dialog when closing lightbox
+          }}
           onNavigate={setLightboxIndex}
           isOwnerView={true}
+          ratingsMap={ratingsMap}
         />
       )}
 
