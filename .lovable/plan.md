@@ -1,37 +1,19 @@
 
+## Allineare la progress bar dell'onboarding allo stile del profilo
 
-## Piano: Aggiornare il logo in tutte le pagine
+### Cosa cambia
 
-### Situazione attuale
+Nel file `src/pages/talent/TalentOnboarding.tsx`:
 
-Il logo appare in 4 punti dell'applicazione:
+1. **Sfondo della sezione progress** (righe 202-228): wrappare la barra e gli step indicator in un contenitore con sfondo `bg-[#ECE5DE]` e bordi arrotondati (`rounded-lg p-4`), come la card `ProfileCompletionBar`.
 
-| Pagina | File | Formato attuale |
-|--------|------|-----------------|
-| Sidebar Talent | `TalentSidebar.tsx` | Immagine `logo.png` (versione scura) |
-| Sidebar Owner | `OwnerSidebar.tsx` | Immagine `logo-white.png` (versione bianca su sfondo scuro) |
-| Landing page (header) | `Index.tsx` | Testo HTML ("dot" + "Casting") |
-| Pagina Login/Signup | `AuthPage.tsx` | Testo HTML ("dot" + "Casting") |
+2. **Barra di progresso** (riga 204): aggiungere la classe `bg-white` al componente `<Progress>` per avere il track bianco, e portare l'altezza a `h-3` come nel profilo:
+   - Da: `<Progress value={progress} className="h-2" />`
+   - A: `<Progress value={progress} className="h-3 bg-white" />`
 
-La sidebar Talent e Owner usano gia le immagini corrette per il rispettivo sfondo. Le pagine **Index** e **AuthPage** usano invece un logo testuale e non l'immagine.
-
-### Modifiche previste
-
-Sostituire il logo testuale con l'immagine `logo.png` (versione scura) nelle due pagine su sfondo chiaro:
-
-**1. `src/pages/Index.tsx` (header della landing page, riga 11-14)**
-- Importare `logo from "@/assets/logo.png"`
-- Sostituire i due `<span>` con `<img src={logo} alt="dotCasting" className="h-7" />`
-
-**2. `src/pages/AuthPage.tsx` (sopra il form, riga 120-123)**
-- Importare `logo from "@/assets/logo.png"`
-- Sostituire i due `<span>` con `<img src={logo} alt="dotCasting" className="h-8" />`
-
-### Nessuna modifica necessaria
-
-- **TalentSidebar**: usa gia `logo.png`
-- **OwnerSidebar**: usa `logo-white.png` (corretto per sfondo scuro)
+3. **Logo** (righe 197-200): sostituire il logo testuale con l'immagine `logo.png`, come gia fatto in Index e AuthPage:
+   - Importare `logo from "@/assets/logo.png"`
+   - Sostituire gli `<span>` con `<img src={logo} alt="dotCasting" className="h-8" />`
 
 ### Risultato
-
-Il logo immagine sara coerente in tutta l'app, con la versione scura su sfondi chiari e quella bianca su sfondo scuro admin.
+La barra di avanzamento dell'onboarding avra lo stesso aspetto visivo (sfondo beige, track bianco, indicatore primary, altezza 3) della barra di completamento profilo, e il logo sara coerente con il resto dell'app.
