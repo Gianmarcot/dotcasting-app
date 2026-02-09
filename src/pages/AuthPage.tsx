@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
+import logo from "@/assets/logo.png";
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -118,8 +119,7 @@ export const AuthPage = () => {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-1">
-            <span className="text-muted-foreground text-lg">dot</span>
-            <span className="text-3xl font-semibold text-foreground">Casting</span>
+            <img src={logo} alt="dotCasting" className="h-8" />
           </Link>
         </div>
 
