@@ -24,6 +24,7 @@ import {
   Users
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 
 // Talent category options
 const TALENT_CATEGORIES = [
@@ -195,13 +196,12 @@ export const TalentOnboarding = () => {
       <div className="w-full max-w-2xl">
         {/* Logo */}
         <div className="text-center mb-8">
-          <span className="text-muted-foreground text-lg">dot</span>
-          <span className="text-3xl font-semibold text-foreground">Casting</span>
+          <img src={logo} alt="dotCasting" className="h-8 mx-auto" />
         </div>
 
         {/* Progress */}
-        <div className="mb-8">
-          <Progress value={progress} className="h-2" />
+        <div className="mb-8 bg-[#ECE5DE] rounded-lg p-4">
+          <Progress value={progress} className="h-3 bg-white" />
           <div className="flex justify-between mt-3">
             {STEPS.map((step) => (
               <div 
