@@ -4,13 +4,16 @@ import { useTalents, useTalentFilterOptions, TalentFilters, TalentWithAttributes
 import { TalentFiltersComponent } from "@/components/talents/TalentFilters";
 import { TalentCard } from "@/components/talents/TalentCard";
 import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
+import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Users, UserPlus } from "lucide-react";
 
 export const OwnerTalents = () => {
   const [filters, setFilters] = useState<TalentFilters>({});
   const [selectedTalent, setSelectedTalent] = useState<TalentWithAttributes | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
   const { data: talents, isLoading } = useTalents(filters);
   const { data: filterOptions } = useTalentFilterOptions();
@@ -33,6 +36,10 @@ export const OwnerTalents = () => {
             Cerca e gestisci i talenti registrati
           </p>
         </div>
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <UserPlus className="h-4 w-4 mr-2" />
+          Nuovo Talent
+        </Button>
       </div>
 
       {/* Filters */}
@@ -94,6 +101,11 @@ export const OwnerTalents = () => {
         talent={selectedTalent}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+
+      <CreateTalentDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
       />
     </div>
   );
