@@ -430,13 +430,21 @@ export const TalentOnboarding = () => {
         </Card>
 
         {/* Skip option */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex items-center justify-center gap-2">
           <button
             type="button"
             onClick={() => navigate("/talent")}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Completa dopo
+          </button>
+          <span className="text-sm text-muted-foreground">·</span>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Torna alla home
           </button>
         </div>
       </div>
