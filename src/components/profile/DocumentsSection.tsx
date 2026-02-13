@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
+import { NATIONALITIES } from "@/lib/profileOptions";
 
 interface DocumentsSectionProps {
   externalProfileId?: string;
@@ -115,15 +117,21 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="nationality">Nazionalità</Label>
-            <Input
-              id="nationality"
-              name="nationality"
+            <Label>Nazionalità</Label>
+            <Select
               value={formData.nationality}
-              onChange={handleChange}
+              onValueChange={(value) => setFormData({...formData, nationality: value})}
               disabled={!isEditing}
-              placeholder="Italiana"
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona nazionalità" />
+              </SelectTrigger>
+              <SelectContent>
+                {NATIONALITIES.map((n) => (
+                  <SelectItem key={n} value={n}>{n}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="fiscalCode">Codice Fiscale</Label>

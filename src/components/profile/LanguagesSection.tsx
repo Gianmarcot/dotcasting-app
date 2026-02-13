@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Check, X, Loader2, Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useTalentAttributes, useUpdateTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentAttributesByProfileId, useUpdateTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
+import { LANGUAGES } from "@/lib/profileOptions";
 
 interface LanguagesSectionProps {
   externalProfileId?: string;
@@ -22,7 +23,6 @@ export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) =
   const attributes = externalProfileId ? externalAttributes : ownAttributes;
   const [isEditing, setIsEditing] = useState(false);
   const [languages, setLanguages] = useState<string[]>([]);
-  const [newLanguage, setNewLanguage] = useState("");
 
   useEffect(() => {
     if (attributes) {
@@ -30,10 +30,9 @@ export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) =
     }
   }, [attributes]);
 
-  const handleAddLanguage = () => {
-    if (newLanguage.trim() && !languages.includes(newLanguage.trim())) {
-      setLanguages([...languages, newLanguage.trim()]);
-      setNewLanguage("");
+  const handleAddLanguage = (lang: string) => {
+    if (lang && !languages.includes(lang)) {
+      setLanguages([...languages, lang]);
     }
   };
 
@@ -61,6 +60,7 @@ export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) =
   };
 
   const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
+  const availableLanguages = LANGUAGES.filter((l) => !languages.includes(l));
 
   return (
     <Card className="border-0 shadow-sm">
@@ -86,17 +86,18 @@ export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) =
         )}
       </CardHeader>
       <CardContent>
-        {isEditing && (
-          <div className="flex gap-2 mb-4">
-            <Input
-              value={newLanguage}
-              onChange={(e) => setNewLanguage(e.target.value)}
-              placeholder="Aggiungi una lingua..."
-              onKeyDown={(e) => e.key === "Enter" && handleAddLanguage()}
-            />
-            <Button size="sm" onClick={handleAddLanguage}>
-              <Plus className="h-4 w-4" />
-            </Button>
+        {isEditing && availableLanguages.length > 0 && (
+          <div className="mb-4">
+            <Select onValueChange={handleAddLanguage}>
+              <SelectTrigger>
+                <SelectValue placeholder="Aggiungi una lingua..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableLanguages.map((lang) => (
+                  <SelectItem key={lang} value={lang}>{lang}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         )}
         

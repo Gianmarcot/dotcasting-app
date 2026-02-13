@@ -165,11 +165,137 @@
    { value: "agency", label: "Con Agenzia" }
  ];
  
- export const CONTINENTS = [
-   "Europa",
-   "Nord America",
-   "Sud America",
-   "Asia",
-   "Africa",
-   "Oceania"
- ];
+export const CONTINENTS = [
+  "Europa",
+  "Nord America",
+  "Sud America",
+  "Asia",
+  "Africa",
+  "Oceania"
+];
+
+export const ETHNICITIES = [
+  "Caucasica",
+  "Africana",
+  "Asiatica",
+  "Latina/Ispanica",
+  "Mediorientale",
+  "Indiana/Sud Asiatica",
+  "Nativa Americana",
+  "Polinesiana/Oceanica",
+  "Mista",
+  "Altro"
+];
+
+export const COUNTRIES = [
+  "Italia",
+  "Francia",
+  "Germania",
+  "Spagna",
+  "Regno Unito",
+  "Svizzera",
+  "Austria",
+  "Belgio",
+  "Paesi Bassi",
+  "Portogallo",
+  "Grecia",
+  "Polonia",
+  "Romania",
+  "Svezia",
+  "Norvegia",
+  "Danimarca",
+  "Irlanda",
+  "Repubblica Ceca",
+  "Croazia",
+  "Ungheria",
+  "Stati Uniti",
+  "Canada",
+  "Brasile",
+  "Argentina",
+  "Australia",
+  "Giappone",
+  "Cina",
+  "Russia",
+  "Altro"
+];
+
+export const NATIONALITIES = [
+  "Italiana",
+  "Francese",
+  "Tedesca",
+  "Spagnola",
+  "Britannica",
+  "Svizzera",
+  "Austriaca",
+  "Belga",
+  "Olandese",
+  "Portoghese",
+  "Greca",
+  "Polacca",
+  "Rumena",
+  "Svedese",
+  "Norvegese",
+  "Danese",
+  "Irlandese",
+  "Ceca",
+  "Croata",
+  "Ungherese",
+  "Statunitense",
+  "Canadese",
+  "Brasiliana",
+  "Argentina",
+  "Australiana",
+  "Giapponese",
+  "Cinese",
+  "Russa",
+  "Altra"
+];
+
+export const OCCUPATIONS = [
+  "Studente",
+  "Impiegato/a",
+  "Libero professionista",
+  "Artista",
+  "Modello/a",
+  "Attore/Attrice",
+  "Commerciante",
+  "Insegnante",
+  "Operaio/a",
+  "Manager",
+  "Imprenditore/Imprenditrice",
+  "Disoccupato/a",
+  "Pensionato/a",
+  "Altro"
+];
+
+export const LANGUAGES = [
+  "Italiano",
+  "Inglese",
+  "Francese",
+  "Spagnolo",
+  "Tedesco",
+  "Portoghese",
+  "Russo",
+  "Cinese (Mandarino)",
+  "Giapponese",
+  "Arabo",
+  "Hindi",
+  "Coreano",
+  "Olandese",
+  "Polacco",
+  "Rumeno",
+  "Svedese",
+  "Greco",
+  "Turco",
+  "Croato",
+  "Ungherese",
+  "Ceco",
+  "Danese",
+  "Norvegese",
+  "Finlandese",
+  "Catalano",
+  "Albanese",
+  "Serbo",
+  "Bulgaro",
+  "Ucraino"
+];
