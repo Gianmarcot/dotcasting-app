@@ -5,13 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Check, X, Loader2, Plus } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
-import { DRIVING_LICENSES } from "@/lib/profileOptions";
+import { DRIVING_LICENSES, OCCUPATIONS } from "@/lib/profileOptions";
 
 interface WorkInfoSectionProps {
   externalProfileId?: string;
@@ -125,14 +126,21 @@ export const WorkInfoSection = ({ externalProfileId }: WorkInfoSectionProps) => 
       <CardContent className="space-y-4">
         {/* Main Occupation */}
         <div className="space-y-2">
-          <Label htmlFor="mainOccupation">Occupazione principale</Label>
-          <Input
-            id="mainOccupation"
+          <Label>Occupazione principale</Label>
+          <Select
             value={formData.mainOccupation}
-            onChange={(e) => setFormData({...formData, mainOccupation: e.target.value})}
+            onValueChange={(value) => setFormData({...formData, mainOccupation: value})}
             disabled={!isEditing}
-            placeholder="Es. Studente, Impiegato, Libero professionista"
-          />
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleziona occupazione" />
+            </SelectTrigger>
+            <SelectContent>
+              {OCCUPATIONS.map((o) => (
+                <SelectItem key={o} value={o}>{o}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Minor Children */}

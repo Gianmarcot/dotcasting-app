@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
@@ -10,6 +11,7 @@ import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
+import { GENDERS, ETHNICITIES, COUNTRIES } from "@/lib/profileOptions";
 
 interface BasicInfoSectionProps {
   externalProfileId?: string;
@@ -55,6 +57,10 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
     });
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData({ ...formData, [name]: value });
+  };
+
   const handleSave = async () => {
     try {
       const updates = {
@@ -95,6 +101,8 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   };
 
   const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
+
+  const genderLabel = GENDERS.find(g => g.value === formData.gender)?.label || formData.gender;
 
   return (
     <Card className="border-0 shadow-sm">
@@ -145,24 +153,38 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="gender">{it.profile.gender}</Label>
-            <Input
-              id="gender"
-              name="gender"
+            <Label>{it.profile.gender}</Label>
+            <Select
               value={formData.gender}
-              onChange={handleChange}
+              onValueChange={(value) => handleSelectChange("gender", value)}
               disabled={!isEditing}
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona genere">{genderLabel}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {GENDERS.map((g) => (
+                  <SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="ethnicity">{it.profile.ethnicity}</Label>
-            <Input
-              id="ethnicity"
-              name="ethnicity"
+            <Label>{it.profile.ethnicity}</Label>
+            <Select
               value={formData.ethnicity}
-              onChange={handleChange}
+              onValueChange={(value) => handleSelectChange("ethnicity", value)}
               disabled={!isEditing}
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona etnia" />
+              </SelectTrigger>
+              <SelectContent>
+                {ETHNICITIES.map((e) => (
+                  <SelectItem key={e} value={e}>{e}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="birthDate">{it.profile.birthDate}</Label>
@@ -189,14 +211,21 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="country">{it.profile.country}</Label>
-            <Input
-              id="country"
-              name="country"
+            <Label>{it.profile.country}</Label>
+            <Select
               value={formData.country}
-              onChange={handleChange}
+              onValueChange={(value) => handleSelectChange("country", value)}
               disabled={!isEditing}
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Seleziona paese" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardContent>
