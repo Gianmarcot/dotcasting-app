@@ -433,7 +433,18 @@ export const TalentOnboarding = () => {
         <div className="text-center mt-6 flex items-center justify-center gap-2">
           <button
             type="button"
-            onClick={() => navigate("/talent")}
+            onClick={async () => {
+              const { user } = useAuth ? { user: null } : { user: null };
+              const { error } = await supabase
+                .from("profiles")
+                .update({ onboarding_completed: true })
+                .eq("user_id", (window as any).__authUser?.id);
+              if (error) {
+                toast.error("Errore nel salvataggio. Riprova.");
+                return;
+              }
+              navigate("/talent");
+            }}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Completa dopo
