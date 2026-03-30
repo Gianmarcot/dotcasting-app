@@ -434,11 +434,11 @@ export const TalentOnboarding = () => {
           <button
             type="button"
             onClick={async () => {
-              const { user } = useAuth ? { user: null } : { user: null };
+              if (!user) return;
               const { error } = await supabase
                 .from("profiles")
                 .update({ onboarding_completed: true })
-                .eq("user_id", (window as any).__authUser?.id);
+                .eq("user_id", user.id);
               if (error) {
                 toast.error("Errore nel salvataggio. Riprova.");
                 return;
