@@ -1,84 +1,34 @@
 
 
-## Migliorare i campi profilo con Select e UI appropriate
+## Fix pulsante "Completa dopo"
 
-### Analisi dei campi attuali
+### Problema
 
-Dopo aver analizzato tutte le sezioni del profilo, ho identificato i campi che attualmente usano un semplice Input di testo ma che beneficerebbero di un Select (o altro componente piu adatto), dato che hanno un set finito di valori.
+Il pulsante "Completa dopo" esegue solo `navigate("/talent")`, ma il `TalentLayout` controlla `onboarding_completed` nel database: se è `false`, reindirizza all'onboarding, creando un loop infinito.
 
-### Campi da convertire
+### Soluzione
 
-#### 1. BasicInfoSection (`src/components/profile/BasicInfoSection.tsx`)
+Nel click handler di "Completa dopo", aggiornare `onboarding_completed = true` nel database prima di navigare.
 
-| Campo | Attuale | Nuovo | Note |
-|-------|---------|-------|------|
-| Genere | Input testo libero | Select | Le opzioni `GENDERS` esistono gia in `profileOptions.ts` |
-| Etnia | Input testo libero | Select | Aggiungere `ETHNICITIES` a `profileOptions.ts` |
-| Paese | Input testo libero | Select | Aggiungere `COUNTRIES` a `profileOptions.ts` |
+### Modifica
 
-#### 2. DocumentsSection (`src/components/profile/DocumentsSection.tsx`)
+**File: `src/pages/talent/TalentOnboarding.tsx`** (riga 436)
 
-| Campo | Attuale | Nuovo | Note |
-|-------|---------|-------|------|
-| Nazionalita | Input testo libero | Select | Aggiungere `NATIONALITIES` a `profileOptions.ts` |
+Sostituire:
+```tsx
+onClick={() => navigate("/talent")}
+```
 
-#### 3. WorkInfoSection (`src/components/profile/WorkInfoSection.tsx`)
+Con una funzione async che:
+1. Chiama `supabase.from("profiles").update({ onboarding_completed: true }).eq("user_id", user.id)`
+2. Se l'update ha successo, esegue `navigate("/talent")`
+3. In caso di errore, mostra un toast di errore
 
-| Campo | Attuale | Nuovo | Note |
-|-------|---------|-------|------|
-| Occupazione principale | Input testo libero | Select | Aggiungere `OCCUPATIONS` a `profileOptions.ts` |
+Il componente già importa `supabase` e ha accesso a `user` dal contesto auth (da verificare, ma le importazioni necessarie sono minime).
 
-#### 4. LanguagesSection (`src/components/profile/LanguagesSection.tsx`)
+### File da modificare
 
-| Campo | Attuale | Nuovo | Note |
-|-------|---------|-------|------|
-| Aggiungi lingua | Input testo libero | Select con lista predefinita | Aggiungere `LANGUAGES` a `profileOptions.ts`, selezionare da lista invece di digitare |
-
-### Sezioni gia OK (nessuna modifica)
-
-- **MeasurementsSection**: gia usa Select per taglie, capelli, occhi
-- **ContactInfoSection**: gia usa Select per prefissi telefonici
-- **PhysicalFeaturesSection**: usa Checkbox (appropriato per booleani)
-- **AbilitiesSection**: usa Checkbox da lista predefinita (appropriato)
-- **TravelSection**: usa Checkbox per continenti + input libero per paesi specifici (appropriato)
-- **AddressSection**: campi indirizzo restano Input (troppo specifici per un Select)
-- **AboutMeSection**: textarea (appropriato)
-
-### Dettaglio tecnico
-
-**File: `src/lib/profileOptions.ts`**
-
-Aggiungere le seguenti costanti:
-
-- `ETHNICITIES`: lista di etnie (es. "Caucasica", "Africana", "Asiatica", "Latina", "Mediorientale", "Mista", "Altro")
-- `COUNTRIES`: lista di paesi principali europei + extra
-- `NATIONALITIES`: lista di nazionalita (es. "Italiana", "Francese", "Tedesca", ecc.)
-- `OCCUPATIONS`: lista di occupazioni comuni (es. "Studente", "Impiegato/a", "Libero professionista", "Artista", "Disoccupato/a", "Altro")
-- `LANGUAGES`: lista delle lingue piu comuni (es. "Italiano", "Inglese", "Francese", "Spagnolo", "Tedesco", ecc.)
-
-**File: `src/components/profile/BasicInfoSection.tsx`**
-
-- Importare `Select`, `SelectContent`, `SelectItem`, `SelectTrigger`, `SelectValue` e le costanti `GENDERS`, `ETHNICITIES`, `COUNTRIES`
-- Sostituire i 3 campi Input (gender, ethnicity, country) con componenti Select
-- Aggiungere `handleSelectChange` per gestire i Select
-- Il genere mostrera il `label` (es. "Maschio") ma salvera il `value` (es. "M")
-
-**File: `src/components/profile/DocumentsSection.tsx`**
-
-- Importare Select e `NATIONALITIES`
-- Sostituire il campo Input "Nazionalita" con un Select
-
-**File: `src/components/profile/WorkInfoSection.tsx`**
-
-- Importare Select e `OCCUPATIONS`
-- Sostituire il campo Input "Occupazione principale" con un Select
-
-**File: `src/components/profile/LanguagesSection.tsx`**
-
-- Importare Select e `LANGUAGES`
-- Sostituire il campo Input per aggiungere lingua con un Select che filtra le lingue gia selezionate
-
-### Risultato
-
-Tutti i campi con valori predefiniti useranno Select box, rendendo la compilazione piu rapida, riducendo errori di battitura e garantendo dati coerenti nel database.
+| File | Modifica |
+|------|----------|
+| `src/pages/talent/TalentOnboarding.tsx` | Handler async per "Completa dopo" con update DB |
 
