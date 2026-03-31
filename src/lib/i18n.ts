@@ -129,7 +129,7 @@ export const it = {
     castings: "Casting",
     targets: "Target e Shortlist",
     applications: "Candidature",
-    auditionScheduling: "Programmazione Provini",
+    
     messagingCenter: "Centro Messaggi",
     companiesCRM: "CRM Aziende",
     teamPermissions: "Team e Permessi",
