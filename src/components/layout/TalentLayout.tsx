@@ -23,7 +23,7 @@ export const TalentLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-card">
+    <div className="min-h-screen bg-white">
       <TalentSidebar />
       <MobileHeader variant="talent" />
       <main className="fixed top-0 right-0 bottom-0 left-0 md:left-64 p-0 pt-[52px] pb-[68px] md:p-2 md:pt-2 md:pb-2">
