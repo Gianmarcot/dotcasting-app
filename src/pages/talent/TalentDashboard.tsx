@@ -50,9 +50,6 @@ export const TalentDashboard = () => {
     respondMutation.mutate({ invitationId, status });
   };
 
-  // Importance mapping for missing sections
-  const importantKeys = new Set(["photo", "name", "roles", "media", "bio"]);
-
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
@@ -185,16 +182,14 @@ export const TalentDashboard = () => {
                     </div>
                   ))}
                   {completion.missingSections.map((section) => (
-                    <div key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span
-                        className={`h-2 w-2 rounded-full flex-shrink-0 ${
-                          importantKeys.has(section.key)
-                            ? "bg-[#A30A2B]"
-                            : "bg-[#E5A700]"
-                        }`}
-                      />
-                      {section.label}
-                    </div>
+                    <Link
+                      key={section.key}
+                      to={`/talent/profile#${section.anchor}`}
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <span className="h-2 w-2 rounded-full flex-shrink-0 bg-[#A30A2B]" />
+                      <span className="underline decoration-dotted underline-offset-2">{section.label}</span>
+                    </Link>
                   ))}
                 </div>
 
