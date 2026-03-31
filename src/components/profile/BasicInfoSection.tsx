@@ -72,7 +72,16 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   };
 
   const handleSelect = (name: string, value: string) => {
-    setFormData({ ...formData, [name]: value });
+    const updates: any = { [name]: value };
+    if (name === "birthCountry") {
+      updates.birthRegion = "";
+      updates.birthProvince = "";
+      updates.birthCity = "";
+    }
+    if (name === "birthRegion") {
+      updates.birthProvince = "";
+    }
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSave = async () => {
