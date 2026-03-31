@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./useProfile";
 import { toast } from "@/hooks/use-toast";
+import type { MediaCategory } from "@/lib/mediaCategories";
 
 export interface TalentMedia {
   id: string;
@@ -11,13 +12,14 @@ export interface TalentMedia {
   thumbnail_url: string | null;
   title: string | null;
   sort_order: number;
+  category: string;
   created_at: string;
   updated_at: string;
 }
 
 const MAX_PHOTOS_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-const MAX_MEDIA_COUNT = 20;
+const MAX_MEDIA_COUNT = 100;
 
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
@@ -52,10 +54,12 @@ export const useUploadMedia = () => {
       file,
       mediaType,
       title,
+      category,
     }: {
-      file: File;
+      file: File | Blob;
       mediaType: "photo" | "video";
       title?: string;
+      category?: MediaCategory;
     }) => {
       if (!profile?.id || !profile?.user_id) {
         throw new Error("Profilo non trovato");
@@ -68,26 +72,17 @@ export const useUploadMedia = () => {
         throw new Error(`Il file supera la dimensione massima di ${maxMB}MB`);
       }
 
-      // Validate file type
-      const allowedTypes =
-        mediaType === "photo" ? ALLOWED_PHOTO_TYPES : ALLOWED_VIDEO_TYPES;
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error(`Tipo di file non supportato: ${file.type}`);
-      }
-
-      // Check media count limit
-      const { count, error: countError } = await supabase
-        .from("talent_media")
-        .select("*", { count: "exact", head: true })
-        .eq("profile_id", profile.id);
-
-      if (countError) throw countError;
-      if ((count || 0) >= MAX_MEDIA_COUNT) {
-        throw new Error(`Hai raggiunto il limite massimo di ${MAX_MEDIA_COUNT} media`);
+      // Validate file type (only for File objects, not Blobs from crop)
+      if (file instanceof File) {
+        const allowedTypes =
+          mediaType === "photo" ? ALLOWED_PHOTO_TYPES : ALLOWED_VIDEO_TYPES;
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Tipo di file non supportato: ${file.type}`);
+        }
       }
 
       // Generate unique filename
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file instanceof File ? file.name.split(".").pop() : "jpg";
       const fileName = `${profile.user_id}/${mediaType}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
@@ -102,7 +97,7 @@ export const useUploadMedia = () => {
         .from("talent-media")
         .getPublicUrl(fileName);
 
-      // Get max sort_order
+      // Get max sort_order for this category
       const { data: maxOrderData } = await supabase
         .from("talent_media")
         .select("sort_order")
@@ -114,15 +109,20 @@ export const useUploadMedia = () => {
       const nextOrder = (maxOrderData?.sort_order ?? -1) + 1;
 
       // Insert record
+      const insertData: Record<string, unknown> = {
+        profile_id: profile.id,
+        media_type: mediaType,
+        url: urlData.publicUrl,
+        title: title || null,
+        sort_order: nextOrder,
+      };
+      if (category) {
+        (insertData as any).category = category;
+      }
+
       const { data, error: insertError } = await supabase
         .from("talent_media")
-        .insert({
-          profile_id: profile.id,
-          media_type: mediaType,
-          url: urlData.publicUrl,
-          title: title || null,
-          sort_order: nextOrder,
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -146,6 +146,57 @@ export const useUploadMedia = () => {
   });
 };
 
+export const useReplaceMediaFile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      mediaId,
+      oldUrl,
+      newFile,
+      userId,
+    }: {
+      mediaId: string;
+      oldUrl: string;
+      newFile: Blob;
+      userId: string;
+    }) => {
+      // Delete old file from storage
+      const url = new URL(oldUrl);
+      const pathParts = url.pathname.split("/talent-media/");
+      if (pathParts.length > 1) {
+        await supabase.storage.from("talent-media").remove([pathParts[1]]);
+      }
+
+      // Upload new file
+      const fileName = `${userId}/photo/${Date.now()}.jpg`;
+      const { error: uploadError } = await supabase.storage
+        .from("talent-media")
+        .upload(fileName, newFile);
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("talent-media")
+        .getPublicUrl(fileName);
+
+      // Update record
+      const { error: updateError } = await supabase
+        .from("talent_media")
+        .update({ url: urlData.publicUrl })
+        .eq("id", mediaId);
+
+      if (updateError) throw updateError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talent-media"] });
+      toast({ title: "Foto aggiornata", description: "Il ritaglio è stato salvato." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Errore", description: error.message, variant: "destructive" });
+    },
+  });
+};
+
 export const useDeleteMedia = () => {
   const queryClient = useQueryClient();
 
@@ -156,11 +207,9 @@ export const useDeleteMedia = () => {
       const pathParts = url.pathname.split("/talent-media/");
       if (pathParts.length > 1) {
         const filePath = pathParts[1];
-        // Delete from storage
         await supabase.storage.from("talent-media").remove([filePath]);
       }
 
-      // Delete record
       const { error } = await supabase
         .from("talent_media")
         .delete()

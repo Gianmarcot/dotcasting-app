@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Play, Trash2, GripVertical, Star } from "lucide-react";
+import { useState, useRef } from "react";
+import { Play, Trash2, Crop, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -16,31 +16,57 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
 import type { TalentMedia } from "@/hooks/useTalentMedia";
 import type { MediaRating } from "@/hooks/useMediaRatings";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 interface MediaGridItemProps {
   media: TalentMedia;
   onDelete?: (media: TalentMedia) => void;
+  onCrop?: (media: TalentMedia) => void;
   onClick: () => void;
   isDeleting?: boolean;
   isOwnerView?: boolean;
   ownerRating?: MediaRating | null;
   showDeleteButton?: boolean;
+  enableDrag?: boolean;
 }
 
 export const MediaGridItem = ({
   media,
   onDelete,
+  onCrop,
   onClick,
   isDeleting,
   isOwnerView = false,
   ownerRating,
   showDeleteButton = true,
+  enableDrag = false,
 }: MediaGridItemProps) => {
   const [imageError, setImageError] = useState(false);
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: media.id, disabled: !enableDrag });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   return (
-    <div className="group relative rounded-lg overflow-hidden bg-muted border border-border">
-      <AspectRatio ratio={1}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group relative rounded-lg overflow-hidden bg-muted border border-border"
+    >
+      <AspectRatio ratio={2 / 3}>
         {media.media_type === "photo" ? (
           <img
             src={imageError ? "/placeholder.svg" : media.url}
@@ -69,9 +95,13 @@ export const MediaGridItem = ({
         )}
       </AspectRatio>
 
-      {/* Drag Handle - only show when delete button is visible */}
-      {showDeleteButton && (
-        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Drag Handle */}
+      {enableDrag && showDeleteButton && (
+        <div
+          className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          {...attributes}
+          {...listeners}
+        >
           <div className="p-1.5 bg-background/80 rounded-md cursor-grab text-muted-foreground">
             <GripVertical className="h-4 w-4" />
           </div>
@@ -106,45 +136,62 @@ export const MediaGridItem = ({
                 <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
                   +{ownerRating.tags.length - 2}
                 </Badge>
-              )}
+              ))}
             </div>
           )}
         </div>
       )}
 
-      {/* Delete Button */}
-      {showDeleteButton && onDelete && (
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                variant="destructive"
-                size="icon"
-                className="h-8 w-8"
-                disabled={isDeleting}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Eliminare questo media?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Questa azione non può essere annullata. Il file verrà eliminato
-                  definitivamente.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annulla</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDelete(media)}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      {/* Action Buttons */}
+      {showDeleteButton && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+          {/* Crop button (photos only) */}
+          {media.media_type === "photo" && onCrop && (
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                onCrop(media);
+              }}
+            >
+              <Crop className="h-4 w-4" />
+            </Button>
+          )}
+          {/* Delete button */}
+          {onDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="h-8 w-8"
+                  disabled={isDeleting}
                 >
-                  Elimina
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Eliminare questo media?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Questa azione non può essere annullata. Il file verrà eliminato
+                    definitivamente.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annulla</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(media)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Elimina
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       )}
 
