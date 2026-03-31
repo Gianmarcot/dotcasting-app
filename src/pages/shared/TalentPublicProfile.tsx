@@ -354,7 +354,7 @@ const TalentPublicProfile = () => {
                   <span className="text-sm text-muted-foreground">Social</span>
                   <div className="space-y-1 mt-1">
                     {Object.entries(socialLinks).filter(([, v]) => v).map(([key, url]) => (
-                      <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="block text-sm text-primary hover:underline truncate">
+                      <a key={key} href={url} target="_blank" rel="noopener noreferrer" className="dc-link-action truncate">
                         {key}
                       </a>
                     ))}

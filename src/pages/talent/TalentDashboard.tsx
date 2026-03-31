@@ -293,7 +293,7 @@ export const TalentDashboard = () => {
                 Messaggi recenti
               </CardTitle>
               {recentThreads.length > 0 && (
-                <Link to="/talent/messages" className="text-sm text-primary hover:underline">
+                <Link to="/talent/messages" className="dc-link-action">
                   {it.common.seeAll}
                 </Link>
               )}
