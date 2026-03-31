@@ -90,6 +90,7 @@ const App = () => (
               <Route index element={<OwnerDashboard />} />
               <Route path="talents" element={<OwnerTalents />} />
               <Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
+              <Route path="talents/:profileId/view" element={<TalentPublicProfile />} />
               <Route path="castings" element={<OwnerCastings />} />
               <Route path="targets" element={<OwnerTargets />} />
               <Route path="applications" element={<OwnerApplications />} />
