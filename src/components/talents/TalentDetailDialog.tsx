@@ -34,6 +34,7 @@ import {
   Send,
   Pencil,
   Star,
+  Eye,
 } from "lucide-react";
 
 interface TalentDetailDialogProps {
