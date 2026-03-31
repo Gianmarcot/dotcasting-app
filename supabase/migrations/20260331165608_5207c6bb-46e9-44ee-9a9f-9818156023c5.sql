@@ -1,0 +1,1 @@
+ALTER TABLE public.talent_media ADD COLUMN IF NOT EXISTS category text NOT NULL DEFAULT 'main_photos';
