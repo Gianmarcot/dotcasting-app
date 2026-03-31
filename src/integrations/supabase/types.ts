@@ -596,7 +596,11 @@ export type Database = {
       profiles: {
         Row: {
           bio: string | null
+          birth_city: string | null
+          birth_country: string | null
           birth_date: string | null
+          birth_province: string | null
+          birth_region: string | null
           city: string | null
           country: string | null
           created_at: string
@@ -606,6 +610,7 @@ export type Database = {
           first_name: string | null
           fiscal_code: string | null
           gender: string | null
+          gender_identity: string | null
           has_minor_children: boolean | null
           has_passport: boolean | null
           has_vat_number: boolean | null
@@ -623,6 +628,7 @@ export type Database = {
           representation_type: string | null
           residence_address: Json | null
           social_links: Json | null
+          stage_name: string | null
           talent_categories: string[] | null
           travel_availability: Json | null
           updated_at: string
@@ -637,7 +643,11 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          birth_city?: string | null
+          birth_country?: string | null
           birth_date?: string | null
+          birth_province?: string | null
+          birth_region?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -647,6 +657,7 @@ export type Database = {
           first_name?: string | null
           fiscal_code?: string | null
           gender?: string | null
+          gender_identity?: string | null
           has_minor_children?: boolean | null
           has_passport?: boolean | null
           has_vat_number?: boolean | null
@@ -664,6 +675,7 @@ export type Database = {
           representation_type?: string | null
           residence_address?: Json | null
           social_links?: Json | null
+          stage_name?: string | null
           talent_categories?: string[] | null
           travel_availability?: Json | null
           updated_at?: string
@@ -678,7 +690,11 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          birth_city?: string | null
+          birth_country?: string | null
           birth_date?: string | null
+          birth_province?: string | null
+          birth_region?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
@@ -688,6 +704,7 @@ export type Database = {
           first_name?: string | null
           fiscal_code?: string | null
           gender?: string | null
+          gender_identity?: string | null
           has_minor_children?: boolean | null
           has_passport?: boolean | null
           has_vat_number?: boolean | null
@@ -705,6 +722,7 @@ export type Database = {
           representation_type?: string | null
           residence_address?: Json | null
           social_links?: Json | null
+          stage_name?: string | null
           talent_categories?: string[] | null
           travel_availability?: Json | null
           updated_at?: string

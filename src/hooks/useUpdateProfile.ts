@@ -40,8 +40,14 @@ export const useUpdateProfile = () => {
        driving_licenses?: string[] | null;
        travel_availability?: Json | null;
        visas?: Json | null;
-       has_vat_number?: boolean;
-       vat_number?: string | null;
+        has_vat_number?: boolean;
+        vat_number?: string | null;
+        stage_name?: string | null;
+        birth_country?: string | null;
+        birth_region?: string | null;
+        birth_province?: string | null;
+        birth_city?: string | null;
+        gender_identity?: string | null;
     }) => {
       if (!user?.id) throw new Error("User not authenticated");
 

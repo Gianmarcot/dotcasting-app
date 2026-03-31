@@ -268,6 +268,18 @@ export const OCCUPATIONS = [
   "Altro"
 ];
 
+export const MONTHS = [
+  "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+  "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"
+];
+
+export const GENDER_IDENTITIES = [
+  "Maschile",
+  "Femminile",
+  "Non-binario",
+  "Altro"
+];
+
 export const LANGUAGES = [
   "Italiano",
   "Inglese",
