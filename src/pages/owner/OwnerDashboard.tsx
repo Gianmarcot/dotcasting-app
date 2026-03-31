@@ -23,7 +23,6 @@ const STATUS_STYLES: Record<string, string> = {
 
 const ACTIVITY_ICONS: Record<string, string> = {
   application: "📩",
-  audition: "🎬",
   casting: "📋",
 };
 
