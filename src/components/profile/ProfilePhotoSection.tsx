@@ -109,9 +109,6 @@ export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionPr
                 {[profile?.city, profile?.country].filter(Boolean).join(", ")}
               </p>
             )}
-            {profile?.gender && (
-              <p className="text-sm text-muted-foreground">{profile.gender}</p>
-            )}
           </div>
         </div>
         <input
