@@ -1,64 +1,84 @@
 
 
-## Aggiornare Segni particolari e Ulteriori abilità
+## Ottimizzazione Mobile dell'intera piattaforma
 
-### 1. Migrazione DB
+### Problema attuale
 
-Aggiungere colonne a `talent_attributes`:
+La piattaforma usa sidebar fisse a 256px (`w-64`) con `left-64` hardcoded sul main content. Non esiste alcun supporto mobile: su schermi piccoli la sidebar copre tutto e il contenuto e inaccessibile.
 
-```sql
-ALTER TABLE talent_attributes ADD COLUMN has_vitiligo boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN has_albinism boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN has_dwarfism boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_dance boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_sing boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_instruments boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_instruments_detail text;
-ALTER TABLE talent_attributes ADD COLUMN ability_sports boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_sports_detail text;
-ALTER TABLE talent_attributes ADD COLUMN ability_bartender boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_other boolean DEFAULT false;
-ALTER TABLE talent_attributes ADD COLUMN ability_other_detail text;
+### Strategia
+
+Sotto i 768px (breakpoint `md`):
+- **Nascondere la sidebar laterale**
+- **Mostrare una bottom navigation bar** con le voci principali (approccio mobile-native)
+- **Aggiungere un header mobile** con logo, hamburger menu per le azioni secondarie (settings, logout)
+- **Adattare padding e border-radius** del content area
+- **Impilare le colonne** nelle pagine a griglia (profilo, dashboard)
+
+### Modifiche dettagliate
+
+#### 1. Creare `MobileBottomNav.tsx` (Talent)
+
+Barra fissa in basso con 4 icone: Home, Profilo, Candidature, Messaggi. Visibile solo sotto `md`.
+
+#### 2. Creare `MobileBottomNav.tsx` (Owner)  
+
+Stessa logica ma con voci Owner: Dashboard, Talents, Castings, Messaggi. Le altre voci (Targets, Applications, Companies, Settings) accessibili tramite un menu "Altro" (griglia a icone).
+
+#### 3. Creare `MobileHeader.tsx`
+
+Header fisso in alto su mobile con: logo a sinistra, NotificationBell + avatar/menu hamburger a destra. Il menu hamburger apre un drawer con: nome utente, settings, logout.
+
+#### 4. Aggiornare `TalentLayout.tsx`
+
+```
+- Sidebar: nascosta su mobile (classe md:block, hidden di default)
+- Main: left-0 su mobile, left-64 da md in su
+- Padding: p-4 su mobile, p-8 da md
+- Border-radius: rounded-2xl su mobile, rounded-[3rem] da md
+- Aggiungere MobileHeader + MobileBottomNav
+- Aggiungere padding-bottom per la bottom nav
 ```
 
-### 2. PhysicalFeaturesSection — rinominare titolo e aggiungere voci
+#### 5. Aggiornare `OwnerLayout.tsx`
 
-Titolo: "Segni particolari"
+Stessa logica del TalentLayout.
 
-Voci checkbox (griglia 2 colonne):
-- Vitiligine, Lentiggini
-- Diastema, Albinismo
-- Nanismo, Tatuaggi
+#### 6. Aggiornare `TalentSidebar.tsx` e `OwnerSidebar.tsx`
 
-Aggiungere `has_vitiligo`, `has_albinism`, `has_dwarfism` al formData e alla logica save.
+Aggiungere `hidden md:flex` per nascondere su mobile.
 
-### 3. AbilitiesSection — trasformare in "Ulteriori abilità"
+#### 7. Aggiornare CSS sidebar in `index.css`
 
-Titolo: "Ulteriori abilità"
+```css
+.dc-sidebar { @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-card flex-col; }
+.dc-sidebar-admin { @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] flex-col; }
+```
 
-Sostituire la lista ABILITIES con 6 checkbox fissi (griglia 2 colonne):
-- So ballare / So cantare
-- So suonare degli strumenti musicali / Pratico degli sport
-- Ho esperienza come bartender / Altro
+Aggiungere classi per bottom nav e mobile header.
 
-Logica condizionale:
-- Se "So suonare" spuntato → mostrare Textarea "Quali strumenti musicali sai suonare?"
-- Se "Pratico degli sport" spuntato → mostrare Textarea "Quali sport pratichi?"
-- Se "Altro" spuntato → mostrare Textarea "Altro"
+#### 8. Responsive su pagine contenuto
 
-Salvare i nuovi campi boolean + detail text su `talent_attributes`.
+- **TalentProfile**: il `grid-cols-3` diventa singola colonna su mobile (gia presente con `grid-cols-1 lg:grid-cols-3`)
+- **TalentDashboard**: le stat cards si impilano (gia `flex-col lg:flex-row`)
+- **Casting cards**: gia responsive con `flex-col sm:flex-row`
+- **Dialogs**: aggiungere `max-h-[90vh] overflow-y-auto` su mobile
 
-### 4. Hooks — aggiungere nuovi campi
+### File da creare
 
-Aggiornare il tipo mutation in `useTalentAttributes.ts` e `useTalentAttributesByProfileId.ts` per includere tutti i nuovi campi.
+| File | Descrizione |
+|------|-------------|
+| `src/components/layout/MobileHeader.tsx` | Header mobile con logo, notifiche, menu hamburger |
+| `src/components/layout/MobileBottomNavTalent.tsx` | Bottom nav talent (4 voci) |
+| `src/components/layout/MobileBottomNavOwner.tsx` | Bottom nav owner (5 voci con "Altro") |
 
 ### File da modificare
 
 | File | Modifica |
 |------|----------|
-| Migrazione DB | 12 nuove colonne |
-| `src/components/profile/PhysicalFeaturesSection.tsx` | Titolo + 3 nuove voci |
-| `src/components/profile/AbilitiesSection.tsx` | Riscrivere con 6 checkbox + textarea condizionali |
-| `src/hooks/useTalentAttributes.ts` | Nuovi campi nel tipo |
-| `src/hooks/useTalentAttributesByProfileId.ts` | Nuovi campi nel tipo |
+| `src/components/layout/TalentLayout.tsx` | Layout responsive + componenti mobile |
+| `src/components/layout/OwnerLayout.tsx` | Layout responsive + componenti mobile |
+| `src/components/layout/TalentSidebar.tsx` | `hidden md:flex` |
+| `src/components/layout/OwnerSidebar.tsx` | `hidden md:flex` |
+| `src/index.css` | Classi sidebar aggiornate + classi mobile nav |
 
