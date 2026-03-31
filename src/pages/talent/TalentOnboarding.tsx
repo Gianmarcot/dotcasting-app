@@ -228,7 +228,7 @@ export const TalentOnboarding = () => {
         </div>
 
         {/* Step Content */}
-        <Card className="border-0 shadow-lg">
+        <Card className="shadow-lg">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">{STEPS[currentStep - 1].title}</CardTitle>
             <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>

@@ -66,7 +66,7 @@ export const AppearanceSection = () => {
   };
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">{it.profile.attributes}</CardTitle>
         {isEditing ? (

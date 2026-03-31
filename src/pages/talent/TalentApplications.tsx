@@ -71,7 +71,7 @@ export const TalentApplications = () => {
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="border-0 shadow-sm">
+            <Card key={i}>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
@@ -100,7 +100,7 @@ export const TalentApplications = () => {
       </div>
 
       {applications?.length === 0 ? (
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="p-8 text-center">
             <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">
@@ -201,7 +201,7 @@ const ApplicationCard = ({ application, onWithdraw, onReactivate, onViewCasting,
   const submittedDate = format(new Date(application.submitted_at), "d MMM yyyy", { locale: itLocale });
 
   return (
-    <Card className={`border-0 shadow-sm ${isWithdrawn ? "opacity-60" : ""}`}>
+    <Card className={`${isWithdrawn ? "opacity-60" : ""}`}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2 flex-1">
