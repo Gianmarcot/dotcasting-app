@@ -650,4 +650,21 @@
   .dc-table-cell {
     @apply p-4 align-middle [&:has([role=checkbox])]:pr-0;
   }
+  /* =====================
+     MOBILE NAVIGATION
+     ===================== */
+  .dc-mobile-header {
+    @apply fixed top-0 left-0 right-0 z-50 h-[52px] bg-card border-b border-border
+           flex items-center justify-between px-4;
+  }
+
+  .dc-mobile-bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-50 h-[68px] bg-card border-t border-border
+           flex items-center justify-around px-2 pb-1;
+  }
+
+  .dc-mobile-bottom-nav-item {
+    @apply flex flex-col items-center justify-center gap-0 py-1.5 px-2
+           transition-colors min-w-0;
+  }
 }
