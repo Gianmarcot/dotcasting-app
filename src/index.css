@@ -168,6 +168,10 @@
     text-transform: uppercase;
     @apply tracking-wide;
   }
+
+  a {
+    @apply text-foreground font-semibold underline;
+  }
 }
 
 @layer components {
