@@ -1,19 +1,23 @@
 import { Outlet } from "react-router-dom";
 import { OwnerSidebar } from "./OwnerSidebar";
+import { MobileHeader } from "./MobileHeader";
+import { MobileBottomNavOwner } from "./MobileBottomNavOwner";
 
 export const OwnerLayout = () => {
   return (
     <div className="min-h-screen bg-[#1A1A1A]">
       <OwnerSidebar />
-      <main className="fixed top-0 right-0 bottom-0 left-64 p-2">
-        <div className="h-full bg-white rounded-[3rem] overflow-hidden">
+      <MobileHeader variant="owner" />
+      <main className="fixed top-0 right-0 bottom-0 left-0 md:left-64 p-2 pt-[60px] md:pt-2 pb-[76px] md:pb-2">
+        <div className="h-full bg-white rounded-2xl md:rounded-[3rem] overflow-hidden">
           <div className="h-full overflow-y-auto">
-            <div className="p-8 pt-12 max-w-7xl mx-auto">
+            <div className="p-4 pt-6 md:p-8 md:pt-12 max-w-7xl mx-auto">
               <Outlet />
             </div>
           </div>
         </div>
       </main>
+      <MobileBottomNavOwner />
     </div>
   );
 };
