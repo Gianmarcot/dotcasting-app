@@ -24,7 +24,6 @@ const navItems = [
   { icon: Film, label: it.backoffice.castings, href: "/owner/castings" },
   { icon: Target, label: it.backoffice.targets, href: "/owner/targets" },
   { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
-  { icon: Calendar, label: it.backoffice.auditionScheduling, href: "/owner/auditions" },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },
