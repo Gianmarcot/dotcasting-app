@@ -50,9 +50,6 @@ export const TalentDashboard = () => {
     respondMutation.mutate({ invitationId, status });
   };
 
-  // Importance mapping for missing sections
-  const importantKeys = new Set(["photo", "name", "roles", "media", "bio"]);
-
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
