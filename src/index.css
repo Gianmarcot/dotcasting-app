@@ -274,7 +274,7 @@
      CARDS
      ===================== */
   .dc-card {
-    @apply rounded-3xl border-0 shadow-sm bg-card text-card-foreground;
+    @apply rounded-3xl border-0 shadow-sm bg-white text-card-foreground;
   }
 
   .dc-card-header {
