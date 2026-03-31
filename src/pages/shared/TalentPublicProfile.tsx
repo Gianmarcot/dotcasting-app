@@ -115,7 +115,7 @@ const TalentPublicProfile = () => {
             </Avatar>
             <div className="flex-1 space-y-3">
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{fullName}</h1>
+                <h1 className="text-foreground">{fullName}</h1>
                 {profile.stage_name && (
                   <p className="text-lg text-muted-foreground italic">"{profile.stage_name}"</p>
                 )}
