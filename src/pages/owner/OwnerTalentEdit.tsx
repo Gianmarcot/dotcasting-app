@@ -62,47 +62,58 @@ const OwnerTalentEdit = () => {
         </div>
       </div>
 
-      {/* Top row: Photo + Name */}
-      <div className="flex items-start gap-6">
-        <div className="w-[200px] shrink-0">
-          <ProfilePhotoSection externalProfileId={profileId} />
-        </div>
-        <div className="flex-1 pt-4">
-          <h2 className="text-2xl font-bold text-foreground">{displayName}</h2>
-          {(profile?.city || profile?.country) && (
-            <p className="text-muted-foreground">
-              {[profile?.city, profile?.country].filter(Boolean).join(", ")}
-            </p>
-          )}
-          {profile?.gender && (
-            <p className="text-sm text-muted-foreground mt-1">{profile.gender}</p>
-          )}
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Basic Info */}
           <BasicInfoSection externalProfileId={profileId} />
+
+          {/* About Me */}
           <AboutMeSection externalProfileId={profileId} />
+
+          {/* Talent Roles */}
           <TalentRolesSection externalProfileId={profileId} />
+
+          {/* Media Gallery */}
           <MediaGallerySection 
             externalProfileId={profileId} 
             externalUserId={profile.user_id}
           />
+
+          {/* Measurements */}
           <MeasurementsSection externalProfileId={profileId} />
+
+          {/* Physical Features */}
           <PhysicalFeaturesSection externalProfileId={profileId} />
+
+          {/* Abilities */}
           <AbilitiesSection externalProfileId={profileId} />
+
+          {/* Skills */}
           <SkillsSection externalProfileId={profileId} />
+
+          {/* Languages */}
           <LanguagesSection externalProfileId={profileId} />
         </div>
 
         {/* Right Sidebar */}
         <div className="space-y-6">
+          {/* Profile Photo */}
+          <ProfilePhotoSection externalProfileId={profileId} />
+
+          {/* Contact Info */}
           <ContactInfoSection externalProfileId={profileId} />
+
+          {/* Address */}
           <AddressSection externalProfileId={profileId} />
+
+          {/* Documents */}
           <DocumentsSection externalProfileId={profileId} />
+
+          {/* Work Info */}
           <WorkInfoSection externalProfileId={profileId} />
+
+          {/* Travel */}
           <TravelSection externalProfileId={profileId} />
         </div>
       </div>
