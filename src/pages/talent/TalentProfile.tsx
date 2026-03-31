@@ -62,6 +62,11 @@ export const TalentProfile = () => {
             )}
           </div>
 
+          {/* Basic Info */}
+          <div id="basic-info">
+            <BasicInfoSection />
+          </div>
+
           {/* About Me */}
           <div id="about-me">
             <AboutMeSection />
