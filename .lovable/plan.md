@@ -1,37 +1,21 @@
 
 
-## Uniformare h1 con font-weight medium e padding top 4rem
+## Correzione layout ProfilePhotoSection: da flex-row a flex-col
 
-### Modifiche
+### Problema
+Il piano prevede avatar + info (nome, città, gender) in colonna verticale, ma attualmente il componente usa `flex items-center gap-6` (riga 80) che dispone tutto in riga.
 
-#### 1. `src/index.css` — Già `font-weight: 500` (medium) ✓
+### Modifica
 
-La regola attuale (riga 162) usa già `font-weight: 500` che corrisponde a `medium`. Nessuna modifica necessaria qui.
+**`src/components/profile/ProfilePhotoSection.tsx`**
 
-Tuttavia, rimuovo `text-transform: uppercase` e aggiungo una regola esplicita per h1 con `text-2xl` per uniformare la dimensione.
+- Riga 80: cambiare `flex items-center gap-6` → `flex flex-col items-center text-center gap-4`
+- Rimuovere righe 100-114 (h3 "Foto profilo", paragrafo descrittivo, bottone "Cambia foto")
+- Al loro posto, aggiungere sotto l'avatar: nome completo (`profile.first_name + last_name`), città/paese, gender — centrati
 
-#### 2. Layout — Padding top 4rem
+**`src/pages/talent/TalentProfile.tsx`**
 
-In `TalentLayout.tsx` e `OwnerLayout.tsx`, cambiare `md:pt-12` (3rem) → `md:pt-16` (4rem) nel wrapper interno.
-
-#### 3. Pulire override inline dagli h1
-
-| File | h1 attuale | Modifica |
-|------|-----------|----------|
-| `TalentDashboard.tsx` | `text-2xl sm:text-3xl font-semibold` | → `text-2xl` |
-| `TalentPublicProfile.tsx` | `text-3xl font-bold` | → `text-2xl` |
-| `NotFound.tsx` | `text-4xl` | → `text-2xl` |
-| `Index.tsx` | `text-5xl sm:text-6xl` | Lasciare (landing page, design diverso) |
-| Tutti gli altri | `text-2xl text-foreground` | OK, nessuna modifica |
-
-### File da modificare
-
-| File | Modifica |
-|------|----------|
-| `src/index.css` | Aggiungere `@apply text-2xl font-medium` nella regola h1 base |
-| `src/components/layout/TalentLayout.tsx` | `md:pt-12` → `md:pt-16` |
-| `src/components/layout/OwnerLayout.tsx` | `md:pt-12` → `md:pt-16` |
-| `src/pages/talent/TalentDashboard.tsx` | Rimuovere `sm:text-3xl font-semibold` dall'h1 |
-| `src/pages/shared/TalentPublicProfile.tsx` | Rimuovere `text-3xl font-bold` dall'h1 |
-| `src/pages/NotFound.tsx` | Rimuovere `text-4xl` dall'h1 |
+- Creare griglia top `grid grid-cols-1 lg:grid-cols-3 gap-6` con ProfilePhotoSection (1/3) e ProfileCompletionBar (2/3)
+- Rimuovere blocco nome/città/gender standalone (righe ~63-74)
+- Rimuovere ProfilePhotoSection dalla sidebar destra
 
