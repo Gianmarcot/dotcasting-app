@@ -410,7 +410,7 @@
      SIDEBAR
      ===================== */
   .dc-sidebar {
-    @apply fixed left-0 top-0 z-40 h-screen w-64 bg-card flex flex-col;
+    @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-card flex-col;
   }
 
   .dc-sidebar-header {
