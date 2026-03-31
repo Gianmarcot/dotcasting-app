@@ -41,6 +41,10 @@ export const useCastingInvitations = (talentUserId?: string) => {
             id,
             title,
             category,
+            start_date,
+            end_date,
+            locations,
+            description,
             company:companies(id, name)
           )
         `)
