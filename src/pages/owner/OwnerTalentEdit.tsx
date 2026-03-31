@@ -101,9 +101,6 @@ const OwnerTalentEdit = () => {
           {/* Profile Photo */}
           <ProfilePhotoSection externalProfileId={profileId} />
 
-          {/* Basic Info */}
-          <BasicInfoSection externalProfileId={profileId} />
-
           {/* Contact Info */}
           <ContactInfoSection externalProfileId={profileId} />
 

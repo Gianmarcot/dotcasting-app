@@ -161,8 +161,8 @@
  ];
  
  export const REPRESENTATION_TYPES = [
-   { value: "freelance", label: "Freelance" },
-   { value: "agency", label: "Con Agenzia" }
+  { value: "freelance", label: "Sono un Freelance" },
+  { value: "agency", label: "Sono rappresentato in esclusiva da una Agenzia" }
  ];
  
 export const CONTINENTS = [
