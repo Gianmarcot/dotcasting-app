@@ -72,7 +72,7 @@ export const OwnerApplications = () => {
                 <ApplicationCard
                   key={app.id}
                   application={app}
-                  onStatusChange={(id, status) => handleStatusChange(id, status, app)}
+                  onStatusChange={(id, status) => handleStatusChange(id, status)}
                   onViewTalent={handleViewTalent}
                   isUpdating={updateStatus.isPending}
                 />
