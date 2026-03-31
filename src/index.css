@@ -171,6 +171,10 @@
 }
 
 @layer components {
+  .dc-link-action {
+    @apply inline-flex items-center gap-1 text-sm text-primary hover:underline;
+  }
+
   .dotcasting-sidebar {
     @apply bg-sidebar text-sidebar-foreground;
   }
