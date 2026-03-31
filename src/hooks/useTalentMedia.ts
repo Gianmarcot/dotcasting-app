@@ -109,16 +109,14 @@ export const useUploadMedia = () => {
       const nextOrder = (maxOrderData?.sort_order ?? -1) + 1;
 
       // Insert record
-      const insertData: Record<string, unknown> = {
+      const insertData = {
         profile_id: profile.id,
         media_type: mediaType,
         url: urlData.publicUrl,
         title: title || null,
         sort_order: nextOrder,
+        ...(category ? { category } : {}),
       };
-      if (category) {
-        (insertData as any).category = category;
-      }
 
       const { data, error: insertError } = await supabase
         .from("talent_media")

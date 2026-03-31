@@ -10,6 +10,7 @@ export interface TalentMedia {
   thumbnail_url: string | null;
   title: string | null;
   sort_order: number;
+  category: string;
   created_at: string;
   updated_at: string;
 }
