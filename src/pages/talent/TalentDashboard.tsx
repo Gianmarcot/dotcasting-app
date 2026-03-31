@@ -195,7 +195,7 @@ export const TalentDashboard = () => {
 
                 <Link
                   to="/talent/profile"
-                  className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-2"
+                  className="dc-link-action mt-2"
                 >
                   Vai al profilo per completarlo
                   <ArrowRight className="h-3.5 w-3.5" />
