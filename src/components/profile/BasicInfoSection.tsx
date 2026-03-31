@@ -13,7 +13,7 @@ import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
-import { COUNTRIES, MONTHS, GENDER_IDENTITIES, REPRESENTATION_TYPES } from "@/lib/profileOptions";
+import { COUNTRIES, MONTHS, GENDER_IDENTITIES, REPRESENTATION_TYPES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
 
 interface BasicInfoSectionProps {
   externalProfileId?: string;
