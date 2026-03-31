@@ -74,10 +74,14 @@ export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionPr
     }
   };
 
+  const displayName = profile?.first_name
+    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+    : "";
+
   return (
     <Card className="border-0 shadow-sm">
       <CardContent className="p-6">
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center text-center gap-4">
           <div className="relative">
             <Avatar className="h-28 w-28">
               <AvatarImage src={profile?.profile_photo_url || ""} />
@@ -97,20 +101,18 @@ export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionPr
               )}
             </button>
           </div>
-          <div className="flex-1">
-            <h3 className="text-foreground">Foto profilo</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Carica una foto professionale. Formato: JPG, PNG. Max 5MB.
-            </p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <ImagePlus className="h-4 w-4 mr-2" />
-              Cambia foto
-            </Button>
+          <div>
+            {displayName && (
+              <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
+            )}
+            {(profile?.city || profile?.country) && (
+              <p className="text-sm text-muted-foreground">
+                {[profile?.city, profile?.country].filter(Boolean).join(", ")}
+              </p>
+            )}
+            {profile?.gender && (
+              <p className="text-sm text-muted-foreground">{profile.gender}</p>
+            )}
           </div>
         </div>
         <input
