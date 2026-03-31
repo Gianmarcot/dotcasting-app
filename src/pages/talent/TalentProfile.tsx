@@ -62,6 +62,11 @@ export const TalentProfile = () => {
             )}
           </div>
 
+          {/* Basic Info */}
+          <div id="basic-info">
+            <BasicInfoSection />
+          </div>
+
           {/* About Me */}
           <div id="about-me">
             <AboutMeSection />
@@ -108,11 +113,6 @@ export const TalentProfile = () => {
           {/* Profile Photo */}
           <div id="profile-photo">
             <ProfilePhotoSection />
-          </div>
-
-          {/* Basic Info */}
-          <div id="basic-info">
-            <BasicInfoSection />
           </div>
 
           {/* Contact Info */}
