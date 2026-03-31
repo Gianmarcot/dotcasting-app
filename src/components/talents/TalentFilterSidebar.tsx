@@ -103,7 +103,7 @@ export const TalentFilterSidebar = ({
   const selectClear = (val: string) => (val === "__all" ? undefined : val);
 
   return (
-    <div className="w-[220px] shrink-0">
+    <div className="w-[300px] shrink-0">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
