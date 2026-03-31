@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { Eye } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
@@ -21,12 +20,8 @@ import { TravelSection } from "@/components/profile/TravelSection";
 import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
 
 export const TalentProfile = () => {
-  const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
 
-  const displayName = profile?.first_name 
-    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
-    : user?.email?.split("@")[0] || "Utente";
 
   if (isLoading) {
     return (
@@ -54,25 +49,19 @@ export const TalentProfile = () => {
         </Link>
       </div>
 
-      {/* Profile Completion Progress */}
-      <ProfileCompletionBar />
+      {/* Top row: Photo + Completion */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <ProfilePhotoSection />
+        </div>
+        <div className="lg:col-span-2">
+          <ProfileCompletionBar />
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Name & Location Header */}
-          <div className="pb-4 border-b border-border">
-            <h2 className="text-2xl font-bold text-foreground">{displayName}</h2>
-            {(profile?.city || profile?.country) && (
-              <p className="text-muted-foreground">
-                {[profile?.city, profile?.country].filter(Boolean).join(", ")}
-              </p>
-            )}
-            {profile?.gender && (
-              <p className="text-sm text-muted-foreground mt-1">{profile.gender}</p>
-            )}
-          </div>
-
           {/* Basic Info */}
           <div id="basic-info">
             <BasicInfoSection />
@@ -121,10 +110,6 @@ export const TalentProfile = () => {
 
         {/* Right Sidebar */}
         <div className="space-y-6">
-          {/* Profile Photo */}
-          <div id="profile-photo">
-            <ProfilePhotoSection />
-          </div>
 
           {/* Contact Info */}
           <div id="contact-info">
