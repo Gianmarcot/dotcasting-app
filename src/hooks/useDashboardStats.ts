@@ -5,7 +5,6 @@ export interface DashboardStats {
   totalTalents: number;
   activeCastings: number;
   pendingApplications: number;
-  upcomingAuditions: number;
 }
 
 export interface RecentApplication {
