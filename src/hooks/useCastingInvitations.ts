@@ -18,6 +18,10 @@ export interface CastingInvitation {
     id: string;
     title: string;
     category: string | null;
+    start_date: string | null;
+    end_date: string | null;
+    locations: string[] | null;
+    description: string | null;
     company?: {
       id: string;
       name: string;
