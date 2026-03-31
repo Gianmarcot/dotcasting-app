@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye } from "lucide-react";
 import { useProfileById } from "@/hooks/useProfileById";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
