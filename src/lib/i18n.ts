@@ -115,24 +115,6 @@ export const it = {
     placeholder: "Scrivi un messaggio...",
   },
 
-  // Auditions
-  auditions: {
-    title: "Provini",
-    upcoming: "Prossimi provini",
-    past: "Provini passati",
-    confirm: "Conferma",
-    decline: "Rifiuta",
-    reschedule: "Riprogramma",
-    virtual: "Virtuale",
-    inPerson: "In presenza",
-    status: {
-      invited: "Invitato",
-      confirmed: "Confermato",
-      declined: "Rifiutato",
-      rescheduleRequested: "Riprogrammazione richiesta",
-    },
-  },
-
   // Notifications
   notifications: {
     title: "Notifiche",
