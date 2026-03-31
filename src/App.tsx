@@ -23,6 +23,9 @@ import TalentProfile from "./pages/talent/TalentProfile";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
+// Shared pages
+import TalentPublicProfile from "./pages/shared/TalentPublicProfile";
+
 // Owner pages
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
 import OwnerTalentEdit from "./pages/owner/OwnerTalentEdit";
