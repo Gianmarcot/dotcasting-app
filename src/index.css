@@ -129,9 +129,20 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
     font-family: "DM Sans", system-ui, sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Hide scrollbar on mobile for cleaner look */
+  @media (max-width: 767px) {
+    .h-full.overflow-y-auto {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .h-full.overflow-y-auto::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   h1,
