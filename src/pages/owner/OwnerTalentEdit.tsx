@@ -54,12 +54,16 @@ const OwnerTalentEdit = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Indietro
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl text-foreground">Modifica Profilo</h1>
           <p className="text-muted-foreground mt-1">
             {displayName}
           </p>
         </div>
+        <Button variant="outline" size="sm" onClick={() => navigate(`/owner/talents/${profileId}/view`)}>
+          <Eye className="h-4 w-4 mr-2" />
+          Visualizza profilo
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

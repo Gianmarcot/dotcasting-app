@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { Eye } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
