@@ -45,6 +45,12 @@ export const useUpdateProfileById = () => {
         visas?: Json | null;
         has_vat_number?: boolean;
         vat_number?: string | null;
+        stage_name?: string | null;
+        birth_country?: string | null;
+        birth_region?: string | null;
+        birth_province?: string | null;
+        birth_city?: string | null;
+        gender_identity?: string | null;
       };
     }) => {
       if (!profileId) throw new Error("Profile ID is required");
