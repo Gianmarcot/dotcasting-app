@@ -911,6 +911,7 @@ export type Database = {
       }
       talent_media: {
         Row: {
+          category: string
           created_at: string
           id: string
           media_type: string
@@ -922,6 +923,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          category?: string
           created_at?: string
           id?: string
           media_type: string
@@ -933,6 +935,7 @@ export type Database = {
           url: string
         }
         Update: {
+          category?: string
           created_at?: string
           id?: string
           media_type?: string
