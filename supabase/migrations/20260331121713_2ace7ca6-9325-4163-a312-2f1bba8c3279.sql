@@ -1,0 +1,1 @@
+ALTER TABLE talent_attributes ADD COLUMN shirt_size text;

@@ -37,6 +37,7 @@ export const useUpdateTalentAttributes = () => {
       skills?: string[] | null;
       languages?: string[] | null;
        jacket_size?: string | null;
+       shirt_size?: string | null;
        pants_size?: string | null;
        chest?: number | null;
        waist?: number | null;
