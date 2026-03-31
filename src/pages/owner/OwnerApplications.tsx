@@ -7,7 +7,6 @@ import { useApplications, useUpdateApplicationStatus, useApplicationStats, type 
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationCard } from "@/components/applications/ApplicationCard";
 import { ApplicationTalentDialog } from "@/components/applications/ApplicationTalentDialog";
-import { AssignAuditionSlotDialog } from "@/components/applications/AssignAuditionSlotDialog";
 
 export const OwnerApplications = () => {
   const [searchQuery, setSearchQuery] = useState("");
