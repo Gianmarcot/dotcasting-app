@@ -22,9 +22,6 @@ import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar"
 export const TalentProfile = () => {
   const { data: profile, isLoading } = useProfile();
 
-  const displayName = profile?.first_name 
-    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
-    : user?.email?.split("@")[0] || "Utente";
 
   if (isLoading) {
     return (
