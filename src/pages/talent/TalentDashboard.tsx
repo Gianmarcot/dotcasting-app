@@ -56,9 +56,9 @@ export const TalentDashboard = () => {
       {/* Header with stats */}
       <div className="flex flex-col lg:flex-row lg:items-center gap-6">
         {/* Welcome */}
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 min-w-0">
           <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">{it.dashboard.welcome}</p>
-          <h1 className="text-4xl text-foreground">{userName}</h1>
+          <h1 className="text-2xl sm:text-4xl text-foreground break-words">{userName}</h1>
         </div>
 
         {/* Stats cards */}
