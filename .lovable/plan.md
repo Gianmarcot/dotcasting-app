@@ -1,67 +1,37 @@
 
 
-## Pagina profilo talent in sola lettura
+## Regioni e Province italiane con Select dinamici
 
 ### Panoramica
 
-Creare un nuovo componente `TalentPublicProfile` che mostra il profilo completo di un talent in modalita read-only, con hero section e layout a due colonne. Accessibile da:
-- **Talent**: `/talent/profile/preview` — "Visualizza profilo pubblico"
-- **Owner**: `/owner/talents/:profileId/view` — dal database talent e dalla pagina edit
+Quando l'utente seleziona "Italia" come stato di nascita, i campi Regione e Provincia diventano Select a tendina con dati reali italiani. La Provincia dipende dalla Regione selezionata. Se lo stato non e Italia, i campi restano Input di testo libero.
 
-### Nuovo file: `src/pages/shared/TalentPublicProfile.tsx`
+### Modifiche
 
-Un singolo componente che accetta un `profileId` (da URL param o dal profilo dell'utente loggato).
+#### 1. `src/lib/profileOptions.ts` — Aggiungere dati italiani
 
-**Struttura della pagina:**
+Aggiungere due costanti:
+- `ITALIAN_REGIONS`: array delle 20 regioni italiane
+- `ITALIAN_PROVINCES`: oggetto `Record<string, string[]>` che mappa ogni regione alle sue province (es. `"Lombardia": ["Milano", "Bergamo", "Brescia", ...]`)
 
-```text
-+--------------------------------------------------+
-|  [← Indietro]                                    |
-+--------------------------------------------------+
-|  HERO SECTION                                    |
-|  +--------+  Nome Cognome (Nome d'arte)          |
-|  | FOTO   |  Eta · Sesso · Citta, Paese          |
-|  | GRANDE |  Categorie/Ruoli [badge]              |
-|  +--------+  Telefono · Email · Social links      |
-+--------------------------------------------------+
-|  COLONNA PRINCIPALE (2/3)  |  SIDEBAR (1/3)      |
-|  - About me                |  - Contatti          |
-|  - Media gallery           |  - Info lavoro       |
-|  - Aspetto fisico          |  - Residenza         |
-|  - Misure                  |  - Viaggi            |
-|  - Competenze/Abilita      |                      |
-|  - Lingue                  |                      |
-|  - Documenti               |                      |
-+--------------------------------------------------+
-```
+#### 2. `src/components/profile/BasicInfoSection.tsx` — Logica condizionale
 
-**Dati**: usa `useProfileById(profileId)`, `useTalentAttributesByProfileId(profileId)`, `useTalentMediaByProfileId(profileId)` per caricare tutti i dati. Nessun campo editabile, solo display con Card + label/valore.
+**Stato = "Italia"**:
+- Regione → Select con `ITALIAN_REGIONS`
+- Provincia → Select con `ITALIAN_PROVINCES[formData.birthRegion]`, disabilitato se nessuna regione selezionata
+- Citta → Input testo (invariato)
 
-**Hero section**: foto profilo grande (200px), a fianco nome completo + nome d'arte, eta calcolata dalla birth_date, sesso, citta/paese, badge per talent_categories, contatti rapidi (telefono, email).
+**Stato ≠ "Italia"**:
+- Regione → Input testo (come ora)
+- Provincia → Input testo (come ora)  
+- Citta → Input testo (invariato)
 
-**Sezioni read-only**: ogni sezione e una Card con titolo e griglia di label/valore. Per i campi array (skills, languages, abilities) si usano Badge. La media gallery mostra la griglia immagini/video con lightbox.
+Quando l'utente cambia stato o regione, resettare i campi dipendenti (cambio stato → reset regione+provincia+citta; cambio regione → reset provincia).
 
-### Routing — `src/App.tsx`
+### File da modificare
 
-Aggiungere due route:
-- `<Route path="profile/preview" element={<TalentPublicProfile />} />` dentro le talent routes
-- `<Route path="talents/:profileId/view" element={<TalentPublicProfile />} />` dentro le owner routes
-
-### Link "Visualizza profilo pubblico"
-
-**`src/pages/talent/TalentProfile.tsx`**: aggiungere un link/bottone nell'header che punta a `/talent/profile/preview`
-
-**`src/pages/owner/OwnerTalentEdit.tsx`**: aggiungere un bottone nell'header accanto a "Indietro" che punta a `/owner/talents/${profileId}/view`
-
-**`src/components/talents/TalentDetailDialog.tsx`**: aggiungere un bottone "Visualizza profilo" tra le azioni che naviga a `/owner/talents/${talent.id}/view`
-
-### File da creare/modificare
-
-| File | Azione |
-|------|--------|
-| `src/pages/shared/TalentPublicProfile.tsx` | Creare — pagina read-only completa |
-| `src/App.tsx` | Aggiungere 2 route |
-| `src/pages/talent/TalentProfile.tsx` | Link "Visualizza profilo pubblico" |
-| `src/pages/owner/OwnerTalentEdit.tsx` | Bottone "Visualizza profilo" |
-| `src/components/talents/TalentDetailDialog.tsx` | Bottone "Visualizza profilo" |
+| File | Modifica |
+|------|----------|
+| `src/lib/profileOptions.ts` | Aggiungere `ITALIAN_REGIONS` e `ITALIAN_PROVINCES` |
+| `src/components/profile/BasicInfoSection.tsx` | Logica condizionale Italia/estero per regione e provincia |
 
