@@ -37,11 +37,19 @@ export const TalentProfile = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl text-foreground">Il mio Profilo</h1>
-        <p className="text-muted-foreground mt-1">
-          Completa il tuo profilo per aumentare le tue possibilità di essere selezionato
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl text-foreground">Il mio Profilo</h1>
+          <p className="text-muted-foreground mt-1">
+            Completa il tuo profilo per aumentare le tue possibilità di essere selezionato
+          </p>
+        </div>
+        <Link to="/talent/profile/preview">
+          <Button variant="outline" size="sm">
+            <Eye className="h-4 w-4 mr-2" />
+            Visualizza profilo pubblico
+          </Button>
+        </Link>
       </div>
 
       {/* Profile Completion Progress */}
