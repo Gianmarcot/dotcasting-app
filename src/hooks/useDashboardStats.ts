@@ -47,18 +47,10 @@ export const useDashboardStats = () => {
         .select("*", { count: "exact", head: true })
         .eq("status", "submitted");
 
-      // Upcoming auditions (events with start_datetime in the future)
-      const now = new Date().toISOString();
-      const { count: upcomingAuditions } = await supabase
-        .from("audition_events")
-        .select("*", { count: "exact", head: true })
-        .gte("start_datetime", now);
-
       return {
         totalTalents: totalTalents || 0,
         activeCastings: activeCastings || 0,
         pendingApplications: pendingApplications || 0,
-        upcomingAuditions: upcomingAuditions || 0,
       };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
