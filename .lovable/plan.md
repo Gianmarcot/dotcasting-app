@@ -1,21 +1,55 @@
 
 
-## Correzione layout ProfilePhotoSection: da flex-row a flex-col
+## Uniformare lo stile dei box (Card) in tutta la piattaforma
 
 ### Problema
-Il piano prevede avatar + info (nome, città, gender) in colonna verticale, ma attualmente il componente usa `flex items-center gap-6` (riga 80) che dispone tutto in riga.
 
-### Modifica
+Lo stile di riferimento per le Card è `border-0 shadow-sm` (usato in tutte le sezioni del profilo). Tuttavia diverse pagine usano `<Card>` senza classi aggiuntive, risultando in uno stile diverso (con bordo visibile e senza ombra).
 
-**`src/components/profile/ProfilePhotoSection.tsx`**
+### Soluzione
 
-- Riga 80: cambiare `flex items-center gap-6` → `flex flex-col items-center text-center gap-4`
-- Rimuovere righe 100-114 (h3 "Foto profilo", paragrafo descrittivo, bottone "Cambia foto")
-- Al loro posto, aggiungere sotto l'avatar: nome completo (`profile.first_name + last_name`), città/paese, gender — centrati
+Invece di modificare ogni singolo file, aggiornare la classe base `.dc-card` in `src/index.css` per includere `border-0 shadow-sm` di default. Poi rimuovere tutte le occorrenze ridondanti di `border-0 shadow-sm` dai componenti.
 
-**`src/pages/talent/TalentProfile.tsx`**
+### Modifiche
 
-- Creare griglia top `grid grid-cols-1 lg:grid-cols-3 gap-6` con ProfilePhotoSection (1/3) e ProfileCompletionBar (2/3)
-- Rimuovere blocco nome/città/gender standalone (righe ~63-74)
-- Rimuovere ProfilePhotoSection dalla sidebar destra
+#### 1. `src/index.css` — Aggiornare stile base `.dc-card`
+
+```css
+/* Da */
+.dc-card {
+  @apply rounded-3xl border bg-card text-card-foreground;
+}
+
+/* A */
+.dc-card {
+  @apply rounded-3xl border-0 shadow-sm bg-card text-card-foreground;
+}
+```
+
+Questo rende tutte le Card automaticamente uniformi.
+
+#### 2. Pulizia — Rimuovere `border-0 shadow-sm` ridondante
+
+Rimuovere `border-0 shadow-sm` da tutti i ~22 file che lo specificano inline, dato che ora è nel base. I file con varianti (es. `shadow-lg`, `hover:shadow-md`, `opacity-60`) mantengono solo le classi aggiuntive.
+
+| File | Modifica |
+|------|----------|
+| Tutti i componenti profile (`AboutMe`, `Address`, `Basic`, `Contact`, `Documents`, `Languages`, `Measurements`, `Physical`, `Photo`, `Roles`, `Skills`, `Travel`, `Work`, `Appearance`) | Rimuovere `border-0 shadow-sm` |
+| `CastingCard.tsx` | Rimuovere `border-0 shadow-sm` |
+| `OwnerDashboard.tsx` | Rimuovere `border-0 shadow-sm` |
+| `OwnerApplications.tsx` | Rimuovere `border-0 shadow-sm` |
+| `OwnerCompanies.tsx` | Rimuovere `border-0 shadow-sm` (mantenere `hover:shadow-md`) |
+| `OwnerSettings.tsx` | Rimuovere `border-0 shadow-sm` |
+| `OwnerTargets.tsx` | Rimuovere `border-0 shadow-sm` |
+| `TalentApplications.tsx` | Rimuovere `border-0 shadow-sm` |
+| `TalentSettings.tsx` | Rimuovere `border-0 shadow-sm` (mantenere `border-destructive/20` su danger zone) |
+| `TalentOnboarding.tsx` | Cambiare `border-0 shadow-lg` → `shadow-lg` |
+| `TargetCard.tsx` | Cambiare `dc-card hover:shadow-md` → `hover:shadow-md` |
+
+### File da modificare
+
+| File | Modifica |
+|------|----------|
+| `src/index.css` | `.dc-card` base con `border-0 shadow-sm` |
+| ~22 file componenti | Rimuovere classi ridondanti |
 
