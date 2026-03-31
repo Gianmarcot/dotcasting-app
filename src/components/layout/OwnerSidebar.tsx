@@ -5,7 +5,6 @@ import {
   Film, 
   Target, 
   FileText, 
-  Calendar, 
   MessageSquare, 
   Building2, 
   Settings,

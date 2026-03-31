@@ -55,13 +55,6 @@ export const OwnerDashboard = () => {
       color: "bg-charcoal text-charcoal-foreground",
       link: "/owner/applications",
     },
-    {
-      title: it.backoffice.upcomingAuditions,
-      value: stats?.upcomingAuditions ?? 0,
-      icon: Calendar,
-      color: "bg-primary text-primary-foreground",
-      link: "/owner/auditions",
-    },
   ];
 
   const formatDate = (dateStr: string) => {

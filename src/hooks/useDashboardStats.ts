@@ -133,31 +133,6 @@ export const useRecentActivity = (limit: number = 10) => {
         });
       });
 
-      // Recent audition bookings
-      const { data: bookings } = await supabase
-        .from("audition_bookings")
-        .select(`
-          id,
-          status,
-          created_at,
-          audition_slot:audition_slots(
-            audition_event:audition_events(title)
-          )
-        `)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      bookings?.forEach(booking => {
-        const eventTitle = (booking.audition_slot as any)?.audition_event?.title || "Provino";
-        activities.push({
-          id: `booking-${booking.id}`,
-          type: "audition",
-          title: booking.status === "confirmed" ? "Provino confermato" : "Provino prenotato",
-          description: eventTitle,
-          timestamp: booking.created_at,
-        });
-      });
-
       // Recent castings created
       const { data: castings } = await supabase
         .from("castings")

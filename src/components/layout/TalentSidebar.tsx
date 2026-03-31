@@ -13,7 +13,6 @@ const navItems = [
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
   { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
-  { icon: Calendar, label: it.nav.auditions, href: "/talent/auditions" },
 ];
 
 export const TalentSidebar = () => {

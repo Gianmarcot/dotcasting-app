@@ -103,14 +103,6 @@ export const OwnerApplications = () => {
         open={!!selectedProfile}
         onOpenChange={(open) => !open && setSelectedProfile(null)}
       />
-
-      {/* Assign Audition Slot Dialog */}
-      <AssignAuditionSlotDialog
-        open={!!pendingBookedApplication}
-        onOpenChange={(open) => !open && setPendingBookedApplication(null)}
-        application={pendingBookedApplication}
-        onSuccess={handleAuditionSlotAssigned}
-      />
     </div>
   );
 };

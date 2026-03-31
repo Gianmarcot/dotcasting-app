@@ -139,7 +139,7 @@ export const it = {
     totalTalents: "Talenti totali",
     activeCastings: "Casting attivi",
     pendingApplications: "Candidature in attesa",
-    upcomingAuditions: "Provini in programma",
+    
   },
 
   // Common

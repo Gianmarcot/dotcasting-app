@@ -89,7 +89,6 @@ const App = () => (
               <Route path="castings" element={<OwnerCastings />} />
               <Route path="targets" element={<OwnerTargets />} />
               <Route path="applications" element={<OwnerApplications />} />
-              <Route path="auditions" element={<OwnerAuditions />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
               <Route path="settings" element={<OwnerSettings />} />
