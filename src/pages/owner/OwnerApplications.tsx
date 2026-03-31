@@ -20,23 +20,8 @@ export const OwnerApplications = () => {
   const { data: stats } = useApplicationStats();
   const updateStatus = useUpdateApplicationStatus();
 
-  const handleStatusChange = (id: string, status: ApplicationStatus, application?: ApplicationWithDetails) => {
-    if (status === "booked" && application) {
-      // Show dialog to assign audition slot
-      setPendingBookedApplication(application);
-    } else {
-      updateStatus.mutate({ id, status });
-    }
-  };
-
-  const handleAuditionSlotAssigned = () => {
-    if (pendingBookedApplication) {
-      // Now update the status to booked
-      updateStatus.mutate({ 
-        id: pendingBookedApplication.id, 
-        status: "booked" 
-      });
-    }
+  const handleStatusChange = (id: string, status: ApplicationStatus) => {
+    updateStatus.mutate({ id, status });
   };
 
   const handleViewTalent = (application: ApplicationWithDetails) => {
