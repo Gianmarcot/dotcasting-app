@@ -1,15 +1,57 @@
 
 
-## Regolare spaziatura label-input e label-radio
+## Migliorare UX categorie gallery e rimuovere barra progresso
 
-### Modifiche
+### Problema
+1. Le tab delle categorie vanno in overflow orizzontale con uno scroll nascosto, rendendo difficile scoprire le categorie non visibili.
+2. La barra di progressione nella sezione "Foto principali" è ridondante rispetto al badge.
 
-**`src/components/ui/form.tsx`** (riga 68)
-- `FormItem`: cambiare `space-y-2` → `space-y-1.5` per ridurre lo spazio label↔input da 8px a 6px
+### Soluzione
 
-**`src/components/profile/BasicInfoSection.tsx`**
-- Righe 286, 319: nei wrapper dei radio group, cambiare `space-y-2` → `space-y-3` per aumentare lo spazio tra la label top e i radio buttons
+**`src/components/profile/MediaGallerySection.tsx`**
 
-**`src/components/profile/TalentRolesSection.tsx`**
-- Riga 106: cambiare `space-y-3` → `space-y-3` (già ok, verificare) — se serve aumentare, portare a `space-y-4`
+1. **Sostituire le tab orizzontali con una griglia di chip/pulsanti su più righe** (righe 243-257):
+   - Rimuovere `overflow-x-auto` e `w-max`
+   - Usare `TabsList` con `flex flex-wrap gap-2` per disporre le categorie su più righe quando necessario
+   - Ogni chip mostra il conteggio e resta sempre visibile senza scroll
+
+2. **Rimuovere la barra di progressione** (righe 266-284):
+   - Eliminare `<Progress>` e il conteggio "X/4 foto caricate"
+   - Mantenere solo il badge "Minimo 4 foto richieste" (quando sotto soglia) e "Requisito soddisfatto" (quando raggiunto)
+   - Rimuovere import `Progress`
+
+### Dettaglio tecnico
+
+```tsx
+// Tab list: da scroll orizzontale a wrap multi-riga
+<TabsList className="flex flex-wrap gap-2 h-auto p-0 mb-4">
+  {MEDIA_CATEGORIES.map((cat) => {
+    const count = getMediaForCategory(cat.key).length;
+    return (
+      <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm">
+        {cat.label}
+        <Badge ...>{count}</Badge>
+      </TabsTrigger>
+    );
+  })}
+</TabsList>
+
+// Main photos: solo badge, senza Progress
+{isMain && mainPhotosCount < mainPhotosMin && (
+  <div className="mb-4">
+    <Badge variant="destructive">Minimo {mainPhotosMin} foto richieste</Badge>
+  </div>
+)}
+{isMain && mainPhotosCount >= mainPhotosMin && (
+  <div className="mb-4">
+    <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-200">Requisito soddisfatto</Badge>
+  </div>
+)}
+```
+
+### File da modificare
+
+| File | Modifica |
+|------|----------|
+| `src/components/profile/MediaGallerySection.tsx` | Wrap multi-riga per tab, rimuovere Progress |
 
