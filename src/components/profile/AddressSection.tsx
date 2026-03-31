@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
@@ -10,10 +11,13 @@ import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
+import { COUNTRIES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
 import type { Json } from "@/integrations/supabase/types";
 
 interface Address {
   state?: string;
+  region?: string;
+  province?: string;
   city?: string;
   street?: string;
   postal_code?: string;
@@ -45,11 +49,29 @@ export const AddressSection = ({ externalProfileId }: AddressSectionProps) => {
   }, [profile]);
 
   const handleResidenceChange = (field: keyof Address, value: string) => {
-    setResidence({ ...residence, [field]: value });
+    const updates: Partial<Address> = { [field]: value };
+    if (field === "state") {
+      updates.region = "";
+      updates.province = "";
+      updates.city = "";
+    }
+    if (field === "region") {
+      updates.province = "";
+    }
+    setResidence((prev) => ({ ...prev, ...updates }));
   };
 
   const handleDomicileChange = (field: keyof Address, value: string) => {
-    setDomicile({ ...domicile, [field]: value });
+    const updates: Partial<Address> = { [field]: value };
+    if (field === "state") {
+      updates.region = "";
+      updates.province = "";
+      updates.city = "";
+    }
+    if (field === "region") {
+      updates.province = "";
+    }
+    setDomicile((prev) => ({ ...prev, ...updates }));
   };
 
   const handleSave = async () => {
@@ -82,6 +104,8 @@ export const AddressSection = ({ externalProfileId }: AddressSectionProps) => {
 
   const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
 
+  const isItaly = (address: Address) => address.state === "Italia";
+
   const AddressFields = ({ 
     address, 
     onChange, 
@@ -94,13 +118,59 @@ export const AddressSection = ({ externalProfileId }: AddressSectionProps) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Stato</Label>
-        <Input
-          value={address.state || ""}
-          onChange={(e) => onChange("state", e.target.value)}
-          disabled={!isEditing}
-          placeholder="Italia"
-        />
+        <Select value={address.state || ""} onValueChange={(v) => onChange("state", v)} disabled={!isEditing}>
+          <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+          <SelectContent>
+            {COUNTRIES.map((c) => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+      {isItaly(address) ? (
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Regione</Label>
+          <Select value={address.region || ""} onValueChange={(v) => onChange("region", v)} disabled={!isEditing}>
+            <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+            <SelectContent>
+              {ITALIAN_REGIONS.map((r) => (
+                <SelectItem key={r} value={r}>{r}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Regione</Label>
+          <Input
+            value={address.region || ""}
+            onChange={(e) => onChange("region", e.target.value)}
+            disabled={!isEditing}
+          />
+        </div>
+      )}
+      {isItaly(address) ? (
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Provincia</Label>
+          <Select value={address.province || ""} onValueChange={(v) => onChange("province", v)} disabled={!isEditing || !address.region}>
+            <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+            <SelectContent>
+              {(ITALIAN_PROVINCES[address.region || ""] || []).map((p) => (
+                <SelectItem key={p} value={p}>{p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Provincia</Label>
+          <Input
+            value={address.province || ""}
+            onChange={(e) => onChange("province", e.target.value)}
+            disabled={!isEditing}
+          />
+        </div>
+      )}
       <div className="space-y-1">
         <Label className="text-xs text-muted-foreground">Città</Label>
         <Input
