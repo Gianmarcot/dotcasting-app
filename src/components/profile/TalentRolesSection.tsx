@@ -103,7 +103,7 @@ export const TalentRolesSection = ({ externalProfileId }: TalentRolesSectionProp
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Representation Type */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <Label className="text-sm font-medium">Tipo di rappresentanza</Label>
           <RadioGroup 
             value={representationType} 

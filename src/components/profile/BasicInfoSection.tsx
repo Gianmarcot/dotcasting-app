@@ -316,7 +316,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         </div>
 
         {/* Rappresentanza */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Label>Rappresentanza</Label>
           <RadioGroup
             value={formData.representationType}
