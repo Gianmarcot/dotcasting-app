@@ -244,12 +244,14 @@ export const MediaGallerySection = ({
               {MEDIA_CATEGORIES.map((cat) => {
                 const count = getMediaForCategory(cat.key).length;
                 return (
-                  <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm">
-                    {cat.label}
-                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
-                      {count}
-                    </Badge>
-                  </TabsTrigger>
+                    <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm">
+                      {cat.label}
+                      {count > 0 && (
+                        <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
+                          {count}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
                 );
               })}
             </TabsList>
