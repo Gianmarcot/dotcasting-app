@@ -1,34 +1,45 @@
 
 
-## Fix pulsante "Completa dopo"
+## Rimuovere la sezione Provini (Auditions)
 
-### Problema
+### File da eliminare
 
-Il pulsante "Completa dopo" esegue solo `navigate("/talent")`, ma il `TalentLayout` controlla `onboarding_completed` nel database: se è `false`, reindirizza all'onboarding, creando un loop infinito.
-
-### Soluzione
-
-Nel click handler di "Completa dopo", aggiornare `onboarding_completed = true` nel database prima di navigare.
-
-### Modifica
-
-**File: `src/pages/talent/TalentOnboarding.tsx`** (riga 436)
-
-Sostituire:
-```tsx
-onClick={() => navigate("/talent")}
-```
-
-Con una funzione async che:
-1. Chiama `supabase.from("profiles").update({ onboarding_completed: true }).eq("user_id", user.id)`
-2. Se l'update ha successo, esegue `navigate("/talent")`
-3. In caso di errore, mostra un toast di errore
-
-Il componente già importa `supabase` e ha accesso a `user` dal contesto auth (da verificare, ma le importazioni necessarie sono minime).
+| File | Descrizione |
+|------|-------------|
+| `src/pages/owner/OwnerAuditions.tsx` | Pagina provini Owner |
+| `src/pages/talent/TalentAuditions.tsx` | Pagina provini Talent |
+| `src/components/auditions/CreateAuditionDialog.tsx` | Dialog creazione provino |
+| `src/components/auditions/SelectAuditionSlotDialog.tsx` | Dialog selezione slot |
+| `src/components/auditions/SlotParticipants.tsx` | Lista partecipanti slot |
+| `src/components/applications/AssignAuditionSlotDialog.tsx` | Dialog assegnazione slot da candidatura |
+| `src/hooks/useAuditions.ts` | Hook dati provini |
 
 ### File da modificare
 
-| File | Modifica |
-|------|----------|
-| `src/pages/talent/TalentOnboarding.tsx` | Handler async per "Completa dopo" con update DB |
+**`src/App.tsx`**
+- Rimuovere import e route per `TalentAuditions` e `OwnerAuditions`
+
+**`src/components/layout/TalentSidebar.tsx`**
+- Rimuovere la voce "Provini" (`Calendar` icon, `/talent/auditions`) dal menu
+
+**`src/components/layout/OwnerSidebar.tsx`**
+- Rimuovere la voce "Programmazione Provini" (`Calendar` icon, `/owner/auditions`) dal menu
+
+**`src/hooks/useDashboardStats.ts`**
+- Rimuovere `upcomingAuditions` dalle stats e dalla query `audition_events`
+- Rimuovere le attivita di tipo `audition` dalla `useRecentActivity`
+
+**`src/pages/owner/OwnerDashboard.tsx`**
+- Rimuovere la card statistica "Provini in programma"
+
+**`src/pages/owner/OwnerApplications.tsx`**
+- Rimuovere import e utilizzo di `AssignAuditionSlotDialog`
+- Rimuovere la logica di assegnazione slot quando lo status diventa "booked"
+
+**`src/lib/i18n.ts`**
+- Rimuovere le stringhe relative ai provini (`auditions`, `auditionScheduling`, `upcomingAuditions`)
+
+### Tabelle database
+
+Le tabelle `audition_events`, `audition_slots`, `audition_bookings` restano nel database (nessuna migrazione distruttiva), ma non saranno piu referenziate dal codice.
 
