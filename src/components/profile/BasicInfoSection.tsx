@@ -240,14 +240,42 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="birthRegion">Regione</Label>
-            <Input id="birthRegion" name="birthRegion" value={formData.birthRegion} onChange={handleChange} disabled={!isEditing} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="birthProvince">Provincia</Label>
-            <Input id="birthProvince" name="birthProvince" value={formData.birthProvince} onChange={handleChange} disabled={!isEditing} />
-          </div>
+          {formData.birthCountry === "Italia" ? (
+            <div className="space-y-2">
+              <Label>Regione</Label>
+              <Select value={formData.birthRegion} onValueChange={(v) => handleSelect("birthRegion", v)} disabled={!isEditing}>
+                <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                <SelectContent>
+                  {ITALIAN_REGIONS.map((r) => (
+                    <SelectItem key={r} value={r}>{r}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="birthRegion">Regione</Label>
+              <Input id="birthRegion" name="birthRegion" value={formData.birthRegion} onChange={handleChange} disabled={!isEditing} />
+            </div>
+          )}
+          {formData.birthCountry === "Italia" ? (
+            <div className="space-y-2">
+              <Label>Provincia</Label>
+              <Select value={formData.birthProvince} onValueChange={(v) => handleSelect("birthProvince", v)} disabled={!isEditing || !formData.birthRegion}>
+                <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                <SelectContent>
+                  {(ITALIAN_PROVINCES[formData.birthRegion] || []).map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="birthProvince">Provincia</Label>
+              <Input id="birthProvince" name="birthProvince" value={formData.birthProvince} onChange={handleChange} disabled={!isEditing} />
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="birthCity">Città</Label>
             <Input id="birthCity" name="birthCity" value={formData.birthCity} onChange={handleChange} disabled={!isEditing} />
