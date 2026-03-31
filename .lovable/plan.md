@@ -1,84 +1,66 @@
 
 
-## Ottimizzazione Mobile dell'intera piattaforma
+## Aggiornare Dashboard Talent e Gestione Casting con Feature Flag
 
-### Problema attuale
+### Panoramica
 
-La piattaforma usa sidebar fisse a 256px (`w-64`) con `left-64` hardcoded sul main content. Non esiste alcun supporto mobile: su schermi piccoli la sidebar copre tutto e il contenuto e inaccessibile.
-
-### Strategia
-
-Sotto i 768px (breakpoint `md`):
-- **Nascondere la sidebar laterale**
-- **Mostrare una bottom navigation bar** con le voci principali (approccio mobile-native)
-- **Aggiungere un header mobile** con logo, hamburger menu per le azioni secondarie (settings, logout)
-- **Adattare padding e border-radius** del content area
-- **Impilare le colonne** nelle pagine a griglia (profilo, dashboard)
+1. **Dashboard talent**: ridisegnare completamente con sezioni dedicate — inviti in attesa, completamento profilo reale con campi mancanti, prossimi casting confermati, messaggi recenti.
+2. **Feature flag**: nascondere (senza eliminare) l'esplorazione casting e la candidatura autonoma, lasciando solo i casting su invito.
 
 ### Modifiche dettagliate
 
-#### 1. Creare `MobileBottomNav.tsx` (Talent)
+#### 1. Feature flag — `src/lib/featureFlags.ts` (nuovo file)
 
-Barra fissa in basso con 4 icone: Home, Profilo, Candidature, Messaggi. Visibile solo sotto `md`.
-
-#### 2. Creare `MobileBottomNav.tsx` (Owner)  
-
-Stessa logica ma con voci Owner: Dashboard, Talents, Castings, Messaggi. Le altre voci (Targets, Applications, Companies, Settings) accessibili tramite un menu "Altro" (griglia a icone).
-
-#### 3. Creare `MobileHeader.tsx`
-
-Header fisso in alto su mobile con: logo a sinistra, NotificationBell + avatar/menu hamburger a destra. Il menu hamburger apre un drawer con: nome utente, settings, logout.
-
-#### 4. Aggiornare `TalentLayout.tsx`
-
-```
-- Sidebar: nascosta su mobile (classe md:block, hidden di default)
-- Main: left-0 su mobile, left-64 da md in su
-- Padding: p-4 su mobile, p-8 da md
-- Border-radius: rounded-2xl su mobile, rounded-[3rem] da md
-- Aggiungere MobileHeader + MobileBottomNav
-- Aggiungere padding-bottom per la bottom nav
+```typescript
+export const FEATURE_FLAGS = {
+  TALENT_EXPLORE_CASTINGS: false, // true per riabilitare esplorazione e candidatura autonoma
+};
 ```
 
-#### 5. Aggiornare `OwnerLayout.tsx`
+#### 2. Dashboard Talent — `src/pages/talent/TalentDashboard.tsx` (riscrivere)
 
-Stessa logica del TalentLayout.
+Rimuovere l'intera sezione di esplorazione casting (search bar + listing + ApplyToCastingDialog + CastingDetailDialog). Questi componenti restano nel codebase ma non vengono importati/renderizzati quando il flag è `false`.
 
-#### 6. Aggiornare `TalentSidebar.tsx` e `OwnerSidebar.tsx`
+Nuova struttura della pagina:
 
-Aggiungere `hidden md:flex` per nascondere su mobile.
+**a) Header di benvenuto** — Nome utente dal profilo (first_name) con saluto.
 
-#### 7. Aggiornare CSS sidebar in `index.css`
+**b) Inviti in attesa** — Riutilizzare `TalentInvitationsSection` (già presente, mostra inviti pending con accept/decline).
 
-```css
-.dc-sidebar { @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-card flex-col; }
-.dc-sidebar-admin { @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] flex-col; }
-```
+**c) Completamento profilo** — Card con:
+- Percentuale reale da `useProfileCompletion()` (già implementato con checks pesati)
+- Barra di progresso visuale (`Progress` component)
+- Emoji + messaggio contestuale (già nel hook)
+- Elenco specifico dei campi mancanti (`missingSections`) con label
+- Link diretto a `/talent/profile` per completare
 
-Aggiungere classi per bottom nav e mobile header.
+**d) Prossimi casting confermati** — Query delle applications con `status = 'booked'` ordinate per `start_date` del casting. Mostrare titolo, azienda, date. Se nessuno, messaggio "Nessun casting confermato".
 
-#### 8. Responsive su pagine contenuto
+**e) Messaggi recenti** — Ultimi 3 thread con messaggio più recente, usando `useMessages` hook. Mostrare nome interlocutore, anteprima body, data. Link a `/talent/messages`.
 
-- **TalentProfile**: il `grid-cols-3` diventa singola colonna su mobile (gia presente con `grid-cols-1 lg:grid-cols-3`)
-- **TalentDashboard**: le stat cards si impilano (gia `flex-col lg:flex-row`)
-- **Casting cards**: gia responsive con `flex-col sm:flex-row`
-- **Dialogs**: aggiungere `max-h-[90vh] overflow-y-auto` su mobile
+**f) Esplorazione casting (condizionale)** — Wrappare tutta la sezione esplorazione in `{FEATURE_FLAGS.TALENT_EXPLORE_CASTINGS && (...)}`. Quando il flag è `false`, non viene renderizzata.
+
+#### 3. Sidebar e Bottom Nav — Aggiornare link "I miei Casting"
+
+In `TalentSidebar.tsx` e `MobileBottomNavTalent.tsx`:
+- Quando `TALENT_EXPLORE_CASTINGS` è `false`, rinominare "I miei Casting" in "I miei Casting" ma puntare sempre a `/talent/applications` (invariato)
+- La pagina TalentApplications continua a mostrare le candidature (create automaticamente da inviti accettati)
+
+#### 4. TalentApplications — Nessuna modifica
+
+La pagina resta invariata: mostra le candidature attive/ritirate. Quando il flag è off, le candidature arrivano solo da inviti accettati.
 
 ### File da creare
 
 | File | Descrizione |
 |------|-------------|
-| `src/components/layout/MobileHeader.tsx` | Header mobile con logo, notifiche, menu hamburger |
-| `src/components/layout/MobileBottomNavTalent.tsx` | Bottom nav talent (4 voci) |
-| `src/components/layout/MobileBottomNavOwner.tsx` | Bottom nav owner (5 voci con "Altro") |
+| `src/lib/featureFlags.ts` | Feature flags centralizzati |
 
 ### File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/components/layout/TalentLayout.tsx` | Layout responsive + componenti mobile |
-| `src/components/layout/OwnerLayout.tsx` | Layout responsive + componenti mobile |
-| `src/components/layout/TalentSidebar.tsx` | `hidden md:flex` |
-| `src/components/layout/OwnerSidebar.tsx` | `hidden md:flex` |
-| `src/index.css` | Classi sidebar aggiornate + classi mobile nav |
+| `src/pages/talent/TalentDashboard.tsx` | Riscrivere con nuove sezioni: profilo completion reale, casting confermati, messaggi recenti, flag per esplorazione |
+| `src/components/layout/TalentSidebar.tsx` | Condizionare voce nav in base a feature flag |
+| `src/components/layout/MobileBottomNavTalent.tsx` | Condizionare voce nav in base a feature flag |
 
