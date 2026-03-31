@@ -769,6 +769,15 @@ export type Database = {
       talent_attributes: {
         Row: {
           abilities: string[] | null
+          ability_bartender: boolean | null
+          ability_dance: boolean | null
+          ability_instruments: boolean | null
+          ability_instruments_detail: string | null
+          ability_other: boolean | null
+          ability_other_detail: string | null
+          ability_sing: boolean | null
+          ability_sports: boolean | null
+          ability_sports_detail: string | null
           availability: Json | null
           chest: number | null
           clothing_sizes: Json | null
@@ -776,10 +785,13 @@ export type Database = {
           hair_color: string | null
           hair_length: string | null
           hair_type: string | null
+          has_albinism: boolean | null
           has_diastema: boolean | null
+          has_dwarfism: boolean | null
           has_freckles: boolean | null
           has_piercings: boolean | null
           has_tattoos: boolean | null
+          has_vitiligo: boolean | null
           height: number | null
           hips: number | null
           id: string
@@ -801,6 +813,15 @@ export type Database = {
         }
         Insert: {
           abilities?: string[] | null
+          ability_bartender?: boolean | null
+          ability_dance?: boolean | null
+          ability_instruments?: boolean | null
+          ability_instruments_detail?: string | null
+          ability_other?: boolean | null
+          ability_other_detail?: string | null
+          ability_sing?: boolean | null
+          ability_sports?: boolean | null
+          ability_sports_detail?: string | null
           availability?: Json | null
           chest?: number | null
           clothing_sizes?: Json | null
@@ -808,10 +829,13 @@ export type Database = {
           hair_color?: string | null
           hair_length?: string | null
           hair_type?: string | null
+          has_albinism?: boolean | null
           has_diastema?: boolean | null
+          has_dwarfism?: boolean | null
           has_freckles?: boolean | null
           has_piercings?: boolean | null
           has_tattoos?: boolean | null
+          has_vitiligo?: boolean | null
           height?: number | null
           hips?: number | null
           id?: string
@@ -833,6 +857,15 @@ export type Database = {
         }
         Update: {
           abilities?: string[] | null
+          ability_bartender?: boolean | null
+          ability_dance?: boolean | null
+          ability_instruments?: boolean | null
+          ability_instruments_detail?: string | null
+          ability_other?: boolean | null
+          ability_other_detail?: string | null
+          ability_sing?: boolean | null
+          ability_sports?: boolean | null
+          ability_sports_detail?: string | null
           availability?: Json | null
           chest?: number | null
           clothing_sizes?: Json | null
@@ -840,10 +873,13 @@ export type Database = {
           hair_color?: string | null
           hair_length?: string | null
           hair_type?: string | null
+          has_albinism?: boolean | null
           has_diastema?: boolean | null
+          has_dwarfism?: boolean | null
           has_freckles?: boolean | null
           has_piercings?: boolean | null
           has_tattoos?: boolean | null
+          has_vitiligo?: boolean | null
           height?: number | null
           hips?: number | null
           id?: string

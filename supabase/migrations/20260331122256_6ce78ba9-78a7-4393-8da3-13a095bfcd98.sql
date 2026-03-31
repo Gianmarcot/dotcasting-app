@@ -1,0 +1,12 @@
+ALTER TABLE talent_attributes ADD COLUMN has_vitiligo boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN has_albinism boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN has_dwarfism boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_dance boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_sing boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_instruments boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_instruments_detail text;
+ALTER TABLE talent_attributes ADD COLUMN ability_sports boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_sports_detail text;
+ALTER TABLE talent_attributes ADD COLUMN ability_bartender boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_other boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_other_detail text;
