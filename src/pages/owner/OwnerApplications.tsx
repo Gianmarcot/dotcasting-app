@@ -12,7 +12,6 @@ export const OwnerApplications = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ApplicationStatus | "all">("all");
   const [selectedProfile, setSelectedProfile] = useState<ApplicationWithDetails["profile"] | null>(null);
-  const [pendingBookedApplication, setPendingBookedApplication] = useState<ApplicationWithDetails | null>(null);
 
   const { data: applications, isLoading } = useApplications({
     statusFilter,
