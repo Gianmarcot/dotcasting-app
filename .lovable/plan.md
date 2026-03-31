@@ -1,66 +1,64 @@
 
 
-## Aggiornare campi Misure e Aspetto con taglie IT/EU precise
+## Aggiornare Segni particolari e Ulteriori abilità
 
-### Confronto screenshot vs stato attuale
+### 1. Migrazione DB
 
-| Campo screenshot | Stato attuale | Azione |
-|---|---|---|
-| Altezza (cm) | Presente | OK |
-| Taglia giacca (IT/EU) | Presente ma solo XS/S/M... | Aggiornare valori |
-| Taglia maglia | **Mancante** | Aggiungere campo + colonna DB |
-| Taglia pantaloni (IT/EU) | Presente ma solo numeri semplici | Aggiornare valori |
-| Larghezza spalle (cm) | Presente | OK |
-| Misura collo camicia (cm) | Presente come "Collo" | Rinominare label |
-| Numero scarpe | Presente | OK |
-| Colore capelli | Presente | OK |
-| Colore occhi | Presente | OK |
-| Lunghezza capelli | Presente | OK |
-| Tipologia capelli | Presente | OK |
-| Etnia | Presente (in BasicInfoSection) | OK |
+Aggiungere colonne a `talent_attributes`:
 
-**Campi presenti attualmente ma NON nello screenshot**: Peso, Petto, Vita, Fianchi. Li manterrei comunque dato che sono utili — a meno che tu non voglia rimuoverli.
-
-### Modifiche
-
-#### 1. Migrazione DB — Aggiungere colonna `shirt_size`
 ```sql
-ALTER TABLE talent_attributes ADD COLUMN shirt_size text;
+ALTER TABLE talent_attributes ADD COLUMN has_vitiligo boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN has_albinism boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN has_dwarfism boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_dance boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_sing boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_instruments boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_instruments_detail text;
+ALTER TABLE talent_attributes ADD COLUMN ability_sports boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_sports_detail text;
+ALTER TABLE talent_attributes ADD COLUMN ability_bartender boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_other boolean DEFAULT false;
+ALTER TABLE talent_attributes ADD COLUMN ability_other_detail text;
 ```
 
-#### 2. `src/lib/profileOptions.ts` — Aggiornare costanti
+### 2. PhysicalFeaturesSection — rinominare titolo e aggiungere voci
 
-- `JACKET_SIZES`: da `["XS", "S", ...]` a formato IT/EU:
-  `["IT 44 | EU 34", "IT 46 | EU 36", "IT 48 | EU 38/40", "IT 50/52 | EU 46/48", ...]`
-- `PANTS_SIZES`: da numeri semplici a formato IT/EU:
-  `["IT 28/30 | EU 24/26", "IT 34/36 | EU 30/32", ...]`
-- Aggiungere `SHIRT_SIZES`: `["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"]`
+Titolo: "Segni particolari"
 
-#### 3. `src/components/profile/MeasurementsSection.tsx`
+Voci checkbox (griglia 2 colonne):
+- Vitiligine, Lentiggini
+- Diastema, Albinismo
+- Nanismo, Tatuaggi
 
-- Aggiungere campo "Taglia maglia" come Select con `SHIRT_SIZES`
-- Rinominare label "Collo" → "Misura collo camicia"
-- Riorganizzare layout griglia secondo ordine screenshot:
-  - Riga 1: Altezza, Taglia giacca
-  - Riga 2: Taglia maglia, Taglia pantaloni
-  - Riga 3: Larghezza spalle, Misura collo camicia
-  - Riga 4: Numero scarpe
-  - Separatore
-  - Riga 5: Colore capelli, Colore occhi
-  - Riga 6: Lunghezza capelli, Tipologia capelli
-  - Riga 7: Etnia (oppure resta in BasicInfoSection)
+Aggiungere `has_vitiligo`, `has_albinism`, `has_dwarfism` al formData e alla logica save.
 
-#### 4. Hooks — Aggiungere `shirt_size`
+### 3. AbilitiesSection — trasformare in "Ulteriori abilità"
 
-Aggiornare il tipo mutation in `useTalentAttributes.ts` e `useTalentAttributesByProfileId.ts` per includere `shirt_size`.
+Titolo: "Ulteriori abilità"
+
+Sostituire la lista ABILITIES con 6 checkbox fissi (griglia 2 colonne):
+- So ballare / So cantare
+- So suonare degli strumenti musicali / Pratico degli sport
+- Ho esperienza come bartender / Altro
+
+Logica condizionale:
+- Se "So suonare" spuntato → mostrare Textarea "Quali strumenti musicali sai suonare?"
+- Se "Pratico degli sport" spuntato → mostrare Textarea "Quali sport pratichi?"
+- Se "Altro" spuntato → mostrare Textarea "Altro"
+
+Salvare i nuovi campi boolean + detail text su `talent_attributes`.
+
+### 4. Hooks — aggiungere nuovi campi
+
+Aggiornare il tipo mutation in `useTalentAttributes.ts` e `useTalentAttributesByProfileId.ts` per includere tutti i nuovi campi.
 
 ### File da modificare
 
 | File | Modifica |
 |------|----------|
-| Migrazione DB | Aggiungere `shirt_size` |
-| `src/lib/profileOptions.ts` | Aggiornare JACKET_SIZES, PANTS_SIZES, aggiungere SHIRT_SIZES |
-| `src/components/profile/MeasurementsSection.tsx` | Nuovo campo, rinomina label, riordino layout |
-| `src/hooks/useTalentAttributes.ts` | Aggiungere `shirt_size` al tipo |
-| `src/hooks/useTalentAttributesByProfileId.ts` | Aggiungere `shirt_size` al tipo |
+| Migrazione DB | 12 nuove colonne |
+| `src/components/profile/PhysicalFeaturesSection.tsx` | Titolo + 3 nuove voci |
+| `src/components/profile/AbilitiesSection.tsx` | Riscrivere con 6 checkbox + textarea condizionali |
+| `src/hooks/useTalentAttributes.ts` | Nuovi campi nel tipo |
+| `src/hooks/useTalentAttributesByProfileId.ts` | Nuovi campi nel tipo |
 
