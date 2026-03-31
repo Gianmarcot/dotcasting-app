@@ -71,7 +71,7 @@ export const TalentApplications = () => {
         </div>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <Card key={i} className="">
+            <Card key={i}>
               <CardContent className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
@@ -100,7 +100,7 @@ export const TalentApplications = () => {
       </div>
 
       {applications?.length === 0 ? (
-        <Card className="">
+        <Card>
           <CardContent className="p-8 text-center">
             <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">

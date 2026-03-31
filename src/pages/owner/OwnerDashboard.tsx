@@ -115,7 +115,7 @@ export const OwnerDashboard = () => {
       {/* Two columns: Recent Applications + Activity Feed */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Applications */}
-        <Card className="">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-lg">Candidature recenti</CardTitle>
             <Button
@@ -188,7 +188,7 @@ export const OwnerDashboard = () => {
         </Card>
 
         {/* Activity Feed */}
-        <Card className="">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5" />

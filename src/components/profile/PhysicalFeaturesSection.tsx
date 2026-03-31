@@ -97,7 +97,7 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
   ];
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Segni particolari</CardTitle>
         {isEditing ? (

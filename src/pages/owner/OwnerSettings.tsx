@@ -14,7 +14,7 @@ export const OwnerSettings = () => {
         </p>
       </div>
 
-      <Card className="">
+      <Card>
         <CardContent className="p-12 text-center">
           <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-muted-foreground">

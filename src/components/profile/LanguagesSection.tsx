@@ -63,7 +63,7 @@ export const LanguagesSection = ({ externalProfileId }: LanguagesSectionProps) =
   const availableLanguages = LANGUAGES.filter((l) => !languages.includes(l));
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">{it.profile.languages}</CardTitle>
         {isEditing ? (

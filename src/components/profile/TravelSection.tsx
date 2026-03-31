@@ -120,7 +120,7 @@ export const TravelSection = ({ externalProfileId }: TravelSectionProps) => {
   const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Viaggi e Visti</CardTitle>
         {isEditing ? (

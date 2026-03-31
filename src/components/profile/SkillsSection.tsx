@@ -63,7 +63,7 @@ export const SkillsSection = ({ externalProfileId }: SkillsSectionProps) => {
   const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">{it.profile.skills}</CardTitle>
         {isEditing ? (

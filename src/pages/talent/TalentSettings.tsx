@@ -58,7 +58,7 @@ export const TalentSettings = () => {
       </div>
 
       {/* Account Info */}
-      <Card className="">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -135,7 +135,7 @@ export const TalentSettings = () => {
       </Card>
 
       {/* Notifications */}
-      <Card className="">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
@@ -189,7 +189,7 @@ export const TalentSettings = () => {
       </Card>
 
       {/* Privacy */}
-      <Card className="">
+      <Card>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Eye className="h-5 w-5" />

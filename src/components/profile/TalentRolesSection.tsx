@@ -79,7 +79,7 @@ export const TalentRolesSection = ({ externalProfileId }: TalentRolesSectionProp
   ];
 
   return (
-    <Card className="">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Ruoli e Talenti</CardTitle>
         {isEditing ? (
