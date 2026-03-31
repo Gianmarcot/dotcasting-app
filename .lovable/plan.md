@@ -1,20 +1,22 @@
 
 
-## Uniformare tema interno area Owner a quello Talent
+## Sfondo bianco per tutti i box/card
 
-### Problema
-L'area Owner usa `bg-white` come sfondo del contenuto interno e `bg-[#1A1A1A]` come cornice esterna. L'area Talent usa `bg-background` (crema) come sfondo interno e `bg-card` come cornice esterna. I box (Card) nell'area Owner appaiono su sfondo bianco invece che crema, rompendo la coerenza visiva.
+### Modifica
 
-### Soluzione
+**`src/index.css`** (riga 277): cambiare `bg-card` → `bg-white`
 
-**`src/components/layout/OwnerLayout.tsx`** — 2 modifiche:
+```css
+/* Da */
+.dc-card {
+  @apply rounded-3xl border-0 shadow-sm bg-card text-card-foreground;
+}
 
-1. Riga 12: `bg-white` → `bg-background` (sfondo crema come area Talent)
-2. La cornice esterna `bg-[#1A1A1A]` resta invariata (sidebar scura Owner)
+/* A */
+.dc-card {
+  @apply rounded-3xl border-0 shadow-sm bg-white text-card-foreground;
+}
+```
 
-| Riga | Da | A |
-|------|----|---|
-| 12 | `bg-white md:rounded-[3rem]` | `bg-background md:rounded-[3rem]` |
-
-Un solo file, una sola riga da modificare.
+Un solo file, una sola riga.
 
