@@ -62,7 +62,7 @@ export const TalentDashboard = () => {
         </div>
 
         {/* Stats cards */}
-        <div className="flex flex-1 gap-4 lg:justify-end">
+        <div className="flex flex-col sm:flex-row flex-1 gap-4 lg:justify-end">
           {/* Active applications */}
           <Card className="bg-secondary text-secondary-foreground flex-1 max-w-xs border-0">
             <CardContent className="p-5 flex justify-between items-center">
