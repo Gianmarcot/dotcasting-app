@@ -1,26 +1,38 @@
 
 
-## Spostare BasicInfoSection nel lato sinistro e aggiornare Rappresentanza
+## Spostare la foto profilo in alto a sinistra
 
-### Modifiche
+### Layout attuale
 
-#### 1. Layout — Spostare BasicInfoSection nella colonna principale
+La foto profilo è nella sidebar destra (colonna 1/3), mentre BasicInfoSection è nella colonna principale sinistra (2/3).
 
-In entrambi i file `TalentProfile.tsx` e `OwnerTalentEdit.tsx`:
-- Spostare `<BasicInfoSection>` dalla sidebar destra (colonna 1/3) alla colonna principale sinistra (colonna 2/3), posizionandola come prima sezione sopra "About Me"
-- Questo dara piu spazio ai campi del form
+### Nuovo layout proposto
 
-#### 2. Rappresentanza — Aggiornare le label
+Aggiungere una riga superiore **sopra** la griglia principale, con la foto profilo a sinistra e il nome/header a destra, affiancati. Poi sotto continua la griglia 2/3 + 1/3 come ora (senza la foto nella sidebar).
 
-In `src/lib/profileOptions.ts`, cambiare le label di `REPRESENTATION_TYPES`:
-- `"Freelance"` → `"Sono un Freelance"`
-- `"Con Agenzia"` → `"Sono rappresentato in esclusiva da una Agenzia"`
+```text
+┌──────────────┬──────────────────────────────┐
+│  Foto        │  Nome, città, genere         │
+│  Profilo     │  (header info)               │
+└──────────────┴──────────────────────────────┘
+┌─────────────────────────┬───────────────────┐
+│  BasicInfo              │  Contatti          │
+│  AboutMe                │  Indirizzo         │
+│  Ruoli, Media, ...      │  Documenti, ...    │
+└─────────────────────────┴───────────────────┘
+```
 
-#### File da modificare
+### File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/pages/talent/TalentProfile.tsx` | Spostare BasicInfoSection nella colonna sinistra |
-| `src/pages/owner/OwnerTalentEdit.tsx` | Spostare BasicInfoSection nella colonna sinistra |
-| `src/lib/profileOptions.ts` | Aggiornare label REPRESENTATION_TYPES |
+| `src/pages/talent/TalentProfile.tsx` | Creare una riga flex con ProfilePhotoSection + header nome/città prima della griglia; rimuovere ProfilePhotoSection e header dalla posizione attuale |
+| `src/pages/owner/OwnerTalentEdit.tsx` | Stessa modifica: riga superiore con foto + nome, rimuovere foto dalla sidebar |
+
+### Dettaglio
+
+- Riga superiore: `flex items-start gap-6` con foto (larghezza fissa ~200px) e info nome a destra
+- La `ProfilePhotoSection` viene rimossa dalla sidebar destra
+- Il blocco nome/città/genere in `TalentProfile.tsx` (righe 53-63) viene spostato accanto alla foto
+- In `OwnerTalentEdit.tsx` il titolo "Modifica Profilo" e il nome restano nell'header sopra, la foto si aggiunge accanto
 
