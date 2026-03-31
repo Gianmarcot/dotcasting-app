@@ -240,21 +240,19 @@ export const MediaGallerySection = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="overflow-x-auto -mx-6 px-6">
-              <TabsList className="w-max mb-4">
-                {MEDIA_CATEGORIES.map((cat) => {
-                  const count = getMediaForCategory(cat.key).length;
-                  return (
-                    <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm whitespace-nowrap">
-                      {cat.label}
-                      <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
-                        {count}
-                      </Badge>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+            <TabsList className="flex flex-wrap gap-2 h-auto p-0 mb-4">
+              {MEDIA_CATEGORIES.map((cat) => {
+                const count = getMediaForCategory(cat.key).length;
+                return (
+                  <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm">
+                    {cat.label}
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
+                      {count}
+                    </Badge>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
 
             {MEDIA_CATEGORIES.map((cat) => {
               const catMedia = getMediaForCategory(cat.key);
