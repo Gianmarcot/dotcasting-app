@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Bookmark, User, MessageSquare, Calendar, LogOut, Settings } from "lucide-react";
+import { Home, Bookmark, User, MessageSquare, LogOut, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
@@ -13,7 +13,6 @@ const navItems = [
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
   { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
-  { icon: Calendar, label: it.nav.auditions, href: "/talent/auditions" },
 ];
 
 export const TalentSidebar = () => {

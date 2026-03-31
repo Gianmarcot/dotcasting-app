@@ -5,7 +5,6 @@ export interface DashboardStats {
   totalTalents: number;
   activeCastings: number;
   pendingApplications: number;
-  upcomingAuditions: number;
 }
 
 export interface RecentApplication {
@@ -19,7 +18,7 @@ export interface RecentApplication {
 
 export interface RecentActivity {
   id: string;
-  type: "application" | "audition" | "casting";
+  type: "application" | "casting";
   title: string;
   description: string;
   timestamp: string;
@@ -48,18 +47,10 @@ export const useDashboardStats = () => {
         .select("*", { count: "exact", head: true })
         .eq("status", "submitted");
 
-      // Upcoming auditions (events with start_datetime in the future)
-      const now = new Date().toISOString();
-      const { count: upcomingAuditions } = await supabase
-        .from("audition_events")
-        .select("*", { count: "exact", head: true })
-        .gte("start_datetime", now);
-
       return {
         totalTalents: totalTalents || 0,
         activeCastings: activeCastings || 0,
         pendingApplications: pendingApplications || 0,
-        upcomingAuditions: upcomingAuditions || 0,
       };
     },
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -139,31 +130,6 @@ export const useRecentActivity = (limit: number = 10) => {
           title: "Nuova candidatura",
           description: (app.casting as any)?.title || "Casting",
           timestamp: app.submitted_at,
-        });
-      });
-
-      // Recent audition bookings
-      const { data: bookings } = await supabase
-        .from("audition_bookings")
-        .select(`
-          id,
-          status,
-          created_at,
-          audition_slot:audition_slots(
-            audition_event:audition_events(title)
-          )
-        `)
-        .order("created_at", { ascending: false })
-        .limit(5);
-
-      bookings?.forEach(booking => {
-        const eventTitle = (booking.audition_slot as any)?.audition_event?.title || "Provino";
-        activities.push({
-          id: `booking-${booking.id}`,
-          type: "audition",
-          title: booking.status === "confirmed" ? "Provino confermato" : "Provino prenotato",
-          description: eventTitle,
-          timestamp: booking.created_at,
         });
       });
 

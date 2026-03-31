@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, Film, FileText, Calendar, Plus, Clock, ArrowRight } from "lucide-react";
+import { Users, Film, FileText, Plus, Clock, ArrowRight } from "lucide-react";
 import {
   useDashboardStats,
   useRecentApplications,
@@ -23,7 +23,6 @@ const STATUS_STYLES: Record<string, string> = {
 
 const ACTIVITY_ICONS: Record<string, string> = {
   application: "📩",
-  audition: "🎬",
   casting: "📋",
 };
 
@@ -56,13 +55,6 @@ export const OwnerDashboard = () => {
       color: "bg-charcoal text-charcoal-foreground",
       link: "/owner/applications",
     },
-    {
-      title: it.backoffice.upcomingAuditions,
-      value: stats?.upcomingAuditions ?? 0,
-      icon: Calendar,
-      color: "bg-primary text-primary-foreground",
-      link: "/owner/auditions",
-    },
   ];
 
   const formatDate = (dateStr: string) => {
@@ -94,7 +86,7 @@ export const OwnerDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statCards.map((stat) => (
           <Card
             key={stat.title}

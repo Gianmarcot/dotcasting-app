@@ -19,7 +19,6 @@ import { OwnerLayout } from "@/components/layout/OwnerLayout";
 import TalentDashboard from "./pages/talent/TalentDashboard";
 import TalentApplications from "./pages/talent/TalentApplications";
 import TalentMessages from "./pages/talent/TalentMessages";
-import TalentAuditions from "./pages/talent/TalentAuditions";
 import TalentProfile from "./pages/talent/TalentProfile";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
@@ -31,7 +30,6 @@ import OwnerTalents from "./pages/owner/OwnerTalents";
 import OwnerCastings from "./pages/owner/OwnerCastings";
 import OwnerTargets from "./pages/owner/OwnerTargets";
 import OwnerApplications from "./pages/owner/OwnerApplications";
-import OwnerAuditions from "./pages/owner/OwnerAuditions";
 import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
 import OwnerSettings from "./pages/owner/OwnerSettings";
@@ -72,7 +70,6 @@ const App = () => (
               <Route index element={<TalentDashboard />} />
               <Route path="applications" element={<TalentApplications />} />
               <Route path="messages" element={<TalentMessages />} />
-              <Route path="auditions" element={<TalentAuditions />} />
               <Route path="profile" element={<TalentProfile />} />
               <Route path="settings" element={<TalentSettings />} />
             </Route>
@@ -92,7 +89,6 @@ const App = () => (
               <Route path="castings" element={<OwnerCastings />} />
               <Route path="targets" element={<OwnerTargets />} />
               <Route path="applications" element={<OwnerApplications />} />
-              <Route path="auditions" element={<OwnerAuditions />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
               <Route path="settings" element={<OwnerSettings />} />

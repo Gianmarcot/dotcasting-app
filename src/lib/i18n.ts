@@ -7,7 +7,7 @@ export const it = {
     profile: "Profilo",
     applications: "Candidature",
     messages: "Messaggi",
-    auditions: "Provini",
+    
     settings: "Impostazioni",
     account: "Account",
     logout: "Esci",
@@ -115,24 +115,6 @@ export const it = {
     placeholder: "Scrivi un messaggio...",
   },
 
-  // Auditions
-  auditions: {
-    title: "Provini",
-    upcoming: "Prossimi provini",
-    past: "Provini passati",
-    confirm: "Conferma",
-    decline: "Rifiuta",
-    reschedule: "Riprogramma",
-    virtual: "Virtuale",
-    inPerson: "In presenza",
-    status: {
-      invited: "Invitato",
-      confirmed: "Confermato",
-      declined: "Rifiutato",
-      rescheduleRequested: "Riprogrammazione richiesta",
-    },
-  },
-
   // Notifications
   notifications: {
     title: "Notifiche",
@@ -147,7 +129,7 @@ export const it = {
     castings: "Casting",
     targets: "Target e Shortlist",
     applications: "Candidature",
-    auditionScheduling: "Programmazione Provini",
+    
     messagingCenter: "Centro Messaggi",
     companiesCRM: "CRM Aziende",
     teamPermissions: "Team e Permessi",
@@ -157,7 +139,7 @@ export const it = {
     totalTalents: "Talenti totali",
     activeCastings: "Casting attivi",
     pendingApplications: "Candidature in attesa",
-    upcomingAuditions: "Provini in programma",
+    
   },
 
   // Common
