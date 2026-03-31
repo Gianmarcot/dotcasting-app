@@ -23,6 +23,9 @@ import TalentProfile from "./pages/talent/TalentProfile";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
+// Shared pages
+import TalentPublicProfile from "./pages/shared/TalentPublicProfile";
+
 // Owner pages
 import OwnerDashboard from "./pages/owner/OwnerDashboard";
 import OwnerTalentEdit from "./pages/owner/OwnerTalentEdit";
@@ -71,6 +74,7 @@ const App = () => (
               <Route path="applications" element={<TalentApplications />} />
               <Route path="messages" element={<TalentMessages />} />
               <Route path="profile" element={<TalentProfile />} />
+              <Route path="profile/preview" element={<TalentPublicProfile />} />
               <Route path="settings" element={<TalentSettings />} />
             </Route>
 
@@ -86,6 +90,7 @@ const App = () => (
               <Route index element={<OwnerDashboard />} />
               <Route path="talents" element={<OwnerTalents />} />
               <Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
+              <Route path="talents/:profileId/view" element={<TalentPublicProfile />} />
               <Route path="castings" element={<OwnerCastings />} />
               <Route path="targets" element={<OwnerTargets />} />
               <Route path="applications" element={<OwnerApplications />} />
