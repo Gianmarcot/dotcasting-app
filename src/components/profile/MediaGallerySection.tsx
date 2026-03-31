@@ -260,25 +260,19 @@ export const MediaGallerySection = ({
 
               return (
                 <TabsContent key={cat.key} value={cat.key}>
-                  {/* Main photos progress */}
-                  {isMain && (
-                    <div className="mb-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {mainPhotosCount}/{mainPhotosMin} foto caricate
-                        </span>
-                        {mainPhotosCount < mainPhotosMin && (
-                          <Badge variant="destructive" className="text-xs">
-                            Minimo {mainPhotosMin} foto richieste
-                          </Badge>
-                        )}
-                        {mainPhotosCount >= mainPhotosMin && (
-                          <Badge className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                            Requisito soddisfatto
-                          </Badge>
-                        )}
-                      </div>
-                      <Progress value={mainPhotosProgress} className="h-2" />
+                  {/* Main photos requirement badge */}
+                  {isMain && mainPhotosCount < mainPhotosMin && (
+                    <div className="mb-4">
+                      <Badge variant="destructive" className="text-xs">
+                        Minimo {mainPhotosMin} foto richieste
+                      </Badge>
+                    </div>
+                  )}
+                  {isMain && mainPhotosCount >= mainPhotosMin && (
+                    <div className="mb-4">
+                      <Badge className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-200">
+                        Requisito soddisfatto
+                      </Badge>
                     </div>
                   )}
 
