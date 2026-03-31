@@ -136,7 +136,7 @@ export const MediaGridItem = ({
                 <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
                   +{ownerRating.tags.length - 2}
                 </Badge>
-              ))}
+              )}
             </div>
           )}
         </div>
