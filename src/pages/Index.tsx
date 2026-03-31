@@ -1,123 +1,121 @@
+import { useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Film, Target } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import logo from "@/assets/logo.png";
 
+interface Ellipse {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+  color: string;
+  opacity: number;
+  speedX: number;
+  speedY: number;
+  phase: number;
+}
+
+const ELLIPSES: Ellipse[] = [
+  { cx: 0.25, cy: 0.3, rx: 0.28, ry: 0.22, color: "#8b1a2f", opacity: 0.18, speedX: 0.0003, speedY: 0.0004, phase: 0 },
+  { cx: 0.72, cy: 0.6, rx: 0.32, ry: 0.26, color: "#5f6937", opacity: 0.15, speedX: 0.0002, speedY: 0.0003, phase: 1.2 },
+  { cx: 0.5, cy: 0.2, rx: 0.24, ry: 0.18, color: "#8b1a2f", opacity: 0.22, speedX: 0.00035, speedY: 0.00025, phase: 2.4 },
+  { cx: 0.8, cy: 0.25, rx: 0.2, ry: 0.3, color: "#5f6937", opacity: 0.2, speedX: 0.00025, speedY: 0.00035, phase: 3.6 },
+  { cx: 0.35, cy: 0.75, rx: 0.3, ry: 0.2, color: "#8b1a2f", opacity: 0.16, speedX: 0.0004, speedY: 0.0002, phase: 4.8 },
+  { cx: 0.6, cy: 0.85, rx: 0.22, ry: 0.25, color: "#5f6937", opacity: 0.28, speedX: 0.00015, speedY: 0.00045, phase: 0.8 },
+];
+
 const Index = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouseRef = useRef({ x: 0.5, y: 0.5 });
+  const animRef = useRef<number>(0);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    mouseRef.current = {
+      x: e.clientX / window.innerWidth,
+      y: e.clientY / window.innerHeight,
+    };
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    window.addEventListener("mousemove", handleMouseMove);
+
+    const draw = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#f5f0e8";
+      ctx.fillRect(0, 0, w, h);
+
+      const t = performance.now();
+      const mx = (mouseRef.current.x - 0.5) * 0.06;
+      const my = (mouseRef.current.y - 0.5) * 0.06;
+
+      for (const el of ELLIPSES) {
+        const cx = (el.cx + Math.sin(t * el.speedX + el.phase) * 0.04 + mx) * w;
+        const cy = (el.cy + Math.cos(t * el.speedY + el.phase) * 0.04 + my) * h;
+        const rx = el.rx * w;
+        const ry = el.ry * h;
+
+        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
+        gradient.addColorStop(0, el.color + Math.round(el.opacity * 255).toString(16).padStart(2, "0"));
+        gradient.addColorStop(1, el.color + "00");
+
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fillStyle = gradient;
+        ctx.fill();
+      }
+
+      animRef.current = requestAnimationFrame(draw);
+    };
+
+    animRef.current = requestAnimationFrame(draw);
+
+    return () => {
+      cancelAnimationFrame(animRef.current);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [handleMouseMove]);
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-1">
-            <img src={logo} alt="dotCasting" className="h-7" />
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link to="/auth">
-              <Button variant="ghost">Accedi</Button>
-            </Link>
-            <Link to="/auth">
-              <Button>Registrati</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h1 className="text-5xl sm:text-6xl text-foreground leading-tight mb-6">
+    <div className="fixed inset-0 overflow-hidden">
+      <canvas ref={canvasRef} className="absolute inset-0" />
+      <div className="relative z-10 flex items-center justify-center h-full">
+        <div className="flex flex-col items-center gap-6 px-6 text-center">
+          <img src={logo} alt="dotCasting" className="h-8 mb-2" />
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-[#1a1a1a] normal-case tracking-normal">
             La piattaforma di casting
-            <span className="text-primary"> più elegante</span> d'Italia
+            <br />
+            più elegante d'Italia
           </h1>
-          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-            Connetti talenti e opportunità. Gestisci casting, candidature e provini 
-            in un'unica piattaforma professionale.
+          <p className="text-muted-foreground text-lg max-w-md">
+            Connetti talenti e opportunità in un unico spazio.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth">
-              <Button size="xl" className="w-full sm:w-auto">
-                Inizia ora
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="outline" size="xl" className="w-full sm:w-auto">
-                Scopri di più
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-20 px-6 bg-card">
-        <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl text-foreground text-center mb-12">
-            Tutto ciò di cui hai bisogno
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-8 rounded-xl bg-background">
-              <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="h-8 w-8 text-secondary-foreground" />
-              </div>
-              <h3 className="text-xl text-foreground mb-3">
-                Database Talenti
-              </h3>
-              <p className="text-muted-foreground">
-                Ricerca avanzata tra migliaia di profili verificati con filtri personalizzati.
-              </p>
-            </div>
-            <div className="text-center p-8 rounded-xl bg-background">
-              <div className="w-16 h-16 bg-olive rounded-full flex items-center justify-center mx-auto mb-6">
-                <Film className="h-8 w-8 text-olive-foreground" />
-              </div>
-              <h3 className="text-xl text-foreground mb-3">
-                Gestione Casting
-              </h3>
-              <p className="text-muted-foreground">
-                Crea e gestisci casting completi con ruoli, requisiti e timeline.
-              </p>
-            </div>
-            <div className="text-center p-8 rounded-xl bg-background">
-              <div className="w-16 h-16 bg-charcoal rounded-full flex items-center justify-center mx-auto mb-6">
-                <Target className="h-8 w-8 text-charcoal-foreground" />
-              </div>
-              <h3 className="text-xl text-foreground mb-3">
-                Shortlist Smart
-              </h3>
-              <p className="text-muted-foreground">
-                Crea target intelligenti e trova automaticamente i talenti perfetti.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-20 px-6">
-        <div className="container mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl text-foreground mb-6">
-            Pronto a iniziare?
-          </h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Unisciti a dotCasting e scopri un nuovo modo di gestire i casting.
-          </p>
+          <Separator className="w-16 my-2" />
           <Link to="/auth">
-            <Button size="xl">
-              Crea il tuo account gratuito
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button className="bg-[#8b1a2f] hover:bg-[#6e1525] text-white rounded-full px-10 h-12 text-base">
+              Accedi
             </Button>
           </Link>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border">
-        <div className="container mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2025 dotCasting. Tutti i diritti riservati.</p>
-        </div>
-      </footer>
+      </div>
     </div>
   );
 };
