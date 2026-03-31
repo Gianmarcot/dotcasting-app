@@ -20,7 +20,6 @@ import { TravelSection } from "@/components/profile/TravelSection";
 import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
 
 export const TalentProfile = () => {
-  const { user } = useAuth();
   const { data: profile, isLoading } = useProfile();
 
   const displayName = profile?.first_name 
