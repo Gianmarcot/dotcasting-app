@@ -18,19 +18,24 @@
    message: string;
  }
  
- export interface ProfileCompletionResult {
-   percentage: number;
-   score: number;
-   maxScore: number;
-   emoji: string;
-   message: string;
-   missingSections: Array<{
-     key: string;
-     label: string;
-     anchor: string;
-   }>;
-   isLoading: boolean;
- }
+export interface ProfileCompletionResult {
+    percentage: number;
+    score: number;
+    maxScore: number;
+    emoji: string;
+    message: string;
+    missingSections: Array<{
+      key: string;
+      label: string;
+      anchor: string;
+    }>;
+    completedSections: Array<{
+      key: string;
+      label: string;
+      anchor: string;
+    }>;
+    isLoading: boolean;
+  }
  
  const COMPLETION_LEVELS: CompletionLevel[] = [
    { min: 0, max: 19, emoji: "😴", message: "Il tuo profilo sta ancora dormendo... sveglialo!" },
