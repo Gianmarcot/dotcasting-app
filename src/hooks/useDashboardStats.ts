@@ -18,7 +18,7 @@ export interface RecentApplication {
 
 export interface RecentActivity {
   id: string;
-  type: "application" | "audition" | "casting";
+  type: "application" | "casting";
   title: string;
   description: string;
   timestamp: string;
