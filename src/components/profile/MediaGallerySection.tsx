@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useTalentMedia,
@@ -240,21 +240,19 @@ export const MediaGallerySection = ({
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="overflow-x-auto -mx-6 px-6">
-              <TabsList className="w-max mb-4">
-                {MEDIA_CATEGORIES.map((cat) => {
-                  const count = getMediaForCategory(cat.key).length;
-                  return (
-                    <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm whitespace-nowrap">
-                      {cat.label}
-                      <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
-                        {count}
-                      </Badge>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+            <TabsList className="flex flex-wrap gap-2 h-auto p-0 mb-4">
+              {MEDIA_CATEGORIES.map((cat) => {
+                const count = getMediaForCategory(cat.key).length;
+                return (
+                  <TabsTrigger key={cat.key} value={cat.key} className="text-xs sm:text-sm">
+                    {cat.label}
+                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0 h-4 min-w-[1.25rem] justify-center">
+                      {count}
+                    </Badge>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
 
             {MEDIA_CATEGORIES.map((cat) => {
               const catMedia = getMediaForCategory(cat.key);
@@ -262,25 +260,19 @@ export const MediaGallerySection = ({
 
               return (
                 <TabsContent key={cat.key} value={cat.key}>
-                  {/* Main photos progress */}
-                  {isMain && (
-                    <div className="mb-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {mainPhotosCount}/{mainPhotosMin} foto caricate
-                        </span>
-                        {mainPhotosCount < mainPhotosMin && (
-                          <Badge variant="destructive" className="text-xs">
-                            Minimo {mainPhotosMin} foto richieste
-                          </Badge>
-                        )}
-                        {mainPhotosCount >= mainPhotosMin && (
-                          <Badge className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                            Requisito soddisfatto
-                          </Badge>
-                        )}
-                      </div>
-                      <Progress value={mainPhotosProgress} className="h-2" />
+                  {/* Main photos requirement badge */}
+                  {isMain && mainPhotosCount < mainPhotosMin && (
+                    <div className="mb-4">
+                      <Badge variant="destructive" className="text-xs">
+                        Minimo {mainPhotosMin} foto richieste
+                      </Badge>
+                    </div>
+                  )}
+                  {isMain && mainPhotosCount >= mainPhotosMin && (
+                    <div className="mb-4">
+                      <Badge className="text-xs bg-emerald-500/10 text-emerald-600 border-emerald-200">
+                        Requisito soddisfatto
+                      </Badge>
                     </div>
                   )}
 
