@@ -1,55 +1,40 @@
 
 
-## Uniformare lo stile dei box (Card) in tutta la piattaforma
+## Creare una classe CSS per link-action (pulsanti inline tipo "Vai al profilo")
 
 ### Problema
 
-Lo stile di riferimento per le Card è `border-0 shadow-sm` (usato in tutte le sezioni del profilo). Tuttavia diverse pagine usano `<Card>` senza classi aggiuntive, risultando in uno stile diverso (con bordo visibile e senza ombra).
+I link di azione (come "Vai al profilo per completarlo", "Vedi tutti") usano classi Tailwind inline ripetute (`text-sm text-primary hover:underline`). Non c'è un modo centralizzato per modificarne lo stile senza toccare tutti i `<a>` generici.
 
 ### Soluzione
 
-Invece di modificare ogni singolo file, aggiornare la classe base `.dc-card` in `src/index.css` per includere `border-0 shadow-sm` di default. Poi rimuovere tutte le occorrenze ridondanti di `border-0 shadow-sm` dai componenti.
+Aggiungere una classe utility `.dc-link-action` in `src/index.css` e applicarla ai link di azione nelle pagine.
 
 ### Modifiche
 
-#### 1. `src/index.css` — Aggiornare stile base `.dc-card`
+#### 1. `src/index.css` — Nuova classe
 
 ```css
-/* Da */
-.dc-card {
-  @apply rounded-3xl border bg-card text-card-foreground;
-}
-
-/* A */
-.dc-card {
-  @apply rounded-3xl border-0 shadow-sm bg-card text-card-foreground;
+.dc-link-action {
+  @apply inline-flex items-center gap-1 text-sm text-primary hover:underline;
 }
 ```
 
-Questo rende tutte le Card automaticamente uniformi.
+#### 2. `src/pages/talent/TalentDashboard.tsx` — Sostituire le classi inline
 
-#### 2. Pulizia — Rimuovere `border-0 shadow-sm` ridondante
+- Link "Vai al profilo per completarlo": `className="dc-link-action mt-2"`
+- Link "Vedi tutti" (casting): `className="dc-link-action"`
+- Link "Vedi tutti" (messaggi): `className="dc-link-action"`
 
-Rimuovere `border-0 shadow-sm` da tutti i ~22 file che lo specificano inline, dato che ora è nel base. I file con varianti (es. `shadow-lg`, `hover:shadow-md`, `opacity-60`) mantengono solo le classi aggiuntive.
+#### 3. `src/pages/shared/TalentPublicProfile.tsx` — Link social
 
-| File | Modifica |
-|------|----------|
-| Tutti i componenti profile (`AboutMe`, `Address`, `Basic`, `Contact`, `Documents`, `Languages`, `Measurements`, `Physical`, `Photo`, `Roles`, `Skills`, `Travel`, `Work`, `Appearance`) | Rimuovere `border-0 shadow-sm` |
-| `CastingCard.tsx` | Rimuovere `border-0 shadow-sm` |
-| `OwnerDashboard.tsx` | Rimuovere `border-0 shadow-sm` |
-| `OwnerApplications.tsx` | Rimuovere `border-0 shadow-sm` |
-| `OwnerCompanies.tsx` | Rimuovere `border-0 shadow-sm` (mantenere `hover:shadow-md`) |
-| `OwnerSettings.tsx` | Rimuovere `border-0 shadow-sm` |
-| `OwnerTargets.tsx` | Rimuovere `border-0 shadow-sm` |
-| `TalentApplications.tsx` | Rimuovere `border-0 shadow-sm` |
-| `TalentSettings.tsx` | Rimuovere `border-0 shadow-sm` (mantenere `border-destructive/20` su danger zone) |
-| `TalentOnboarding.tsx` | Cambiare `border-0 shadow-lg` → `shadow-lg` |
-| `TargetCard.tsx` | Cambiare `dc-card hover:shadow-md` → `hover:shadow-md` |
+- I link social (`text-sm text-primary hover:underline`): `className="dc-link-action truncate"`
 
 ### File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/index.css` | `.dc-card` base con `border-0 shadow-sm` |
-| ~22 file componenti | Rimuovere classi ridondanti |
+| `src/index.css` | Aggiungere `.dc-link-action` |
+| `src/pages/talent/TalentDashboard.tsx` | Usare `.dc-link-action` su 3 link |
+| `src/pages/shared/TalentPublicProfile.tsx` | Usare `.dc-link-action` su link social |
 
