@@ -459,7 +459,7 @@
      ADMIN SIDEBAR
      ===================== */
   .dc-sidebar-admin {
-    @apply fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] flex flex-col;
+    @apply hidden md:flex fixed left-0 top-0 z-40 h-screen w-64 bg-[#1A1A1A] flex-col;
   }
 
   .dc-sidebar-admin-nav-item-inactive {
