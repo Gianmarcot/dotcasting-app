@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Users, Film, FileText, Calendar, Plus, Clock, ArrowRight } from "lucide-react";
+import { Users, Film, FileText, Plus, Clock, ArrowRight } from "lucide-react";
 import {
   useDashboardStats,
   useRecentApplications,
