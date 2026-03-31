@@ -177,26 +177,26 @@ export const TalentDashboard = () => {
               <>
                 <Progress value={completion.percentage} className="h-2.5 bg-muted" />
 
-                {completion.missingSections.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {completion.missingSections.map((section) => (
-                      <Link
-                        key={section.key}
-                        to={`/talent/profile#${section.anchor}`}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm border transition-colors hover:bg-muted ${
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {completion.completedSections.map((section) => (
+                    <div key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Check className="h-3.5 w-3.5 text-[#729128] flex-shrink-0" />
+                      <span className="line-through opacity-60">{section.label}</span>
+                    </div>
+                  ))}
+                  {completion.missingSections.map((section) => (
+                    <div key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span
+                        className={`h-2 w-2 rounded-full flex-shrink-0 ${
                           importantKeys.has(section.key)
-                            ? "border-[#A30A2B]/30 text-[#A30A2B]"
-                            : "border-[#E5A700]/30 text-[#E5A700]"
+                            ? "bg-[#A30A2B]"
+                            : "bg-[#E5A700]"
                         }`}
-                      >
-                        <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                          importantKeys.has(section.key) ? "bg-[#A30A2B]" : "bg-[#E5A700]"
-                        }`} />
-                        {section.label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+                      />
+                      {section.label}
+                    </div>
+                  ))}
+                </div>
 
                 <Link
                   to="/talent/profile"
