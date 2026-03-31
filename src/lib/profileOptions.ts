@@ -122,11 +122,21 @@
    "Doppiaggio"
  ];
  
- export const JACKET_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
- 
- export const PANTS_SIZES = [
-   "38", "40", "42", "44", "46", "48", "50", "52", "54", "56", "58", "60"
- ];
+export const JACKET_SIZES = [
+  "IT 44 | EU 34", "IT 46 | EU 36", "IT 48 | EU 38",
+  "IT 50 | EU 40", "IT 52 | EU 42", "IT 54 | EU 44",
+  "IT 56 | EU 46", "IT 58 | EU 48", "IT 60 | EU 50",
+  "IT 62 | EU 52", "IT 64 | EU 54"
+];
+
+export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+export const PANTS_SIZES = [
+  "IT 38 | EU 32", "IT 40 | EU 34", "IT 42 | EU 36",
+  "IT 44 | EU 38", "IT 46 | EU 40", "IT 48 | EU 42",
+  "IT 50 | EU 44", "IT 52 | EU 46", "IT 54 | EU 48",
+  "IT 56 | EU 50", "IT 58 | EU 52", "IT 60 | EU 54"
+];
  
  export const SHOE_SIZES = [
    "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"

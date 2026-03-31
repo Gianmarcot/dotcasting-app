@@ -790,6 +790,7 @@ export type Database = {
           other_tags: string[] | null
           pants_size: string | null
           profile_id: string
+          shirt_size: string | null
           shoe_size: string | null
           shoulder_width: number | null
           skills: string[] | null
@@ -821,6 +822,7 @@ export type Database = {
           other_tags?: string[] | null
           pants_size?: string | null
           profile_id: string
+          shirt_size?: string | null
           shoe_size?: string | null
           shoulder_width?: number | null
           skills?: string[] | null
@@ -852,6 +854,7 @@ export type Database = {
           other_tags?: string[] | null
           pants_size?: string | null
           profile_id?: string
+          shirt_size?: string | null
           shoe_size?: string | null
           shoulder_width?: number | null
           skills?: string[] | null
