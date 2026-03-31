@@ -177,22 +177,26 @@ export const TalentDashboard = () => {
               <>
                 <Progress value={completion.percentage} className="h-2.5 bg-muted" />
 
-                {completion.missingSections.length > 0 && (
-                  <ul className="space-y-1.5">
-                    {completion.missingSections.map((section) => (
-                      <li key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span
-                          className={`h-2 w-2 rounded-full flex-shrink-0 ${
-                            importantKeys.has(section.key)
-                              ? "bg-destructive"
-                              : "bg-[#C88500]"
-                          }`}
-                        />
-                        {section.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <ul className="space-y-1.5">
+                  {completion.completedSections.map((section) => (
+                    <li key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Check className="h-3.5 w-3.5 text-[#729128] flex-shrink-0" />
+                      <span className="line-through opacity-60">{section.label}</span>
+                    </li>
+                  ))}
+                  {completion.missingSections.map((section) => (
+                    <li key={section.key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <span
+                        className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                          importantKeys.has(section.key)
+                            ? "bg-destructive"
+                            : "bg-[#C88500]"
+                        }`}
+                      />
+                      {section.label}
+                    </li>
+                  ))}
+                </ul>
 
                 <Link
                   to="/talent/profile"
