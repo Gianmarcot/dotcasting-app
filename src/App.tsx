@@ -74,6 +74,7 @@ const App = () => (
               <Route path="applications" element={<TalentApplications />} />
               <Route path="messages" element={<TalentMessages />} />
               <Route path="profile" element={<TalentProfile />} />
+              <Route path="profile/preview" element={<TalentPublicProfile />} />
               <Route path="settings" element={<TalentSettings />} />
             </Route>
 
