@@ -70,7 +70,6 @@ const App = () => (
               <Route index element={<TalentDashboard />} />
               <Route path="applications" element={<TalentApplications />} />
               <Route path="messages" element={<TalentMessages />} />
-              <Route path="auditions" element={<TalentAuditions />} />
               <Route path="profile" element={<TalentProfile />} />
               <Route path="settings" element={<TalentSettings />} />
             </Route>
