@@ -30,7 +30,6 @@ import OwnerTalents from "./pages/owner/OwnerTalents";
 import OwnerCastings from "./pages/owner/OwnerCastings";
 import OwnerTargets from "./pages/owner/OwnerTargets";
 import OwnerApplications from "./pages/owner/OwnerApplications";
-import OwnerAuditions from "./pages/owner/OwnerAuditions";
 import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
 import OwnerSettings from "./pages/owner/OwnerSettings";
