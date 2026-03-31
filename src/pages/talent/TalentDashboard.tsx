@@ -216,7 +216,7 @@ export const TalentDashboard = () => {
                 Prossimi casting confermati
               </CardTitle>
               {confirmedCastings.length > 0 && (
-                <Link to="/talent/applications" className="text-sm text-primary hover:underline">
+                <Link to="/talent/applications" className="dc-link-action">
                   {it.common.seeAll}
                 </Link>
               )}
