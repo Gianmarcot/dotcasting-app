@@ -1,108 +1,114 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { it } from "@/lib/i18n";
-import { useTalents, useTalentFilterOptions, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
-import { TalentFiltersComponent } from "@/components/talents/TalentFilters";
-import { TalentCard } from "@/components/talents/TalentCard";
+import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
+import { TalentFilterPanel } from "@/components/talents/TalentFilterPanel";
+import { TalentResultsList } from "@/components/talents/TalentResultsList";
 import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Users, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
 
 export const OwnerTalents = () => {
   const [filters, setFilters] = useState<TalentFilters>({});
   const [selectedTalent, setSelectedTalent] = useState<TalentWithAttributes | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  
-  const { data: talents, isLoading } = useTalents(filters);
-  const { data: filterOptions } = useTalentFilterOptions();
+  const [sortBy, setSortBy] = useState("recent");
 
-  const defaultOptions = {
-    cities: [],
-    genders: [],
-    categories: [],
-    skills: [],
+  const { data: talents, isLoading } = useTalents(filters);
+  const { data: totalCount } = useTalentCount();
+
+  // Sort talents
+  const sortedTalents = useMemo(() => {
+    if (!talents) return undefined;
+    const sorted = [...talents];
+    switch (sortBy) {
+      case "name-asc":
+        sorted.sort((a, b) => (a.first_name || "").localeCompare(b.first_name || ""));
+        break;
+      case "name-desc":
+        sorted.sort((a, b) => (b.first_name || "").localeCompare(a.first_name || ""));
+        break;
+      case "age-asc":
+        sorted.sort((a, b) => (calculateAge(a.birth_date) || 99) - (calculateAge(b.birth_date) || 99));
+        break;
+      case "age-desc":
+        sorted.sort((a, b) => (calculateAge(b.birth_date) || 0) - (calculateAge(a.birth_date) || 0));
+        break;
+      default: // recent - already sorted by created_at desc
+        break;
+    }
+    return sorted;
+  }, [talents, sortBy]);
+
+  const exportCSV = () => {
+    if (!sortedTalents?.length) return;
+    const headers = ["Nome", "Cognome", "Età", "Città", "Sesso", "Categorie", "Altezza", "Peso"];
+    const rows = sortedTalents.map((t) => [
+      t.first_name || "",
+      t.last_name || "",
+      calculateAge(t.birth_date)?.toString() || "",
+      t.city || "",
+      t.gender || "",
+      (t.talent_categories || []).join("; "),
+      t.attributes?.height?.toString() || "",
+      t.attributes?.weight?.toString() || "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "talent_export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      <div className="flex items-center justify-between">
+    <div className="h-full flex flex-col -m-4 md:-m-8 md:-mt-16">
+      {/* Top header */}
+      <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b shrink-0">
         <div>
-          <h1 className="text-2xl text-foreground">
+          <h1 className="text-xl font-semibold text-foreground">
             {it.backoffice.talentDatabase}
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Cerca e gestisci i talenti registrati
-          </p>
         </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <Button size="sm" onClick={() => setCreateDialogOpen(true)}>
           <UserPlus className="h-4 w-4 mr-2" />
           Nuovo Talent
         </Button>
       </div>
 
-      {/* Filters */}
-      <TalentFiltersComponent
-        filters={filters}
-        onFiltersChange={setFilters}
-        options={filterOptions || defaultOptions}
-      />
-
-      {/* Results count */}
-      {!isLoading && talents && (
-        <p className="text-sm text-muted-foreground">
-          {talents.length} {talents.length === 1 ? "talent trovato" : "talents trovati"}
-        </p>
-      )}
-
-      {/* Loading state */}
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-[140px] rounded-lg" />
-          ))}
+      {/* Two-column layout */}
+      <div className="flex flex-1 min-h-0">
+        {/* Left: Filter panel (hidden on mobile) */}
+        <div className="hidden md:block">
+          <TalentFilterPanel filters={filters} onFiltersChange={setFilters} />
         </div>
-      )}
 
-      {/* Empty state */}
-      {!isLoading && talents?.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium text-foreground mb-2">
-            Nessun talent trovato
-          </h3>
-          <p className="text-muted-foreground">
-            {filters.search || filters.city || filters.category || filters.gender
-              ? "Prova a modificare i filtri di ricerca"
-              : "I talent appariranno qui dopo aver completato l'onboarding"}
-          </p>
-        </div>
-      )}
+        {/* Right: Results */}
+        <TalentResultsList
+          talents={sortedTalents}
+          totalCount={totalCount || 0}
+          isLoading={isLoading}
+          filters={filters}
+          onFiltersChange={setFilters}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          onTalentClick={(talent) => {
+            setSelectedTalent(talent);
+            setDialogOpen(true);
+          }}
+          onExportCSV={exportCSV}
+        />
+      </div>
 
-      {/* Talent grid */}
-      {!isLoading && talents && talents.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {talents.map((talent) => (
-            <TalentCard
-              key={talent.id}
-              talent={talent}
-              onClick={() => {
-                setSelectedTalent(talent);
-                setDialogOpen(true);
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Talent detail modal */}
+      {/* Dialogs */}
       <TalentDetailDialog
         talent={selectedTalent}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
-
       <CreateTalentDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
