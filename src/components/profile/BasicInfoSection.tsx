@@ -148,7 +148,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Informazioni personali</CardTitle>
         {isEditing ? (

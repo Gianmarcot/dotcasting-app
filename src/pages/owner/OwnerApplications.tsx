@@ -51,7 +51,7 @@ export const OwnerApplications = () => {
       />
 
       {/* Applications list */}
-      <Card className="border-0 shadow-sm">
+      <Card className="">
         <CardContent className="p-0">
           {isLoading ? (
             <div className="divide-y divide-border">

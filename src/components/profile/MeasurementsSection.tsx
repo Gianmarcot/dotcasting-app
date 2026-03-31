@@ -130,7 +130,7 @@ export const MeasurementsSection = ({ externalProfileId }: MeasurementsSectionPr
   const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-lg">Misure e Aspetto</CardTitle>
         {isEditing ? (

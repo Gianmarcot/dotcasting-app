@@ -66,7 +66,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
   
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="">
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">

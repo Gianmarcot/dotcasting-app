@@ -123,7 +123,7 @@ export const AuthPage = () => {
           </Link>
         </div>
 
-        <Card className="border-0 shadow-lg">
+        <Card className="shadow-lg">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-semibold">
               {isLogin ? it.auth.loginTitle : it.auth.signupTitle}

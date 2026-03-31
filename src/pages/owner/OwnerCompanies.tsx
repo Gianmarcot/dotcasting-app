@@ -77,7 +77,7 @@ export const OwnerCompanies = () => {
       {/* Companies list */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {mockCompanies.map((company) => (
-          <Card key={company.id} className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+          <Card key={company.id} className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="p-5">
               <div className="space-y-3">
                 <div className="flex items-start justify-between">

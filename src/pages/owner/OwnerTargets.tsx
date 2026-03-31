@@ -56,7 +56,7 @@ export const OwnerTargets = () => {
       </div>
 
       {/* Casting Selector */}
-      <Card className="border-0 shadow-sm">
+      <Card className="">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="flex-1">
@@ -98,7 +98,7 @@ export const OwnerTargets = () => {
 
       {/* Targets List */}
       {!selectedCastingId ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="">
           <CardContent className="p-12 text-center">
             <FolderOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
@@ -109,7 +109,7 @@ export const OwnerTargets = () => {
       ) : targetsLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="border-0 shadow-sm">
+            <Card key={i} className="">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   <Skeleton className="h-10 w-10 rounded-lg" />
@@ -123,7 +123,7 @@ export const OwnerTargets = () => {
           ))}
         </div>
       ) : targets.length === 0 ? (
-        <Card className="border-0 shadow-sm">
+        <Card className="">
           <CardContent className="p-12 text-center">
             <Target className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">

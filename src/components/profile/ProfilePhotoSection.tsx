@@ -78,7 +78,7 @@ export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionPr
     : "";
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="">
       <CardContent className="p-6">
         <div className="flex flex-col items-center text-center gap-4">
           <div className="relative">

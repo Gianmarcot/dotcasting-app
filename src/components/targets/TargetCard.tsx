@@ -66,7 +66,7 @@ export const TargetCard = ({
 
   return (
     <>
-      <Card className="dc-card hover:shadow-md transition-shadow">
+      <Card className="hover:shadow-md transition-shadow">
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3 flex-1">

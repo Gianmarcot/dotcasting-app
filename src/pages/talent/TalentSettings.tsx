@@ -58,7 +58,7 @@ export const TalentSettings = () => {
       </div>
 
       {/* Account Info */}
-      <Card className="border-0 shadow-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -135,7 +135,7 @@ export const TalentSettings = () => {
       </Card>
 
       {/* Notifications */}
-      <Card className="border-0 shadow-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Bell className="h-5 w-5" />
@@ -189,7 +189,7 @@ export const TalentSettings = () => {
       </Card>
 
       {/* Privacy */}
-      <Card className="border-0 shadow-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Eye className="h-5 w-5" />
@@ -223,7 +223,7 @@ export const TalentSettings = () => {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-0 shadow-sm border-destructive/20">
+      <Card className="border border-destructive/20">
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2 text-destructive">
             <Trash2 className="h-5 w-5" />
