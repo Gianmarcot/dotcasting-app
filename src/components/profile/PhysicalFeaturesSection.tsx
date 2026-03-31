@@ -26,6 +26,9 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
     hasDiastema: false,
     hasPiercings: false,
     hasTattoos: false,
+    hasVitiligo: false,
+    hasAlbinism: false,
+    hasDwarfism: false,
   });
 
   useEffect(() => {
@@ -35,6 +38,9 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
         hasDiastema: attributes.has_diastema || false,
         hasPiercings: attributes.has_piercings || false,
         hasTattoos: attributes.has_tattoos || false,
+        hasVitiligo: attributes.has_vitiligo || false,
+        hasAlbinism: attributes.has_albinism || false,
+        hasDwarfism: attributes.has_dwarfism || false,
       });
     }
   }, [attributes]);
@@ -46,6 +52,9 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
         has_diastema: formData.hasDiastema,
         has_piercings: formData.hasPiercings,
         has_tattoos: formData.hasTattoos,
+        has_vitiligo: formData.hasVitiligo,
+        has_albinism: formData.hasAlbinism,
+        has_dwarfism: formData.hasDwarfism,
       };
       
       if (externalProfileId) {
@@ -54,7 +63,7 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
         await updateOwnAttributes.mutateAsync(attrs);
       }
       setIsEditing(false);
-      toast.success("Caratteristiche aggiornate!");
+      toast.success("Segni particolari aggiornati!");
     } catch (error) {
       toast.error("Errore durante il salvataggio");
     }
@@ -67,6 +76,9 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
         hasDiastema: attributes.has_diastema || false,
         hasPiercings: attributes.has_piercings || false,
         hasTattoos: attributes.has_tattoos || false,
+        hasVitiligo: attributes.has_vitiligo || false,
+        hasAlbinism: attributes.has_albinism || false,
+        hasDwarfism: attributes.has_dwarfism || false,
       });
     }
     setIsEditing(false);
@@ -75,16 +87,19 @@ export const PhysicalFeaturesSection = ({ externalProfileId }: PhysicalFeaturesS
   const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
 
   const features = [
+    { key: "hasVitiligo", label: "Vitiligine" },
     { key: "hasFreckles", label: "Lentiggini" },
-    { key: "hasDiastema", label: "Diastema (spazio tra i denti)" },
-    { key: "hasPiercings", label: "Piercing" },
+    { key: "hasDiastema", label: "Diastema" },
+    { key: "hasAlbinism", label: "Albinismo" },
+    { key: "hasDwarfism", label: "Nanismo" },
     { key: "hasTattoos", label: "Tatuaggi" },
+    { key: "hasPiercings", label: "Piercing" },
   ];
 
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">Caratteristiche Fisiche</CardTitle>
+        <CardTitle className="text-lg">Segni particolari</CardTitle>
         {isEditing ? (
           <div className="flex gap-2">
             <Button size="sm" variant="ghost" onClick={handleCancel}>

@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useTalentAttributes, useUpdateTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentAttributesByProfileId, useUpdateTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
 import { toast } from "sonner";
-import { ABILITIES } from "@/lib/profileOptions";
 
 interface AbilitiesSectionProps {
   externalProfileId?: string;
@@ -23,26 +22,46 @@ export const AbilitiesSection = ({ externalProfileId }: AbilitiesSectionProps) =
   const attributes = externalProfileId ? externalAttributes : ownAttributes;
   const [isEditing, setIsEditing] = useState(false);
 
-  const [selectedAbilities, setSelectedAbilities] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    abilityDance: false,
+    abilitySing: false,
+    abilityInstruments: false,
+    abilityInstrumentsDetail: "",
+    abilitySports: false,
+    abilitySportsDetail: "",
+    abilityBartender: false,
+    abilityOther: false,
+    abilityOtherDetail: "",
+  });
 
   useEffect(() => {
     if (attributes) {
-      setSelectedAbilities(attributes.abilities || []);
+      setFormData({
+        abilityDance: attributes.ability_dance || false,
+        abilitySing: attributes.ability_sing || false,
+        abilityInstruments: attributes.ability_instruments || false,
+        abilityInstrumentsDetail: attributes.ability_instruments_detail || "",
+        abilitySports: attributes.ability_sports || false,
+        abilitySportsDetail: attributes.ability_sports_detail || "",
+        abilityBartender: attributes.ability_bartender || false,
+        abilityOther: attributes.ability_other || false,
+        abilityOtherDetail: attributes.ability_other_detail || "",
+      });
     }
   }, [attributes]);
-
-  const handleAbilityToggle = (ability: string) => {
-    setSelectedAbilities(prev =>
-      prev.includes(ability)
-        ? prev.filter(a => a !== ability)
-        : [...prev, ability]
-    );
-  };
 
   const handleSave = async () => {
     try {
       const attrs = {
-        abilities: selectedAbilities.length > 0 ? selectedAbilities : null,
+        ability_dance: formData.abilityDance,
+        ability_sing: formData.abilitySing,
+        ability_instruments: formData.abilityInstruments,
+        ability_instruments_detail: formData.abilityInstruments ? formData.abilityInstrumentsDetail || null : null,
+        ability_sports: formData.abilitySports,
+        ability_sports_detail: formData.abilitySports ? formData.abilitySportsDetail || null : null,
+        ability_bartender: formData.abilityBartender,
+        ability_other: formData.abilityOther,
+        ability_other_detail: formData.abilityOther ? formData.abilityOtherDetail || null : null,
       };
       
       if (externalProfileId) {
@@ -59,17 +78,36 @@ export const AbilitiesSection = ({ externalProfileId }: AbilitiesSectionProps) =
 
   const handleCancel = () => {
     if (attributes) {
-      setSelectedAbilities(attributes.abilities || []);
+      setFormData({
+        abilityDance: attributes.ability_dance || false,
+        abilitySing: attributes.ability_sing || false,
+        abilityInstruments: attributes.ability_instruments || false,
+        abilityInstrumentsDetail: attributes.ability_instruments_detail || "",
+        abilitySports: attributes.ability_sports || false,
+        abilitySportsDetail: attributes.ability_sports_detail || "",
+        abilityBartender: attributes.ability_bartender || false,
+        abilityOther: attributes.ability_other || false,
+        abilityOtherDetail: attributes.ability_other_detail || "",
+      });
     }
     setIsEditing(false);
   };
 
   const isPending = externalProfileId ? updateExternalAttributes.isPending : updateOwnAttributes.isPending;
 
+  const abilities = [
+    { key: "abilityDance", label: "So ballare" },
+    { key: "abilitySing", label: "So cantare" },
+    { key: "abilityInstruments", label: "So suonare degli strumenti musicali", detailKey: "abilityInstrumentsDetail", detailLabel: "Quali strumenti musicali sai suonare?" },
+    { key: "abilitySports", label: "Pratico degli sport", detailKey: "abilitySportsDetail", detailLabel: "Quali sport pratichi?" },
+    { key: "abilityBartender", label: "Ho esperienza come bartender" },
+    { key: "abilityOther", label: "Altro", detailKey: "abilityOtherDetail", detailLabel: "Specifica" },
+  ];
+
   return (
     <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg">Abilità Speciali</CardTitle>
+        <CardTitle className="text-lg">Ulteriori abilità</CardTitle>
         {isEditing ? (
           <div className="flex gap-2">
             <Button size="sm" variant="ghost" onClick={handleCancel}>
@@ -90,34 +128,37 @@ export const AbilitiesSection = ({ externalProfileId }: AbilitiesSectionProps) =
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {isEditing ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-            {ABILITIES.map(ability => (
-              <div key={ability} className="flex items-center space-x-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {abilities.map(ability => (
+            <div key={ability.key} className="space-y-2">
+              <div className="flex items-center space-x-2">
                 <Checkbox
-                  id={ability}
-                  checked={selectedAbilities.includes(ability)}
-                  onCheckedChange={() => handleAbilityToggle(ability)}
+                  id={ability.key}
+                  checked={formData[ability.key as keyof typeof formData] as boolean}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, [ability.key]: checked as boolean })
+                  }
+                  disabled={!isEditing}
                 />
-                <Label htmlFor={ability} className="text-sm font-normal cursor-pointer">
-                  {ability}
+                <Label htmlFor={ability.key} className="text-sm font-normal cursor-pointer">
+                  {ability.label}
                 </Label>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {selectedAbilities.length > 0 ? (
-              selectedAbilities.map(ability => (
-                <Badge key={ability} variant="secondary">
-                  {ability}
-                </Badge>
-              ))
-            ) : (
-              <span className="text-sm text-muted-foreground">Nessuna abilità selezionata</span>
-            )}
-          </div>
-        )}
+              {ability.detailKey && formData[ability.key as keyof typeof formData] && (
+                <Textarea
+                  placeholder={ability.detailLabel}
+                  value={formData[ability.detailKey as keyof typeof formData] as string}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [ability.detailKey!]: e.target.value })
+                  }
+                  disabled={!isEditing}
+                  className="ml-6"
+                  rows={2}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

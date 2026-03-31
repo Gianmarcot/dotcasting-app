@@ -52,7 +52,19 @@ export const useUpdateTalentAttributes = () => {
        has_diastema?: boolean;
        has_piercings?: boolean;
        has_tattoos?: boolean;
+       has_vitiligo?: boolean;
+       has_albinism?: boolean;
+       has_dwarfism?: boolean;
        abilities?: string[] | null;
+       ability_dance?: boolean;
+       ability_sing?: boolean;
+       ability_instruments?: boolean;
+       ability_instruments_detail?: string | null;
+       ability_sports?: boolean;
+       ability_sports_detail?: string | null;
+       ability_bartender?: boolean;
+       ability_other?: boolean;
+       ability_other_detail?: string | null;
     }) => {
       if (!profile?.id) throw new Error("Profile not found");
 
