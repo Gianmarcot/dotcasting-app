@@ -54,7 +54,7 @@ export const TalentDashboard = () => {
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">
+        <h1 className="text-foreground">
           Ciao, {firstName}
         </h1>
         <p className="text-sm text-muted-foreground mt-1">

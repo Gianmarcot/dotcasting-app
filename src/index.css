@@ -155,12 +155,15 @@
     @apply tracking-tight;
   }
 
-  h1,
+  h1 {
+    font-weight: 500;
+    @apply text-2xl tracking-wide;
+  }
+
   h2,
   h3,
   h4 {
     font-weight: 500;
-    text-transform: uppercase;
     @apply tracking-wide;
   }
 }
