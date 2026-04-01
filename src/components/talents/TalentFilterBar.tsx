@@ -98,18 +98,20 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="space-y-2">
       {/* Search */}
-      <div className="relative">
+      <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Cerca per nome..."
-          className="pl-10 text-sm h-9 w-[200px]"
+          className="pl-10 text-sm h-9"
           value={filters.search || ""}
           onChange={(e) => set({ search: e.target.value })}
         />
       </div>
 
+      {/* Filter buttons */}
+      <div className="flex flex-wrap items-center gap-2">
       {/* Ruolo */}
       <FilterGroup label="Ruolo" count={groupCounts.role}>
         <div>
@@ -337,6 +339,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
           Reset
         </button>
       )}
+      </div>
     </div>
   );
 };
