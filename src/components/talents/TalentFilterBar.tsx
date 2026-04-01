@@ -339,6 +339,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
           Reset
         </button>
       )}
+      </div>
     </div>
   );
 };
