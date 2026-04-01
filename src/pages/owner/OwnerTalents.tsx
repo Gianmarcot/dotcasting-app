@@ -108,11 +108,10 @@ export const OwnerTalents = () => {
         </Button>
       </div>
 
-      <div className="flex gap-8">
-        {/* Left: Filters */}
-        <TalentFilterSidebar filters={filters} onFiltersChange={setFilters} />
+      {/* Filters bar */}
+      <TalentFilterBar filters={filters} onFiltersChange={setFilters} />
 
-        {/* Right: Results */}
+      <div className="mt-6">
         <div className="flex-1 min-w-0">
           {/* Top bar: count + sort */}
           <div className="flex items-center justify-between mb-4">
