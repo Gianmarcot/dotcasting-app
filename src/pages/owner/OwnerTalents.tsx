@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { it } from "@/lib/i18n";
 import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
-import { TalentFilterSidebar } from "@/components/talents/TalentFilterSidebar";
+import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentCard } from "@/components/talents/TalentCard";
 import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
