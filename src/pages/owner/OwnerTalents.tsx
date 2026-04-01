@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { it } from "@/lib/i18n";
 import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
-import { TalentFilterSidebar } from "@/components/talents/TalentFilterSidebar";
+import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentCard } from "@/components/talents/TalentCard";
 import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
@@ -108,11 +108,10 @@ export const OwnerTalents = () => {
         </Button>
       </div>
 
-      <div className="flex gap-8">
-        {/* Left: Filters */}
-        <TalentFilterSidebar filters={filters} onFiltersChange={setFilters} />
+      {/* Filters bar */}
+      <TalentFilterBar filters={filters} onFiltersChange={setFilters} />
 
-        {/* Right: Results */}
+      <div className="mt-6">
         <div className="flex-1 min-w-0">
           {/* Top bar: count + sort */}
           <div className="flex items-center justify-between mb-4">
@@ -151,7 +150,7 @@ export const OwnerTalents = () => {
 
           {/* Loading state */}
           {isLoading && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {[...Array(6)].map((_, i) => (
                 <Skeleton key={i} className="h-[140px] rounded-lg" />
               ))}
@@ -175,7 +174,7 @@ export const OwnerTalents = () => {
 
           {/* Talent grid */}
           {!isLoading && sortedTalents.length > 0 && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {sortedTalents.map((talent) => (
                 <TalentCard
                   key={talent.id}
