@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, Users, Film, MessageSquare, MoreHorizontal, FileText, Building2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { it } from "@/lib/i18n";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import {
   Drawer,
   DrawerClose,
@@ -18,11 +19,13 @@ const mainNavItems = [
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
 ];
 
-const moreNavItems = [
-  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
+const allMoreNavItems = [
+  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },
 ];
+
+const moreNavItems = allMoreNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[item.flag!]);
 
 export const MobileBottomNavOwner = () => {
   const location = useLocation();
