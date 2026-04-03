@@ -408,6 +408,7 @@ export type Database = {
         Row: {
           contacts_json: Json | null
           created_at: string
+          email: string | null
           id: string
           location: string | null
           name: string
@@ -416,11 +417,13 @@ export type Database = {
           tags: string[] | null
           type: string | null
           updated_at: string
+          vat_number: string | null
           website: string | null
         }
         Insert: {
           contacts_json?: Json | null
           created_at?: string
+          email?: string | null
           id?: string
           location?: string | null
           name: string
@@ -429,11 +432,13 @@ export type Database = {
           tags?: string[] | null
           type?: string | null
           updated_at?: string
+          vat_number?: string | null
           website?: string | null
         }
         Update: {
           contacts_json?: Json | null
           created_at?: string
+          email?: string | null
           id?: string
           location?: string | null
           name?: string
@@ -442,9 +447,42 @@ export type Database = {
           tags?: string[] | null
           type?: string | null
           updated_at?: string
+          vat_number?: string | null
           website?: string | null
         }
         Relationships: []
+      }
+      company_notes: {
+        Row: {
+          body: string
+          company_id: string
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+        }
+        Insert: {
+          body: string
+          company_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+        }
+        Update: {
+          body?: string
+          company_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_notes_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       media_ratings: {
         Row: {

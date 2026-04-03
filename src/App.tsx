@@ -36,6 +36,7 @@ import OwnerCastingRoleDetail from "./pages/owner/OwnerCastingRoleDetail";
 import OwnerApplications from "./pages/owner/OwnerApplications";
 import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
+import OwnerCompanyDetail from "./pages/owner/OwnerCompanyDetail";
 import OwnerSettings from "./pages/owner/OwnerSettings";
 
 const queryClient = new QueryClient();
@@ -98,6 +99,7 @@ const App = () => (
               <Route path="applications" element={<OwnerApplications />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
+              <Route path="companies/:companyId" element={<OwnerCompanyDetail />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
 

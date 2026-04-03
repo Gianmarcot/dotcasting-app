@@ -67,6 +67,7 @@ interface CastingFormDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CastingFormValues) => void;
   isSubmitting: boolean;
+  defaultCompanyId?: string;
 }
 
 export const CastingFormDialog = ({
@@ -75,6 +76,7 @@ export const CastingFormDialog = ({
   onOpenChange,
   onSubmit,
   isSubmitting,
+  defaultCompanyId,
 }: CastingFormDialogProps) => {
   const { data: companies } = useCompanies();
 
@@ -113,7 +115,7 @@ export const CastingFormDialog = ({
         title: "",
         description: "",
         category: "",
-        company_id: "",
+        company_id: defaultCompanyId || "",
         locations: "",
         start_date: "",
         end_date: "",
