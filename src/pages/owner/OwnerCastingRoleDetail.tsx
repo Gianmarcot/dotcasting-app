@@ -162,11 +162,11 @@ export const OwnerCastingRoleDetail = () => {
             <h1 className="text-2xl text-foreground">{role.name}</h1>
             {role.description && <p className="text-muted-foreground">{role.description}</p>}
             {specs.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {specs.map((s, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs font-normal">
+                  <span key={i} className="bg-muted text-foreground rounded-full px-3 py-1 text-sm">
                     {s.label}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             )}
@@ -214,11 +214,11 @@ export const OwnerCastingRoleDetail = () => {
                         <tr key={rt.id} className="border-b last:border-0">
                           <td className="p-3">
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-14 rounded-md">
+                              <Avatar className="h-10 w-10">
                                 {rt.profile?.profile_photo_url ? (
                                   <AvatarImage src={rt.profile.profile_photo_url} className="object-cover" />
                                 ) : null}
-                                <AvatarFallback className={`rounded-md text-xs font-medium ${initialColor}`}>
+                                <AvatarFallback className={`text-xs font-medium ${initialColor}`}>
                                   {initials}
                                 </AvatarFallback>
                               </Avatar>

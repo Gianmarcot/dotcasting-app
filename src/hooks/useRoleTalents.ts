@@ -7,15 +7,15 @@ export type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rej
 
 export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string }[] = [
   { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "invited", label: "Invitato", color: "bg-blue-100 text-blue-700" },
+  { value: "invited", label: "Invitato", color: "bg-muted text-foreground" },
   { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
   { value: "rejected", label: "Rifiutato", color: "bg-red-100 text-red-700" },
 ];
 
 export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
   { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "pending", label: "In attesa", color: "bg-amber-100 text-amber-700" },
-  { value: "proposed", label: "Proposto", color: "bg-purple-100 text-purple-700" },
+  { value: "pending", label: "In attesa", color: "bg-muted text-foreground" },
+  { value: "proposed", label: "Proposto", color: "bg-muted text-foreground" },
   { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
   { value: "rejected", label: "Scartato", color: "bg-red-100 text-red-700" },
 ];
