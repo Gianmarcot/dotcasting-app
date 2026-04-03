@@ -118,12 +118,12 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
             </div>
             
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuItem onClick={() => onEdit(casting)}>
                   <Edit className="h-4 w-4 mr-2" />
                   {it.common.edit}
