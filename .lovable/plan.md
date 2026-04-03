@@ -1,30 +1,23 @@
 
 
-## Uniformare colori etichette alla palette brand
+## Semplificare colori nelle select di stato e dropdown
 
 ### Problema
-Le etichette nella sezione "Confermati dall'azienda" e gli stati talent/azienda nel dettaglio ruolo usano colori Tailwind generici (`emerald-100`, `red-100`) invece della palette brand.
+Le voci nei dropdown di `TalentStatusSelect` e `CompanyStatusSelect` hanno badge colorati dentro le opzioni, creando sovrapposizione visiva con il colore del trigger. L'hover delle voci usa l'accent di default invece di un grigio chiaro neutro.
 
 ### Soluzione
 
-**1. `src/hooks/useRoleTalents.ts`** — status options:
+**1. `src/pages/owner/OwnerCastingRoleDetail.tsx`** (righe 368-406) — nei due componenti select:
 
-| Status | Attuale | Nuovo |
-|--------|---------|-------|
-| Confermato (talent) | `bg-emerald-100 text-emerald-700` | `bg-[#729128]/15 text-[#729128]` |
-| Rifiutato (talent) | `bg-red-100 text-red-700` | `bg-[#A30A2B]/15 text-[#A30A2B]` |
-| Confermato (azienda) | `bg-emerald-100 text-emerald-700` | `bg-[#729128]/15 text-[#729128]` |
-| Scartato (azienda) | `bg-red-100 text-red-700` | `bg-[#A30A2B]/15 text-[#A30A2B]` |
+- **Trigger**: mantiene il colore di sfondo semantico attuale (funziona come badge dello stato corrente)
+- **Dropdown items**: rimuovere il `<span>` colorato, mostrare solo il testo label senza colori
+- **Hover items**: aggiungere `focus:bg-[#333333]/5` (grigio chiaro dalla palette charcoal) tramite className su `SelectItem`
 
-**2. `src/pages/owner/OwnerCastingDetail.tsx`** — sezione confermati:
-
-- Riga 273 avatar fallback: `bg-emerald-100 text-emerald-700` → `bg-[#729128]/15 text-[#729128]`
-- Riga 284 badge ruolo: `bg-emerald-100 text-emerald-700` → `bg-[#729128]/15 text-[#729128]`
+**2. `src/hooks/useRoleTalents.ts`** — nessuna modifica, i colori servono ancora per il trigger
 
 ### File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/hooks/useRoleTalents.ts` | Colori confirmed/rejected allineati a palette brand |
-| `src/pages/owner/OwnerCastingDetail.tsx` | Avatar fallback e badge ruolo allineati |
+| `src/pages/owner/OwnerCastingRoleDetail.tsx` | Rimuovere span colorati dalle voci dropdown, aggiungere hover grigio chiaro |
 
