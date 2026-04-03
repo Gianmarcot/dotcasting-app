@@ -20,9 +20,9 @@ import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
 
 const statusColors: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-emerald-100 text-emerald-700",
-  closed: "bg-red-100 text-red-700",
+  draft: "bg-[#333333]/10 text-[#333333]",
+  active: "bg-[#729128]/15 text-[#729128]",
+  closed: "bg-[#A30A2B]/15 text-[#A30A2B]",
 };
 
 const statusLabels: Record<string, string> = {

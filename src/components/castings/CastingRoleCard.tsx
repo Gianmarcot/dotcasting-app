@@ -54,7 +54,7 @@ export const CastingRoleCard = ({ role, castingId, onEdit, confirmedCount = 0 }:
           <div className="flex-1 space-y-1.5">
             <div className="flex items-center gap-2">
               <h3 className="font-medium">{role.name}</h3>
-              <Badge className={isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
+              <Badge className={isCompleted ? "bg-[#333333]/10 text-[#333333]" : "bg-[#729128]/15 text-[#729128]"}>
                 {isCompleted ? "Completato" : "Attivo"}
               </Badge>
             </div>
