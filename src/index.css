@@ -406,7 +406,7 @@
   }
 
   .dc-badge-primary {
-    @apply dc-badge border-transparent bg-primary text-primary-foreground hover:bg-primary/80;
+    @apply dc-badge border-transparent bg-primary text-primary-foreground;
   }
 
   .dc-badge-secondary {
