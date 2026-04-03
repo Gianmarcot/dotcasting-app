@@ -1,20 +1,43 @@
 
 
-## Rimuovere hover state dai badge
+## Correzioni UX dettaglio ruolo casting
 
-### Problema
-I badge hanno `hover:bg-*/80` e `transition-colors` che li fanno sembrare interattivi come pulsanti, creando confusione.
+### 1. Specifiche del ruolo — tornare al formato precedente
 
-### Soluzione
+Attualmente le specifiche sono piccole `Badge variant="secondary"` compatte. Ripristinare il formato più leggibile usato prima: chip più grandi con sfondo muted, padding maggiore, testo leggermente più grande.
 
-**`src/index.css`** (riga 403-404): rimuovere `transition-colors` dalla classe base `dc-badge`
+**`src/pages/owner/OwnerCastingRoleDetail.tsx`** (righe 164-172): sostituire i badge compatti con chip più spaziosi usando classi `bg-muted text-foreground rounded-full px-3 py-1 text-sm` inline su `<span>`, senza usare il componente Badge.
 
-**`src/index.css`** (righe 408-417): rimuovere `hover:bg-primary/80`, `hover:bg-secondary/80`, `hover:bg-destructive/80` dalle classi `dc-badge-primary`, `dc-badge-secondary`, `dc-badge-destructive`
+### 2. Avatar circolari e pulsanti icon-only rotondi
 
-**`src/components/ui/badge.tsx`** (righe 11-13): rimuovere `hover:bg-primary/80`, `hover:bg-secondary/80`, `hover:bg-[#A30A2B]/80` dalle varianti `default`, `secondary`, `destructive`
+**Avatar** (riga 217): attualmente `h-10 w-14 rounded-md` — rettangolare. Cambiare in `h-10 w-10` (circolare, il rounded-full è già default dell'Avatar). Rimuovere `rounded-md` anche dal Fallback (riga 221).
+
+**Pulsanti icon-only** (righe 258, 274, 292, 305): attualmente `h-8 w-8` con il default `rounded-full` dei pulsanti del design system. Verificare che siano effettivamente rotondi — aggiungere esplicitamente `rounded-full` se serve.
+
+### 3. Ridurre i colori dei badge di stato
+
+Troppi colori diversi (blu, verde, rosso, ambra, viola) creano rumore visivo. Semplificare la palette:
+
+**`src/hooks/useRoleTalents.ts`** — aggiornare i colori:
+
+| Status | Attuale | Nuovo |
+|--------|---------|-------|
+| Talent: none | bg-muted | bg-muted (invariato) |
+| Talent: invited | bg-blue-100 text-blue-700 | bg-muted text-foreground |
+| Talent: confirmed | bg-emerald-100 text-emerald-700 | bg-emerald-100 text-emerald-700 (invariato) |
+| Talent: rejected | bg-red-100 text-red-700 | bg-red-100 text-red-700 (invariato) |
+| Company: none | bg-muted | bg-muted (invariato) |
+| Company: pending | bg-amber-100 text-amber-700 | bg-muted text-foreground |
+| Company: proposed | bg-purple-100 text-purple-700 | bg-muted text-foreground |
+| Company: confirmed | bg-emerald-100 text-emerald-700 | bg-emerald-100 text-emerald-700 (invariato) |
+| Company: rejected | bg-red-100 text-red-700 | bg-red-100 text-red-700 (invariato) |
+
+Solo 3 colori semantici: neutro (muted) per stati intermedi, verde per confermato, rosso per rifiutato/scartato.
+
+### File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/index.css` | Rimuovere `transition-colors` e tutti gli `hover:` dalle classi badge |
-| `src/components/ui/badge.tsx` | Rimuovere `hover:` dalle 3 varianti che lo hanno |
+| `src/pages/owner/OwnerCastingRoleDetail.tsx` | Chip specifiche più grandi, avatar circolare, pulsanti rotondi |
+| `src/hooks/useRoleTalents.ts` | Semplificare palette colori status |
 
