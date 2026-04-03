@@ -115,7 +115,7 @@ export const CastingFormDialog = ({
         title: "",
         description: "",
         category: "",
-        company_id: "",
+        company_id: defaultCompanyId || "",
         locations: "",
         start_date: "",
         end_date: "",

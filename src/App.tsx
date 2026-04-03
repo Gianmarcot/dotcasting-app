@@ -99,6 +99,7 @@ const App = () => (
               <Route path="applications" element={<OwnerApplications />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
+              <Route path="companies/:companyId" element={<OwnerCompanyDetail />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
 
