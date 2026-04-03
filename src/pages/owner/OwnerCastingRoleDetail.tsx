@@ -280,7 +280,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8"
+                                    className="h-9 w-9 p-2"
                                     onClick={() => navigate(`/owner/messages`)}
                                   >
                                     <MessageSquare className="h-4 w-4" />
