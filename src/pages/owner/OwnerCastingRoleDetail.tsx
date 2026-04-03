@@ -5,35 +5,37 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Plus, MoreVertical, Send, MessageSquare, Trash2, RotateCcw } from "lucide-react";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ArrowLeft, Plus, Send, RotateCcw, MessageSquare, Trash2 } from "lucide-react";
 import { useCastingRole } from "@/hooks/useCastingRoles";
 import {
   useRoleTalents,
-  useUpdateRoleTalentStatus,
+  useUpdateRoleTalentTalentStatus,
+  useUpdateRoleTalentCompanyStatus,
   useRemoveRoleTalent,
-  ROLE_TALENT_STATUSES,
-  TALENT_FLOW_STEPS,
-  type RoleTalentStatus,
+  TALENT_STATUS_OPTIONS,
+  COMPANY_STATUS_OPTIONS,
+  type TalentStatus,
+  type CompanyStatus,
   type RoleTalentWithProfile,
 } from "@/hooks/useRoleTalents";
 import { AddTalentToRoleDialog } from "@/components/castings/AddTalentToRoleDialog";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-
-const phaseLabels: Record<string, string> = {
-  talent_search: "Ricerca talent",
-  in_management: "In gestione",
-  completed: "Completato",
-};
-
-const PHASES = ["talent_search", "in_management", "completed"];
 
 function getAge(birthDate: string | null): number | null {
   if (!birthDate) return null;
@@ -45,34 +47,18 @@ function getAge(birthDate: string | null): number | null {
   return age;
 }
 
-function getStatusInfo(status: string) {
-  return ROLE_TALENT_STATUSES.find((s) => s.value === status) || ROLE_TALENT_STATUSES[0];
-}
-
-function getFlowProgress(status: string): number {
-  const idx = TALENT_FLOW_STEPS.indexOf(status as any);
-  if (idx === -1) return 0;
-  return ((idx + 1) / TALENT_FLOW_STEPS.length) * 100;
-}
-
-function getActions(status: RoleTalentStatus): { label: string; nextStatus: RoleTalentStatus; icon: typeof Send }[] {
-  switch (status) {
-    case "shortlisted":
-      return [{ label: "Invia invito", nextStatus: "invited", icon: Send }];
-    case "invited":
-      return [{ label: "Reinvia invito", nextStatus: "invited", icon: RotateCcw }];
-    case "confirmed_talent":
-      return [{ label: "Invia ad azienda", nextStatus: "sent_to_company", icon: Send }];
-    case "sent_to_company":
-      return [
-        { label: "Confermato dall'azienda", nextStatus: "confirmed_company", icon: Send },
-        { label: "Scartato dall'azienda", nextStatus: "rejected_company", icon: Trash2 },
-      ];
-    case "rejected_talent":
-      return [{ label: "Reinvita", nextStatus: "invited", icon: RotateCcw }];
-    default:
-      return [];
-  }
+function getInitialColor(name: string): string {
+  const colors = [
+    "bg-rose-200 text-rose-700",
+    "bg-sky-200 text-sky-700",
+    "bg-amber-200 text-amber-700",
+    "bg-emerald-200 text-emerald-700",
+    "bg-violet-200 text-violet-700",
+    "bg-teal-200 text-teal-700",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length];
 }
 
 export const OwnerCastingRoleDetail = () => {
@@ -82,16 +68,31 @@ export const OwnerCastingRoleDetail = () => {
 
   const { data: role, isLoading: roleLoading } = useCastingRole(roleId);
   const { data: talents = [], isLoading: talentsLoading } = useRoleTalents(roleId);
-  const updateStatus = useUpdateRoleTalentStatus();
+  const updateTalentStatus = useUpdateRoleTalentTalentStatus();
+  const updateCompanyStatus = useUpdateRoleTalentCompanyStatus();
   const removeTalent = useRemoveRoleTalent();
 
-  const handleStatusChange = async (rt: RoleTalentWithProfile, newStatus: RoleTalentStatus) => {
+  const handleTalentStatusChange = async (rt: RoleTalentWithProfile, newStatus: TalentStatus) => {
     try {
-      await updateStatus.mutateAsync({ id: rt.id, status: newStatus, roleId: roleId! });
+      await updateTalentStatus.mutateAsync({ id: rt.id, talentStatus: newStatus, roleId: roleId! });
       toast({ title: "Stato aggiornato" });
     } catch {
       toast({ title: "Errore", variant: "destructive" });
     }
+  };
+
+  const handleCompanyStatusChange = async (rt: RoleTalentWithProfile, newStatus: CompanyStatus) => {
+    try {
+      await updateCompanyStatus.mutateAsync({ id: rt.id, companyStatus: newStatus, roleId: roleId! });
+      toast({ title: "Stato aggiornato" });
+    } catch {
+      toast({ title: "Errore", variant: "destructive" });
+    }
+  };
+
+  const handleSendInvite = async (rt: RoleTalentWithProfile) => {
+    await handleTalentStatusChange(rt, "invited");
+    toast({ title: "Invito inviato" });
   };
 
   const handleRemove = async (rt: RoleTalentWithProfile) => {
@@ -103,7 +104,16 @@ export const OwnerCastingRoleDetail = () => {
     }
   };
 
-  const confirmedTalents = talents.filter((t) => t.status === "confirmed_company");
+  // Summary counts
+  const talentStatusCounts = TALENT_STATUS_OPTIONS.reduce((acc, s) => {
+    acc[s.value] = talents.filter((t) => (t as any).talent_status === s.value).length;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const companyStatusCounts = COMPANY_STATUS_OPTIONS.reduce((acc, s) => {
+    acc[s.value] = talents.filter((t) => (t as any).company_status === s.value).length;
+    return acc;
+  }, {} as Record<string, number>);
 
   if (roleLoading) {
     return (
@@ -122,89 +132,52 @@ export const OwnerCastingRoleDetail = () => {
     );
   }
 
-  const currentPhaseIdx = PHASES.indexOf(role.phase || "talent_search");
+  // Specs as pills
+  const specs = [
+    role.gender && { label: role.gender === "M" ? "Maschile" : role.gender === "F" ? "Femminile" : role.gender },
+    (role.age_min || role.age_max) && { label: `${role.age_min || "?"}-${role.age_max || "?"} anni` },
+    role.budget && { label: `€${role.budget}` },
+    role.location && { label: role.location },
+  ].filter(Boolean) as { label: string }[];
+
+  // Add required_skills as pills
+  if (role.required_skills && role.required_skills.length > 0) {
+    for (const skill of role.required_skills) {
+      specs.push({ label: skill });
+    }
+  }
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      {/* Back */}
-      <Button variant="ghost" size="sm" onClick={() => navigate(`/owner/castings/${castingId}`)} className="-ml-2">
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Torna al casting
-      </Button>
+    <TooltipProvider>
+      <div className="space-y-6 animate-fade-up">
+        {/* Back */}
+        <Button variant="ghost" size="sm" onClick={() => navigate(`/owner/castings/${castingId}`)} className="-ml-2">
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Torna al casting
+        </Button>
 
-      {/* Role Header */}
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl text-foreground">{role.name}</h1>
-          {role.description && <p className="text-muted-foreground">{role.description}</p>}
-        </div>
-      </div>
-
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {role.gender && (
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Sesso</p>
-            <p className="font-medium text-sm">{role.gender}</p>
-          </CardContent></Card>
-        )}
-        {(role.age_min || role.age_max) && (
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Età</p>
-            <p className="font-medium text-sm">
-              {role.age_min && role.age_max ? `${role.age_min}-${role.age_max}` : role.age_min || role.age_max}
-            </p>
-          </CardContent></Card>
-        )}
-        {role.budget && (
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Budget</p>
-            <p className="font-medium text-sm">€{role.budget}</p>
-          </CardContent></Card>
-        )}
-        {role.location && (
-          <Card><CardContent className="p-3 text-center">
-            <p className="text-xs text-muted-foreground">Luogo</p>
-            <p className="font-medium text-sm">{role.location}</p>
-          </CardContent></Card>
-        )}
-      </div>
-
-      {/* Phase stepper — 3 phases */}
-      <div className="flex items-center gap-0">
-        {PHASES.map((phase, idx) => (
-          <div key={phase} className="flex items-center flex-1">
-            <div className="flex flex-col items-center flex-1">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium ${
-                  idx <= currentPhaseIdx
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {idx + 1}
+        {/* Role Header */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl text-foreground">{role.name}</h1>
+            {role.description && <p className="text-muted-foreground">{role.description}</p>}
+            {specs.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {specs.map((s, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs font-normal">
+                    {s.label}
+                  </Badge>
+                ))}
               </div>
-              <span className="text-[10px] mt-1 text-muted-foreground text-center">
-                {phaseLabels[phase]}
-              </span>
-            </div>
-            {idx < PHASES.length - 1 && (
-              <div className={`h-0.5 flex-1 -mt-4 ${idx < currentPhaseIdx ? "bg-primary" : "bg-muted"}`} />
             )}
           </div>
-        ))}
-      </div>
-
-      {/* Talent Table */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">Talent ({talents.length})</h2>
           <Button size="sm" onClick={() => setAddTalentOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Aggiungi talent
           </Button>
         </div>
 
+        {/* Talent Table */}
         {talentsLoading ? (
           <Skeleton className="h-48 w-full" />
         ) : talents.length === 0 ? (
@@ -222,28 +195,31 @@ export const OwnerCastingRoleDetail = () => {
                   <thead>
                     <tr className="border-b">
                       <th className="text-left p-3 font-medium text-muted-foreground">Talent</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Stato</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Progressione</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">Con il talent</th>
+                      <th className="text-left p-3 font-medium text-muted-foreground">Con l'azienda</th>
                       <th className="text-right p-3 font-medium text-muted-foreground">Azioni</th>
                     </tr>
                   </thead>
                   <tbody>
                     {talents.map((rt) => {
-                      const statusInfo = getStatusInfo(rt.status);
-                      const actions = getActions(rt.status as RoleTalentStatus);
                       const age = getAge(rt.profile?.birth_date ?? null);
-                      const canRemove = ["shortlisted", "invited", "confirmed_talent", "rejected_talent"].includes(rt.status);
+                      const talentSt = (rt as any).talent_status as TalentStatus || "none";
+                      const companySt = (rt as any).company_status as CompanyStatus || "none";
+                      const initials = `${rt.profile?.first_name?.[0] || ""}${rt.profile?.last_name?.[0] || ""}`;
+                      const initialColor = getInitialColor(initials);
+                      const showSendInvite = talentSt === "none" || talentSt === "rejected";
+                      const showResendInvite = talentSt === "invited";
 
                       return (
-                        <tr key={rt.id} className="border-b last:border-0 hover:bg-muted/30">
+                        <tr key={rt.id} className="border-b last:border-0">
                           <td className="p-3">
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-9 w-9">
-                                {rt.profile?.profile_photo_url && (
-                                  <AvatarImage src={rt.profile.profile_photo_url} />
-                                )}
-                                <AvatarFallback className="text-xs">
-                                  {rt.profile?.first_name?.[0]}{rt.profile?.last_name?.[0]}
+                              <Avatar className="h-10 w-14 rounded-md">
+                                {rt.profile?.profile_photo_url ? (
+                                  <AvatarImage src={rt.profile.profile_photo_url} className="object-cover" />
+                                ) : null}
+                                <AvatarFallback className={`rounded-md text-xs font-medium ${initialColor}`}>
+                                  {initials}
                                 </AvatarFallback>
                               </Avatar>
                               <div>
@@ -252,58 +228,90 @@ export const OwnerCastingRoleDetail = () => {
                                 </p>
                                 <p className="text-xs text-muted-foreground">
                                   {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
+                                  {" · "}
+                                  <span className="text-muted-foreground/60">
+                                    {format(new Date(rt.created_at), "d MMM", { locale: itLocale })}
+                                  </span>
                                 </p>
                               </div>
                             </div>
                           </td>
                           <td className="p-3">
-                            <div className="space-y-1">
-                              <Badge className={statusInfo.color}>{statusInfo.label}</Badge>
-                              <p className="text-[10px] text-muted-foreground">
-                                {format(new Date(rt.status_changed_at), "d MMM HH:mm", { locale: itLocale })}
-                              </p>
-                            </div>
+                            <TalentStatusSelect
+                              value={talentSt}
+                              onChange={(v) => handleTalentStatusChange(rt, v)}
+                            />
                           </td>
                           <td className="p-3">
-                            <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-primary rounded-full transition-all"
-                                style={{ width: `${getFlowProgress(rt.status)}%` }}
-                              />
-                            </div>
+                            <CompanyStatusSelect
+                              value={companySt}
+                              onChange={(v) => handleCompanyStatusChange(rt, v)}
+                            />
                           </td>
-                          <td className="p-3 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                {actions.map((a) => (
-                                  <DropdownMenuItem
-                                    key={a.nextStatus + a.label}
-                                    onClick={() => handleStatusChange(rt, a.nextStatus)}
+                          <td className="p-3">
+                            <div className="flex items-center justify-end gap-1">
+                              {/* Primary action */}
+                              {showSendInvite && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="icon"
+                                      className="h-8 w-8 bg-primary hover:bg-primary/90"
+                                      onClick={() => handleSendInvite(rt)}
+                                    >
+                                      <Send className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Invia invito</TooltipContent>
+                                </Tooltip>
+                              )}
+                              {showResendInvite && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="icon"
+                                      className="h-8 w-8 bg-primary hover:bg-primary/90"
+                                      onClick={() => handleSendInvite(rt)}
+                                    >
+                                      <RotateCcw className="h-4 w-4" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Reinvia invito</TooltipContent>
+                                </Tooltip>
+                              )}
+
+                              {(showSendInvite || showResendInvite) && (
+                                <Separator orientation="vertical" className="h-6 mx-1" />
+                              )}
+
+                              {/* Secondary actions */}
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8"
+                                    onClick={() => navigate(`/owner/messages`)}
                                   >
-                                    <a.icon className="h-4 w-4 mr-2" />
-                                    {a.label}
-                                  </DropdownMenuItem>
-                                ))}
-                                <DropdownMenuItem onClick={() => navigate(`/owner/messages`)}>
-                                  <MessageSquare className="h-4 w-4 mr-2" />
-                                  Messaggio
-                                </DropdownMenuItem>
-                                {canRemove && (
-                                  <DropdownMenuItem
+                                    <MessageSquare className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Messaggio</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-destructive hover:text-destructive"
                                     onClick={() => handleRemove(rt)}
-                                    className="text-destructive focus:text-destructive"
                                   >
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Rimuovi
-                                  </DropdownMenuItem>
-                                )}
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Rimuovi</TooltipContent>
+                              </Tooltip>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -311,51 +319,90 @@ export const OwnerCastingRoleDetail = () => {
                   </tbody>
                 </table>
               </div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
 
-      {/* Definitive List */}
-      {confirmedTalents.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-medium">Lista definitiva ({confirmedTalents.length})</h2>
-          <Card>
-            <CardContent className="p-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                {confirmedTalents.map((rt) => (
-                  <div key={rt.id} className="flex items-center gap-3 p-2 rounded-lg bg-emerald-50">
-                    <Avatar className="h-10 w-10">
-                      {rt.profile?.profile_photo_url && (
-                        <AvatarImage src={rt.profile.profile_photo_url} />
-                      )}
-                      <AvatarFallback>
-                        {rt.profile?.first_name?.[0]}{rt.profile?.last_name?.[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium text-sm">
-                        {rt.profile?.first_name} {rt.profile?.last_name}
-                      </p>
-                      <Badge className="bg-emerald-100 text-emerald-700 text-[10px]">{role.name}</Badge>
-                    </div>
+              {/* Summary row */}
+              <div className="border-t px-3 py-3 flex flex-wrap gap-6 text-xs text-muted-foreground">
+                <div className="space-y-1">
+                  <p className="font-medium text-foreground text-xs">Con il talent</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {TALENT_STATUS_OPTIONS.map((s) => (
+                      talentStatusCounts[s.value] > 0 && (
+                        <Badge key={s.value} className={`${s.color} text-[10px]`}>
+                          {s.label} {talentStatusCounts[s.value]}
+                        </Badge>
+                      )
+                    ))}
                   </div>
-                ))}
+                </div>
+                <div className="space-y-1">
+                  <p className="font-medium text-foreground text-xs">Con l'azienda</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {COMPANY_STATUS_OPTIONS.map((s) => (
+                      companyStatusCounts[s.value] > 0 && (
+                        <Badge key={s.value} className={`${s.color} text-[10px]`}>
+                          {s.label} {companyStatusCounts[s.value]}
+                        </Badge>
+                      )
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </div>
-      )}
+        )}
 
-      <AddTalentToRoleDialog
-        open={addTalentOpen}
-        onOpenChange={setAddTalentOpen}
-        roleId={roleId!}
-        castingRoleId={roleId!}
-        existingProfileIds={talents.map((t) => t.profile_id)}
-      />
-    </div>
+        <AddTalentToRoleDialog
+          open={addTalentOpen}
+          onOpenChange={setAddTalentOpen}
+          roleId={roleId!}
+          castingRoleId={roleId!}
+          existingProfileIds={talents.map((t) => t.profile_id)}
+        />
+      </div>
+    </TooltipProvider>
   );
 };
+
+// --- Styled status selects ---
+
+function TalentStatusSelect({ value, onChange }: { value: TalentStatus; onChange: (v: TalentStatus) => void }) {
+  const current = TALENT_STATUS_OPTIONS.find((s) => s.value === value) || TALENT_STATUS_OPTIONS[0];
+  return (
+    <Select value={value} onValueChange={(v) => onChange(v as TalentStatus)}>
+      <SelectTrigger className={`h-7 w-[120px] border-0 text-xs font-semibold rounded-full px-2.5 ${current.color}`}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {TALENT_STATUS_OPTIONS.map((s) => (
+          <SelectItem key={s.value} value={s.value}>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${s.color}`}>
+              {s.label}
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function CompanyStatusSelect({ value, onChange }: { value: CompanyStatus; onChange: (v: CompanyStatus) => void }) {
+  const current = COMPANY_STATUS_OPTIONS.find((s) => s.value === value) || COMPANY_STATUS_OPTIONS[0];
+  return (
+    <Select value={value} onValueChange={(v) => onChange(v as CompanyStatus)}>
+      <SelectTrigger className={`h-7 w-[120px] border-0 text-xs font-semibold rounded-full px-2.5 ${current.color}`}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {COMPANY_STATUS_OPTIONS.map((s) => (
+          <SelectItem key={s.value} value={s.value}>
+            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${s.color}`}>
+              {s.label}
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
 
 export default OwnerCastingRoleDetail;

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Users, Edit, Trash2, MoreVertical } from "lucide-react";
+import { ChevronRight, Users, CheckCircle2, Edit, Trash2, MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,30 +15,18 @@ import { useDeleteCastingRole } from "@/hooks/useCastingRoles";
 import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
-const phaseColors: Record<string, string> = {
-  talent_search: "bg-blue-100 text-blue-700",
-  in_management: "bg-amber-100 text-amber-700",
-  completed: "bg-emerald-100 text-emerald-700",
-};
-
-const phaseLabels: Record<string, string> = {
-  talent_search: "Ricerca talent",
-  in_management: "In gestione",
-  completed: "Completato",
-};
-
-const PHASES = ["talent_search", "in_management", "completed"];
-
 interface CastingRoleCardProps {
   role: CastingRole;
   castingId: string;
   onEdit: (role: Tables<"casting_roles">) => void;
+  confirmedCount?: number;
 }
 
-export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProps) => {
+export const CastingRoleCard = ({ role, castingId, onEdit, confirmedCount = 0 }: CastingRoleCardProps) => {
   const navigate = useNavigate();
   const deleteMutation = useDeleteCastingRole();
-  const currentPhaseIdx = PHASES.indexOf(role.phase || "talent_search");
+
+  const isCompleted = confirmedCount > 0;
 
   const handleDelete = async () => {
     try {
@@ -53,6 +41,7 @@ export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProp
     role.gender,
     role.age_min && role.age_max ? `${role.age_min}-${role.age_max} anni` : null,
     role.budget ? `€${role.budget}` : null,
+    role.location,
   ].filter(Boolean);
 
   return (
@@ -65,34 +54,28 @@ export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProp
           <div className="flex-1 space-y-1.5">
             <div className="flex items-center gap-2">
               <h3 className="font-medium">{role.name}</h3>
-              <Badge className={phaseColors[role.phase || "talent_search"] || "bg-blue-100 text-blue-700"}>
-                {phaseLabels[role.phase || "talent_search"] || "Ricerca talent"}
+              <Badge className={isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-blue-700"}>
+                {isCompleted ? "Completato" : "Attivo"}
               </Badge>
             </div>
 
             {specs.length > 0 && (
               <p className="text-sm text-muted-foreground">{specs.join(" · ")}</p>
             )}
-
-            {/* Phase dots — 3 phases */}
-            <div className="flex items-center gap-1">
-              {PHASES.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`w-2 h-2 rounded-full ${
-                    idx <= currentPhaseIdx ? "bg-primary" : "bg-muted"
-                  }`}
-                />
-              ))}
-            </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="flex items-center gap-1 text-muted-foreground">
+            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
                 <Users className="h-4 w-4" />
                 <span className="font-medium text-foreground">{role.role_talents_count ?? 0}</span>
-              </div>
+              </span>
+              {confirmedCount > 0 && (
+                <span className="flex items-center gap-1 text-emerald-600">
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="font-medium">{confirmedCount}</span>
+                </span>
+              )}
             </div>
 
             <DropdownMenu>

@@ -2,34 +2,27 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type RoleTalentStatus =
-  | "shortlisted"
-  | "invited"
-  | "confirmed_talent"
-  | "sent_to_company"
-  | "confirmed_company"
-  | "rejected_company"
-  | "rejected_talent";
+export type TalentStatus = "none" | "invited" | "confirmed" | "rejected";
+export type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
 
-export const ROLE_TALENT_STATUSES: { value: RoleTalentStatus; label: string; color: string }[] = [
-  { value: "shortlisted", label: "In shortlist", color: "bg-muted text-muted-foreground" },
-  { value: "invited", label: "Invito inviato", color: "bg-blue-100 text-blue-700" },
-  { value: "confirmed_talent", label: "Confermato dal talent", color: "bg-amber-100 text-amber-700" },
-  { value: "sent_to_company", label: "Inviato all'azienda", color: "bg-purple-100 text-purple-700" },
-  { value: "confirmed_company", label: "Confermato dall'azienda", color: "bg-emerald-100 text-emerald-700" },
-  { value: "rejected_company", label: "Scartato dall'azienda", color: "bg-red-100 text-red-700" },
-  { value: "rejected_talent", label: "Rifiutato dal talent", color: "bg-orange-100 text-orange-700" },
+export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string }[] = [
+  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
+  { value: "invited", label: "Invitato", color: "bg-blue-100 text-blue-700" },
+  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
+  { value: "rejected", label: "Rifiutato", color: "bg-red-100 text-red-700" },
 ];
 
-export const TALENT_FLOW_STEPS = [
-  "shortlisted",
-  "invited",
-  "confirmed_talent",
-  "sent_to_company",
-  "confirmed_company",
-] as const;
+export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
+  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
+  { value: "pending", label: "In attesa", color: "bg-amber-100 text-amber-700" },
+  { value: "proposed", label: "Proposto", color: "bg-purple-100 text-purple-700" },
+  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
+  { value: "rejected", label: "Scartato", color: "bg-red-100 text-red-700" },
+];
 
 export type RoleTalentWithProfile = Tables<"role_talents"> & {
+  talent_status: TalentStatus;
+  company_status: CompanyStatus;
   profile: {
     id: string;
     first_name: string | null;
@@ -75,6 +68,8 @@ export const useAddRoleTalent = () => {
           profile_id: profileId,
           added_by_user_id: user?.id,
           status: "shortlisted",
+          talent_status: "none",
+          company_status: "none",
         })
         .select()
         .single();
@@ -88,13 +83,33 @@ export const useAddRoleTalent = () => {
   });
 };
 
-export const useUpdateRoleTalentStatus = () => {
+export const useUpdateRoleTalentTalentStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status, roleId }: { id: string; status: RoleTalentStatus; roleId: string }) => {
+    mutationFn: async ({ id, talentStatus, roleId }: { id: string; talentStatus: TalentStatus; roleId: string }) => {
       const { data, error } = await supabase
         .from("role_talents")
-        .update({ status, status_changed_at: new Date().toISOString() })
+        .update({ talent_status: talentStatus, status_changed_at: new Date().toISOString() } as any)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return { ...data, roleId };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["role-talents", data.roleId] });
+      queryClient.invalidateQueries({ queryKey: ["casting-roles"] });
+    },
+  });
+};
+
+export const useUpdateRoleTalentCompanyStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, companyStatus, roleId }: { id: string; companyStatus: CompanyStatus; roleId: string }) => {
+      const { data, error } = await supabase
+        .from("role_talents")
+        .update({ company_status: companyStatus, status_changed_at: new Date().toISOString() } as any)
         .eq("id", id)
         .select()
         .single();
