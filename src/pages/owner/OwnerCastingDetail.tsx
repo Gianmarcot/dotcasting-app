@@ -270,7 +270,7 @@ export const OwnerCastingDetail = () => {
                 <div key={rt.id} className="flex items-center gap-3 p-4 rounded-xl bg-white border">
                   <Avatar className="h-11 w-11">
                     {rt.profile?.profile_photo_url && <AvatarImage src={rt.profile.profile_photo_url} />}
-                    <AvatarFallback className="text-xs bg-emerald-100 text-emerald-700">
+                    <AvatarFallback className="text-xs bg-[#729128]/15 text-[#729128]">
                       {rt.profile?.first_name?.[0]}{rt.profile?.last_name?.[0]}
                     </AvatarFallback>
                   </Avatar>
