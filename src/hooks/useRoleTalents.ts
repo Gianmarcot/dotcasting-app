@@ -5,19 +5,19 @@ import type { Tables } from "@/integrations/supabase/types";
 export type TalentStatus = "none" | "invited" | "confirmed" | "rejected";
 export type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
 
-export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string }[] = [
-  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "invited", label: "Invitato", color: "bg-muted text-foreground" },
-  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
-  { value: "rejected", label: "Rifiutato", color: "bg-red-100 text-red-700" },
+export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string; dot: string }[] = [
+  { value: "none", label: "—", color: "bg-muted text-muted-foreground", dot: "bg-gray-400" },
+  { value: "invited", label: "Invitato", color: "bg-muted text-foreground", dot: "bg-gray-400" },
+  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
+  { value: "rejected", label: "Rifiutato", color: "bg-red-100 text-red-700", dot: "bg-red-500" },
 ];
 
-export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
-  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "pending", label: "In attesa", color: "bg-muted text-foreground" },
-  { value: "proposed", label: "Proposto", color: "bg-muted text-foreground" },
-  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
-  { value: "rejected", label: "Scartato", color: "bg-red-100 text-red-700" },
+export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string; dot: string }[] = [
+  { value: "none", label: "—", color: "bg-muted text-muted-foreground", dot: "bg-gray-400" },
+  { value: "pending", label: "In attesa", color: "bg-muted text-foreground", dot: "bg-gray-400" },
+  { value: "proposed", label: "Proposto", color: "bg-muted text-foreground", dot: "bg-gray-400" },
+  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700", dot: "bg-emerald-500" },
+  { value: "rejected", label: "Scartato", color: "bg-red-100 text-red-700", dot: "bg-red-500" },
 ];
 
 export type RoleTalentWithProfile = Tables<"role_talents"> & {
