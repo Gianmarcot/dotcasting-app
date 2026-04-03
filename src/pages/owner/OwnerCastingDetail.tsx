@@ -267,7 +267,7 @@ export const OwnerCastingDetail = () => {
             {confirmedWithRole.map((rt) => {
               const age = getAge(rt.profile?.birth_date ?? null);
               return (
-                <div key={rt.id} className="flex items-center gap-3 p-3 rounded-xl bg-white border">
+                <div key={rt.id} className="flex items-center gap-3 p-4 rounded-xl bg-white border">
                   <Avatar className="h-11 w-11">
                     {rt.profile?.profile_photo_url && <AvatarImage src={rt.profile.profile_photo_url} />}
                     <AvatarFallback className="text-xs bg-emerald-100 text-emerald-700">
@@ -278,10 +278,10 @@ export const OwnerCastingDetail = () => {
                     <p className="font-medium text-sm truncate">
                       {rt.profile?.first_name} {rt.profile?.last_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
                     </p>
-                    <Badge className="mt-1 bg-emerald-100 text-emerald-700 text-[10px]">{rt.roleName}</Badge>
+                    <Badge className="mt-1 bg-emerald-100 text-emerald-700 text-xs">{rt.roleName}</Badge>
                   </div>
                 </div>
               );

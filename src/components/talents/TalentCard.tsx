@@ -78,7 +78,7 @@ export const TalentCard = ({ talent, onClick }: TalentCardProps) => {
                 {talent.attributes.skills.slice(0, 4).map((skill) => (
                   <span
                     key={skill}
-                    className="text-xs bg-muted px-2 py-0.5 rounded"
+                    className="text-xs bg-muted px-2.5 py-1 rounded"
                   >
                     {skill}
                   </span>

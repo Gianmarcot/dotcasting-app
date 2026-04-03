@@ -389,13 +389,13 @@ function CompanyStatusSelect({ value, onChange }: { value: CompanyStatus; onChan
   const current = COMPANY_STATUS_OPTIONS.find((s) => s.value === value) || COMPANY_STATUS_OPTIONS[0];
   return (
     <Select value={value} onValueChange={(v) => onChange(v as CompanyStatus)}>
-      <SelectTrigger className={`h-7 w-[120px] border-0 text-xs font-semibold rounded-full px-2.5 ${current.color}`}>
+      <SelectTrigger className={`h-8 w-[130px] border-0 text-sm font-semibold rounded-full px-3 ${current.color}`}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {COMPANY_STATUS_OPTIONS.map((s) => (
           <SelectItem key={s.value} value={s.value}>
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${s.color}`}>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${s.color}`}>
               {s.label}
             </span>
           </SelectItem>
