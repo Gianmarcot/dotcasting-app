@@ -204,7 +204,7 @@ export const OwnerCastingRoleDetail = () => {
                         <tr key={rt.id} className="border-b last:border-0">
                           <td className="p-4">
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-10 w-10">
+                              <Avatar className="h-12 w-12">
                                 {rt.profile?.profile_photo_url ? (
                                   <AvatarImage src={rt.profile.profile_photo_url} className="object-cover" />
                                 ) : null}
