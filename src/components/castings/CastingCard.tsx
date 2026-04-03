@@ -29,6 +29,7 @@ interface CastingCardProps {
 }
 
 export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: CastingCardProps) => {
+  const navigate = useNavigate();
   const applicationsCount = casting.applications?.[0]?.count ?? 0;
 
   const formatDates = () => {
