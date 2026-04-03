@@ -26,7 +26,6 @@ import { AddTalentToRoleDialog } from "@/components/castings/AddTalentToRoleDial
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { useNavigate as useNav } from "react-router-dom";
 
 const phaseLabels: Record<string, string> = {
   draft: "Bozza",
