@@ -114,7 +114,10 @@ export const AddTalentToRoleDialog = ({
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as ProfileWithAttributes[];
+      return (data || []).map((d: any) => ({
+        ...d,
+        talent_attributes: Array.isArray(d.talent_attributes) ? d.talent_attributes : d.talent_attributes ? [d.talent_attributes] : [],
+      })) as ProfileWithAttributes[];
     },
   });
 
