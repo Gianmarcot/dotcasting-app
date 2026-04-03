@@ -68,7 +68,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
   
 
   return (
-    <Card>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/owner/castings/${casting.id}`)}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
