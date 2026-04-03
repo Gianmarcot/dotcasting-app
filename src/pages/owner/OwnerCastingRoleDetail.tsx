@@ -194,10 +194,10 @@ export const OwnerCastingRoleDetail = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-3 font-medium text-muted-foreground">Talent</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Con il talent</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Con l'azienda</th>
-                      <th className="text-right p-3 font-medium text-muted-foreground">Azioni</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Talent</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Con il talent</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Con l'azienda</th>
+                      <th className="text-right p-4 font-medium text-muted-foreground">Azioni</th>
                     </tr>
                   </thead>
                   <tbody>
