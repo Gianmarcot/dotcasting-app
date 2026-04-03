@@ -36,6 +36,7 @@ import OwnerCastingRoleDetail from "./pages/owner/OwnerCastingRoleDetail";
 import OwnerApplications from "./pages/owner/OwnerApplications";
 import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
+import OwnerCompanyDetail from "./pages/owner/OwnerCompanyDetail";
 import OwnerSettings from "./pages/owner/OwnerSettings";
 
 const queryClient = new QueryClient();
