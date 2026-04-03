@@ -31,7 +31,8 @@ import OwnerDashboard from "./pages/owner/OwnerDashboard";
 import OwnerTalentEdit from "./pages/owner/OwnerTalentEdit";
 import OwnerTalents from "./pages/owner/OwnerTalents";
 import OwnerCastings from "./pages/owner/OwnerCastings";
-import OwnerTargets from "./pages/owner/OwnerTargets";
+import OwnerCastingDetail from "./pages/owner/OwnerCastingDetail";
+import OwnerCastingRoleDetail from "./pages/owner/OwnerCastingRoleDetail";
 import OwnerApplications from "./pages/owner/OwnerApplications";
 import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
@@ -92,7 +93,8 @@ const App = () => (
               <Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
               <Route path="talents/:profileId/view" element={<TalentPublicProfile />} />
               <Route path="castings" element={<OwnerCastings />} />
-              <Route path="targets" element={<OwnerTargets />} />
+              <Route path="castings/:castingId" element={<OwnerCastingDetail />} />
+              <Route path="castings/:castingId/:roleId" element={<OwnerCastingRoleDetail />} />
               <Route path="applications" element={<OwnerApplications />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />

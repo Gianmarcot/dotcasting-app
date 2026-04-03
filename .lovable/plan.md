@@ -1,49 +1,82 @@
 
+## Ristrutturazione Castings — Piano di implementazione
 
-## Filtri talent sopra ai risultati (layout orizzontale)
+### 1. Migrazione Database
 
-### Problema
-I filtri occupano una colonna laterale fissa da 300px che sottrae spazio ai risultati e non funziona bene su schermi medi. Ci sono 6 gruppi accordion con molti campi, troppi per una barra orizzontale piatta.
+Nuova tabella `role_talents` per gestire il flusso individuale di ogni talent per ruolo:
 
-### Soluzione: Popover per gruppo filtro
+| Campo | Tipo | Note |
+|-------|------|------|
+| id | uuid | PK |
+| casting_role_id | uuid | FK → casting_roles |
+| profile_id | uuid | FK → profiles |
+| status | text | shortlisted, invited, confirmed_talent, sent_to_company, confirmed_company, rejected_company, rejected_talent |
+| status_changed_at | timestamptz | timestamp ultimo cambio stato |
+| added_by_user_id | uuid | chi ha aggiunto il talent |
+| notes | text | note libere |
+| created_at, updated_at | timestamptz | |
 
-Sostituire la sidebar con una **barra orizzontale sopra ai risultati**. Ogni gruppo di filtri diventa un **pulsante** che apre un **Popover** con i campi del gruppo. La barra contiene: campo ricerca a sinistra, poi i 6 pulsanti gruppo (Ruolo, Anagrafica, Aspetto, Misure, Competenze, Lavoro), ciascuno con badge contatore se ha filtri attivi. Reset link a destra.
+Aggiunta colonna `phase` alla tabella `casting_roles`:
+- `phase` text DEFAULT 'draft' (draft, talent_search, in_management, completed)
 
-```text
-┌──────────────────────────────────────────────────────────────────┐
-│ [🔍 Cerca...]  [Ruolo ▾] [Anagrafica ▾] [Aspetto ▾] ...  Reset │
-├──────────────────────────────────────────────────────────────────┤
-│ 42 talent trovati su 150          Ordinamento: [Più recenti ▾]  │
-│ [Ruolo: Attore ×] [Città: Milano ×]                             │
-├──────────────────────────────────────────────────────────────────┤
-│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐               │
-│ │ Card    │ │ Card    │ │ Card    │ │ Card    │               │
-│ └─────────┘ └─────────┘ └─────────┘ └─────────┘               │
-│ ...griglia a 3 colonne (più spazio senza sidebar)...            │
-└──────────────────────────────────────────────────────────────────┘
+Aggiunta colonne extra a `casting_roles`:
+- `gender` text
+- `age_min` int
+- `age_max` int
+- `budget` numeric
+- `location` text
+- `required_skills` text[]
+- `notes` text
+
+RLS: owner/admin full access.
+
+### 2. Routing (App.tsx)
+
+```
+/owner/castings                    → lista casting
+/owner/castings/:castingId         → dettaglio casting (lista ruoli)
+/owner/castings/:castingId/:roleId → dettaglio ruolo (gestione talent)
 ```
 
-### Dettaglio tecnico
+Rimuovere la route `/owner/targets`.
 
-#### 1. `src/components/talents/TalentFilterSidebar.tsx` → Rinominare in `TalentFilterBar.tsx`
-- Riscrivere completamente il componente
-- Layout orizzontale: `flex flex-wrap items-center gap-2`
-- Campo ricerca inline (w-[200px])
-- 6 pulsanti `<Popover>` (uno per gruppo), ciascuno apre un pannello con gli stessi campi attuali
-- Ogni pulsante mostra il nome del gruppo + badge con contatore filtri attivi
-- Link "Reset" a destra
+### 3. Navigazione
 
-#### 2. `src/pages/owner/OwnerTalents.tsx`
-- Rimuovere layout `flex gap-8` a due colonne
-- Sostituire con layout verticale: filtri sopra, risultati sotto
-- Importare `TalentFilterBar` al posto di `TalentFilterSidebar`
-- Griglia risultati: `grid-cols-1 md:grid-cols-2 xl:grid-cols-3` (3 colonne possibili senza sidebar)
+Rimuovere "Target" dalla sidebar e dal mobile nav. La voce "Castings" copre tutto.
 
-### File da modificare
+### 4. Componenti nuovi
+
+| Componente | Scopo |
+|-----------|-------|
+| `OwnerCastingDetail.tsx` | Pagina dettaglio casting con lista ruoli |
+| `OwnerCastingRoleDetail.tsx` | Pagina dettaglio ruolo con tabella talent |
+| `CastingRoleCard.tsx` | Card per ogni ruolo nella lista |
+| `RoleTalentTable.tsx` | Tabella talent con stato, progressione, azioni |
+| `AddRoleDialog.tsx` | Form creazione/modifica ruolo |
+| `AddTalentToRoleDialog.tsx` | Modale per aggiungere talent dal database |
+| `RoleDefinitiveList.tsx` | Sezione talent confermati dall'azienda |
+
+### 5. Hooks nuovi
+
+| Hook | Scopo |
+|------|-------|
+| `useCastingRoles.ts` | CRUD ruoli con fase e specifiche |
+| `useRoleTalents.ts` | CRUD talent per ruolo con cambio stato |
+
+### 6. File da modificare
 
 | File | Modifica |
 |------|----------|
-| `src/components/talents/TalentFilterBar.tsx` | Nuovo file, filtri orizzontali con Popover per gruppo |
-| `src/pages/owner/OwnerTalents.tsx` | Layout verticale, import nuovo componente, griglia a 3 colonne |
-| `src/components/talents/TalentFilterSidebar.tsx` | Eliminare (o lasciare se usato altrove) |
+| `App.tsx` | Aggiungere route nested, rimuovere /owner/targets |
+| `OwnerSidebar.tsx` | Rimuovere voce Target |
+| `MobileBottomNavOwner.tsx` | Rimuovere Target dal menu "Altro" |
+| `OwnerCastings.tsx` | Mantiene lista, link al dettaglio |
+| `CastingCard.tsx` | Aggiungere click per navigare al dettaglio |
 
+### 7. Ordine di esecuzione
+
+1. Migrazione DB (role_talents + colonne casting_roles)
+2. Hooks (useCastingRoles, useRoleTalents)
+3. Componenti UI (da CastingRoleCard in su)
+4. Pagine (OwnerCastingDetail, OwnerCastingRoleDetail)
+5. Routing e navigazione

@@ -238,30 +238,54 @@ export type Database = {
       }
       casting_roles: {
         Row: {
+          age_max: number | null
+          age_min: number | null
+          budget: number | null
           casting_id: string
           created_at: string
           description: string | null
+          gender: string | null
           id: string
+          location: string | null
           materials_required: string[] | null
           name: string
+          notes: string | null
+          phase: string
+          required_skills: string[] | null
           requirements_text: string | null
         }
         Insert: {
+          age_max?: number | null
+          age_min?: number | null
+          budget?: number | null
           casting_id: string
           created_at?: string
           description?: string | null
+          gender?: string | null
           id?: string
+          location?: string | null
           materials_required?: string[] | null
           name: string
+          notes?: string | null
+          phase?: string
+          required_skills?: string[] | null
           requirements_text?: string | null
         }
         Update: {
+          age_max?: number | null
+          age_min?: number | null
+          budget?: number | null
           casting_id?: string
           created_at?: string
           description?: string | null
+          gender?: string | null
           id?: string
+          location?: string | null
           materials_required?: string[] | null
           name?: string
+          notes?: string | null
+          phase?: string
+          required_skills?: string[] | null
           requirements_text?: string | null
         }
         Relationships: [
@@ -736,6 +760,57 @@ export type Database = {
           work_cities?: string[] | null
         }
         Relationships: []
+      }
+      role_talents: {
+        Row: {
+          added_by_user_id: string | null
+          casting_role_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          profile_id: string
+          status: string
+          status_changed_at: string
+          updated_at: string
+        }
+        Insert: {
+          added_by_user_id?: string | null
+          casting_role_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          profile_id: string
+          status?: string
+          status_changed_at?: string
+          updated_at?: string
+        }
+        Update: {
+          added_by_user_id?: string | null
+          casting_role_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          profile_id?: string
+          status?: string
+          status_changed_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_talents_casting_role_id_fkey"
+            columns: ["casting_role_id"]
+            isOneToOne: false
+            referencedRelation: "casting_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_talents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_castings: {
         Row: {

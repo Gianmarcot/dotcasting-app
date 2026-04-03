@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Film, MessageSquare, MoreHorizontal, Target, FileText, Building2, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Film, MessageSquare, MoreHorizontal, FileText, Building2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { it } from "@/lib/i18n";
 import {
@@ -19,7 +19,6 @@ const mainNavItems = [
 ];
 
 const moreNavItems = [
-  { icon: Target, label: it.backoffice.targets, href: "/owner/targets" },
   { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },

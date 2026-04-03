@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,7 @@ interface CastingCardProps {
 }
 
 export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: CastingCardProps) => {
+  const navigate = useNavigate();
   const applicationsCount = casting.applications?.[0]?.count ?? 0;
 
   const formatDates = () => {
@@ -66,7 +68,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
   
 
   return (
-    <Card>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/owner/castings/${casting.id}`)}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
@@ -116,12 +118,12 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
             </div>
             
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenuItem onClick={() => onEdit(casting)}>
                   <Edit className="h-4 w-4 mr-2" />
                   {it.common.edit}
