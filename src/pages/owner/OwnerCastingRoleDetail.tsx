@@ -374,10 +374,8 @@ function TalentStatusSelect({ value, onChange }: { value: TalentStatus; onChange
       </SelectTrigger>
       <SelectContent>
         {TALENT_STATUS_OPTIONS.map((s) => (
-          <SelectItem key={s.value} value={s.value}>
-            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${s.color}`}>
-              {s.label}
-            </span>
+          <SelectItem key={s.value} value={s.value} className="focus:bg-[#333333]/5 cursor-pointer">
+            {s.label}
           </SelectItem>
         ))}
       </SelectContent>
