@@ -76,6 +76,7 @@ export const CastingFormDialog = ({
   onOpenChange,
   onSubmit,
   isSubmitting,
+  defaultCompanyId,
 }: CastingFormDialogProps) => {
   const { data: companies } = useCompanies();
 
