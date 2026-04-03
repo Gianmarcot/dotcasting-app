@@ -246,7 +246,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="icon"
-                                      className="h-8 w-8 bg-primary hover:bg-primary/90"
+                                      className="h-9 w-9 p-2 bg-primary hover:bg-primary/90"
                                       onClick={() => handleSendInvite(rt)}
                                     >
                                       <Send className="h-4 w-4" />
@@ -260,7 +260,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="icon"
-                                      className="h-8 w-8 bg-primary hover:bg-primary/90"
+                                      className="h-9 w-9 p-2 bg-primary hover:bg-primary/90"
                                       onClick={() => handleSendInvite(rt)}
                                     >
                                       <RotateCcw className="h-4 w-4" />
@@ -280,7 +280,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8"
+                                    className="h-9 w-9 p-2"
                                     onClick={() => navigate(`/owner/messages`)}
                                   >
                                     <MessageSquare className="h-4 w-4" />
@@ -293,7 +293,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-destructive hover:text-destructive"
+                                    className="h-9 w-9 p-2 text-destructive hover:text-destructive"
                                     onClick={() => handleRemove(rt)}
                                   >
                                     <Trash2 className="h-4 w-4" />
