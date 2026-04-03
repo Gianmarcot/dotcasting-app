@@ -1,23 +1,19 @@
 
 
-## Semplificare colori nelle select di stato e dropdown
+## Testo scuro nel dropdown anche in hover
 
 ### Problema
-Le voci nei dropdown di `TalentStatusSelect` e `CompanyStatusSelect` hanno badge colorati dentro le opzioni, creando sovrapposizione visiva con il colore del trigger. L'hover delle voci usa l'accent di default invece di un grigio chiaro neutro.
+Le voci del dropdown status hanno testo chiaro su sfondo chiaro in hover, risultando illeggibili. Il `focus:text-accent-foreground` di default del `SelectItem` sovrascrive il colore del testo.
 
 ### Soluzione
 
-**1. `src/pages/owner/OwnerCastingRoleDetail.tsx`** (righe 368-406) — nei due componenti select:
+**`src/pages/owner/OwnerCastingRoleDetail.tsx`** — aggiungere `focus:text-[#333333]` alle className dei `SelectItem` in entrambi i componenti `TalentStatusSelect` e `CompanyStatusSelect`:
 
-- **Trigger**: mantiene il colore di sfondo semantico attuale (funziona come badge dello stato corrente)
-- **Dropdown items**: rimuovere il `<span>` colorato, mostrare solo il testo label senza colori
-- **Hover items**: aggiungere `focus:bg-[#333333]/5` (grigio chiaro dalla palette charcoal) tramite className su `SelectItem`
-
-**2. `src/hooks/useRoleTalents.ts`** — nessuna modifica, i colori servono ancora per il trigger
-
-### File da modificare
+```
+className="focus:bg-[#333333]/5 focus:text-[#333333] cursor-pointer"
+```
 
 | File | Modifica |
 |------|----------|
-| `src/pages/owner/OwnerCastingRoleDetail.tsx` | Rimuovere span colorati dalle voci dropdown, aggiungere hover grigio chiaro |
+| `src/pages/owner/OwnerCastingRoleDetail.tsx` | Aggiungere `focus:text-[#333333]` ai SelectItem (righe 339 e 357) |
 
