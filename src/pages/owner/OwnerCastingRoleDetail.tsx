@@ -22,6 +22,7 @@ import {
   type RoleTalentStatus,
   type RoleTalentWithProfile,
 } from "@/hooks/useRoleTalents";
+import { AddTalentToRoleDialog } from "@/components/castings/AddTalentToRoleDialog";
 import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
