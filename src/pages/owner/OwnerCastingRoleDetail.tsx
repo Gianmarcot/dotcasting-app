@@ -319,34 +319,6 @@ export const OwnerCastingRoleDetail = () => {
                   </tbody>
                 </table>
               </div>
-
-              {/* Summary row */}
-              <div className="border-t px-4 py-4 flex flex-wrap gap-6 text-sm text-muted-foreground">
-                <div className="space-y-1.5">
-                  <p className="font-medium text-foreground text-sm">Con il talent</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {TALENT_STATUS_OPTIONS.map((s) => (
-                      talentStatusCounts[s.value] > 0 && (
-                        <Badge key={s.value} className={`${s.color} text-xs`}>
-                          {s.label} {talentStatusCounts[s.value]}
-                        </Badge>
-                      )
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <p className="font-medium text-foreground text-sm">Con l'azienda</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {COMPANY_STATUS_OPTIONS.map((s) => (
-                      companyStatusCounts[s.value] > 0 && (
-                        <Badge key={s.value} className={`${s.color} text-xs`}>
-                          {s.label} {companyStatusCounts[s.value]}
-                        </Badge>
-                      )
-                    ))}
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         )}
