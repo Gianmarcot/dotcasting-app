@@ -260,7 +260,7 @@ export const OwnerCastingRoleDetail = () => {
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="icon"
-                                      className="h-8 w-8 bg-primary hover:bg-primary/90"
+                                      className="h-9 w-9 p-2 bg-primary hover:bg-primary/90"
                                       onClick={() => handleSendInvite(rt)}
                                     >
                                       <RotateCcw className="h-4 w-4" />
