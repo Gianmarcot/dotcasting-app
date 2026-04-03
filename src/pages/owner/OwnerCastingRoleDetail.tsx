@@ -104,16 +104,6 @@ export const OwnerCastingRoleDetail = () => {
     }
   };
 
-  // Summary counts
-  const talentStatusCounts = TALENT_STATUS_OPTIONS.reduce((acc, s) => {
-    acc[s.value] = talents.filter((t) => (t as any).talent_status === s.value).length;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const companyStatusCounts = COMPANY_STATUS_OPTIONS.reduce((acc, s) => {
-    acc[s.value] = talents.filter((t) => (t as any).company_status === s.value).length;
-    return acc;
-  }, {} as Record<string, number>);
 
   if (roleLoading) {
     return (
