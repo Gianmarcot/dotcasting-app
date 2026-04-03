@@ -19,7 +19,6 @@ const mainNavItems = [
 ];
 
 const moreNavItems = [
-  { icon: Target, label: it.backoffice.targets, href: "/owner/targets" },
   { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },

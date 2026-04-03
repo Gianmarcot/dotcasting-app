@@ -20,7 +20,6 @@ const navItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
   { icon: Users, label: it.backoffice.talentDatabase, href: "/owner/talents" },
   { icon: Film, label: it.backoffice.castings, href: "/owner/castings" },
-  { icon: Target, label: it.backoffice.targets, href: "/owner/targets" },
   { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },

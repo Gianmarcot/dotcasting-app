@@ -93,7 +93,8 @@ const App = () => (
               <Route path="talents/:profileId/edit" element={<OwnerTalentEdit />} />
               <Route path="talents/:profileId/view" element={<TalentPublicProfile />} />
               <Route path="castings" element={<OwnerCastings />} />
-              <Route path="targets" element={<OwnerTargets />} />
+              <Route path="castings/:castingId" element={<OwnerCastingDetail />} />
+              <Route path="castings/:castingId/:roleId" element={<OwnerCastingRoleDetail />} />
               <Route path="applications" element={<OwnerApplications />} />
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
