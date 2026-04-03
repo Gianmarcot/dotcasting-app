@@ -12,19 +12,22 @@ import {
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
+import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import logoWhite from "@/assets/logo-white.png";
 
-const navItems = [
+const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
   { icon: Users, label: it.backoffice.talentDatabase, href: "/owner/talents" },
   { icon: Film, label: it.backoffice.castings, href: "/owner/castings" },
-  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications" },
+  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },
 ];
+
+const navItems = allNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[item.flag!]);
 
 export const OwnerSidebar = () => {
   const location = useLocation();
