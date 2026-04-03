@@ -8,8 +8,8 @@ export type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rej
 export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string }[] = [
   { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
   { value: "invited", label: "Invitato", color: "bg-muted text-foreground" },
-  { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
-  { value: "rejected", label: "Rifiutato", color: "bg-red-100 text-red-700" },
+  { value: "confirmed", label: "Confermato", color: "bg-[#729128]/15 text-[#729128]" },
+  { value: "rejected", label: "Rifiutato", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
 ];
 
 export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
