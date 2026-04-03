@@ -67,6 +67,7 @@ interface CastingFormDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CastingFormValues) => void;
   isSubmitting: boolean;
+  defaultCompanyId?: string;
 }
 
 export const CastingFormDialog = ({
