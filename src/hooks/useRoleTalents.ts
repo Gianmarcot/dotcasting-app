@@ -14,8 +14,8 @@ export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color:
 
 export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
   { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "pending", label: "In attesa", color: "bg-amber-100 text-amber-700" },
-  { value: "proposed", label: "Proposto", color: "bg-purple-100 text-purple-700" },
+  { value: "pending", label: "In attesa", color: "bg-muted text-foreground" },
+  { value: "proposed", label: "Proposto", color: "bg-muted text-foreground" },
   { value: "confirmed", label: "Confermato", color: "bg-emerald-100 text-emerald-700" },
   { value: "rejected", label: "Scartato", color: "bg-red-100 text-red-700" },
 ];
