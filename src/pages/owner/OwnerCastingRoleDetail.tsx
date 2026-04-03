@@ -212,7 +212,7 @@ export const OwnerCastingRoleDetail = () => {
 
                       return (
                         <tr key={rt.id} className="border-b last:border-0">
-                          <td className="p-3">
+                          <td className="p-4">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
                                 {rt.profile?.profile_photo_url ? (
@@ -226,7 +226,7 @@ export const OwnerCastingRoleDetail = () => {
                                 <p className="font-medium">
                                   {rt.profile?.first_name} {rt.profile?.last_name}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-sm text-muted-foreground">
                                   {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
                                   {" · "}
                                   <span className="text-muted-foreground/60">
@@ -236,19 +236,19 @@ export const OwnerCastingRoleDetail = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <TalentStatusSelect
                               value={talentSt}
                               onChange={(v) => handleTalentStatusChange(rt, v)}
                             />
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <CompanyStatusSelect
                               value={companySt}
                               onChange={(v) => handleCompanyStatusChange(rt, v)}
                             />
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <div className="flex items-center justify-end gap-1">
                               {/* Primary action */}
                               {showSendInvite && (
