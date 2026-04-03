@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Plus, MoreVertical, Send, MessageSquare, Trash2, RotateCcw, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, MoreVertical, Send, MessageSquare, Trash2, RotateCcw } from "lucide-react";
 import { useCastingRole } from "@/hooks/useCastingRoles";
 import {
   useRoleTalents,
@@ -28,13 +28,12 @@ import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 
 const phaseLabels: Record<string, string> = {
-  draft: "Bozza",
   talent_search: "Ricerca talent",
   in_management: "In gestione",
   completed: "Completato",
 };
 
-const PHASES = ["draft", "talent_search", "in_management", "completed"];
+const PHASES = ["talent_search", "in_management", "completed"];
 
 function getAge(birthDate: string | null): number | null {
   if (!birthDate) return null;
@@ -123,7 +122,7 @@ export const OwnerCastingRoleDetail = () => {
     );
   }
 
-  const currentPhaseIdx = PHASES.indexOf(role.phase || "draft");
+  const currentPhaseIdx = PHASES.indexOf(role.phase || "talent_search");
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -171,7 +170,7 @@ export const OwnerCastingRoleDetail = () => {
         )}
       </div>
 
-      {/* Phase stepper */}
+      {/* Phase stepper — 3 phases */}
       <div className="flex items-center gap-0">
         {PHASES.map((phase, idx) => (
           <div key={phase} className="flex items-center flex-1">
@@ -352,6 +351,7 @@ export const OwnerCastingRoleDetail = () => {
         open={addTalentOpen}
         onOpenChange={setAddTalentOpen}
         roleId={roleId!}
+        castingRoleId={roleId!}
         existingProfileIds={talents.map((t) => t.profile_id)}
       />
     </div>

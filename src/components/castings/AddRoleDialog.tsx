@@ -82,6 +82,7 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
       location: location || null,
       required_skills: requiredSkills ? requiredSkills.split(",").map((s) => s.trim()).filter(Boolean) : [],
       notes: notes || null,
+      phase: "talent_search" as const,
     };
 
     try {

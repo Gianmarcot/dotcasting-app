@@ -16,20 +16,18 @@ import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 
 const phaseColors: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
   talent_search: "bg-blue-100 text-blue-700",
   in_management: "bg-amber-100 text-amber-700",
   completed: "bg-emerald-100 text-emerald-700",
 };
 
 const phaseLabels: Record<string, string> = {
-  draft: "Bozza",
   talent_search: "Ricerca talent",
   in_management: "In gestione",
   completed: "Completato",
 };
 
-const PHASES = ["draft", "talent_search", "in_management", "completed"];
+const PHASES = ["talent_search", "in_management", "completed"];
 
 interface CastingRoleCardProps {
   role: CastingRole;
@@ -40,7 +38,7 @@ interface CastingRoleCardProps {
 export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProps) => {
   const navigate = useNavigate();
   const deleteMutation = useDeleteCastingRole();
-  const currentPhaseIdx = PHASES.indexOf(role.phase || "draft");
+  const currentPhaseIdx = PHASES.indexOf(role.phase || "talent_search");
 
   const handleDelete = async () => {
     try {
@@ -67,8 +65,8 @@ export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProp
           <div className="flex-1 space-y-1.5">
             <div className="flex items-center gap-2">
               <h3 className="font-medium">{role.name}</h3>
-              <Badge className={phaseColors[role.phase || "draft"]}>
-                {phaseLabels[role.phase || "draft"]}
+              <Badge className={phaseColors[role.phase || "talent_search"] || "bg-blue-100 text-blue-700"}>
+                {phaseLabels[role.phase || "talent_search"] || "Ricerca talent"}
               </Badge>
             </div>
 
@@ -76,7 +74,7 @@ export const CastingRoleCard = ({ role, castingId, onEdit }: CastingRoleCardProp
               <p className="text-sm text-muted-foreground">{specs.join(" · ")}</p>
             )}
 
-            {/* Phase dots */}
+            {/* Phase dots — 3 phases */}
             <div className="flex items-center gap-1">
               {PHASES.map((_, idx) => (
                 <div
