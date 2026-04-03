@@ -162,11 +162,11 @@ export const OwnerCastingRoleDetail = () => {
             <h1 className="text-2xl text-foreground">{role.name}</h1>
             {role.description && <p className="text-muted-foreground">{role.description}</p>}
             {specs.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {specs.map((s, i) => (
-                  <Badge key={i} variant="secondary" className="text-xs font-normal">
+                  <span key={i} className="bg-muted text-foreground rounded-full px-3 py-1 text-sm">
                     {s.label}
-                  </Badge>
+                  </span>
                 ))}
               </div>
             )}
