@@ -194,10 +194,10 @@ export const OwnerCastingRoleDetail = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left p-3 font-medium text-muted-foreground">Talent</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Con il talent</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">Con l'azienda</th>
-                      <th className="text-right p-3 font-medium text-muted-foreground">Azioni</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Talent</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Con il talent</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground">Con l'azienda</th>
+                      <th className="text-right p-4 font-medium text-muted-foreground">Azioni</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -212,7 +212,7 @@ export const OwnerCastingRoleDetail = () => {
 
                       return (
                         <tr key={rt.id} className="border-b last:border-0">
-                          <td className="p-3">
+                          <td className="p-4">
                             <div className="flex items-center gap-3">
                               <Avatar className="h-10 w-10">
                                 {rt.profile?.profile_photo_url ? (
@@ -226,7 +226,7 @@ export const OwnerCastingRoleDetail = () => {
                                 <p className="font-medium">
                                   {rt.profile?.first_name} {rt.profile?.last_name}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-sm text-muted-foreground">
                                   {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
                                   {" · "}
                                   <span className="text-muted-foreground/60">
@@ -236,19 +236,19 @@ export const OwnerCastingRoleDetail = () => {
                               </div>
                             </div>
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <TalentStatusSelect
                               value={talentSt}
                               onChange={(v) => handleTalentStatusChange(rt, v)}
                             />
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <CompanyStatusSelect
                               value={companySt}
                               onChange={(v) => handleCompanyStatusChange(rt, v)}
                             />
                           </td>
-                          <td className="p-3">
+                          <td className="p-4">
                             <div className="flex items-center justify-end gap-1">
                               {/* Primary action */}
                               {showSendInvite && (
@@ -321,25 +321,25 @@ export const OwnerCastingRoleDetail = () => {
               </div>
 
               {/* Summary row */}
-              <div className="border-t px-3 py-3 flex flex-wrap gap-6 text-xs text-muted-foreground">
-                <div className="space-y-1">
-                  <p className="font-medium text-foreground text-xs">Con il talent</p>
+              <div className="border-t px-4 py-4 flex flex-wrap gap-6 text-sm text-muted-foreground">
+                <div className="space-y-1.5">
+                  <p className="font-medium text-foreground text-sm">Con il talent</p>
                   <div className="flex flex-wrap gap-1.5">
                     {TALENT_STATUS_OPTIONS.map((s) => (
                       talentStatusCounts[s.value] > 0 && (
-                        <Badge key={s.value} className={`${s.color} text-[10px]`}>
+                        <Badge key={s.value} className={`${s.color} text-xs`}>
                           {s.label} {talentStatusCounts[s.value]}
                         </Badge>
                       )
                     ))}
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <p className="font-medium text-foreground text-xs">Con l'azienda</p>
+                <div className="space-y-1.5">
+                  <p className="font-medium text-foreground text-sm">Con l'azienda</p>
                   <div className="flex flex-wrap gap-1.5">
                     {COMPANY_STATUS_OPTIONS.map((s) => (
                       companyStatusCounts[s.value] > 0 && (
-                        <Badge key={s.value} className={`${s.color} text-[10px]`}>
+                        <Badge key={s.value} className={`${s.color} text-xs`}>
                           {s.label} {companyStatusCounts[s.value]}
                         </Badge>
                       )
@@ -369,13 +369,13 @@ function TalentStatusSelect({ value, onChange }: { value: TalentStatus; onChange
   const current = TALENT_STATUS_OPTIONS.find((s) => s.value === value) || TALENT_STATUS_OPTIONS[0];
   return (
     <Select value={value} onValueChange={(v) => onChange(v as TalentStatus)}>
-      <SelectTrigger className={`h-7 w-[120px] border-0 text-xs font-semibold rounded-full px-2.5 ${current.color}`}>
+      <SelectTrigger className={`h-8 w-[130px] border-0 text-sm font-semibold rounded-full px-3 ${current.color}`}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {TALENT_STATUS_OPTIONS.map((s) => (
           <SelectItem key={s.value} value={s.value}>
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${s.color}`}>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${s.color}`}>
               {s.label}
             </span>
           </SelectItem>
@@ -389,13 +389,13 @@ function CompanyStatusSelect({ value, onChange }: { value: CompanyStatus; onChan
   const current = COMPANY_STATUS_OPTIONS.find((s) => s.value === value) || COMPANY_STATUS_OPTIONS[0];
   return (
     <Select value={value} onValueChange={(v) => onChange(v as CompanyStatus)}>
-      <SelectTrigger className={`h-7 w-[120px] border-0 text-xs font-semibold rounded-full px-2.5 ${current.color}`}>
+      <SelectTrigger className={`h-8 w-[130px] border-0 text-sm font-semibold rounded-full px-3 ${current.color}`}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
         {COMPANY_STATUS_OPTIONS.map((s) => (
           <SelectItem key={s.value} value={s.value}>
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${s.color}`}>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-sm font-semibold ${s.color}`}>
               {s.label}
             </span>
           </SelectItem>

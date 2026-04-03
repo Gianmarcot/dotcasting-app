@@ -49,7 +49,7 @@ export const CastingRoleCard = ({ role, castingId, onEdit, confirmedCount = 0 }:
       className="cursor-pointer hover:shadow-md transition-shadow"
       onClick={() => navigate(`/owner/castings/${castingId}/${role.id}`)}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex-1 space-y-1.5">
             <div className="flex items-center gap-2">
