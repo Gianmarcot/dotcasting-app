@@ -270,7 +270,7 @@ export const OwnerCastingDetail = () => {
                 <div key={rt.id} className="flex items-center gap-3 p-4 rounded-xl bg-white border">
                   <Avatar className="h-11 w-11">
                     {rt.profile?.profile_photo_url && <AvatarImage src={rt.profile.profile_photo_url} />}
-                    <AvatarFallback className="text-xs bg-emerald-100 text-emerald-700">
+                    <AvatarFallback className="text-xs bg-[#729128]/15 text-[#729128]">
                       {rt.profile?.first_name?.[0]}{rt.profile?.last_name?.[0]}
                     </AvatarFallback>
                   </Avatar>
@@ -281,7 +281,7 @@ export const OwnerCastingDetail = () => {
                     <p className="text-sm text-muted-foreground">
                       {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
                     </p>
-                    <Badge className="mt-1 bg-emerald-100 text-emerald-700 text-xs">{rt.roleName}</Badge>
+                    <Badge className="mt-1 bg-[#729128]/15 text-[#729128] text-xs">{rt.roleName}</Badge>
                   </div>
                 </div>
               );
