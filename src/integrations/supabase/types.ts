@@ -765,34 +765,40 @@ export type Database = {
         Row: {
           added_by_user_id: string | null
           casting_role_id: string
+          company_status: string
           created_at: string
           id: string
           notes: string | null
           profile_id: string
           status: string
           status_changed_at: string
+          talent_status: string
           updated_at: string
         }
         Insert: {
           added_by_user_id?: string | null
           casting_role_id: string
+          company_status?: string
           created_at?: string
           id?: string
           notes?: string | null
           profile_id: string
           status?: string
           status_changed_at?: string
+          talent_status?: string
           updated_at?: string
         }
         Update: {
           added_by_user_id?: string | null
           casting_role_id?: string
+          company_status?: string
           created_at?: string
           id?: string
           notes?: string | null
           profile_id?: string
           status?: string
           status_changed_at?: string
+          talent_status?: string
           updated_at?: string
         }
         Relationships: [
