@@ -410,7 +410,7 @@
   }
 
   .dc-badge-secondary {
-    @apply dc-badge border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    @apply dc-badge border-transparent bg-secondary text-secondary-foreground;
   }
 
   .dc-badge-destructive {
