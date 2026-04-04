@@ -1,46 +1,35 @@
-## CRM Aziende — Piano di implementazione
+## Creazione casting con AI e input vocale
 
-### 1. Migrazione database
-- Aggiungere colonne `email` e `vat_number` alla tabella `companies`
-- Creare tabella `company_notes` (id, company_id, body, created_at, created_by_user_id) con RLS per owner/admin
-- Policies: solo owner/admin possono gestire le note
+### 1. Edge Function `generate-casting`
+- Endpoint che riceve il testo dell'owner e chiama Lovable AI (google/gemini-2.5-flash) per generare il JSON strutturato
+- Prompt di sistema che istruisce il modello a restituire solo JSON valido con la struttura richiesta
+- Validazione input e output, CORS, autenticazione JWT
 
-### 2. Hook `useCompanies.ts`
-- `useCompaniesWithStats()` — lista aziende con contatori derivati (casting totali, talent impiegati, ultimo contatto)
-- `useCompany(id)` — singola azienda con dettagli completi
-- `useCompanyCastings(companyId)` — casting collegati
-- `useCompanyConfirmedTalents(companyId)` — talent con `company_status = 'confirmed'` nei ruoli dei casting dell'azienda
-- `useCompanyNotes(companyId)` — note cronologiche
-- `useCreateCompany`, `useUpdateCompany`, `useDeleteCompany`
-- `useCreateCompanyNote`
+**Nota:** Useremo Lovable AI (modelli supportati nativamente) invece di Anthropic, così non serve nessuna API key aggiuntiva.
 
-### 3. Pagina lista aziende (`OwnerCompanies.tsx`)
-- Sostituire mock data con dati reali
-- Header con contatore, ricerca, filtro settore, ordinamento
-- Card con iniziali, nome, settore, città, referente, 3 statistiche
+### 2. Componente `AICastingCreator`
+- Campo di testo espandibile con badge "AI Beta"
+- Pulsante microfono (Web Speech API nativa, nascosto se non supportato)
+- Indicatore visivo registrazione in corso (pulsante che pulsa)
+- Pulsante "Genera casting" 
+- Prompt suggeriti come hint cliccabili sotto il campo
+- Stati: idle, recording, transcribing, generating, success, error
 
-### 4. Pagina dettaglio azienda (`OwnerCompanyDetail.tsx`)
-- Header con iniziali, nome, settore badge, città, sito, email
-- 3 stat card: casting totali, talent impiegati, ultimo contatto
-- Pulsanti Modifica e "+ Nuovo casting" (apre CastingFormDialog con company_id precompilato)
-- Colonna sx: casting collegati, talent confermati (chip), note cronologiche
-- Colonna dx: referenti (da contacts_json), informazioni generali
+### 3. Integrazione in `OwnerCastings.tsx`
+- Componente posizionato in cima alla pagina, sopra i filtri
+- Al successo: crea casting + ruoli nel DB, poi avvia il matching automatico dei talent per ogni ruolo
+- Il casting appare in lista con badge "Generato con AI"
+- In caso di errore, mostra messaggio e mantiene il testo
 
-### 5. Dialog creazione/modifica azienda (`CompanyFormDialog.tsx`)
-- Form con: nome, settore, sede, email, sito web, P.IVA, note interne
-
-### 6. Routing e integrazioni
-- Aggiungere rotta `/owner/companies/:companyId` in App.tsx
-- Aggiornare `CastingFormDialog` per accettare `defaultCompanyId` prop
+### 4. Logica di matching automatico
+- Riutilizza la logica esistente di `useTargetMatching` per trovare i talent compatibili con ogni ruolo
+- I talent con score più alto vengono aggiunti automaticamente come `role_talents`
 
 ### File da creare/modificare
 
 | File | Azione |
 |------|--------|
-| Migrazione DB | Aggiungere colonne + tabella `company_notes` |
-| `src/hooks/useCompanies.ts` | Creare — tutti gli hook |
-| `src/pages/owner/OwnerCompanies.tsx` | Riscrivere — lista reale |
-| `src/pages/owner/OwnerCompanyDetail.tsx` | Creare — profilo azienda |
-| `src/components/companies/CompanyFormDialog.tsx` | Creare — form CRUD |
-| `src/App.tsx` | Aggiungere rotta dettaglio |
-| `src/components/castings/CastingFormDialog.tsx` | Aggiungere prop `defaultCompanyId` |
+| `supabase/functions/generate-casting/index.ts` | Creare edge function |
+| `src/components/castings/AICastingCreator.tsx` | Nuovo componente UI |
+| `src/hooks/useAICasting.ts` | Hook per generazione e creazione |
+| `src/pages/owner/OwnerCastings.tsx` | Integrare il componente |
