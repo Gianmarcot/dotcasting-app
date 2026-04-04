@@ -9,6 +9,7 @@ import { CastingCard } from "@/components/castings/CastingCard";
 import { CastingFilters } from "@/components/castings/CastingFilters";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import { DeleteCastingDialog } from "@/components/castings/DeleteCastingDialog";
+import { AICastingCreator } from "@/components/castings/AICastingCreator";
 
 import {
   useCastings,
@@ -144,6 +145,8 @@ export const OwnerCastings = () => {
           {it.backoffice.createCasting}
         </Button>
       </div>
+
+      <AICastingCreator />
 
       <CastingFilters
         status={statusFilter}
