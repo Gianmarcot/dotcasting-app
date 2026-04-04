@@ -146,6 +146,8 @@ export const OwnerCastings = () => {
         </Button>
       </div>
 
+      <AICastingCreator />
+
       <CastingFilters
         status={statusFilter}
         search={searchFilter}
