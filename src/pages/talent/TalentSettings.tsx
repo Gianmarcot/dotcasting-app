@@ -21,6 +21,10 @@ export const TalentSettings = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePasswordChange = async () => {
+    if (!passwordForm.currentPassword) {
+      toast.error("Inserisci la password attuale");
+      return;
+    }
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast.error("Le password non coincidono");
       return;
@@ -29,9 +33,24 @@ export const TalentSettings = () => {
       toast.error("La password deve avere almeno 8 caratteri");
       return;
     }
+    if (!user?.email) {
+      toast.error("Sessione non valida, effettua di nuovo l'accesso");
+      return;
+    }
 
     setIsLoading(true);
     try {
+      // Re-authenticate to verify the current password before allowing the change.
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: passwordForm.currentPassword,
+      });
+      if (signInError) {
+        toast.error("La password attuale non è corretta");
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: passwordForm.newPassword,
       });
@@ -81,6 +100,18 @@ export const TalentSettings = () => {
 
           {isChangingPassword ? (
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Password attuale</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                  }
+                  placeholder="Inserisci la password corrente"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="newPassword">Nuova password</Label>
                 <Input
