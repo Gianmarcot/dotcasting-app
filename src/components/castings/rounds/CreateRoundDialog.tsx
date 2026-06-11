@@ -64,6 +64,7 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const createRound = useCreateRound();
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (open) {
