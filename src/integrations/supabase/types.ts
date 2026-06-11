@@ -298,6 +298,84 @@ export type Database = {
           },
         ]
       }
+      casting_round_talents: {
+        Row: {
+          generated_at: string | null
+          pdf_path: string | null
+          role_talent_id: string
+          round_id: string
+        }
+        Insert: {
+          generated_at?: string | null
+          pdf_path?: string | null
+          role_talent_id: string
+          round_id: string
+        }
+        Update: {
+          generated_at?: string | null
+          pdf_path?: string | null
+          role_talent_id?: string
+          round_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "casting_round_talents_role_talent_id_fkey"
+            columns: ["role_talent_id"]
+            isOneToOne: false
+            referencedRelation: "role_talents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "casting_round_talents_round_id_fkey"
+            columns: ["round_id"]
+            isOneToOne: false
+            referencedRelation: "casting_rounds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      casting_rounds: {
+        Row: {
+          casting_id: string
+          created_at: string
+          created_by: string | null
+          field_preset: Json
+          id: string
+          label: string
+        }
+        Insert: {
+          casting_id: string
+          created_at?: string
+          created_by?: string | null
+          field_preset?: Json
+          id?: string
+          label: string
+        }
+        Update: {
+          casting_id?: string
+          created_at?: string
+          created_by?: string | null
+          field_preset?: Json
+          id?: string
+          label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "casting_rounds_casting_id_fkey"
+            columns: ["casting_id"]
+            isOneToOne: false
+            referencedRelation: "castings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "casting_rounds_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       casting_targets: {
         Row: {
           casting_id: string
@@ -664,6 +742,7 @@ export type Database = {
           birth_province: string | null
           birth_region: string | null
           city: string | null
+          contact_email: string | null
           country: string | null
           created_at: string
           domicile_address: Json | null
@@ -711,6 +790,7 @@ export type Database = {
           birth_province?: string | null
           birth_region?: string | null
           city?: string | null
+          contact_email?: string | null
           country?: string | null
           created_at?: string
           domicile_address?: Json | null
@@ -758,6 +838,7 @@ export type Database = {
           birth_province?: string | null
           birth_region?: string | null
           city?: string | null
+          contact_email?: string | null
           country?: string | null
           created_at?: string
           domicile_address?: Json | null
