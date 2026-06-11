@@ -18,6 +18,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
+import { RoundsSection } from "@/components/castings/rounds/RoundsSection";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
@@ -289,6 +290,9 @@ export const OwnerCastingDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Rounds — comp card PDF */}
+      <RoundsSection castingId={castingId!} />
 
       <AddRoleDialog
         open={roleDialogOpen}
