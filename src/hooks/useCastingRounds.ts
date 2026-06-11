@@ -60,13 +60,22 @@ export const useCreateRound = () => {
       preset: RoundPreset;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
+      let createdBy: string | null = null;
+      if (user?.id) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        createdBy = profile?.id ?? null;
+      }
       const { data, error } = await supabase
         .from("casting_rounds")
         .insert({
           casting_id: input.castingId,
           label: input.label,
           field_preset: input.preset as any,
-          created_by: user?.id,
+          created_by: createdBy,
         })
         .select()
         .single();

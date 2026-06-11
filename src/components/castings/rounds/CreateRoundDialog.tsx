@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -64,6 +64,7 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
   const [errors, setErrors] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const createRound = useCreateRound();
+  const qc = useQueryClient();
 
   useEffect(() => {
     if (open) {
@@ -177,6 +178,8 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
         setProgress({ done: i + 1, total: items.length });
       }
       setErrors(localErrors);
+      qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
+      qc.invalidateQueries({ queryKey: ["round-talents", round.id] });
       if (localErrors.length === 0) {
         toast({ title: "Round generato", description: `${items.length} PDF caricati` });
         onOpenChange(false);
