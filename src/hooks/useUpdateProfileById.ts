@@ -51,6 +51,7 @@ export const useUpdateProfileById = () => {
         birth_province?: string | null;
         birth_city?: string | null;
         gender_identity?: string | null;
+        contact_email?: string | null;
       };
     }) => {
       if (!profileId) throw new Error("Profile ID is required");
