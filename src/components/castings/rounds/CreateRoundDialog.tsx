@@ -178,6 +178,8 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
         setProgress({ done: i + 1, total: items.length });
       }
       setErrors(localErrors);
+      qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
+      qc.invalidateQueries({ queryKey: ["round-talents", round.id] });
       if (localErrors.length === 0) {
         toast({ title: "Round generato", description: `${items.length} PDF caricati` });
         onOpenChange(false);
