@@ -48,6 +48,7 @@ export const useUpdateProfile = () => {
         birth_province?: string | null;
         birth_city?: string | null;
         gender_identity?: string | null;
+        contact_email?: string | null;
     }) => {
       if (!user?.id) throw new Error("User not authenticated");
 
