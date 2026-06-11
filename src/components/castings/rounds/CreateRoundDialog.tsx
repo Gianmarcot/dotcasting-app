@@ -76,7 +76,12 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
   }, [open]);
 
   // Load role talents grouped by role
-  const { data: groups = [] } = useQuery({
+  const {
+    data: groups = [],
+    isLoading: groupsLoading,
+    isError: groupsIsError,
+    error: groupsError,
+  } = useQuery({
     queryKey: ["round-role-talents", castingId],
     enabled: open && !!castingId,
     queryFn: async () => {
@@ -84,7 +89,7 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
         .from("casting_roles")
         .select("id, name")
         .eq("casting_id", castingId)
-        .order("sort_order", { ascending: true });
+        .order("created_at", { ascending: true });
       if (e1) throw e1;
       const roleIds = (roles ?? []).map(r => r.id);
       if (!roleIds.length) return [] as RoleGroup[];
@@ -281,10 +286,18 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
             <div className="space-y-2">
               <Label>Talent da includere</Label>
               <div className="space-y-3 max-h-64 overflow-y-auto pr-2 border rounded-lg p-3">
-                {groups.length === 0 && (
+                {groupsLoading && (
+                  <p className="text-sm text-muted-foreground">Caricamento talent...</p>
+                )}
+                {groupsIsError && (
+                  <p className="text-sm text-destructive">
+                    Impossibile caricare i talent: {(groupsError as Error)?.message ?? "errore sconosciuto"}
+                  </p>
+                )}
+                {!groupsLoading && !groupsIsError && groups.length === 0 && (
                   <p className="text-sm text-muted-foreground">Nessun talent disponibile</p>
                 )}
-                {groups.map(g => (
+                {!groupsIsError && groups.map(g => (
                   <div key={g.roleId} className="space-y-1">
                     <p className="text-xs uppercase text-muted-foreground tracking-wide">{g.roleName}</p>
                     {g.talents.length === 0 ? (
