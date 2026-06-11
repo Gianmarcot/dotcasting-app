@@ -291,6 +291,9 @@ export const OwnerCastingDetail = () => {
         )}
       </div>
 
+      {/* Rounds — comp card PDF */}
+      <RoundsSection castingId={castingId!} />
+
       <AddRoleDialog
         open={roleDialogOpen}
         onOpenChange={handleCloseRoleDialog}
