@@ -101,6 +101,18 @@ export const TalentSettings = () => {
           {isChangingPassword ? (
             <div className="space-y-4">
               <div className="space-y-2">
+                <Label htmlFor="currentPassword">Password attuale</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
+                  }
+                  placeholder="Inserisci la password corrente"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="newPassword">Nuova password</Label>
                 <Input
                   id="newPassword"
