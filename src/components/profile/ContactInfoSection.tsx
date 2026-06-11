@@ -35,6 +35,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
+    contactEmail: "",
     phonePrefix: "+39",
     phoneNumber: "",
     whatsappPrefix: "+39",
@@ -47,6 +48,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   useEffect(() => {
     if (profile) {
       setFormData({
+        contactEmail: (profile as { contact_email?: string | null }).contact_email || "",
         phonePrefix: profile.phone_prefix || "+39",
         phoneNumber: profile.phone_number || "",
         whatsappPrefix: profile.whatsapp_prefix || "+39",
@@ -68,6 +70,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   const handleSave = async () => {
     try {
       const updates = {
+        contact_email: formData.contactEmail || null,
         phone_prefix: formData.phonePrefix,
         phone_number: formData.phoneNumber || null,
         whatsapp_prefix: formData.whatsappPrefix,
@@ -91,6 +94,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   const handleCancel = () => {
     if (profile) {
       setFormData({
+        contactEmail: (profile as { contact_email?: string | null }).contact_email || "",
         phonePrefix: profile.phone_prefix || "+39",
         phoneNumber: profile.phone_number || "",
         whatsappPrefix: profile.whatsapp_prefix || "+39",
@@ -128,6 +132,19 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
         )}
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Contact Email */}
+        <div className="space-y-2">
+          <Label>Email di contatto</Label>
+          <Input
+            name="contactEmail"
+            type="email"
+            value={formData.contactEmail}
+            onChange={handleChange}
+            disabled={!isEditing}
+            placeholder="nome@email.com"
+          />
+        </div>
+
         {/* Phone */}
         <div className="space-y-2">
           <Label>Telefono</Label>
