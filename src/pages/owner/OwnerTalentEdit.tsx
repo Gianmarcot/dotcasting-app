@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useProfileById } from "@/hooks/useProfileById";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
@@ -21,11 +25,48 @@ import { TravelSection } from "@/components/profile/TravelSection";
 const OwnerTalentEdit = () => {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: profile, isLoading } = useProfileById(profileId);
+  const [publishing, setPublishing] = useState(false);
 
-  const displayName = profile?.first_name 
+  const displayName = profile?.first_name
     ? `${profile.first_name} ${profile.last_name || ""}`.trim()
     : "Talent";
+
+  const isPublished = !!profile?.onboarding_completed;
+
+  const handlePublish = async () => {
+    if (!profile) return;
+    const missing: string[] = [];
+    if (!profile.first_name) missing.push("Nome");
+    if (!profile.last_name) missing.push("Cognome");
+    if (!profile.talent_categories || profile.talent_categories.length === 0) {
+      missing.push("Almeno un ruolo");
+    }
+    if (missing.length > 0) {
+      toast.error(`Campi mancanti: ${missing.join(", ")}`);
+      return;
+    }
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", profile.id);
+      if (error) {
+        toast.error("Errore nella pubblicazione del profilo");
+        return;
+      }
+      toast.success("Profilo pubblicato");
+      queryClient.invalidateQueries({ queryKey: ["profile", profile.id] });
+      queryClient.invalidateQueries({ queryKey: ["owner-talents"] });
+      queryClient.invalidateQueries({ queryKey: ["owner-talents-count"] });
+      navigate("/owner/talents");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -64,7 +105,25 @@ const OwnerTalentEdit = () => {
           <Eye className="h-4 w-4 mr-2" />
           Visualizza profilo
         </Button>
+        {!isPublished && (
+          <Button size="sm" onClick={handlePublish} disabled={publishing}>
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            {publishing ? "Pubblicazione..." : "Pubblica profilo"}
+          </Button>
+        )}
       </div>
+
+      {!isPublished && (
+        <div className="dc-card p-4 flex items-start gap-3 border-l-4 border-l-[#C88500]">
+          <AlertCircle className="h-5 w-5 mt-0.5 text-[#C88500] shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium text-foreground">Profilo in attesa di pubblicazione</p>
+            <p className="text-muted-foreground mt-1">
+              Questo talent non compare nella lista finché non compili almeno Nome, Cognome e un Ruolo, poi clicchi su <strong>Pubblica profilo</strong>.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
