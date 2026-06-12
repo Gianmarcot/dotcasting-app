@@ -53,6 +53,7 @@ export const CreateTalentDialog = ({
 }: CreateTalentDialogProps) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -82,10 +83,14 @@ export const CreateTalentDialog = ({
         return;
       }
 
-      toast.success("Talent creato con successo");
-      queryClient.invalidateQueries({ queryKey: ["talents"] });
+      toast.success("Talent creato. Completa il profilo per pubblicarlo.");
+      queryClient.invalidateQueries({ queryKey: ["owner-talents"] });
+      queryClient.invalidateQueries({ queryKey: ["owner-talents-count"] });
       form.reset();
       onOpenChange(false);
+      if (data?.profile_id) {
+        navigate(`/owner/talents/${data.profile_id}/edit`);
+      }
     } catch (err) {
       toast.error("Errore durante la creazione del talent");
     } finally {
