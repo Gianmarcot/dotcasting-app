@@ -1,22 +1,45 @@
-# Fix: Errore creazione Talent da area Admin
+## Problema
 
-## Causa
+Quando l'admin crea un nuovo talent da `Admin → Talents → Nuovo Talent`:
+- l'utente in `auth.users` e la riga in `profiles` vengono creati correttamente (con `email_confirm: true`, nessuna conferma email pendente);
+- ma il profilo nasce con `onboarding_completed = false`;
+- la lista admin (`useTalents` / `useTalentCount`) filtra rigidamente `.eq("onboarding_completed", true)` → il nuovo talent c'è nel DB ma non compare in lista finché l'onboarding non è completato.
 
-La Edge Function `create-talent` legge `SUPABASE_PUBLISHABLE_KEY` per costruire il client che valida l'utente chiamante. Nelle Edge Function Supabase la variabile standard esposta automaticamente è `SUPABASE_ANON_KEY` — `SUPABASE_PUBLISHABLE_KEY` può non essere disponibile a runtime, quindi il client viene creato con `undefined` e `getUser()` fallisce silenziosamente, restituendo `401 "Non autorizzato"`.
+Non è quindi un'attesa di conferma utente: è il filtro di lista.
 
-Inoltre la function ha `verify_jwt = false` in `config.toml` ma non è necessario: vogliamo proprio che Supabase verifichi il JWT a monte. Lasciandolo `false` la function deve fare tutto il lavoro a mano (come ora), e qualsiasi errore di config provoca il 401.
+## Soluzione scelta — Onboarding compilato dall'admin
 
-## Fix
+Dopo la creazione, l'admin viene portato sulla pagina di edit completo del talent (già esistente: `/owner/talents/:profileId/edit`, `OwnerTalentEdit`). Quando l'admin salva i dati minimi richiesti, il profilo passa a `onboarding_completed = true` e appare in lista.
 
-1. In `supabase/functions/create-talent/index.ts`:
-   - Sostituire `Deno.env.get("SUPABASE_PUBLISHABLE_KEY")` con `Deno.env.get("SUPABASE_ANON_KEY")` (variabile standard sempre presente).
-   - Aggiungere un `console.error` nel `catch` finale per loggare l'errore reale e facilitare il debug futuro.
+### Cambiamenti
 
-2. In `supabase/config.toml`:
-   - Rimuovere il blocco `[functions.create-talent] verify_jwt = false`, lasciando il default. Così Supabase verifica il JWT e la function riceve sempre un Authorization valido.
+1. **Edge Function `create-talent`** — `supabase/functions/create-talent/index.ts`
+   - Nella risposta di successo, oltre a `user_id`, restituire anche il `profile_id` del profilo appena creato dal trigger `handle_new_user` (una `select id from profiles where user_id = newUser.user.id`).
 
-Nessuna modifica al frontend: `supabase.functions.invoke("create-talent", ...)` allega già automaticamente il token utente.
+2. **`CreateTalentDialog`** — `src/components/talents/CreateTalentDialog.tsx`
+   - Dopo il toast di successo, navigare a `/owner/talents/${profile_id}/edit` invece di limitarsi a chiudere il dialog.
+   - Invalidare comunque la query `talents` per coerenza.
+
+3. **`OwnerTalentEdit`** — `src/pages/owner/OwnerTalentEdit.tsx`
+   - Mostrare in cima un banner discreto quando `profile.onboarding_completed === false`: "Profilo in attesa di completamento — non visibile nella lista finché non compili i campi obbligatori e salvi.".
+   - Aggiungere in fondo un pulsante **"Pubblica profilo"** che:
+     - controlla la presenza dei campi obbligatori dell'onboarding (stesso set usato in `TalentOnboarding` / `useProfileCompletion` — verrà riusato il check esistente, non duplicato);
+     - se ok, fa `update profiles set onboarding_completed = true where id = profileId` e invalida `["profile", profileId]` + `["owner-talents", ...]` + `["owner-talents-count"]`;
+     - mostra toast "Profilo pubblicato" e torna alla lista, dove il talent ora è visibile;
+     - se mancano campi, mostra un toast con l'elenco dei campi mancanti.
+   - Il pulsante è nascosto se `onboarding_completed` è già `true`.
+
+4. **RLS / permessi** — verifica preliminare: le policy attuali su `profiles` devono già permettere a `owner`/`admin` l'UPDATE sui profili altrui (richiesto dalla feature "Full profile editing" memorizzata). Se mancante, aggiungere una policy con `public.has_role(auth.uid(), 'owner') OR public.has_role(auth.uid(), 'admin')`. Da confermare leggendo le policy esistenti su `profiles` prima dell'implementazione.
+
+### Non in scope
+
+- Non viene introdotto uno stato "Bozza" nella lista talents.
+- Nessuna modifica al flusso di onboarding lato talent: se il talent accede prima che l'admin abbia "pubblicato", vedrà comunque il wizard di onboarding come oggi.
+- Nessun invio email automatico al talent (resta come oggi: reset password manuale).
 
 ## Verifica
 
-Dopo il deploy, riprovare la creazione di un talent da `Admin → Talents → Nuovo Talent`: deve restituire 200 e mostrare il toast "Talent creato con successo".
+1. Da `Admin → Talents → Nuovo Talent` inserire una nuova email e confermare.
+2. Si apre automaticamente la pagina di edit del nuovo talent con il banner "in attesa di completamento".
+3. Compilare i campi obbligatori, cliccare **"Pubblica profilo"** → toast di conferma, redirect alla lista, il talent è visibile in cima.
+4. Riaprire l'edit: il banner e il pulsante "Pubblica" non compaiono più.
