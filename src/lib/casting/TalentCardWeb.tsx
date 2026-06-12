@@ -31,7 +31,7 @@ const TEXT_SIZE = "text-[clamp(14px,0.8vw,20px)]";
 // PAGE_PAD_X 4.5pt → 6px · COL_PAD 9/4.5pt → 12/6px · panel 24pt → 32px
 
 const FieldRow = ({ row }: { row: ResolvedRow }) => (
-  <div className={`${TEXT_SIZE} leading-snug mb-1`}>
+  <div className={`${TEXT_SIZE} leading-snug`}>
     <span className="font-bold">{row.label}: </span>
     <span className="text-[#F4F0EC]">{row.value}</span>
   </div>
@@ -66,12 +66,12 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
 
             {/* due colonne come il PDF: lettura verticale, poi a destra */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
-              <div>
+              <div className="space-y-3">
                 {card.columns[0].map((r) => (
                   <FieldRow key={r.label} row={r} />
                 ))}
               </div>
-              <div>
+              <div className="space-y-3">
                 {card.columns[1].map((r) => (
                   <FieldRow key={r.label} row={r} />
                 ))}
