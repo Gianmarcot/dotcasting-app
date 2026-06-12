@@ -131,7 +131,7 @@ export default function CardPreview() {
     return () => {
       cancelled = true;
     };
-  }, [presetKey, mode, reloadKey]);
+  }, [presetKey, mode, reloadKey, source]);
 
   useEffect(() => {
     // Cleanup on unmount
