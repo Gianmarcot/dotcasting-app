@@ -39,6 +39,9 @@ const createWebComponent = () =>
 export default function CardPreview() {
   const [presetKey, setPresetKey] = useState<"essenziale" | "completo">("completo");
   const [mode, setMode] = useState<"pdf" | "web">("pdf");
+  const [source, setSource] = useState<TalentSource>("mock");
+  const [presetKey, setPresetKey] = useState<"essenziale" | "completo">("completo");
+  const [mode, setMode] = useState<"pdf" | "web">("pdf");
   const [reloadKey, setReloadKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
