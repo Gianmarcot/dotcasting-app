@@ -1,17 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import { TalentCardPDF } from "@/lib/casting/TalentCardPDF";
-import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
-import {
-  resolveCard,
-  PRESET_ESSENZIALE,
-  PRESET_COMPLETO,
-} from "@/lib/casting/roundPreset";
-import { MOCK_TALENT } from "./mockTalent";
+import type { ComponentType } from "react";
+import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
+
+const loadCardModules = async () => {
+  const [{ TalentCardPDF }, { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO }, { MOCK_TALENT }] =
+    await Promise.all([
+      import("@/lib/casting/TalentCardPDF"),
+      import("@/lib/casting/roundPreset"),
+      import("./mockTalent"),
+    ]);
+
+  return { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT };
+};
+
+const createWebComponent = () =>
+  lazy(async () => {
+    const mod = await import("@/lib/casting/TalentCardWeb");
+    return { default: mod.TalentCardWeb };
+  });
 
 export default function CardPreview() {
   const [presetKey, setPresetKey] = useState<"essenziale" | "completo">("completo");
@@ -22,10 +33,12 @@ export default function CardPreview() {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [pages, setPages] = useState<string[]>([]); // dataURLs
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [hmrFlash, setHmrFlash] = useState(false);
+  const [webCard, setWebCard] = useState<ResolvedCard | null>(null);
+  const [WebComponent, setWebComponent] = useState<ComponentType<{ card: ResolvedCard }> | null>(() =>
+    createWebComponent(),
+  );
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
-  const card = resolveCard(MOCK_TALENT, preset);
 
   useEffect(() => {
     if (mode !== "pdf") return;
@@ -36,6 +49,10 @@ export default function CardPreview() {
       setLoading(true);
       setError(null);
       try {
+        const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } =
+          await loadCardModules();
+        const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
+        const card = resolveCard(MOCK_TALENT, preset);
         const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
         if (cancelled) return;
         createdUrl = URL.createObjectURL(blob);
@@ -76,6 +93,34 @@ export default function CardPreview() {
   }, [presetKey, mode, reloadKey]);
 
   useEffect(() => {
+    if (mode !== "web") return;
+    let cancelled = false;
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } = await loadCardModules();
+        const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
+        const card = resolveCard(MOCK_TALENT, preset);
+        if (!cancelled) {
+          setWebCard(card);
+          setWebComponent(() => createWebComponent());
+          setLastUpdate(new Date());
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [presetKey, mode, reloadKey]);
+
+  useEffect(() => {
     // Cleanup on unmount
     return () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl);
@@ -83,21 +128,34 @@ export default function CardPreview() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // HMR: ricarica quando i moduli del PDF cambiano
+  // HMR: ricarica quando i moduli della card cambiano senza trattenere binding statici obsoleti
   useEffect(() => {
-    if (import.meta.hot) {
-      const bump = () => setReloadKey((k) => k + 1);
-      import.meta.hot.accept(
-        [
-          "@/lib/casting/TalentCardPDF",
-          "@/lib/casting/TalentCardWeb",
-          "@/lib/casting/roundPreset",
-          "@/lib/casting/talentFields",
-          "./mockTalent",
-        ],
-        bump,
+    if (!import.meta.hot) return;
+
+    const watched = [
+      "/src/lib/casting/TalentCardPDF.tsx",
+      "/src/lib/casting/TalentCardWeb.tsx",
+      "/src/lib/casting/roundPreset.ts",
+      "/src/lib/casting/talentFields.ts",
+      "/src/dev/mockTalent.ts",
+    ];
+
+    const onUpdate = (payload: { updates?: Array<{ path?: string; acceptedPath?: string }> }) => {
+      const shouldReload = payload.updates?.some((update) =>
+        watched.some((path) => update.path?.endsWith(path) || update.acceptedPath?.endsWith(path)),
       );
-    }
+      if (!shouldReload) return;
+
+      setReloadKey((k) => k + 1);
+      setHmrFlash(true);
+      window.setTimeout(() => setHmrFlash(false), 1200);
+    };
+
+    import.meta.hot.on("vite:afterUpdate", onUpdate);
+
+    return () => {
+      import.meta.hot?.off("vite:afterUpdate", onUpdate);
+    };
   }, []);
 
   return (
