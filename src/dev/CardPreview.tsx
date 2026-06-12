@@ -205,6 +205,21 @@ export default function CardPreview() {
             Web
           </button>
         </div>
+        <div className="flex items-center gap-2">
+          <span>Sorgente:</span>
+          <button
+            onClick={() => setSource("mock")}
+            className={`px-3 py-1 rounded ${source === "mock" ? "bg-black text-white" : "bg-neutral-200"}`}
+          >
+            Mock
+          </button>
+          <button
+            onClick={() => setSource("corrie")}
+            className={`px-3 py-1 rounded ${source === "corrie" ? "bg-black text-white" : "bg-neutral-200"}`}
+          >
+            Corrie (reale)
+          </button>
+        </div>
         {mode === "pdf" && (
           <>
             <button
