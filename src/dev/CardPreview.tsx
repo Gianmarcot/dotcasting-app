@@ -7,6 +7,19 @@ import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
 
+// Polyfill Buffer per @react-pdf/renderer (necessario per il fetch immagini
+// da Supabase Storage in browser). Eseguito una sola volta in modulo.
+let bufferPolyfillPromise: Promise<void> | null = null;
+const ensureBufferPolyfill = () => {
+  if ((globalThis as { Buffer?: unknown }).Buffer) return Promise.resolve();
+  if (!bufferPolyfillPromise) {
+    bufferPolyfillPromise = import("buffer").then((mod) => {
+      (globalThis as { Buffer?: unknown }).Buffer = mod.Buffer;
+    });
+  }
+  return bufferPolyfillPromise;
+};
+
 const CORRIE_PROFILE_ID = "4dca73b4-deab-436e-b408-2c190c0f34d4";
 
 type TalentSource = "mock" | "corrie";
