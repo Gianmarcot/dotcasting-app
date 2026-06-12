@@ -1,28 +1,44 @@
-# Collegare CardPreview a un talent reale (Corrie)
+# Sbloccare la generazione PDF della preview card
 
-Oggi `/dev/card-preview` usa solo `MOCK_TALENT`. Aggiungiamo un selettore di sorgente dati così la stessa preview (sia PDF che Web, entrambi i preset) può essere renderizzata su un talent reale del DB — partendo da Corrie Burkart (profilo `4dca73b4-deab-436e-b408-2c190c0f34d4`, l'unico con foto e attributi popolati).
+## Problema
 
-## Cosa cambia
+In `/dev/card-preview` (sia Mock che Corrie) il PDF resta su "Generazione PDF…". Console mostra ripetutamente:
 
-1. **Nuovo helper `fetchTalentByProfileId`** in `src/lib/casting/fetchRoundTalents.ts`
-   - Stessa `select` annidata già usata da `fetchRoundTalents`, ma su `profiles` filtrato per `id`.
-   - Riusa `mapToTalent` per ottenere un `Talent` pronto.
-   - Nessuna modifica a registry, preset o template.
+```
+Cannot read properties of undefined (reading 'isBuffer')
+  at fetchImage (@react-pdf/renderer)
+```
 
-2. **`src/dev/CardPreview.tsx`**
-   - Nuovo stato `source: "mock" | "corrie"` con due bottoni nella barra (accanto a Preset/Render).
-   - ID di Corrie come costante locale: `4dca73b4-deab-436e-b408-2c190c0f34d4`.
-   - Negli effetti PDF e Web: se `source === "corrie"` si attende `fetchTalentByProfileId(CORRIE_ID)`, altrimenti si usa `MOCK_TALENT`.
-   - `source` aggiunto alle dipendenze degli effetti (insieme a `presetKey`, `mode`, `reloadKey`).
-   - Stato di errore già esistente gestisce il caso "talent non trovato".
+`@react-pdf/renderer` chiama `Buffer.isBuffer(...)` quando scarica le immagini nel browser. Senza `Buffer` globale, `fetchImage()` non risolve mai → `pdf(...).toBlob()` non termina → nessun PDF renderizzato → la card appare vuota anche se i dati nel DB ci sono. Il tentativo attuale (`import("buffer")` dentro `CardPreview.tsx`) non funziona perché il pacchetto `buffer` non è installato tra le dipendenze, quindi Vite restituisce un modulo vuoto.
+
+Verificato in DB per Corrie: tutti i campi indicati (175cm, 70kg, Marroni, Rosso, Lunghi, Mossi, Lentiggini, M, IT 42|EU 36, IT 46|EU 36, vita 80, petto 95, fianchi 95, scarpe 39, collo 40, spalle 45, Spagnolo, Inglese, Canto) sono popolati. Il problema è puramente di rendering PDF.
+
+## Modifiche
+
+1. **Installare il pacchetto `buffer`** come dipendenza runtime (`bun add buffer`). È la build browser-friendly del modulo Node, già usata in molti progetti Vite per polyfillare `@react-pdf/renderer`.
+
+2. **`src/dev/CardPreview.tsx`** — sostituire l'import asincrono dentro `ensureBufferPolyfill` con un import statico in cima al file:
+
+   ```ts
+   import { Buffer } from "buffer";
+   if (!(globalThis as { Buffer?: unknown }).Buffer) {
+     (globalThis as { Buffer?: unknown }).Buffer = Buffer;
+   }
+   ```
+
+   Rimuovere `ensureBufferPolyfill()` e la sua chiamata `await` nell'effetto PDF: con l'import statico il polyfill è già attivo al primo render.
+
+3. **`src/lib/casting/generateRound.tsx`** — stesso polyfill in cima al file, così la generazione PDF in produzione (round reali, non solo la preview dev) gode dello stesso fix. Verificare con `code--view` la presenza dell'import `pdf` da `@react-pdf/renderer` per confermare che è il punto giusto.
 
 ## Fuori scope
 
-- Nessuna ricerca/autocomplete talent: solo toggle Mock/Corrie, è una preview di dev.
-- Nessuna modifica a `roundPreset.ts`, `talentFields.ts`, `TalentCardPDF.tsx`, `TalentCardWeb.tsx`.
-- Nessuna modifica RLS: il profilo di Corrie è leggibile dagli owner/admin che usano la preview.
+- Nessuna modifica a registry, preset, template PDF/Web, mapper `fetchRoundTalents`.
+- Nessuna modifica ai dati di Corrie.
+- Nessuna modifica a Vite config: l'import diretto del pacchetto `buffer` non richiede alias né `define`.
 
 ## Verifica
 
-- `/dev/card-preview` → toggle "Corrie" → la card mostra nome reale, foto da `talent-media` e campi anagrafica/misure popolati.
-- Switch Mock ↔ Corrie e Preset Essenziale ↔ Completo funzionano sia in modalità PDF che Web.
+- `/dev/card-preview` con Mock + Completo: PDF renderizzato, foto Unsplash visibili.
+- Toggle su Corrie: foto reali da Supabase Storage visibili, pannello scuro popolato con Altezza 175cm, Peso 70kg, Occhi Marroni, Capelli Rosso, Lunghezza Lunghi, Tipo Mossi, Segni Lentiggini, tutte le taglie (M, IT 42|EU 36, IT 46|EU 36), Vita 80cm, Petto 95cm, Fianchi 95cm, Spalle 45cm, Collo 40cm, Scarpe 39, Lingue "Spagnolo, Inglese", Abilità "Canto", Email/Telefono, Disponibilità "Disponibile: Europa".
+- Console pulita: nessun warning `isBuffer`.
+- Toggle Mock ↔ Corrie e Essenziale ↔ Completo continuano a funzionare.
