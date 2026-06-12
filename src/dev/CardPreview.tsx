@@ -7,15 +7,27 @@ import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
 
-const loadCardModules = async () => {
-  const [{ TalentCardPDF }, { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO }, { MOCK_TALENT }] =
+const CORRIE_PROFILE_ID = "4dca73b4-deab-436e-b408-2c190c0f34d4";
+
+type TalentSource = "mock" | "corrie";
+
+const loadCardModules = async (source: TalentSource) => {
+  const [{ TalentCardPDF }, { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO }, { MOCK_TALENT }, { fetchTalentByProfileId }] =
     await Promise.all([
       import("@/lib/casting/TalentCardPDF"),
       import("@/lib/casting/roundPreset"),
       import("./mockTalent"),
+      import("@/lib/casting/fetchRoundTalents"),
     ]);
 
-  return { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT };
+  let talent = MOCK_TALENT;
+  if (source === "corrie") {
+    const real = await fetchTalentByProfileId(CORRIE_PROFILE_ID);
+    if (!real) throw new Error("Talent Corrie non trovato nel database");
+    talent = real;
+  }
+
+  return { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent };
 };
 
 const createWebComponent = () =>
