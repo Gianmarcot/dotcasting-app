@@ -25,7 +25,47 @@ import { TravelSection } from "@/components/profile/TravelSection";
 const OwnerTalentEdit = () => {
   const { profileId } = useParams<{ profileId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: profile, isLoading } = useProfileById(profileId);
+  const [publishing, setPublishing] = useState(false);
+
+  const displayName = profile?.first_name
+    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
+    : "Talent";
+
+  const isPublished = !!profile?.onboarding_completed;
+
+  const handlePublish = async () => {
+    if (!profile) return;
+    const missing: string[] = [];
+    if (!profile.first_name) missing.push("Nome");
+    if (!profile.last_name) missing.push("Cognome");
+    if (!profile.talent_categories || profile.talent_categories.length === 0) {
+      missing.push("Almeno un ruolo");
+    }
+    if (missing.length > 0) {
+      toast.error(`Campi mancanti: ${missing.join(", ")}`);
+      return;
+    }
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", profile.id);
+      if (error) {
+        toast.error("Errore nella pubblicazione del profilo");
+        return;
+      }
+      toast.success("Profilo pubblicato");
+      queryClient.invalidateQueries({ queryKey: ["profile", profile.id] });
+      queryClient.invalidateQueries({ queryKey: ["owner-talents"] });
+      queryClient.invalidateQueries({ queryKey: ["owner-talents-count"] });
+      navigate("/owner/talents");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   const displayName = profile?.first_name 
     ? `${profile.first_name} ${profile.last_name || ""}`.trim()
