@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
     // Client with caller's JWT to check role
     const supabaseAuth = createClient(supabaseUrl, anonKey, {
@@ -126,6 +126,7 @@ Deno.serve(async (req) => {
       }
     );
   } catch (err) {
+    console.error("create-talent error:", err);
     return new Response(
       JSON.stringify({ error: "Errore interno del server" }),
       {
