@@ -22,19 +22,20 @@ const SANS = "Helvetica";
 // --- Formato pagina ---------------------------------------------
 const PAGE: [number, number] = [842, 472];
 const INK = "#1a1a1a";
-const PAPER = "#F4F0EC";
-const HAIRLINE = "rgba(244, 240, 236, 0.35)";
+const PAGE_BG = "#FFFFFF"; // sfondo pagina e cornice
+const CREAM = "#F4F0EC"; // testo e dettagli sul pannello scuro
+const HAIRLINE = "#F4F0EC";
 
 // --- Scheletro: i tre livelli di spaziatura ----------------------
-const PAGE_PAD_X = 9; // 1. wrapper pagina: 12px Figma → 9pt
-const COL_PAD_Y = 18; // 2. colonne: 24px Figma → 18pt sopra/sotto…
-const COL_PAD_X = 9; //    …e 12px Figma → 9pt ai lati
+const PAGE_PAD_X = 4.5;
+const COL_PAD_Y = 9;
+const COL_PAD_X = 4.5;
 
 const s = StyleSheet.create({
   // 1. wrapper pagina
   page: {
     flexDirection: "row",
-    backgroundColor: PAPER,
+    backgroundColor: PAGE_BG,
     paddingHorizontal: PAGE_PAD_X,
   },
   // 2. colonna: sempre 1/3, mai allargata dal contenuto
@@ -51,7 +52,7 @@ const s = StyleSheet.create({
   panel: {
     flex: 1,
     backgroundColor: INK,
-    color: PAPER,
+    color: CREAM,
     paddingHorizontal: 24,
     paddingVertical: 24,
     justifyContent: "space-between",
@@ -65,20 +66,20 @@ const s = StyleSheet.create({
   },
   rule: { borderBottomWidth: 0.5, borderBottomColor: HAIRLINE, marginVertical: 14 },
 
-  cols: { flexDirection: "row", gap: 20 },
+  cols: { flexDirection: "row", gap: 16 },
   fieldCol: { flex: 1 },
-  row: { flexDirection: "row", flexWrap: "wrap", marginBottom: 7 },
-  label: { fontFamily: SANS, fontSize: 7.5, fontWeight: 700 },
-  value: { fontFamily: SANS, fontSize: 7.5, color: "rgba(244, 240, 236, 0.85)" },
+  row: { flexDirection: "row", flexWrap: "wrap", marginBottom: 5 },
+  label: { fontFamily: SANS, fontSize: 6.5, fontWeight: 700 },
+  value: { fontFamily: SANS, fontSize: 6.5, color: "#F4F0EC" },
 
-  contact: { fontFamily: SANS, fontSize: 8, marginTop: 4 },
+  contact: { fontFamily: SANS, fontSize: 6.5, marginTop: 4 },
 
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   logoDot: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: PAPER,
+    backgroundColor: CREAM,
     color: INK,
     alignItems: "center",
     justifyContent: "center",
