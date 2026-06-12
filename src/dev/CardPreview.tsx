@@ -130,6 +130,7 @@ export default function CardPreview() {
     (async () => {
       setLoading(true);
       setError(null);
+      setWebCard(null);
       try {
         const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } = await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
@@ -140,7 +141,10 @@ export default function CardPreview() {
           setLastUpdate(new Date());
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled) {
+          setWebCard(null);
+          setError(e instanceof Error ? e.message : String(e));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
