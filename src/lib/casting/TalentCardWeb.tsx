@@ -24,8 +24,8 @@ const CREAM = "#F4F0EC";
 
 // Tipografia fluida (stringhe complete: Tailwind non compila classi
 // composte a pezzi, quindi modificare i valori SOLO dentro queste costanti)
-const NAME_SIZE = "text-[clamp(40px,2.25vw,64px)]";
-const TEXT_SIZE = "text-[clamp(14px,0.8vw,20px)]";
+const NAME_SIZE = "text-[clamp(40px,2vw,56px)]";
+const TEXT_SIZE = "text-[clamp(13px,0.8vw,18px)]";
 
 // Scheletro: equivalenti px dei pt del PDF (×1.333)
 // PAGE_PAD_X 4.5pt → 6px · COL_PAD 9/4.5pt → 12/6px · panel 24pt → 32px
