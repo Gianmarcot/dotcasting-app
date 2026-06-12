@@ -182,3 +182,36 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
       talent: mapToTalent(r.profile as unknown as DbProfile),
     }));
 }
+
+/**
+ * Carica un singolo talent (per la preview /dev/card-preview) usando la
+ * stessa proiezione di fetchRoundTalents così tutti i campi sono coperti.
+ */
+export async function fetchTalentByProfileId(profileId: string): Promise<Talent | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(`
+      id, first_name, last_name, stage_name, gender, ethnicity, birth_date,
+      city, country, nationality, work_cities,
+      phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
+      website_url, contact_email, driving_licenses, travel_availability,
+      attributes:talent_attributes (
+        height, weight, hair_color, eye_color, hair_length, hair_type,
+        languages, abilities, shirt_size, pants_size, jacket_size,
+        underwear_sizes, chest, waist, hips, shoulder_width, neck_size,
+        shoe_size, has_tattoos, has_piercings, has_freckles, has_diastema,
+        has_vitiligo, has_albinism, has_dwarfism,
+        ability_dance, ability_sing,
+        ability_instruments, ability_instruments_detail,
+        ability_sports, ability_sports_detail,
+        ability_bartender, ability_other, ability_other_detail
+      ),
+      media:talent_media ( url, sort_order, media_type, category )
+    `)
+    .eq("id", profileId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+  return mapToTalent(data as unknown as DbProfile);
+}
