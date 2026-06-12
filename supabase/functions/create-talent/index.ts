@@ -116,11 +116,19 @@ Deno.serve(async (req) => {
         .eq("user_id", newUser.user.id);
     }
 
+    // Fetch profile_id (created by handle_new_user trigger)
+    const { data: profileRow } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("user_id", newUser.user.id)
+      .maybeSingle();
+
     return new Response(
       JSON.stringify({
         success: true,
         user_id: newUser.user.id,
         email: newUser.user.email,
+        profile_id: profileRow?.id ?? null,
       }),
       {
         status: 200,
