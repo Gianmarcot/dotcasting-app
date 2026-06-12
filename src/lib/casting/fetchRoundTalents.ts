@@ -39,7 +39,8 @@ interface DbProfile {
   contact_email: string | null;
   driving_licenses: string[] | null;
   travel_availability: unknown; // jsonb in DB
-  attributes: DbAttrs[] | null;   // 1 riga per talent, PostgREST → array
+  // PostgREST può restituire la riga singola come array o come oggetto
+  attributes: DbAttrs[] | DbAttrs | null;
   media: DbMedia[] | null;
 }
 
@@ -85,7 +86,9 @@ const travelToText = (v: unknown): string | null => {
 };
 
 export function mapToTalent(p: DbProfile): Talent {
-  const a = p.attributes?.[0] ?? ({} as Partial<DbAttrs>);
+  const a: Partial<DbAttrs> = Array.isArray(p.attributes)
+    ? (p.attributes[0] ?? {})
+    : (p.attributes ?? {});
 
   // segni particolari: composito dai boolean
   const segni: string[] = [];
