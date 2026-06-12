@@ -14,8 +14,9 @@ Deno.serve(async (req) => {
   try {
     // Verify caller auth
     const authHeader = req.headers.get("Authorization");
+    console.log("create-talent: authHeader present?", !!authHeader);
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Non autorizzato" }), {
+      return new Response(JSON.stringify({ error: "Non autorizzato: header mancante" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -24,17 +25,18 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    console.log("create-talent: env present?", { url: !!supabaseUrl, srv: !!serviceRoleKey, anon: !!anonKey });
 
     // Client with caller's JWT to check role
     const supabaseAuth = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const {
-      data: { user: caller },
-    } = await supabaseAuth.auth.getUser();
+    const { data: userData, error: userErr } = await supabaseAuth.auth.getUser();
+    const caller = userData?.user;
+    console.log("create-talent: getUser result", { hasCaller: !!caller, err: userErr?.message });
     if (!caller) {
-      return new Response(JSON.stringify({ error: "Non autorizzato" }), {
+      return new Response(JSON.stringify({ error: "Non autorizzato: utente non trovato", detail: userErr?.message }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
