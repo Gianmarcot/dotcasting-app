@@ -1,8 +1,10 @@
 // =============================================================
-// TalentCardPDF.tsx — Template @react-pdf/renderer (v3)
-// Scheletro: pagina con padding laterale → 3 colonne uguali con
-// padding proprio → contenuto (foto o pannello scuro) dentro la
-// cornice carta. Nome in Tenor Sans uppercase, allineato a sinistra.
+// TalentCardPDF.tsx — Template @react-pdf/renderer (v5)
+// Scheletro: pagina bianca con padding laterale → 3 colonne uguali
+// → contenuto (foto o pannello scuro) dentro la cornice.
+// Pannello: container superiore (nome + dati) e footer in basso.
+// Nome: Tenor Sans uppercase a sinistra, senza sillabazione.
+// Testo: DM Sans (Regular + Bold statici in public/fonts).
 // =============================================================
 
 import React from "react";
@@ -10,14 +12,19 @@ import { Document, Page, View, Text, Image, Font, StyleSheet } from "@react-pdf/
 import { ResolvedCard, ResolvedRow } from "./roundPreset";
 
 // --- Font ------------------------------------------------------
-// Tenor Sans (Google Fonts, solo peso Regular):
-// scarica il TTF e mettilo in public/fonts/TenorSans-Regular.ttf
 Font.register({
   family: "TenorSans",
   src: "/fonts/TenorSans-Regular.ttf",
 });
+Font.register({
+  family: "DMSans",
+  fonts: [{ src: "/fonts/DMSans-Regular.ttf" }, { src: "/fonts/DMSans-Bold.ttf", fontWeight: 700 }],
+});
+// niente sillabazione: le parole vanno a capo solo negli spazi
+Font.registerHyphenationCallback((word) => [word]);
+
 const DISPLAY = "TenorSans";
-const SANS = "Helvetica";
+const SANS = "DMSans";
 
 // --- Formato pagina ---------------------------------------------
 const PAGE: [number, number] = [842, 472];
@@ -48,7 +55,7 @@ const s = StyleSheet.create({
   cover: { width: "100%", height: "100%", objectFit: "cover" },
 
   // 3. pannello scuro: blocco dentro la colonna centrale,
-  //    circondato dalla cornice color carta
+  //    circondato dalla cornice bianca
   panel: {
     flex: 1,
     backgroundColor: INK,
@@ -104,9 +111,9 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
       {/* colonna centrale: stessa cornice delle altre, panel dentro */}
       <View style={s.col}>
         <View style={s.panel}>
-          <Text style={s.name}>{card.nome}</Text>
-
+          {/* container superiore: nome + dati */}
           <View>
+            <Text style={s.name}>{card.nome}</Text>
             <View style={s.rule} />
             <View style={s.cols}>
               <View style={s.fieldCol}>
@@ -128,6 +135,7 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
             ))}
           </View>
 
+          {/* footer in basso */}
           <View style={s.footer}>
             <View style={s.logoDot}>
               <Text style={s.logoGlyph}>.C</Text>
