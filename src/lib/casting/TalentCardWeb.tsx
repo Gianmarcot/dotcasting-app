@@ -24,7 +24,7 @@ const CREAM = "#F4F0EC";
 
 // Tipografia fluida (stringhe complete: Tailwind non compila classi
 // composte a pezzi, quindi modificare i valori SOLO dentro queste costanti)
-const NAME_SIZE = "text-[clamp(40px,2vw,56px)]";
+const NAME_SIZE = "text-[clamp(40px,1.8vw,56px)]";
 const TEXT_SIZE = "text-[min(0.8vw,20px)]";
 
 // Scheletro: equivalenti px dei pt del PDF (×1.333)
@@ -57,7 +57,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
 
       <div className="px-1.5 py-3 md:aspect-[2/3]">
         {/* ---------- 3. pannello scuro dentro la cornice ------------ */}
-        <div className="h-full bg-[#1a1a1a] text-[#F4F0EC] px-[3vw] py-8 flex flex-col justify-between">
+        <div className="h-full bg-[#1a1a1a] text-[#F4F0EC] px-[3vw] pt-[3vw] pb-8 flex flex-col justify-between">
           {/* container superiore: nome + dati */}
           <div>
             <h2 className={`font-display uppercase text-left leading-[1.25] ${NAME_SIZE}`}>{card.nome}</h2>
