@@ -1,7 +1,4 @@
 project_id = "msgiernjqizruvrfkqwe"
 
-[functions.create-talent]
-verify_jwt = false
-
 [functions.generate-casting]
 verify_jwt = false

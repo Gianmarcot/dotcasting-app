@@ -1,29 +1,22 @@
-# Fix "Unknown font format" nel PDF della Talent Card
+# Fix: Errore creazione Talent da area Admin
 
 ## Causa
 
-`src/lib/casting/TalentCardPDF.tsx` registra il font con:
+La Edge Function `create-talent` legge `SUPABASE_PUBLISHABLE_KEY` per costruire il client che valida l'utente chiamante. Nelle Edge Function Supabase la variabile standard esposta automaticamente è `SUPABASE_ANON_KEY` — `SUPABASE_PUBLISHABLE_KEY` può non essere disponibile a runtime, quindi il client viene creato con `undefined` e `getUser()` fallisce silenziosamente, restituendo `401 "Non autorizzato"`.
 
-```ts
-Font.register({ family: "TenorSans", src: "/fonts/TenorSans-Regular.ttf" });
-```
+Inoltre la function ha `verify_jwt = false` in `config.toml` ma non è necessario: vogliamo proprio che Supabase verifichi il JWT a monte. Lasciandolo `false` la function deve fare tutto il lavoro a mano (come ora), e qualsiasi errore di config provoca il 401.
 
-Ma la cartella `public/fonts/` non esiste nel progetto. Quando `@react-pdf/renderer` richiede quel path, Vite risponde con l'`index.html` di fallback (HTML, non TTF). Il parser font legge bytes che non sono né TTF né OTF né WOFF e solleva **"Unknown font format"**, che viene mostrato come errore in `/dev/card-preview`.
+## Fix
 
-Il path è corretto come convenzione (file in `public/` serviti dalla root), manca solo il file fisico.
+1. In `supabase/functions/create-talent/index.ts`:
+   - Sostituire `Deno.env.get("SUPABASE_PUBLISHABLE_KEY")` con `Deno.env.get("SUPABASE_ANON_KEY")` (variabile standard sempre presente).
+   - Aggiungere un `console.error` nel `catch` finale per loggare l'errore reale e facilitare il debug futuro.
 
-## Soluzione
+2. In `supabase/config.toml`:
+   - Rimuovere il blocco `[functions.create-talent] verify_jwt = false`, lasciando il default. Così Supabase verifica il JWT e la function riceve sempre un Authorization valido.
 
-Scaricare il TTF ufficiale di Tenor Sans (Google Fonts, licenza OFL) e committarlo in `public/fonts/TenorSans-Regular.ttf`. Nessun cambiamento di codice necessario: `TalentCardPDF.tsx` resta com'è, e anche `CardPreview.tsx` resta intatto.
+Nessuna modifica al frontend: `supabase.functions.invoke("create-talent", ...)` allega già automaticamente il token utente.
 
-## Passi
+## Verifica
 
-1. Creare la cartella `public/fonts/`.
-2. Scaricare il TTF di Tenor Sans Regular da Google Fonts (`https://fonts.gstatic.com/.../TenorSans-Regular.ttf`) in `public/fonts/TenorSans-Regular.ttf`.
-3. Verificare in preview che `/fonts/TenorSans-Regular.ttf` ritorni il binario corretto (header `00 01 00 00` per TTF) e che `/dev/card-preview` generi il PDF senza errori, mostrando il nome in Tenor Sans uppercase nel pannello scuro.
-
-## Note
-
-- Tenor Sans è disponibile solo nel peso Regular: un singolo file basta.
-- Nessuna modifica a `src/lib/casting/` o ad altri file dell'app.
-- Se in futuro servisse offline-first totale, lo stesso file copre anche eventuali altri usi PDF.
+Dopo il deploy, riprovare la creazione di un talent da `Admin → Talents → Nuovo Talent`: deve restituire 200 e mostrare il toast "Talent creato con successo".
