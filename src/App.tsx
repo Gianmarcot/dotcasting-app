@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
+import CardPreview from "./dev/CardPreview";
 
 // Layouts
 import { TalentLayout } from "@/components/layout/TalentLayout";
@@ -52,6 +53,9 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
+            {import.meta.env.DEV && (
+              <Route path="/dev/card-preview" element={<CardPreview />} />
+            )}
             
             {/* Talent onboarding - protected but outside layout */}
             <Route
