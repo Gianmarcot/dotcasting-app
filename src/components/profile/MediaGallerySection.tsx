@@ -167,7 +167,7 @@ export const MediaGallerySection = ({
           mediaId: cropTarget.id,
           oldUrl: cropTarget.url,
           newFile: blob,
-          userId: user?.id || "",
+          userId: externalUserId || user?.id || "",
         },
         {
           onSuccess: () => {
