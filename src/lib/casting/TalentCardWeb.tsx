@@ -27,7 +27,7 @@ const INK = "#1a1a1a";
 const CREAM = "#F4F0EC";
 
 // --- Tipografia: rem fino a tablet, fluida da lg in su ----------
-const NAME_SIZE = "text-[2.5rem] lg:text-[clamp(40px,2vw,56px)]";
+const NAME_SIZE = "text-[2.5rem] lg:text-[clamp(28px,2vw,56px)]";
 const TEXT_SIZE = "text-[0.875rem] lg:text-[min(0.8vw,20px)]";
 
 // --- Spaziature: rem fino a tablet, fluide da lg in su ----------
