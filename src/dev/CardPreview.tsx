@@ -71,7 +71,6 @@ export default function CardPreview() {
       setError(null);
       setPages([]);
       try {
-        await ensureBufferPolyfill();
         const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } =
           await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
