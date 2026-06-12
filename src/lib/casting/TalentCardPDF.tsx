@@ -38,7 +38,7 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: INK,
     color: PAPER,
-    paddingHorizontal: 24,
+    paddingHorizontal: 48,
     paddingVertical: 12,
     justifyContent: "space-between",
   },
