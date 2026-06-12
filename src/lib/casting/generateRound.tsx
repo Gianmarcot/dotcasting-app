@@ -5,11 +5,17 @@
 // =============================================================
 
 import React from "react";
+import { Buffer } from "buffer";
 import { pdf } from "@react-pdf/renderer";
 import { supabase } from "@/integrations/supabase/client";
 import { Talent } from "./talentFields";
 import { RoundPreset, resolveCard } from "./roundPreset";
 import { TalentCardPDF } from "./TalentCardPDF";
+
+// Polyfill Buffer per @react-pdf/renderer (fetchImage usa Buffer.isBuffer)
+if (!(globalThis as { Buffer?: unknown }).Buffer) {
+  (globalThis as { Buffer?: unknown }).Buffer = Buffer;
+}
 
 const slug = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")

@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { Buffer } from "buffer";
 import { pdf } from "@react-pdf/renderer";
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -7,18 +8,12 @@ import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
 
-// Polyfill Buffer per @react-pdf/renderer (necessario per il fetch immagini
-// da Supabase Storage in browser). Eseguito una sola volta in modulo.
-let bufferPolyfillPromise: Promise<void> | null = null;
-const ensureBufferPolyfill = () => {
-  if ((globalThis as { Buffer?: unknown }).Buffer) return Promise.resolve();
-  if (!bufferPolyfillPromise) {
-    bufferPolyfillPromise = import("buffer").then((mod) => {
-      (globalThis as { Buffer?: unknown }).Buffer = mod.Buffer;
-    });
-  }
-  return bufferPolyfillPromise;
-};
+// Polyfill Buffer per @react-pdf/renderer: fetchImage() chiama
+// Buffer.isBuffer al download immagini; senza polyfill resta in attesa
+// e toBlob() non risolve mai.
+if (!(globalThis as { Buffer?: unknown }).Buffer) {
+  (globalThis as { Buffer?: unknown }).Buffer = Buffer;
+}
 
 const CORRIE_PROFILE_ID = "4dca73b4-deab-436e-b408-2c190c0f34d4";
 
@@ -76,7 +71,6 @@ export default function CardPreview() {
       setError(null);
       setPages([]);
       try {
-        await ensureBufferPolyfill();
         const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } =
           await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
