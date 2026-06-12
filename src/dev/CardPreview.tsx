@@ -103,7 +103,7 @@ export default function CardPreview() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetKey, mode, reloadKey]);
+  }, [presetKey, mode, reloadKey, source]);
 
   useEffect(() => {
     if (mode !== "web") return;
@@ -113,9 +113,9 @@ export default function CardPreview() {
       setLoading(true);
       setError(null);
       try {
-        const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } = await loadCardModules();
+        const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } = await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
-        const card = resolveCard(MOCK_TALENT, preset);
+        const card = resolveCard(talent, preset);
         if (!cancelled) {
           setWebCard(card);
           setWebComponent(() => createWebComponent());
