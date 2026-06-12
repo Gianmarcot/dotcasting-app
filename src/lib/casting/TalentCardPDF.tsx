@@ -1,53 +1,67 @@
 // =============================================================
-// TalentCardPDF.tsx — Template @react-pdf/renderer
-// Pagina 1: foto | pannello scuro | foto (come da mock).
-// Pagine successive: galleria a 3 foto, generate dal preset.
+// TalentCardPDF.tsx — Template @react-pdf/renderer (v3)
+// Scheletro: pagina con padding laterale → 3 colonne uguali con
+// padding proprio → contenuto (foto o pannello scuro) dentro la
+// cornice carta. Nome in Tenor Sans uppercase, allineato a sinistra.
 // =============================================================
 
 import React from "react";
-import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, Font, StyleSheet } from "@react-pdf/renderer";
 import { ResolvedCard, ResolvedRow } from "./roundPreset";
 
 // --- Font ------------------------------------------------------
-// Nessun font del brand presente in public/fonts: si usa Helvetica
-// come fallback. Quando i file saranno disponibili, registrare:
-//
-// Font.register({ family: "DotDisplay", src: "/fonts/DotDisplay-Regular.otf" });
-// Font.register({
-//   family: "DotSans",
-//   fonts: [
-//     { src: "/fonts/DotSans-Regular.otf" },
-//     { src: "/fonts/DotSans-Bold.otf", fontWeight: 700 },
-//   ],
-// });
-const DISPLAY = "Helvetica"; // → "DotDisplay" quando registrato
-const SANS = "Helvetica"; // → "DotSans"
+// Tenor Sans (Google Fonts, solo peso Regular):
+// scarica il TTF e mettilo in public/fonts/TenorSans-Regular.ttf
+Font.register({
+  family: "TenorSans",
+  src: "/fonts/TenorSans-Regular.ttf",
+});
+const DISPLAY = "TenorSans";
+const SANS = "Helvetica";
 
 // --- Formato pagina ---------------------------------------------
 const PAGE: [number, number] = [842, 472];
 const INK = "#1a1a1a";
 const PAPER = "#F4F0EC";
-const HAIRLINE = "#F4F0EC";
+const HAIRLINE = "rgba(244, 240, 236, 0.35)";
+
+// --- Scheletro: i tre livelli di spaziatura ----------------------
+const PAGE_PAD_X = 9; // 1. wrapper pagina: 12px Figma → 9pt
+const COL_PAD_Y = 18; // 2. colonne: 24px Figma → 18pt sopra/sotto…
+const COL_PAD_X = 9; //    …e 12px Figma → 9pt ai lati
 
 const s = StyleSheet.create({
-  page: { flexDirection: "row", backgroundColor: PAPER },
-  col: { flex: 1 },
+  // 1. wrapper pagina
+  page: {
+    flexDirection: "row",
+    backgroundColor: PAPER,
+    paddingHorizontal: PAGE_PAD_X,
+  },
+  // 2. colonna: sempre 1/3, mai allargata dal contenuto
+  col: {
+    flex: 1,
+    minWidth: 0,
+    paddingVertical: COL_PAD_Y,
+    paddingHorizontal: COL_PAD_X,
+  },
   cover: { width: "100%", height: "100%", objectFit: "cover" },
 
+  // 3. pannello scuro: blocco dentro la colonna centrale,
+  //    circondato dalla cornice color carta
   panel: {
     flex: 1,
     backgroundColor: INK,
     color: PAPER,
-    paddingHorizontal: 48,
-    paddingVertical: 12,
+    paddingHorizontal: 24,
+    paddingVertical: 24,
     justifyContent: "space-between",
   },
   name: {
     fontFamily: DISPLAY,
-    fontSize: 21,
-    textAlign: "center",
-    lineHeight: 1.15,
-    marginTop: 24,
+    fontSize: 19,
+    textAlign: "left",
+    textTransform: "uppercase",
+    lineHeight: 1.25,
   },
   rule: { borderBottomWidth: 0.5, borderBottomColor: HAIRLINE, marginVertical: 14 },
 
@@ -55,7 +69,7 @@ const s = StyleSheet.create({
   fieldCol: { flex: 1 },
   row: { flexDirection: "row", flexWrap: "wrap", marginBottom: 7 },
   label: { fontFamily: SANS, fontSize: 7.5, fontWeight: 700 },
-  value: { fontFamily: SANS, fontSize: 7.5, color: "rgba(255,255,255,0.85)" },
+  value: { fontFamily: SANS, fontSize: 7.5, color: "rgba(244, 240, 236, 0.85)" },
 
   contact: { fontFamily: SANS, fontSize: 8, marginTop: 4 },
 
@@ -71,8 +85,6 @@ const s = StyleSheet.create({
   },
   logoGlyph: { fontFamily: DISPLAY, fontSize: 11 },
   footerText: { fontFamily: SANS, fontSize: 8 },
-
-  galleryPage: { flexDirection: "row", backgroundColor: PAPER, gap: 6, padding: 6 },
 });
 
 const FieldRow = ({ row }: { row: ResolvedRow }) => (
@@ -88,45 +100,48 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
     <Page size={PAGE} style={s.page}>
       <View style={s.col}>{card.coverPhotos[0] && <Image src={card.coverPhotos[0]} style={s.cover} />}</View>
 
-      <View style={s.panel}>
-        <Text style={s.name}>{card.nome}</Text>
+      {/* colonna centrale: stessa cornice delle altre, panel dentro */}
+      <View style={s.col}>
+        <View style={s.panel}>
+          <Text style={s.name}>{card.nome}</Text>
 
-        <View>
-          <View style={s.rule} />
-          <View style={s.cols}>
-            <View style={s.fieldCol}>
-              {card.columns[0].map((r) => (
-                <FieldRow key={r.label} row={r} />
-              ))}
+          <View>
+            <View style={s.rule} />
+            <View style={s.cols}>
+              <View style={s.fieldCol}>
+                {card.columns[0].map((r) => (
+                  <FieldRow key={r.label} row={r} />
+                ))}
+              </View>
+              <View style={s.fieldCol}>
+                {card.columns[1].map((r) => (
+                  <FieldRow key={r.label} row={r} />
+                ))}
+              </View>
             </View>
-            <View style={s.fieldCol}>
-              {card.columns[1].map((r) => (
-                <FieldRow key={r.label} row={r} />
-              ))}
-            </View>
+            <View style={s.rule} />
+            {card.contacts.map((r) => (
+              <Text key={r.label} style={s.contact}>
+                ✉ {r.value}
+              </Text>
+            ))}
           </View>
-          <View style={s.rule} />
-          {card.contacts.map((r) => (
-            <Text key={r.label} style={s.contact}>
-              ✉ {r.value}
-            </Text>
-          ))}
-        </View>
 
-        <View style={s.footer}>
-          <View style={s.logoDot}>
-            <Text style={s.logoGlyph}>.C</Text>
+          <View style={s.footer}>
+            <View style={s.logoDot}>
+              <Text style={s.logoGlyph}>.C</Text>
+            </View>
+            {card.showAgencyContact && <Text style={s.footerText}>info@dotcasting.com</Text>}
           </View>
-          {card.showAgencyContact && <Text style={s.footerText}>info@dotcasting.com</Text>}
         </View>
       </View>
 
       <View style={s.col}>{card.coverPhotos[1] && <Image src={card.coverPhotos[1]} style={s.cover} />}</View>
     </Page>
 
-    {/* ---------- Pagine galleria: 3 foto per pagina ---------- */}
+    {/* ---------- Pagine galleria: stesso scheletro, 3 foto ---------- */}
     {card.galleryPages.map((photos, i) => (
-      <Page key={i} size={PAGE} style={s.galleryPage}>
+      <Page key={i} size={PAGE} style={s.page}>
         {photos.map((src) => (
           <View key={src} style={s.col}>
             <Image src={src} style={s.cover} />
