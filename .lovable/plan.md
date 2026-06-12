@@ -1,34 +1,48 @@
-## Problemi
+# Fix anteprima PDF bloccata da Chrome
 
-**1. "Pagina bloccata da Chrome" sul viewer PDF**
-`PDFViewer` di `@react-pdf/renderer` crea internamente un `<iframe src="about:blank">` e ci scrive dentro il blob del PDF. Dentro la preview di Lovable (che è già un iframe sandboxed) Chrome blocca questo iframe annidato → schermata "Questa pagina è stata bloccata".
+## Problema
 
-**2. 404 su `/dev/card-preview` nel sito pubblicato**
-La rotta è registrata correttamente in `App.tsx`, ma il sito pubblicato (`casting-sparkle-pro.lovable.app`) è ancora la build precedente all'aggiunta della rotta. Le modifiche frontend non vanno live finché non si clicca **Publish → Update**. Sulla preview live invece funziona.
+Nella preview di Lovable la pagina `/dev/card-preview` gira già dentro un iframe sandboxed. Caricare un PDF (`blob:`) dentro un secondo `<iframe>` fa scattare il blocco "Questa pagina è stata bloccata da Chrome", perché il visualizzatore PDF nativo di Chrome non può essere istanziato in iframe annidati con sandbox.
 
-## Fix
+Vale sia per `BlobProvider` + `<iframe src={url}>`, sia per `PDFViewer` di `@react-pdf/renderer` (che internamente è un iframe). Cambiare attributi sandbox non lo sblocca: è una restrizione del plugin PDF.
 
-Modifico **solo** `src/dev/CardPreview.tsx` (nessun file in `src/lib/casting/` toccato):
+## Soluzione
 
-- Sostituisco `PDFViewer` con `BlobProvider` di `@react-pdf/renderer`, che genera un `Blob` del PDF e ne ricava un `URL.createObjectURL`.
-- Mostro il PDF in un `<iframe src={blobUrl}>` standard (non sandboxed extra), che Chrome non blocca dentro la preview di Lovable.
-- Aggiungo accanto ai toggle un link "Apri in nuova scheda" / "Scarica" che usa lo stesso blob URL, utile come fallback se il browser dell'utente blocca comunque l'iframe interno.
-- Gestisco lo stato di loading (`{ url, loading, error }` esposto da `BlobProvider`) mostrando un semplice "Generazione PDF…".
+Smettere di delegare il rendering del PDF al browser e renderizzare le pagine in `<canvas>` con `pdfjs-dist`. Il PDF viene generato come prima da `@react-pdf/renderer` (`pdf().toBlob()`), poi `pdfjs-dist` lo apre e disegna ogni pagina su canvas. In più, niente iframe = nessun blocco.
 
-Per il 404 sul pubblicato non serve codice: basta ripubblicare. Te lo segnalo nella risposta e ti mostro il bottone Publish.
+## Modifiche
 
-## Dettagli tecnici
+Solo `src/dev/CardPreview.tsx` (più `pdfjs-dist` come dipendenza). Nessun file in `src/lib/casting/` toccato.
 
-```tsx
-import { BlobProvider } from "@react-pdf/renderer";
+### 1. Dipendenza
+- `bun add pdfjs-dist`
 
-<BlobProvider document={<TalentCardPDF card={card} />}>
-  {({ url, loading, error }) => {
-    if (loading || !url) return <div className="p-4 text-sm">Generazione PDF…</div>;
-    if (error) return <div className="p-4 text-sm text-red-600">Errore: {String(error)}</div>;
-    return <iframe src={url} className="w-full h-full border-0" title="PDF preview" />;
-  }}
-</BlobProvider>
-```
+### 2. `src/dev/CardPreview.tsx`
+- Rimuovere `BlobProvider` + `<iframe>`.
+- Usare `pdf(<TalentCardPDF card={card} />).toBlob()` (API imperativa di `@react-pdf/renderer`) dentro un `useEffect` che dipende da `card` e da un `reloadKey`.
+- Configurare il worker di pdfjs:
+  ```ts
+  import * as pdfjsLib from "pdfjs-dist";
+  import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+  ```
+- `getDocument({ data: arrayBuffer })`, iterare `numPages`, per ognuna `getViewport({ scale: 1.5 })` e `page.render({ canvasContext, viewport })` su un `<canvas>` creato in un array di ref.
+- Mostrare le pagine in colonna scrollabile con sfondo grigio (look "viewer"), centrate, con ombra.
+- Mantenere la barra di controlli esistente: toggle preset Essenziale/Completo, toggle PDF/Web.
+- Mantenere link "Apri in nuova scheda" e "Scarica" usando l'URL blob (apertura in nuova scheda funziona, non è un iframe annidato).
+- Aggiungere stato `loading` / `error` con messaggi testuali.
+- HMR: incrementare `reloadKey` su `import.meta.hot.accept` per i moduli `TalentCardPDF`, `roundPreset`, `talentFields`, `mockTalent` così le edit a `TalentCardPDF.tsx` rigenerano automaticamente il PDF e ridisegnano i canvas.
+- Pulsante "Ricarica" manuale che incrementa `reloadKey`.
 
-Nessuna modifica a routing, mock, preset o componenti della card.
+### 3. Modalità Web
+Invariata: continua a renderizzare `<TalentCardWeb card={card} />`.
+
+## Note tecniche
+
+- `pdfjs-dist` v4 espone il worker come `pdf.worker.min.mjs`; Vite lo serve con `?url`.
+- Nessuna modifica a route, navigazione o ad altri file.
+- Nessun cambio in `src/lib/casting/`.
+
+## Verifica
+
+Dopo l'implementazione, aprire `/dev/card-preview` nella preview: si devono vedere le pagine del PDF renderizzate come canvas, senza il messaggio di Chrome. Modificando `TalentCardPDF.tsx` e salvando, le pagine devono aggiornarsi via HMR (o cliccando "Ricarica").
