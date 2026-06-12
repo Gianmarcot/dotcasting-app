@@ -1,18 +1,36 @@
 // =============================================================
-// TalentCardWeb.tsx — Versione web responsive della card
-// Stesso dato (ResolvedCard) del PDF: i due renderer sono solo
-// "pelle" sopra resolveCard(talent, preset).
-// Tailwind. Desktop: 3 colonne come il mock; mobile: stack.
-// NOTA: il sorgente nel prompt aveva JSX corrotto (tag mancanti)
-// — qui ricostruito in modo funzionale e fedele al layout PDF.
+// TalentCardWeb.tsx — Versione web responsive della card (v2)
+// Allineata al template PDF v5: cornice bianca, pannello scuro
+// dentro la colonna centrale, container nome+dati in alto e
+// footer in basso, Tenor Sans (nome) + DM Sans (testo).
+//
+// Tipografia fluida: testo dati min 14px / base 1.1vw,
+// nome min 40px / base 3.5vw.
+//
+// Prerequisiti (una volta sola):
+// index.css →
+//   @font-face { font-family: 'Tenor Sans'; src: url('/fonts/TenorSans-Regular.ttf'); }
+//   @font-face { font-family: 'DM Sans'; src: url('/fonts/DMSans-Regular.ttf'); font-weight: 400; }
+//   @font-face { font-family: 'DM Sans'; src: url('/fonts/DMSans-Bold.ttf'); font-weight: 700; }
+// tailwind.config → fontFamily: { display: ['Tenor Sans','sans-serif'], card: ['DM Sans','sans-serif'] }
 // =============================================================
 
 import React from "react";
-import { ResolvedCard } from "./roundPreset";
+import { ResolvedCard, ResolvedRow } from "./roundPreset";
 
-// Registra il display serif anche sul web (stesso file del PDF):
-// in index.css → @font-face { font-family: 'DotDisplay'; src: url(/fonts/DotDisplay-Regular.otf); }
-// e in tailwind.config → fontFamily: { display: ['DotDisplay','serif'] }
+// Palette: identica al PDF
+const INK = "#1a1a1a";
+const CREAM = "#F4F0EC";
+
+// Scheletro: equivalenti px dei pt del PDF (×1.333)
+// PAGE_PAD_X 4.5pt → 6px · COL_PAD 9/4.5pt → 12/6px · panel 24pt → 32px
+
+const FieldRow = ({ row }: { row: ResolvedRow }) => (
+  <div className="text-[max(14px,1.1vw)] leading-snug mb-1">
+    <span className="font-bold">{row.label}: </span>
+    <span className="text-[#F4F0EC]">{row.value}</span>
+  </div>
+);
 
 const CoverPhoto = ({ src, alt }: { src?: string; alt: string }) =>
   src ? (
@@ -22,58 +40,72 @@ const CoverPhoto = ({ src, alt }: { src?: string; alt: string }) =>
   );
 
 export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
-  <div className="w-full">
-    {/* ---------- blocco principale ---------- */}
-    <div className="grid grid-cols-1 md:grid-cols-3 w-full aspect-auto md:aspect-[16/9] bg-white">
-      <div className="h-64 md:h-auto">
+  <article className="w-full bg-white font-card text-[#1a1a1a]">
+    {/* ---------- 1. wrapper "pagina": padding solo ai lati ---------- */}
+    <div className="grid grid-cols-1 md:grid-cols-3 px-1.5">
+      {/* ---------- 2. colonne: cornice propria, rapporto 2:3 -------- */}
+      {/* (colonne verticali: larghezza 2, altezza 3 — se intendevi     */}
+      {/*  l'opposto, sostituisci aspect-[2/3] con aspect-[3/2])        */}
+      <div className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
         <CoverPhoto src={card.coverPhotos[0]} alt={card.nome} />
       </div>
 
-      <div className="bg-[#0E0E0E] text-white px-6 py-8 flex flex-col justify-between">
-        <h2 className="font-display text-3xl text-center leading-tight mt-2">
-          {card.nome}
-        </h2>
+      <div className="px-1.5 py-3 md:aspect-[2/3]">
+        {/* ---------- 3. pannello scuro dentro la cornice ------------ */}
+        <div className="h-full bg-[#1a1a1a] text-[#F4F0EC] px-8 py-8 flex flex-col justify-between">
+          {/* container superiore: nome + dati */}
+          <div>
+            <h2 className="font-display uppercase text-left leading-[1.25] text-[max(40px,3.5vw)]">{card.nome}</h2>
 
-        <div>
-          <div className="border-t border-white/30 my-3" />
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
-            {card.columns.flat().map(r => (
-              <div key={r.label} className="text-[11px]">
-                <span className="font-bold">{r.label}: </span>
-                <span className="text-white/85">{r.value}</span>
+            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
+
+            {/* due colonne come il PDF: lettura verticale, poi a destra */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+              <div>
+                {card.columns[0].map((r) => (
+                  <FieldRow key={r.label} row={r} />
+                ))}
+              </div>
+              <div>
+                {card.columns[1].map((r) => (
+                  <FieldRow key={r.label} row={r} />
+                ))}
+              </div>
+            </div>
+
+            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
+
+            {card.contacts.map((r) => (
+              <div key={r.label} className="text-[max(14px,1.1vw)] mt-1">
+                ✉&nbsp;&nbsp;{r.value}
               </div>
             ))}
           </div>
-          <div className="border-t border-white/30 my-3" />
-          {card.contacts.map(r => (
-            <div key={r.label} className="text-xs mt-1">✉  {r.value}</div>
-          ))}
-        </div>
 
-        <div className="flex items-center justify-center gap-2 mt-4">
-          <div className="w-7 h-7 rounded-full bg-white text-[#0E0E0E] flex items-center justify-center font-display text-sm">
-            .C
+          {/* footer in basso */}
+          <div className="flex items-center justify-center gap-2.5 mt-6">
+            <span className="w-7 h-7 rounded-full bg-[#F4F0EC] text-[#1a1a1a] grid place-items-center font-display text-sm">
+              .C
+            </span>
+            {card.showAgencyContact && <span className="text-[max(14px,1.1vw)]">info@dotcasting.com</span>}
           </div>
-          {card.showAgencyContact && (
-            <span className="text-xs">info@dotcasting.com</span>
-          )}
         </div>
       </div>
 
-      <div className="h-64 md:h-auto">
+      <div className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
         <CoverPhoto src={card.coverPhotos[1]} alt={card.nome} />
       </div>
     </div>
 
-    {/* ---------- galleria ---------- */}
+    {/* ---------- galleria: stesso scheletro ---------- */}
     {card.galleryPages.length > 0 && (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-1.5 p-1.5">
-        {card.galleryPages.flat().map(src => (
-          <div key={src} className="aspect-[4/5] md:aspect-square">
+      <div className="grid grid-cols-1 md:grid-cols-3 px-1.5">
+        {card.galleryPages.flat().map((src) => (
+          <div key={src} className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
             <img src={src} alt={card.nome} className="w-full h-full object-cover" />
           </div>
         ))}
       </div>
     )}
-  </div>
+  </article>
 );
