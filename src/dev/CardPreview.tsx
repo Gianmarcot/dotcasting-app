@@ -62,10 +62,10 @@ export default function CardPreview() {
       setLoading(true);
       setError(null);
       try {
-        const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } =
-          await loadCardModules();
+        const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } =
+          await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
-        const card = resolveCard(MOCK_TALENT, preset);
+        const card = resolveCard(talent, preset);
         const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
         if (cancelled) return;
         createdUrl = URL.createObjectURL(blob);
