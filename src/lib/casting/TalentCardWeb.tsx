@@ -62,7 +62,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
           <div>
             <h2 className={`font-display uppercase text-left leading-[1.25] ${NAME_SIZE}`}>{card.nome}</h2>
 
-            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
+            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-6" />
 
             {/* due colonne come il PDF: lettura verticale, poi a destra */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
@@ -78,7 +78,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
               </div>
             </div>
 
-            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
+            <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-6" />
 
             {card.contacts.map((r) => (
               <div key={r.label} className={`${TEXT_SIZE} mt-1`}>
