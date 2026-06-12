@@ -1,11 +1,14 @@
 // =============================================================
-// TalentCardWeb.tsx — Versione web responsive della card (v2)
-// Allineata al template PDF v5: cornice bianca, pannello scuro
-// dentro la colonna centrale, container nome+dati in alto e
-// footer in basso, Tenor Sans (nome) + DM Sans (testo).
+// TalentCardWeb.tsx — Versione web responsive della card (v3)
+// Gemella del template PDF v5.
 //
-// Tipografia fluida (costanti NAME_SIZE / TEXT_SIZE):
-// nome clamp(40px, 2.5vw, 72px) · testi clamp(14px, 0.8vw, 20px).
+// Layout responsive (mobile-first):
+//   base  (mobile)  → 1 colonna, misure in rem
+//   md:   (tablet)  → 2 colonne (foto+panel, poi foto), misure in rem
+//   lg:   (desktop) → 3 colonne come il PDF, misure fluide in vw
+//
+// Le size si modificano SOLO nelle costanti qui sotto (stringhe
+// complete: Tailwind non compila classi composte a pezzi).
 //
 // Prerequisiti (una volta sola):
 // index.css →
@@ -22,13 +25,13 @@ import { ResolvedCard, ResolvedRow } from "./roundPreset";
 const INK = "#1a1a1a";
 const CREAM = "#F4F0EC";
 
-// Tipografia fluida (stringhe complete: Tailwind non compila classi
-// composte a pezzi, quindi modificare i valori SOLO dentro queste costanti)
-const NAME_SIZE = "text-[clamp(40px,1.8vw,56px)]";
-const TEXT_SIZE = "text-[min(0.8vw,20px)]";
+// --- Tipografia: rem fino a tablet, fluida da lg in su ----------
+const NAME_SIZE = "text-[2.5rem] lg:text-[clamp(40px,2vw,56px)]";
+const TEXT_SIZE = "text-[0.875rem] lg:text-[min(0.8vw,20px)]";
 
-// Scheletro: equivalenti px dei pt del PDF (×1.333)
-// PAGE_PAD_X 4.5pt → 6px · COL_PAD 9/4.5pt → 12/6px · panel 24pt → 32px
+// --- Spaziature: rem fino a tablet, fluide da lg in su ----------
+const ROW_GAP = "space-y-1 lg:space-y-[0.25vw]"; // tra le righe dati
+const PANEL_PAD = "px-6 pt-6 pb-6 lg:px-[3vw] lg:pt-[3vw] lg:pb-8"; // padding panel
 
 const FieldRow = ({ row }: { row: ResolvedRow }) => (
   <div className={`${TEXT_SIZE} leading-snug`}>
@@ -46,18 +49,16 @@ const CoverPhoto = ({ src, alt }: { src?: string; alt: string }) =>
 
 export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
   <article className="w-full bg-white font-card text-[#1a1a1a]">
-    {/* ---------- 1. wrapper "pagina": padding solo ai lati ---------- */}
-    <div className="grid grid-cols-1 md:grid-cols-3 px-1.5">
-      {/* ---------- 2. colonne: cornice propria, rapporto 2:3 -------- */}
-      {/* (colonne verticali: larghezza 2, altezza 3 — se intendevi     */}
-      {/*  l'opposto, sostituisci aspect-[2/3] con aspect-[3/2])        */}
+    {/* ---------- 1. wrapper "pagina": 1 / 2 / 3 colonne ---------- */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-1.5">
+      {/* ---------- 2. colonne con cornice propria ---------- */}
       <div className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
         <CoverPhoto src={card.coverPhotos[0]} alt={card.nome} />
       </div>
 
-      <div className="px-1.5 py-3 md:aspect-[2/3]">
-        {/* ---------- 3. pannello scuro dentro la cornice ------------ */}
-        <div className="h-full bg-[#1a1a1a] text-[#F4F0EC] px-[3vw] pt-[3vw] pb-8 flex flex-col justify-between">
+      <div className="px-1.5 py-3 lg:aspect-[2/3]">
+        {/* ---------- 3. pannello scuro dentro la cornice ---------- */}
+        <div className={`h-full bg-[#1a1a1a] text-[#F4F0EC] ${PANEL_PAD} flex flex-col justify-between`}>
           {/* container superiore: nome + dati */}
           <div>
             <h2 className={`font-display uppercase text-left leading-[1.25] ${NAME_SIZE}`}>{card.nome}</h2>
@@ -66,12 +67,12 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
 
             {/* due colonne come il PDF: lettura verticale, poi a destra */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
-              <div className="space-y-[0.25vw]">
+              <div className={ROW_GAP}>
                 {card.columns[0].map((r) => (
                   <FieldRow key={r.label} row={r} />
                 ))}
               </div>
-              <div className="space-y-[0.25vw]">
+              <div className={ROW_GAP}>
                 {card.columns[1].map((r) => (
                   <FieldRow key={r.label} row={r} />
                 ))}
@@ -102,9 +103,9 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
       </div>
     </div>
 
-    {/* ---------- galleria: stesso scheletro ---------- */}
+    {/* ---------- galleria: stesso scheletro, 1 / 2 / 3 colonne ---------- */}
     {card.galleryPages.length > 0 && (
-      <div className="grid grid-cols-1 md:grid-cols-3 px-1.5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-1.5">
         {card.galleryPages.flat().map((src) => (
           <div key={src} className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
             <img src={src} alt={card.nome} className="w-full h-full object-cover" />
