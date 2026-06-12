@@ -66,11 +66,20 @@ const travelToText = (v: unknown): string | null => {
   if (typeof v === "object") {
     const o = v as Record<string, unknown>;
     const parts: string[] = [];
+    // Forma legacy: flag booleani
     if (o.italy) parts.push("Italia");
     if (o.europe) parts.push("Europa");
     if (o.world) parts.push("Mondo");
-    if (parts.length) return `Disponibile: ${parts.join(", ")}`;
-    if (typeof o.notes === "string") return o.notes;
+    // Forma corrente: liste continents + countries
+    if (Array.isArray(o.continents)) {
+      for (const c of o.continents) if (typeof c === "string" && c.trim()) parts.push(c);
+    }
+    if (Array.isArray(o.countries)) {
+      for (const c of o.countries) if (typeof c === "string" && c.trim()) parts.push(c);
+    }
+    const unique = Array.from(new Set(parts));
+    if (unique.length) return `Disponibile: ${unique.join(", ")}`;
+    if (typeof o.notes === "string" && o.notes.trim()) return o.notes;
   }
   return null;
 };
