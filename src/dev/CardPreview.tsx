@@ -196,9 +196,10 @@ export default function CardPreview() {
           <>
             <button
               onClick={() => setReloadKey((k) => k + 1)}
+              disabled={loading}
               className="px-3 py-1 rounded bg-neutral-200 hover:bg-neutral-300"
             >
-              Ricarica PDF
+              {loading ? "Rigenerazione…" : "Ricarica PDF"}
             </button>
             {blobUrl && (
               <>
@@ -220,7 +221,9 @@ export default function CardPreview() {
               </>
             )}
             <span className="text-neutral-500 ml-auto">
-              {loading
+              {hmrFlash
+                ? "Aggiornato da HMR"
+                : loading
                 ? "Generazione…"
                 : lastUpdate
                   ? `Ultimo aggiornamento: ${lastUpdate.toLocaleTimeString()}`
@@ -251,7 +254,15 @@ export default function CardPreview() {
           </div>
         ) : (
           <div className="p-4">
-            <TalentCardWeb card={card} />
+            {error && <div className="p-4 text-sm text-red-600">Errore preview web: {error}</div>}
+            {!error && (!WebComponent || !webCard || loading) && (
+              <div className="p-4 text-sm">Generazione preview web…</div>
+            )}
+            {!error && WebComponent && webCard && !loading && (
+              <Suspense fallback={<div className="p-4 text-sm">Generazione preview web…</div>}>
+                <WebComponent card={webCard} />
+              </Suspense>
+            )}
           </div>
         )}
       </div>
