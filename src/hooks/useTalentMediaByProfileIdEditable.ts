@@ -52,12 +52,14 @@ export const useUploadMediaByProfileId = () => {
       file,
       mediaType,
       title,
+      category,
     }: {
       profileId: string;
       userId: string;
-      file: File;
+      file: File | Blob;
       mediaType: "photo" | "video";
       title?: string;
+      category?: MediaCategory;
     }) => {
       if (!profileId || !userId) {
         throw new Error("Profilo non trovato");
@@ -70,11 +72,13 @@ export const useUploadMediaByProfileId = () => {
         throw new Error(`Il file supera la dimensione massima di ${maxMB}MB`);
       }
 
-      // Validate file type
-      const allowedTypes =
-        mediaType === "photo" ? ALLOWED_PHOTO_TYPES : ALLOWED_VIDEO_TYPES;
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error(`Tipo di file non supportato: ${file.type}`);
+      // Validate file type (only for File objects, not Blobs from crop)
+      if (file instanceof File) {
+        const allowedTypes =
+          mediaType === "photo" ? ALLOWED_PHOTO_TYPES : ALLOWED_VIDEO_TYPES;
+        if (!allowedTypes.includes(file.type)) {
+          throw new Error(`Tipo di file non supportato: ${file.type}`);
+        }
       }
 
       // Check media count limit
@@ -89,7 +93,7 @@ export const useUploadMediaByProfileId = () => {
       }
 
       // Generate unique filename
-      const fileExt = file.name.split(".").pop();
+      const fileExt = file instanceof File ? file.name.split(".").pop() : "jpg";
       const fileName = `${userId}/${mediaType}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
@@ -116,15 +120,18 @@ export const useUploadMediaByProfileId = () => {
       const nextOrder = (maxOrderData?.sort_order ?? -1) + 1;
 
       // Insert record
+      const insertData = {
+        profile_id: profileId,
+        media_type: mediaType,
+        url: urlData.publicUrl,
+        title: title || null,
+        sort_order: nextOrder,
+        ...(category ? { category } : {}),
+      };
+
       const { data, error: insertError } = await supabase
         .from("talent_media")
-        .insert({
-          profile_id: profileId,
-          media_type: mediaType,
-          url: urlData.publicUrl,
-          title: title || null,
-          sort_order: nextOrder,
-        })
+        .insert(insertData)
         .select()
         .single();
 
