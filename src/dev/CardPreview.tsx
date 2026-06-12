@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PDFViewer } from "@react-pdf/renderer";
+import { BlobProvider } from "@react-pdf/renderer";
 import { TalentCardPDF } from "@/lib/casting/TalentCardPDF";
 import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import {
@@ -18,7 +18,7 @@ export default function CardPreview() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-neutral-100">
-      <div className="flex items-center gap-4 px-4 py-2 border-b bg-white text-sm">
+      <div className="flex items-center gap-4 px-4 py-2 border-b bg-white text-sm flex-wrap">
         <strong>Card Preview (dev)</strong>
         <div className="flex items-center gap-2">
           <span>Preset:</span>
@@ -53,9 +53,46 @@ export default function CardPreview() {
       </div>
       <div className="flex-1 overflow-auto">
         {mode === "pdf" ? (
-          <PDFViewer style={{ width: "100%", height: "100%", border: "none" }}>
-            <TalentCardPDF card={card} />
-          </PDFViewer>
+          <BlobProvider document={<TalentCardPDF card={card} />}>
+            {({ url, loading, error }) => {
+              if (error) {
+                return (
+                  <div className="p-4 text-sm text-red-600">
+                    Errore generazione PDF: {String(error)}
+                  </div>
+                );
+              }
+              if (loading || !url) {
+                return <div className="p-4 text-sm">Generazione PDF…</div>;
+              }
+              return (
+                <div className="flex flex-col h-full">
+                  <div className="px-4 py-2 border-b bg-white text-sm flex gap-3">
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="underline text-blue-600"
+                    >
+                      Apri in nuova scheda
+                    </a>
+                    <a
+                      href={url}
+                      download="talent-card.pdf"
+                      className="underline text-blue-600"
+                    >
+                      Scarica
+                    </a>
+                  </div>
+                  <iframe
+                    src={url}
+                    className="flex-1 w-full border-0"
+                    title="PDF preview"
+                  />
+                </div>
+              );
+            }}
+          </BlobProvider>
         ) : (
           <div className="p-4">
             <TalentCardWeb card={card} />
