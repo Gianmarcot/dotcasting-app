@@ -7,6 +7,19 @@ import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
 
+// Polyfill Buffer per @react-pdf/renderer (necessario per il fetch immagini
+// da Supabase Storage in browser). Eseguito una sola volta in modulo.
+let bufferPolyfillPromise: Promise<void> | null = null;
+const ensureBufferPolyfill = () => {
+  if ((globalThis as { Buffer?: unknown }).Buffer) return Promise.resolve();
+  if (!bufferPolyfillPromise) {
+    bufferPolyfillPromise = import("buffer").then((mod) => {
+      (globalThis as { Buffer?: unknown }).Buffer = mod.Buffer;
+    });
+  }
+  return bufferPolyfillPromise;
+};
+
 const CORRIE_PROFILE_ID = "4dca73b4-deab-436e-b408-2c190c0f34d4";
 
 type TalentSource = "mock" | "corrie";
@@ -61,7 +74,9 @@ export default function CardPreview() {
     (async () => {
       setLoading(true);
       setError(null);
+      setPages([]);
       try {
+        await ensureBufferPolyfill();
         const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } =
           await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
@@ -93,7 +108,10 @@ export default function CardPreview() {
           setLastUpdate(new Date());
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled) {
+          setPages([]);
+          setError(e instanceof Error ? e.message : String(e));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -112,6 +130,7 @@ export default function CardPreview() {
     (async () => {
       setLoading(true);
       setError(null);
+      setWebCard(null);
       try {
         const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } = await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
@@ -122,7 +141,10 @@ export default function CardPreview() {
           setLastUpdate(new Date());
         }
       } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+        if (!cancelled) {
+          setWebCard(null);
+          setError(e instanceof Error ? e.message : String(e));
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
