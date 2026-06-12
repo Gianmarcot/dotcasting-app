@@ -71,6 +71,29 @@ export const MediaGallerySection = ({
   const media = externalProfileId ? externalMedia : ownMedia;
   const isLoading = externalProfileId ? externalLoading : ownLoading;
   const isDeleting = externalProfileId ? isExternalDeleting : isOwnDeleting;
+  const isUploading = externalProfileId ? isExternalUploading : isOwnUploading;
+
+  const uploadMedia = (args: {
+    file: File | Blob;
+    mediaType: "photo" | "video";
+    category?: MediaCategory;
+    title?: string;
+  }, opts?: { onSuccess?: () => void }) => {
+    if (externalProfileId && externalUserId) {
+      uploadExternalMedia(
+        {
+          profileId: externalProfileId,
+          userId: externalUserId,
+          file: args.file as File,
+          mediaType: args.mediaType,
+          title: args.title,
+        },
+        opts
+      );
+    } else {
+      uploadOwnMedia(args, opts);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<string>("main_photos");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
