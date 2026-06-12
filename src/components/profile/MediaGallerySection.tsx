@@ -17,6 +17,7 @@ import {
 import {
   useTalentMediaByProfileIdEditable,
   useDeleteMediaByProfileId,
+  useUploadMediaByProfileId,
   type TalentMedia as TalentMediaType,
 } from "@/hooks/useTalentMediaByProfileIdEditable";
 import { useMediaRatingsForProfile, type MediaRating } from "@/hooks/useMediaRatings";
