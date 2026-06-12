@@ -7,15 +7,27 @@ import type { ResolvedCard } from "@/lib/casting/roundPreset";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
 
-const loadCardModules = async () => {
-  const [{ TalentCardPDF }, { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO }, { MOCK_TALENT }] =
+const CORRIE_PROFILE_ID = "4dca73b4-deab-436e-b408-2c190c0f34d4";
+
+type TalentSource = "mock" | "corrie";
+
+const loadCardModules = async (source: TalentSource) => {
+  const [{ TalentCardPDF }, { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO }, { MOCK_TALENT }, { fetchTalentByProfileId }] =
     await Promise.all([
       import("@/lib/casting/TalentCardPDF"),
       import("@/lib/casting/roundPreset"),
       import("./mockTalent"),
+      import("@/lib/casting/fetchRoundTalents"),
     ]);
 
-  return { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT };
+  let talent = MOCK_TALENT;
+  if (source === "corrie") {
+    const real = await fetchTalentByProfileId(CORRIE_PROFILE_ID);
+    if (!real) throw new Error("Talent Corrie non trovato nel database");
+    talent = real;
+  }
+
+  return { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent };
 };
 
 const createWebComponent = () =>
@@ -27,6 +39,7 @@ const createWebComponent = () =>
 export default function CardPreview() {
   const [presetKey, setPresetKey] = useState<"essenziale" | "completo">("completo");
   const [mode, setMode] = useState<"pdf" | "web">("pdf");
+  const [source, setSource] = useState<TalentSource>("mock");
   const [reloadKey, setReloadKey] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,10 +62,10 @@ export default function CardPreview() {
       setLoading(true);
       setError(null);
       try {
-        const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } =
-          await loadCardModules();
+        const { TalentCardPDF, resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } =
+          await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
-        const card = resolveCard(MOCK_TALENT, preset);
+        const card = resolveCard(talent, preset);
         const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
         if (cancelled) return;
         createdUrl = URL.createObjectURL(blob);
@@ -90,7 +103,7 @@ export default function CardPreview() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetKey, mode, reloadKey]);
+  }, [presetKey, mode, reloadKey, source]);
 
   useEffect(() => {
     if (mode !== "web") return;
@@ -100,9 +113,9 @@ export default function CardPreview() {
       setLoading(true);
       setError(null);
       try {
-        const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, MOCK_TALENT } = await loadCardModules();
+        const { resolveCard, PRESET_ESSENZIALE, PRESET_COMPLETO, talent } = await loadCardModules(source);
         const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
-        const card = resolveCard(MOCK_TALENT, preset);
+        const card = resolveCard(talent, preset);
         if (!cancelled) {
           setWebCard(card);
           setWebComponent(() => createWebComponent());
@@ -118,7 +131,7 @@ export default function CardPreview() {
     return () => {
       cancelled = true;
     };
-  }, [presetKey, mode, reloadKey]);
+  }, [presetKey, mode, reloadKey, source]);
 
   useEffect(() => {
     // Cleanup on unmount
@@ -190,6 +203,21 @@ export default function CardPreview() {
             className={`px-3 py-1 rounded ${mode === "web" ? "bg-black text-white" : "bg-neutral-200"}`}
           >
             Web
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span>Sorgente:</span>
+          <button
+            onClick={() => setSource("mock")}
+            className={`px-3 py-1 rounded ${source === "mock" ? "bg-black text-white" : "bg-neutral-200"}`}
+          >
+            Mock
+          </button>
+          <button
+            onClick={() => setSource("corrie")}
+            className={`px-3 py-1 rounded ${source === "corrie" ? "bg-black text-white" : "bg-neutral-200"}`}
+          >
+            Corrie (reale)
           </button>
         </div>
         {mode === "pdf" && (
