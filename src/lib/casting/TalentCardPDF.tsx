@@ -21,13 +21,13 @@ import { ResolvedCard, ResolvedRow } from "./roundPreset";
 //   ],
 // });
 const DISPLAY = "Helvetica"; // → "DotDisplay" quando registrato
-const SANS = "Helvetica";    // → "DotSans"
+const SANS = "Helvetica"; // → "DotSans"
 
 // --- Formato pagina ---------------------------------------------
 const PAGE: [number, number] = [842, 472];
-const INK = "#0E0E0E";
-const PAPER = "#FFFFFF";
-const HAIRLINE = "rgba(255,255,255,0.35)";
+const INK = "#1a1a1a";
+const PAPER = "#F4F0EC";
+const HAIRLINE = "#F4F0EC";
 
 const s = StyleSheet.create({
   page: { flexDirection: "row", backgroundColor: PAPER },
@@ -36,8 +36,8 @@ const s = StyleSheet.create({
 
   panel: {
     flex: 1,
-    backgroundColor: #1A1A1A,
-    color: #F4F0EC,
+    backgroundColor: INK,
+    color: PAPER,
     paddingHorizontal: 26,
     paddingVertical: 30,
     justifyContent: "space-between",
@@ -61,9 +61,13 @@ const s = StyleSheet.create({
 
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   logoDot: {
-    width: 26, height: 26, borderRadius: 13,
-    backgroundColor: PAPER, color: INK,
-    alignItems: "center", justifyContent: "center",
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: PAPER,
+    color: INK,
+    alignItems: "center",
+    justifyContent: "center",
   },
   logoGlyph: { fontFamily: DISPLAY, fontSize: 11 },
   footerText: { fontFamily: SANS, fontSize: 8 },
@@ -82,9 +86,7 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
   <Document title={card.nome}>
     {/* ---------- Pagina 1: foto | scheda | foto ---------- */}
     <Page size={PAGE} style={s.page}>
-      <View style={s.col}>
-        {card.coverPhotos[0] && <Image src={card.coverPhotos[0]} style={s.cover} />}
-      </View>
+      <View style={s.col}>{card.coverPhotos[0] && <Image src={card.coverPhotos[0]} style={s.cover} />}</View>
 
       <View style={s.panel}>
         <Text style={s.name}>{card.nome}</Text>
@@ -93,33 +95,39 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
           <View style={s.rule} />
           <View style={s.cols}>
             <View style={s.fieldCol}>
-              {card.columns[0].map(r => <FieldRow key={r.label} row={r} />)}
+              {card.columns[0].map((r) => (
+                <FieldRow key={r.label} row={r} />
+              ))}
             </View>
             <View style={s.fieldCol}>
-              {card.columns[1].map(r => <FieldRow key={r.label} row={r} />)}
+              {card.columns[1].map((r) => (
+                <FieldRow key={r.label} row={r} />
+              ))}
             </View>
           </View>
           <View style={s.rule} />
-          {card.contacts.map(r => (
-            <Text key={r.label} style={s.contact}>✉  {r.value}</Text>
+          {card.contacts.map((r) => (
+            <Text key={r.label} style={s.contact}>
+              ✉ {r.value}
+            </Text>
           ))}
         </View>
 
         <View style={s.footer}>
-          <View style={s.logoDot}><Text style={s.logoGlyph}>.C</Text></View>
+          <View style={s.logoDot}>
+            <Text style={s.logoGlyph}>.C</Text>
+          </View>
           {card.showAgencyContact && <Text style={s.footerText}>info@dotcasting.com</Text>}
         </View>
       </View>
 
-      <View style={s.col}>
-        {card.coverPhotos[1] && <Image src={card.coverPhotos[1]} style={s.cover} />}
-      </View>
+      <View style={s.col}>{card.coverPhotos[1] && <Image src={card.coverPhotos[1]} style={s.cover} />}</View>
     </Page>
 
     {/* ---------- Pagine galleria: 3 foto per pagina ---------- */}
     {card.galleryPages.map((photos, i) => (
       <Page key={i} size={PAGE} style={s.galleryPage}>
-        {photos.map(src => (
+        {photos.map((src) => (
           <View key={src} style={s.col}>
             <Image src={src} style={s.cover} />
           </View>
