@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { BlobProvider } from "@react-pdf/renderer";
+import { useEffect, useRef, useState } from "react";
+import { pdf } from "@react-pdf/renderer";
+import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { TalentCardPDF } from "@/lib/casting/TalentCardPDF";
 import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import {
@@ -9,12 +11,94 @@ import {
 } from "@/lib/casting/roundPreset";
 import { MOCK_TALENT } from "./mockTalent";
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc as string;
+
 export default function CardPreview() {
   const [presetKey, setPresetKey] = useState<"essenziale" | "completo">("completo");
   const [mode, setMode] = useState<"pdf" | "web">("pdf");
+  const [reloadKey, setReloadKey] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
+  const [pages, setPages] = useState<string[]>([]); // dataURLs
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const preset = presetKey === "completo" ? PRESET_COMPLETO : PRESET_ESSENZIALE;
   const card = resolveCard(MOCK_TALENT, preset);
+
+  useEffect(() => {
+    if (mode !== "pdf") return;
+    let cancelled = false;
+    let createdUrl: string | null = null;
+
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
+        if (cancelled) return;
+        createdUrl = URL.createObjectURL(blob);
+        setBlobUrl((prev) => {
+          if (prev) URL.revokeObjectURL(prev);
+          return createdUrl;
+        });
+
+        const arrayBuffer = await blob.arrayBuffer();
+        const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const rendered: string[] = [];
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext("2d")!;
+          await page.render({ canvasContext: ctx, viewport, canvas }).promise;
+          rendered.push(canvas.toDataURL("image/png"));
+          if (cancelled) return;
+        }
+        if (!cancelled) {
+          setPages(rendered);
+          setLastUpdate(new Date());
+        }
+      } catch (e) {
+        if (!cancelled) setError(e instanceof Error ? e.message : String(e));
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [presetKey, mode, reloadKey]);
+
+  useEffect(() => {
+    // Cleanup on unmount
+    return () => {
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // HMR: ricarica quando i moduli del PDF cambiano
+  useEffect(() => {
+    if (import.meta.hot) {
+      const bump = () => setReloadKey((k) => k + 1);
+      import.meta.hot.accept(
+        [
+          "@/lib/casting/TalentCardPDF",
+          "@/lib/casting/TalentCardWeb",
+          "@/lib/casting/roundPreset",
+          "@/lib/casting/talentFields",
+          "./mockTalent",
+        ],
+        bump,
+      );
+    }
+  }, []);
 
   return (
     <div className="fixed inset-0 flex flex-col bg-neutral-100">
@@ -50,49 +134,63 @@ export default function CardPreview() {
             Web
           </button>
         </div>
+        {mode === "pdf" && (
+          <>
+            <button
+              onClick={() => setReloadKey((k) => k + 1)}
+              className="px-3 py-1 rounded bg-neutral-200 hover:bg-neutral-300"
+            >
+              Ricarica PDF
+            </button>
+            {blobUrl && (
+              <>
+                <a
+                  href={blobUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline text-blue-600"
+                >
+                  Apri in nuova scheda
+                </a>
+                <a
+                  href={blobUrl}
+                  download="talent-card.pdf"
+                  className="underline text-blue-600"
+                >
+                  Scarica
+                </a>
+              </>
+            )}
+            <span className="text-neutral-500 ml-auto">
+              {loading
+                ? "Generazione…"
+                : lastUpdate
+                  ? `Ultimo aggiornamento: ${lastUpdate.toLocaleTimeString()}`
+                  : ""}
+            </span>
+          </>
+        )}
       </div>
-      <div className="flex-1 overflow-auto">
+      <div ref={containerRef} className="flex-1 overflow-auto">
         {mode === "pdf" ? (
-          <BlobProvider document={<TalentCardPDF card={card} />}>
-            {({ url, loading, error }) => {
-              if (error) {
-                return (
-                  <div className="p-4 text-sm text-red-600">
-                    Errore generazione PDF: {String(error)}
-                  </div>
-                );
-              }
-              if (loading || !url) {
-                return <div className="p-4 text-sm">Generazione PDF…</div>;
-              }
-              return (
-                <div className="flex flex-col h-full">
-                  <div className="px-4 py-2 border-b bg-white text-sm flex gap-3">
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline text-blue-600"
-                    >
-                      Apri in nuova scheda
-                    </a>
-                    <a
-                      href={url}
-                      download="talent-card.pdf"
-                      className="underline text-blue-600"
-                    >
-                      Scarica
-                    </a>
-                  </div>
-                  <iframe
-                    src={url}
-                    className="flex-1 w-full border-0"
-                    title="PDF preview"
-                  />
-                </div>
-              );
-            }}
-          </BlobProvider>
+          <div className="flex flex-col items-center gap-4 py-6">
+            {error && (
+              <div className="p-4 text-sm text-red-600">
+                Errore generazione PDF: {error}
+              </div>
+            )}
+            {!error && pages.length === 0 && loading && (
+              <div className="p-4 text-sm">Generazione PDF…</div>
+            )}
+            {pages.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`Pagina ${i + 1}`}
+                className="shadow-lg bg-white max-w-full h-auto"
+              />
+            ))}
+          </div>
         ) : (
           <div className="p-4">
             <TalentCardWeb card={card} />
