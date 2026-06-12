@@ -67,9 +67,6 @@ const OwnerTalentEdit = () => {
     }
   };
 
-  const displayName = profile?.first_name 
-    ? `${profile.first_name} ${profile.last_name || ""}`.trim()
-    : "Talent";
 
   if (isLoading) {
     return (
