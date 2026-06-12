@@ -4,8 +4,8 @@
 // dentro la colonna centrale, container nome+dati in alto e
 // footer in basso, Tenor Sans (nome) + DM Sans (testo).
 //
-// Tipografia fluida: testo dati min 14px / base 1.1vw,
-// nome min 40px / base 3.5vw.
+// Tipografia fluida (costanti NAME_SIZE / TEXT_SIZE):
+// nome clamp(40px, 2.5vw, 72px) · testi clamp(14px, 0.8vw, 20px).
 //
 // Prerequisiti (una volta sola):
 // index.css →
@@ -22,11 +22,16 @@ import { ResolvedCard, ResolvedRow } from "./roundPreset";
 const INK = "#1a1a1a";
 const CREAM = "#F4F0EC";
 
+// Tipografia fluida (stringhe complete: Tailwind non compila classi
+// composte a pezzi, quindi modificare i valori SOLO dentro queste costanti)
+const NAME_SIZE = "text-[clamp(40px,2.5vw,72px)]";
+const TEXT_SIZE = "text-[clamp(14px,0.8vw,20px)]";
+
 // Scheletro: equivalenti px dei pt del PDF (×1.333)
 // PAGE_PAD_X 4.5pt → 6px · COL_PAD 9/4.5pt → 12/6px · panel 24pt → 32px
 
 const FieldRow = ({ row }: { row: ResolvedRow }) => (
-  <div className="text-[max(14px,1.1vw)] leading-snug mb-1">
+  <div className={`${TEXT_SIZE} leading-snug mb-1`}>
     <span className="font-bold">{row.label}: </span>
     <span className="text-[#F4F0EC]">{row.value}</span>
   </div>
@@ -55,7 +60,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
         <div className="h-full bg-[#1a1a1a] text-[#F4F0EC] px-8 py-8 flex flex-col justify-between">
           {/* container superiore: nome + dati */}
           <div>
-            <h2 className="font-display uppercase text-left leading-[1.25] text-[max(40px,3.5vw)]">{card.nome}</h2>
+            <h2 className={`font-display uppercase text-left leading-[1.25] ${NAME_SIZE}`}>{card.nome}</h2>
 
             <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
 
@@ -76,7 +81,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
             <hr className="border-t border-[#F4F0EC]/100 border-b-0 my-4" />
 
             {card.contacts.map((r) => (
-              <div key={r.label} className="text-[max(14px,1.1vw)] mt-1">
+              <div key={r.label} className={`${TEXT_SIZE} mt-1`}>
                 ✉&nbsp;&nbsp;{r.value}
               </div>
             ))}
@@ -87,7 +92,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
             <span className="w-7 h-7 rounded-full bg-[#F4F0EC] text-[#1a1a1a] grid place-items-center font-display text-sm">
               .C
             </span>
-            {card.showAgencyContact && <span className="text-[max(14px,1.1vw)]">info@dotcasting.com</span>}
+            {card.showAgencyContact && <span className={TEXT_SIZE}>info@dotcasting.com</span>}
           </div>
         </div>
       </div>
