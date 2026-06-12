@@ -1,48 +1,29 @@
-# Fix anteprima PDF bloccata da Chrome
+# Fix "Unknown font format" nel PDF della Talent Card
 
-## Problema
+## Causa
 
-Nella preview di Lovable la pagina `/dev/card-preview` gira già dentro un iframe sandboxed. Caricare un PDF (`blob:`) dentro un secondo `<iframe>` fa scattare il blocco "Questa pagina è stata bloccata da Chrome", perché il visualizzatore PDF nativo di Chrome non può essere istanziato in iframe annidati con sandbox.
+`src/lib/casting/TalentCardPDF.tsx` registra il font con:
 
-Vale sia per `BlobProvider` + `<iframe src={url}>`, sia per `PDFViewer` di `@react-pdf/renderer` (che internamente è un iframe). Cambiare attributi sandbox non lo sblocca: è una restrizione del plugin PDF.
+```ts
+Font.register({ family: "TenorSans", src: "/fonts/TenorSans-Regular.ttf" });
+```
+
+Ma la cartella `public/fonts/` non esiste nel progetto. Quando `@react-pdf/renderer` richiede quel path, Vite risponde con l'`index.html` di fallback (HTML, non TTF). Il parser font legge bytes che non sono né TTF né OTF né WOFF e solleva **"Unknown font format"**, che viene mostrato come errore in `/dev/card-preview`.
+
+Il path è corretto come convenzione (file in `public/` serviti dalla root), manca solo il file fisico.
 
 ## Soluzione
 
-Smettere di delegare il rendering del PDF al browser e renderizzare le pagine in `<canvas>` con `pdfjs-dist`. Il PDF viene generato come prima da `@react-pdf/renderer` (`pdf().toBlob()`), poi `pdfjs-dist` lo apre e disegna ogni pagina su canvas. In più, niente iframe = nessun blocco.
+Scaricare il TTF ufficiale di Tenor Sans (Google Fonts, licenza OFL) e committarlo in `public/fonts/TenorSans-Regular.ttf`. Nessun cambiamento di codice necessario: `TalentCardPDF.tsx` resta com'è, e anche `CardPreview.tsx` resta intatto.
 
-## Modifiche
+## Passi
 
-Solo `src/dev/CardPreview.tsx` (più `pdfjs-dist` come dipendenza). Nessun file in `src/lib/casting/` toccato.
+1. Creare la cartella `public/fonts/`.
+2. Scaricare il TTF di Tenor Sans Regular da Google Fonts (`https://fonts.gstatic.com/.../TenorSans-Regular.ttf`) in `public/fonts/TenorSans-Regular.ttf`.
+3. Verificare in preview che `/fonts/TenorSans-Regular.ttf` ritorni il binario corretto (header `00 01 00 00` per TTF) e che `/dev/card-preview` generi il PDF senza errori, mostrando il nome in Tenor Sans uppercase nel pannello scuro.
 
-### 1. Dipendenza
-- `bun add pdfjs-dist`
+## Note
 
-### 2. `src/dev/CardPreview.tsx`
-- Rimuovere `BlobProvider` + `<iframe>`.
-- Usare `pdf(<TalentCardPDF card={card} />).toBlob()` (API imperativa di `@react-pdf/renderer`) dentro un `useEffect` che dipende da `card` e da un `reloadKey`.
-- Configurare il worker di pdfjs:
-  ```ts
-  import * as pdfjsLib from "pdfjs-dist";
-  import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-  pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
-  ```
-- `getDocument({ data: arrayBuffer })`, iterare `numPages`, per ognuna `getViewport({ scale: 1.5 })` e `page.render({ canvasContext, viewport })` su un `<canvas>` creato in un array di ref.
-- Mostrare le pagine in colonna scrollabile con sfondo grigio (look "viewer"), centrate, con ombra.
-- Mantenere la barra di controlli esistente: toggle preset Essenziale/Completo, toggle PDF/Web.
-- Mantenere link "Apri in nuova scheda" e "Scarica" usando l'URL blob (apertura in nuova scheda funziona, non è un iframe annidato).
-- Aggiungere stato `loading` / `error` con messaggi testuali.
-- HMR: incrementare `reloadKey` su `import.meta.hot.accept` per i moduli `TalentCardPDF`, `roundPreset`, `talentFields`, `mockTalent` così le edit a `TalentCardPDF.tsx` rigenerano automaticamente il PDF e ridisegnano i canvas.
-- Pulsante "Ricarica" manuale che incrementa `reloadKey`.
-
-### 3. Modalità Web
-Invariata: continua a renderizzare `<TalentCardWeb card={card} />`.
-
-## Note tecniche
-
-- `pdfjs-dist` v4 espone il worker come `pdf.worker.min.mjs`; Vite lo serve con `?url`.
-- Nessuna modifica a route, navigazione o ad altri file.
-- Nessun cambio in `src/lib/casting/`.
-
-## Verifica
-
-Dopo l'implementazione, aprire `/dev/card-preview` nella preview: si devono vedere le pagine del PDF renderizzate come canvas, senza il messaggio di Chrome. Modificando `TalentCardPDF.tsx` e salvando, le pagine devono aggiornarsi via HMR (o cliccando "Ricarica").
+- Tenor Sans è disponibile solo nel peso Regular: un singolo file basta.
+- Nessuna modifica a `src/lib/casting/` o ad altri file dell'app.
+- Se in futuro servisse offline-first totale, lo stesso file copre anche eventuali altri usi PDF.
