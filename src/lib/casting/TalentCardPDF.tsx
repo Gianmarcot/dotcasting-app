@@ -36,8 +36,8 @@ const s = StyleSheet.create({
 
   panel: {
     flex: 1,
-    backgroundColor: INK,
-    color: PAPER,
+    backgroundColor: #1A1A1A,
+    color: #F4F0EC,
     paddingHorizontal: 26,
     paddingVertical: 30,
     justifyContent: "space-between",
