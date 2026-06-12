@@ -60,7 +60,8 @@ export const MediaGallerySection = ({
   const { mutate: deleteOwnMedia, isPending: isOwnDeleting } = useDeleteMedia();
   const { mutate: deleteExternalMedia, isPending: isExternalDeleting } =
     useDeleteMediaByProfileId();
-  const { mutate: uploadMedia, isPending: isUploading } = useUploadMedia();
+  const { mutate: uploadOwnMedia, isPending: isOwnUploading } = useUploadMedia();
+  const { mutate: uploadExternalMedia, isPending: isExternalUploading } = useUploadMediaByProfileId();
   const { mutate: updateOrder } = useUpdateMediaOrder();
   const { mutate: replaceFile, isPending: isReplacing } = useReplaceMediaFile();
   const { data: ownerRatings } = useMediaRatingsForProfile(
