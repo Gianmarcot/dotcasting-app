@@ -1,45 +1,37 @@
 ## Problema
 
-Quando l'admin crea un nuovo talent da `Admin → Talents → Nuovo Talent`:
-- l'utente in `auth.users` e la riga in `profiles` vengono creati correttamente (con `email_confirm: true`, nessuna conferma email pendente);
-- ma il profilo nasce con `onboarding_completed = false`;
-- la lista admin (`useTalents` / `useTalentCount`) filtra rigidamente `.eq("onboarding_completed", true)` → il nuovo talent c'è nel DB ma non compare in lista finché l'onboarding non è completato.
+Quando un Admin/Owner apre la pagina di modifica di un talent e prova a caricare una foto in galleria (o cambiare la foto profilo), l'upload fallisce silenziosamente o restituisce errore di permessi. Due cause concorrenti:
 
-Non è quindi un'attesa di conferma utente: è il filtro di lista.
+1. **Frontend** — `MediaGallerySection` usa sempre `useUploadMedia` e `useReplaceMediaFile` (legati al profilo dell'utente loggato) anche quando viene passato `externalProfileId`. Risultato: l'upload tenta di scrivere sul profilo dell'admin, non del talent.
+2. **Backend (Storage RLS)** — Le policy su `storage.objects` per i bucket `talent-media` e `avatars` permettono INSERT/UPDATE/DELETE solo quando `auth.uid() = (storage.foldername(name))[1]`. Quindi anche correggendo il frontend, l'admin viene bloccato perché sta scrivendo nella cartella del talent.
 
-## Soluzione scelta — Onboarding compilato dall'admin
+## Soluzione
 
-Dopo la creazione, l'admin viene portato sulla pagina di edit completo del talent (già esistente: `/owner/talents/:profileId/edit`, `OwnerTalentEdit`). Quando l'admin salva i dati minimi richiesti, il profilo passa a `onboarding_completed = true` e appare in lista.
+### 1. Storage policies (migrazione)
+Aggiungere policy su `storage.objects` per consentire a chi ha ruolo `owner` o `admin` di INSERT/UPDATE/DELETE su:
+- bucket `talent-media`
+- bucket `avatars`
 
-### Cambiamenti
+Le policy esistenti per i talent (auth.uid = folder) restano invariate.
 
-1. **Edge Function `create-talent`** — `supabase/functions/create-talent/index.ts`
-   - Nella risposta di successo, oltre a `user_id`, restituire anche il `profile_id` del profilo appena creato dal trigger `handle_new_user` (una `select id from profiles where user_id = newUser.user.id`).
+### 2. `MediaGallerySection.tsx`
+Quando `externalProfileId` è presente:
+- Usare `useUploadMediaByProfileId` (passando `profileId` + `userId` del talent) al posto di `useUploadMedia`.
+- Per il re-crop di una foto esistente, passare `externalUserId` invece di `user?.id` a `useReplaceMediaFile` (così il file viene caricato nella cartella del talent, coerente con le policy).
 
-2. **`CreateTalentDialog`** — `src/components/talents/CreateTalentDialog.tsx`
-   - Dopo il toast di successo, navigare a `/owner/talents/${profile_id}/edit` invece di limitarsi a chiudere il dialog.
-   - Invalidare comunque la query `talents` per coerenza.
+### 3. `ProfilePhotoSection.tsx`
+Già usa correttamente `targetUserId = profile?.user_id` per l'avatar: nessuna modifica al codice, ma serve la policy storage del punto 1 per farlo funzionare.
 
-3. **`OwnerTalentEdit`** — `src/pages/owner/OwnerTalentEdit.tsx`
-   - Mostrare in cima un banner discreto quando `profile.onboarding_completed === false`: "Profilo in attesa di completamento — non visibile nella lista finché non compili i campi obbligatori e salvi.".
-   - Aggiungere in fondo un pulsante **"Pubblica profilo"** che:
-     - controlla la presenza dei campi obbligatori dell'onboarding (stesso set usato in `TalentOnboarding` / `useProfileCompletion` — verrà riusato il check esistente, non duplicato);
-     - se ok, fa `update profiles set onboarding_completed = true where id = profileId` e invalida `["profile", profileId]` + `["owner-talents", ...]` + `["owner-talents-count"]`;
-     - mostra toast "Profilo pubblicato" e torna alla lista, dove il talent ora è visibile;
-     - se mancano campi, mostra un toast con l'elenco dei campi mancanti.
-   - Il pulsante è nascosto se `onboarding_completed` è già `true`.
-
-4. **RLS / permessi** — verifica preliminare: le policy attuali su `profiles` devono già permettere a `owner`/`admin` l'UPDATE sui profili altrui (richiesto dalla feature "Full profile editing" memorizzata). Se mancante, aggiungere una policy con `public.has_role(auth.uid(), 'owner') OR public.has_role(auth.uid(), 'admin')`. Da confermare leggendo le policy esistenti su `profiles` prima dell'implementazione.
-
-### Non in scope
-
-- Non viene introdotto uno stato "Bozza" nella lista talents.
-- Nessuna modifica al flusso di onboarding lato talent: se il talent accede prima che l'admin abbia "pubblicato", vedrà comunque il wizard di onboarding come oggi.
-- Nessun invio email automatico al talent (resta come oggi: reset password manuale).
+## File coinvolti
+- `supabase/migrations/<nuova>.sql` — nuove policy storage per owner/admin
+- `src/components/profile/MediaGallerySection.tsx` — routing condizionale degli hook upload/replace
 
 ## Verifica
+1. Login come admin → apri `/owner/talents/:profileId/edit` di un talent appena creato.
+2. Carica una foto in "Foto principali" → compare nella griglia.
+3. Cambia la foto profilo → si aggiorna.
+4. Login come talent stesso → vede le foto caricate dall'admin e può ancora caricarne/eliminarne le proprie.
 
-1. Da `Admin → Talents → Nuovo Talent` inserire una nuova email e confermare.
-2. Si apre automaticamente la pagina di edit del nuovo talent con il banner "in attesa di completamento".
-3. Compilare i campi obbligatori, cliccare **"Pubblica profilo"** → toast di conferma, redirect alla lista, il talent è visibile in cima.
-4. Riaprire l'edit: il banner e il pulsante "Pubblica" non compaiono più.
+## Fuori scope
+- Nessuna modifica alle policy della tabella `talent_media` (già permettono owner/admin via policy esistenti — da confermare durante l'implementazione).
+- Nessun cambio al flusso di pubblicazione profilo.

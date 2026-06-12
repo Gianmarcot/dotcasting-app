@@ -17,6 +17,7 @@ import {
 import {
   useTalentMediaByProfileIdEditable,
   useDeleteMediaByProfileId,
+  useUploadMediaByProfileId,
   type TalentMedia as TalentMediaType,
 } from "@/hooks/useTalentMediaByProfileIdEditable";
 import { useMediaRatingsForProfile, type MediaRating } from "@/hooks/useMediaRatings";
@@ -59,7 +60,8 @@ export const MediaGallerySection = ({
   const { mutate: deleteOwnMedia, isPending: isOwnDeleting } = useDeleteMedia();
   const { mutate: deleteExternalMedia, isPending: isExternalDeleting } =
     useDeleteMediaByProfileId();
-  const { mutate: uploadMedia, isPending: isUploading } = useUploadMedia();
+  const { mutate: uploadOwnMedia, isPending: isOwnUploading } = useUploadMedia();
+  const { mutate: uploadExternalMedia, isPending: isExternalUploading } = useUploadMediaByProfileId();
   const { mutate: updateOrder } = useUpdateMediaOrder();
   const { mutate: replaceFile, isPending: isReplacing } = useReplaceMediaFile();
   const { data: ownerRatings } = useMediaRatingsForProfile(
@@ -69,6 +71,29 @@ export const MediaGallerySection = ({
   const media = externalProfileId ? externalMedia : ownMedia;
   const isLoading = externalProfileId ? externalLoading : ownLoading;
   const isDeleting = externalProfileId ? isExternalDeleting : isOwnDeleting;
+  const isUploading = externalProfileId ? isExternalUploading : isOwnUploading;
+
+  const uploadMedia = (args: {
+    file: File | Blob;
+    mediaType: "photo" | "video";
+    category?: MediaCategory;
+    title?: string;
+  }, opts?: { onSuccess?: () => void }) => {
+    if (externalProfileId && externalUserId) {
+      uploadExternalMedia(
+        {
+          profileId: externalProfileId,
+          userId: externalUserId,
+          file: args.file as File,
+          mediaType: args.mediaType,
+          title: args.title,
+        },
+        opts
+      );
+    } else {
+      uploadOwnMedia(args, opts);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<string>("main_photos");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -142,7 +167,7 @@ export const MediaGallerySection = ({
           mediaId: cropTarget.id,
           oldUrl: cropTarget.url,
           newFile: blob,
-          userId: user?.id || "",
+          userId: externalUserId || user?.id || "",
         },
         {
           onSuccess: () => {
