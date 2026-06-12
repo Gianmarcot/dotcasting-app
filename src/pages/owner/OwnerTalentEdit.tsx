@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye } from "lucide-react";
+import { ArrowLeft, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { useProfileById } from "@/hooks/useProfileById";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
