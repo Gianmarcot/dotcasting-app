@@ -27,7 +27,7 @@ const DISPLAY = "TenorSans";
 const SANS = "DMSans";
 
 // --- Formato pagina ---------------------------------------------
-const PAGE: [number, number] = [842, 472];
+const PAGE: [number, number] = [1920, 1080];
 const INK = "#1a1a1a";
 const PAGE_BG = "#FFFFFF"; // sfondo pagina e cornice
 const CREAM = "#F4F0EC"; // testo e dettagli sul pannello scuro
