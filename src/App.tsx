@@ -53,9 +53,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
-            {import.meta.env.DEV && (
-              <Route path="/dev/card-preview" element={<CardPreview />} />
-            )}
+            <Route path="/dev/card-preview" element={<CardPreview />} />
             
             {/* Talent onboarding - protected but outside layout */}
             <Route
