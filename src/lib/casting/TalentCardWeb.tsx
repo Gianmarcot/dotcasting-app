@@ -3,9 +3,10 @@
 // Gemella del template PDF v5.
 //
 // Layout responsive (mobile-first):
-//   base  (mobile)  → 1 colonna, misure in rem
-//   md:   (tablet)  → 2 colonne (foto+panel, poi foto), misure in rem
-//   lg:   (desktop) → 3 colonne come il PDF, misure fluide in vw
+//   base (mobile e tablet) → 1 colonna, misure in rem;
+//                            panel ad altezza auto, foto 3:4
+//   lg:  (desktop)         → 3 colonne come il PDF, misure in vw;
+//                            colonne 2:3
 //
 // Le size si modificano SOLO nelle costanti qui sotto (stringhe
 // complete: Tailwind non compila classi composte a pezzi).
@@ -50,9 +51,9 @@ const CoverPhoto = ({ src, alt }: { src?: string; alt: string }) =>
 export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
   <article className="w-full bg-white font-card text-[#1a1a1a]">
     {/* ---------- 1. wrapper "pagina": 1 / 2 / 3 colonne ---------- */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-1.5">
-      {/* ---------- 2. colonne con cornice propria ---------- */}
-      <div className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 px-1.5">
+      {/* ---------- 2. colonne con cornice propria (1 col fino a lg) ---------- */}
+      <div className="px-1.5 py-3 aspect-[3/4] lg:aspect-[2/3]">
         <CoverPhoto src={card.coverPhotos[0]} alt={card.nome} />
       </div>
 
@@ -98,16 +99,16 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
         </div>
       </div>
 
-      <div className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
+      <div className="px-1.5 py-3 aspect-[3/4] lg:aspect-[2/3]">
         <CoverPhoto src={card.coverPhotos[1]} alt={card.nome} />
       </div>
     </div>
 
     {/* ---------- galleria: stesso scheletro, 1 / 2 / 3 colonne ---------- */}
     {card.galleryPages.length > 0 && (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 px-1.5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 px-1.5">
         {card.galleryPages.flat().map((src) => (
-          <div key={src} className="px-1.5 py-3 aspect-[3/4] md:aspect-[2/3]">
+          <div key={src} className="px-1.5 py-3 aspect-[3/4] lg:aspect-[2/3]">
             <img src={src} alt={card.nome} className="w-full h-full object-cover" />
           </div>
         ))}
