@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import CardPreview from "./dev/CardPreview";
+import SharedRound from "./pages/shared/SharedRound";
 
 // Layouts
 import { TalentLayout } from "@/components/layout/TalentLayout";
