@@ -112,21 +112,28 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
     navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
   };
 
-  // Calcola le posizioni "griglia": 5 colonne max, card 5:7 dimensionate sull'altezza disponibile,
-  // poi centrate. Se non c'è ancora la misura, fallback a una stima ragionevole.
+  // Calcola le posizioni "griglia": cap a dimensione ventaglio, ma rimpicciolisce
+  // proporzionalmente se la card è troppo stretta, così non sfora il contenitore.
+  const SAFE_PADDING = 4; // compensa il border-2 bianco
   const gridSlots = (() => {
     const slots = Math.max(n, 1);
-    // Stessa dimensione delle card in ventaglio: nessuno scale-up al hover.
-    const cardH = STACK_HEIGHT * 0.88;
-    const cardW = (cardH * 5) / 7;
+    const maxCardH = STACK_HEIGHT * 0.88;
+    const maxCardW = (maxCardH * 5) / 7;
+    const available = Math.max(0, stripWidth - SAFE_PADDING);
+    const fitCardW = stripWidth > 0
+      ? (available - (slots - 1) * GRID_GAP) / slots
+      : maxCardW;
+    const cardW = Math.max(0, Math.min(maxCardW, fitCardW));
+    const cardH = (cardW * 7) / 5;
     const totalW = slots * cardW + (slots - 1) * GRID_GAP;
-    const startX = (stripWidth - totalW) / 2 + cardW / 2; // centro della prima card
+    const startX = (stripWidth - totalW) / 2 + cardW / 2;
     return Array.from({ length: slots }, (_, i) => ({
       x: startX + i * (cardW + GRID_GAP) - stripWidth / 2,
       cardW,
       cardH,
     }));
   })();
+
 
   // Posizioni "ventaglio"
   const fanSlots = Array.from({ length: n }, (_, i) => ({
