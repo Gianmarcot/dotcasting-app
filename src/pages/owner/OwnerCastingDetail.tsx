@@ -282,25 +282,24 @@ interface RoundsByRoleBlockProps {
   castingId: string;
   roles: Tables<"casting_roles">[];
   confirmedByRole: Record<string, number>;
+  onEditRole: (role: Tables<"casting_roles">) => void;
 }
 
-const RoundsByRoleBlock = ({ castingId, roles, confirmedByRole }: RoundsByRoleBlockProps) => {
+const RoundsByRoleBlock = ({ castingId, roles, confirmedByRole, onEditRole }: RoundsByRoleBlockProps) => {
   const { data: roundsMap } = useRoundsByRole(castingId);
   if (roles.length === 0) return null;
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-medium">Invii per ruolo</h2>
-      <div className="space-y-4">
-        {roles.map((role) => (
-          <RoleRoundsCompartment
-            key={role.id}
-            role={role}
-            castingId={castingId}
-            rounds={roundsMap?.get(role.id) ?? []}
-            confirmedCount={confirmedByRole[role.id] || 0}
-          />
-        ))}
-      </div>
+      {roles.map((role) => (
+        <RoleRoundsCompartment
+          key={role.id}
+          role={role as any}
+          castingId={castingId}
+          rounds={roundsMap?.get(role.id) ?? []}
+          confirmedCount={confirmedByRole[role.id] || 0}
+          onEditRole={onEditRole}
+        />
+      ))}
     </div>
   );
 };
