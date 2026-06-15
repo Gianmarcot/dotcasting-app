@@ -85,14 +85,16 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId, roleId, defau
     isError: groupsIsError,
     error: groupsError,
   } = useQuery({
-    queryKey: ["round-role-talents", castingId],
+    queryKey: ["round-role-talents", castingId, roleId ?? "all"],
     enabled: open && !!castingId,
     queryFn: async () => {
-      const { data: roles, error: e1 } = await supabase
+      let rolesQuery = supabase
         .from("casting_roles")
         .select("id, name")
         .eq("casting_id", castingId)
         .order("created_at", { ascending: true });
+      if (roleId) rolesQuery = rolesQuery.eq("id", roleId);
+      const { data: roles, error: e1 } = await rolesQuery;
       if (e1) throw e1;
       const roleIds = (roles ?? []).map(r => r.id);
       if (!roleIds.length) return [] as RoleGroup[];
