@@ -157,18 +157,55 @@ export const RoundWizardDialog = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const { data: confirmed = [], isLoading: confirmedLoading } =
-    useRoleConfirmedTalents(roleId, open);
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>("by_status");
+  const [statusFilters, setStatusFilters] = useState<Set<StatusFilterKey>>(
+    new Set(["company_confirmed"]),
+  );
 
-  const allSelected = confirmed.length > 0 && confirmed.every((t) => selected.has(t.roleTalentId));
+  useEffect(() => {
+    if (!open) return;
+    if (mode === "edit") {
+      setSelectionMode("manual");
+    } else {
+      setSelectionMode("by_status");
+      setStatusFilters(new Set(["company_confirmed"]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const { data: roleTalents = [], isLoading: roleTalentsLoading } =
+    useRoleTalentsForRound(roleId, open);
+
+  // Derive selection when filters change (by_status mode only)
+  useEffect(() => {
+    if (selectionMode !== "by_status") return;
+    const active = STATUS_FILTERS.filter((f) => statusFilters.has(f.key));
+    if (active.length === 0) {
+      setSelected(new Set());
+      return;
+    }
+    const next = new Set<string>();
+    roleTalents.forEach((r) => {
+      if (active.some((f) => f.match(r))) next.add(r.roleTalentId);
+    });
+    setSelected(next);
+  }, [selectionMode, statusFilters, roleTalents]);
+
+  const allSelected = roleTalents.length > 0 && roleTalents.every((t) => selected.has(t.roleTalentId));
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
-    else setSelected(new Set(confirmed.map((t) => t.roleTalentId)));
+    else setSelected(new Set(roleTalents.map((t) => t.roleTalentId)));
   };
   const toggle = (id: string) =>
     setSelected((prev) => {
       const n = new Set(prev);
       n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  const toggleFilter = (key: StatusFilterKey) =>
+    setStatusFilters((prev) => {
+      const n = new Set(prev);
+      n.has(key) ? n.delete(key) : n.add(key);
       return n;
     });
 
