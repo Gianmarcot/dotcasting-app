@@ -26,8 +26,18 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const share = useShareRound();
 
   const total = preview?.total ?? round.talents_count ?? 0;
-  const photos = preview?.photos ?? [];
-  const extra = Math.max(0, total - photos.length);
+  const items = preview?.items ?? [];
+  const visible = items.slice(0, 5);
+  const extra = Math.max(0, total - visible.length);
+  const hasOverflow = extra > 0;
+  const cellCount = Math.min(5, visible.length + (hasOverflow ? 1 : 0));
+
+  const initialsOf = (name: string) => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
   const isShared = round.status === "shared";
   const open = () => navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
@@ -93,41 +103,44 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         </Badge>
       </div>
 
-      {/* Photo strip */}
-      <div className="flex-1 px-4 flex gap-1 items-stretch min-h-0">
+      {/* Photo strip — only real talents, aspect 5/7 */}
+      <div className="flex-1 px-4 flex gap-1 items-start justify-start min-h-0">
         {total === 0 ? (
-          <div className="flex-1 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
+          <div className="flex-1 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground" style={{ aspectRatio: "5 / 7" }}>
             Nessun talent
           </div>
         ) : (
           <>
-            {photos.map((url, i) => (
+            {visible.map((it, i) => (
               <div
                 key={i}
-                className="flex-1 rounded-md overflow-hidden bg-muted/40"
-                style={{ aspectRatio: "2 / 3", maxWidth: "20%" }}
+                className="rounded-md overflow-hidden bg-muted/40"
+                style={{
+                  aspectRatio: "5 / 7",
+                  flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
+                }}
               >
-                <img
-                  src={url}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                />
+                {it.photoUrl ? (
+                  <img
+                    src={it.photoUrl}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-[#2C2C2A] text-white font-tenor uppercase text-xs tracking-wide">
+                    {initialsOf(it.name)}
+                  </div>
+                )}
               </div>
             ))}
-            {/* Fill remaining cells (up to 5 total) */}
-            {extra === 0 && photos.length < 5 &&
-              Array.from({ length: 5 - photos.length }).map((_, i) => (
-                <div
-                  key={`empty-${i}`}
-                  className="flex-1 rounded-md bg-muted/30"
-                  style={{ aspectRatio: "2 / 3", maxWidth: "20%" }}
-                />
-              ))}
-            {extra > 0 && (
+            {hasOverflow && (
               <div
-                className="flex-1 rounded-md bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
-                style={{ aspectRatio: "2 / 3", maxWidth: "20%" }}
+                className="rounded-md bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
+                style={{
+                  aspectRatio: "5 / 7",
+                  flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
+                }}
               >
                 +{extra}
               </div>
@@ -135,6 +148,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
           </>
         )}
       </div>
+
 
       {/* Footer */}
       <div className="flex items-center justify-between px-4 py-2 text-xs text-muted-foreground">

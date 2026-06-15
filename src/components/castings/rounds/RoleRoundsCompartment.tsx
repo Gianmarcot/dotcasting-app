@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, MoreVertical, Edit, Trash2, ExternalLink, Users, CheckCircle2 } from "lucide-react";
+import { Plus, MoreVertical, Edit, Trash2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -93,20 +93,7 @@ export const RoleRoundsCompartment = ({
           )}
         </div>
 
-        <div className="flex items-center gap-3" onClick={stop}>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
-              <span className="font-medium text-foreground">{total}</span>
-            </span>
-            {confirmedCount > 0 && (
-              <span className="flex items-center gap-1 text-[#729128]">
-                <CheckCircle2 className="h-4 w-4" />
-                <span className="font-medium">{confirmedCount}</span>
-              </span>
-            )}
-          </div>
-
+        <div className="flex items-center gap-2" onClick={stop}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={stop}>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -142,25 +129,30 @@ export const RoleRoundsCompartment = ({
 
       <div className="border-t border-border/60" />
 
-      {/* Griglia invii */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {rounds.map((r) => (
-          <RoundFolderCard
-            key={r.id}
-            round={r}
-            castingId={castingId}
-            preview={previews?.get(r.id)}
-          />
-        ))}
+      {/* Griglia invii — 1/2/3 colonne, cella "Aggiungi" inline */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...rounds]
+          .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at))
+          .map((r) => (
+            <RoundFolderCard
+              key={r.id}
+              round={r}
+              castingId={castingId}
+              preview={previews?.get(r.id)}
+            />
+          ))}
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
           className="h-44 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
         >
           <Plus className="h-5 w-5" />
-          <span className="text-sm">Aggiungi invio</span>
+          <span className="text-sm">
+            {rounds.length === 0 ? "Crea il primo invio" : "Aggiungi invio"}
+          </span>
         </button>
       </div>
+
 
       <RoundWizardDialog
         open={createOpen}

@@ -1,72 +1,60 @@
-## Pagina pubblica `/round/:token`
+## UI fixes — Casting detail (presentazione)
 
-Vista cliente accessibile via link condiviso, **senza login**. Tutta la lettura passa per una RPC dedicata; nessuna policy RLS viene aperta ad `anon`.
+Solo layout/presentazione. Nessuna modifica a schema, RLS, azioni o logica invii.
 
-### 1. Backend: RPC + edge function
+### 1. `useRoundPreviewPhotos` — payload arricchito (per le iniziali)
+Per mostrare iniziali ai talent senza foto serve il nome accanto all'URL. Estensione minima e retro-compatibile:
 
-**Migration — RPC `public.get_shared_round(p_token text)`**
-- `SECURITY DEFINER`, `STABLE`, `SET search_path = public`.
-- Trova `casting_rounds` con `share_token = p_token AND status = 'shared'`. Se non trovato → ritorna `jsonb` vuoto `{}` (la pagina mostra "Link non disponibile"); zero leak di esistenza.
-- Ritorna un singolo `jsonb` con:
-  ```jsonc
-  {
-    "round": { "id", "label", "field_preset", "shared_at" },
-    "casting": { "title" },          // solo il titolo, niente altro
-    "role":    { "name" },            // solo il nome del ruolo
-    "talents": [
-      {
-        "role_talent_id",
-        "pdf_path",                   // path nel bucket, non URL
-        "profile": { ...stesse colonne usate da fetchRoundTalents.mapToTalent },
-        "attributes": { ...colonne talent_attributes },
-        "media": [ { url, sort_order, category, media_type } ]  // solo main_photos
-      }
-    ]
-  }
-  ```
-  Il client riusa `mapToTalent` + `resolveCard(preset)` esattamente come oggi, senza duplicare logica di campi.
-- Filtri di proiezione: `media_type = 'photo' AND category = 'main_photos'`, ordinati per `sort_order`.
-- `GRANT EXECUTE ON FUNCTION public.get_shared_round(text) TO anon, authenticated;`
-- **RLS delle tabelle resta invariata** (chiusa per anon). La definer accede grazie al security definer.
+```ts
+interface RoundPreviewItem { photoUrl: string | null; name: string }
+interface RoundPreviewPhotos { items: RoundPreviewItem[]; total: number }
+```
 
-**Edge function `get-round-pdf-url`** (verify_jwt = false)
-- Input: `{ token, roleTalentId }` con validazione zod.
-- Cerca con service role il round (`share_token=token, status='shared'`) e il `casting_round_talents.pdf_path` corrispondente. Se non trova → 404.
-- Crea `signed URL` (TTL 300s) sul bucket privato `casting-pdfs` e la restituisce. Nessun URL permanente esposto.
-- CORS abilitato.
+- Query già esistente: aggiungo `first_name, last_name, stage_name` al `select` su `profiles` (stessa join, stessa tabella, stesso filtro). Niente cambi schema, niente cambi logica.
+- `items` ordinati come arrivano; nessun limite a 5 nel hook (il limite resta UI-side per coerenza con "+N").
+- `total` resta il numero reale di talent dell'invio.
 
-### 2. Frontend: route pubblica
+### 2. `RoundFolderCard.tsx` — strip miniature reale + aspect 5/7
+Sostituisco l'attuale "fill fino a 5" con miniature 1:1 sui talent reali:
 
-**`src/pages/shared/SharedRound.tsx`** (route `/round/:token` registrata in `App.tsx` **fuori** da `ProtectedRoute` e da `OwnerLayout`).
-- React Query: `["shared-round", token] → supabase.rpc('get_shared_round', { p_token: token })`.
-- Stati:
-  - Loading: skeleton minimale.
-  - Vuoto / errore: schermata neutra "Link non disponibile" (logo dotCasting + frase, nessun dettaglio tecnico, nessun retry button).
-  - OK: header + lista card.
-- Header sobrio: logo dotCasting (asset esistente), titolo `{casting.title} — {role.name}` in Tenor Sans uppercase, sottotitolo con `round.label`. Nessun riferimento alla dashboard interna.
-- Lista talent: una `TalentCardWeb` per riga, alimentata da `resolveCard(mapToTalent(item.profile + attributes + media), preset)` (riutilizzo puro, niente duplicazione logica).
-  - Sotto la card: bottone "Scarica PDF" → invoca `supabase.functions.invoke('get-round-pdf-url', { body: { token, roleTalentId } })`, apre l'URL firmato in nuova tab. Bottone disabilitato se `pdf_path` è null.
-- Layout: mobile-first, colonna singola sempre (anche desktop max-w-3xl centrato). Background cream del progetto.
-- Tipografia/colori conformi al design system (no Inter, headings Tenor Sans).
+- Render: `items.slice(0, 5).map(...)`. Se `items.length > 5`, l'ultima cella diventa `+N` (con `N = total - 5`).
+- Nessun placeholder grigio: la fila ha tante celle quanti i talent (fino a 5).
+- Talent **senza foto**: cella con iniziali (max 2, da `stage_name` o `first_name + last_name`) su `bg-[#2C2C2A] text-white`, font Tenor Sans uppercase.
+- `aspect-ratio: 5 / 7` su ogni cella (era 2/3). `maxWidth` rimosso: le celle riempiono lo spazio disponibile della scheda più stretta.
+- La card mantiene `h-44` fissa: l'altezza non dipende dal numero di miniature; lo spazio orizzontale viene distribuito con `flex-1` solo sulle celle realmente presenti, allineate a sinistra (`justify-start`) per evitare stretching innaturale quando ne hai 1-2.
+  - Concretamente: ogni cella ha `width: calc((100% - gaps) / min(items, 5))` oppure semplicemente `flex: 0 0 calc(20% - gap)` così con 1 talent vedi una sola miniatura di larghezza ≈ ⅕ della card, non una mega-miniatura che sfora.
 
-**Helper riuso `mapToTalent`**: estrazione in `fetchRoundTalents.ts` resta utilizzabile importando solo `mapToTalent` con il payload assemblato dall'RPC. Aggiungerò un piccolo adapter `mapRpcTalent(item)` che compone `{ ...profile, attributes: [attributes], media }` e chiama `mapToTalent` esistente.
+### 3. `RoleRoundsCompartment.tsx` — griglia 1/2/3 e cella "Aggiungi" a misura
+Modifiche solo nel blocco della griglia:
 
-### 3. Sicurezza — riepilogo
-- Nessuna tabella diventa leggibile per `anon`.
-- Unica superficie esposta: una RPC che restituisce **solo** il payload del round se `status='shared'`.
-- PDF mai accessibili tramite URL pubblico: signed URL a 5 minuti generato da edge function previa validazione token + appartenenza del `roleTalentId` al round.
-- Nessun tracciamento accessi (esplicitamente fuori scope).
+- Griglia: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4` (mobile 1, tablet 2, desktop 3).
+- La cella "Aggiungi invio" diventa l'ultima cella della stessa griglia, con `h-44 rounded-2xl border-2 border-dashed` identica per ingombro alle `RoundFolderCard`. Niente più riquadro full-width.
+- Testo della cella: `"Aggiungi invio"` se `rounds.length > 0`, `"Crea il primo invio"` se vuoto.
 
-### 4. Fuori scope
-- Analytics / logging accessi.
-- Watermark, scadenza del token, revoca esplicita (esiste già `status` per "unsharing" eventuale).
-- Modifica dello schema esistente o delle RLS già in essere.
-- Variazioni a `TalentCardWeb`, `roundPreset`, `FIELD_REGISTRY`, `generateRound`.
+### 4. Header ruolo — contatore unico
+Nel blocco `<div className="flex items-center gap-3" onClick={stop}>`:
 
-### File toccati / creati
-- **Migration**: funzione `get_shared_round` + grant execute.
-- **Edge function**: `supabase/functions/get-round-pdf-url/index.ts`.
-- **Frontend**:
-  - `src/pages/shared/SharedRound.tsx` (nuovo)
-  - `src/App.tsx` (route pubblica `/round/:token`)
-  - `src/lib/casting/fetchRoundTalents.ts` (export di `mapToTalent` + nuovo `mapRpcTalent` adapter)
+- Rimuovo l'intero gruppo `<div className="flex items-center gap-3 text-sm text-muted-foreground"> ... Users / CheckCircle2 ...</div>`.
+- Restano solo: `DropdownMenu` (kebab) + `Button` "Nuovo invio".
+- Il badge `Confermati X/Y` accanto al titolo resta invariato.
+- Import non più usati (`Users`, `CheckCircle2`) rimossi.
+
+### 5. Ordinamento invii ascendente
+Nella compartment, prima del `.map`:
+
+```ts
+const orderedRounds = [...rounds].sort(
+  (a, b) => +new Date(a.created_at) - +new Date(b.created_at)
+);
+```
+
+Uso `orderedRounds` per la render. Non tocco il query/hook a monte.
+
+### File toccati
+- `src/hooks/useRoundPreviewPhotos.ts` — payload `{ items, total }`, query estesa con nomi.
+- `src/components/castings/rounds/RoundFolderCard.tsx` — strip reale, fallback iniziali, aspect 5/7.
+- `src/components/castings/rounds/RoleRoundsCompartment.tsx` — griglia 1/2/3, cella "Aggiungi" inline, rimozione contatori duplicati, ordinamento asc.
+
+### Fuori scope
+- Query/azioni round, RLS, edge functions, RoundWizard, route pubblica `/round/:token`.
+- Icone azione per stato (link generato vs da condividere): lasciate come sono.
