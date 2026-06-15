@@ -49,7 +49,7 @@ const TalentBlock = ({
     ...row.profile,
     attributes: row.attributes ? [row.attributes] : null,
     media: row.media ?? [],
-  } as Parameters<typeof mapToTalent>[0]);
+  } as unknown as Parameters<typeof mapToTalent>[0]);
 
   const card = resolveCard(talent, preset);
 
