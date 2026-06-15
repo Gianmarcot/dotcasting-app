@@ -15,6 +15,7 @@ interface Props {
   talent: TalentWithAttributes | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  extraAction?: { label: string; onClick: () => void; icon?: React.ReactNode };
 }
 
 const buildName = (t: TalentWithAttributes) => {
