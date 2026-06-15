@@ -165,7 +165,7 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId, roleId, defau
     setIsGenerating(true);
     setErrors([]);
     try {
-      const round = await createRound.mutateAsync({ castingId, label, preset });
+      const round = await createRound.mutateAsync({ castingId, castingRoleId: roleId ?? null, label, preset });
       const items = await fetchRoundTalents(Array.from(selectedRT));
       setProgress({ done: 0, total: items.length });
       const localErrors: string[] = [];
