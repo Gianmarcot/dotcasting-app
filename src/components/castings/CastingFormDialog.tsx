@@ -82,6 +82,14 @@ export const CastingFormDialog = ({
   defaultCompanyId,
 }: CastingFormDialogProps) => {
   const { data: companies } = useCompanies();
+  const navigate = useNavigate();
+  const isEdit = !!casting;
+  const [step, setStep] = useState<"choose" | "form">(isEdit ? "form" : "choose");
+
+  useEffect(() => {
+    if (open) setStep(isEdit ? "form" : "choose");
+  }, [open, isEdit]);
+
 
   const form = useForm<CastingFormValues>({
     resolver: zodResolver(castingSchema),
