@@ -145,12 +145,70 @@ export const CastingFormDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {casting ? "Modifica Casting" : "Nuovo Casting"}
+          <DialogTitle className="flex items-center gap-2">
+            {!isEdit && step === "form" && (
+              <button
+                type="button"
+                onClick={() => setStep("choose")}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Indietro"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+            )}
+            {isEdit ? "Modifica Casting" : "Nuovo Casting"}
           </DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
+        {step === "choose" && !isEdit ? (
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Come vuoi creare questo casting?
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  /* AI panel sotto */
+                }}
+                className="text-left rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Descrivi con AI</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Scrivi o detta una breve descrizione: l'AI prepara titolo, ruoli e requisiti.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("form")}
+                className="text-left rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <FilePlus className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Parti da zero</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Compila il form manualmente con i dati del casting.
+                </p>
+              </button>
+            </div>
+
+            <div className="pt-2">
+              <AICastingCreator
+                variant="bare"
+                onCreated={(id) => {
+                  onOpenChange(false);
+                  navigate(`/owner/castings/${id}`);
+                }}
+              />
+            </div>
+          </div>
+        ) : (
+          <Form {...form}>
+
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
