@@ -74,7 +74,7 @@ const ESSENTIAL_KEYS = [
   "abilita",
 ];
 
-export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
+export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }: Props) => {
   const navigate = useNavigate();
   const [photoIdx, setPhotoIdx] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
