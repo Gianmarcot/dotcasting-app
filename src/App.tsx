@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import CardPreview from "./dev/CardPreview";
+import SharedRound from "./pages/shared/SharedRound";
 
 // Layouts
 import { TalentLayout } from "@/components/layout/TalentLayout";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
+            <Route path="/round/:token" element={<SharedRound />} />
             
             {/* Talent onboarding - protected but outside layout */}
             <Route
