@@ -26,8 +26,18 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const share = useShareRound();
 
   const total = preview?.total ?? round.talents_count ?? 0;
-  const photos = preview?.photos ?? [];
-  const extra = Math.max(0, total - photos.length);
+  const items = preview?.items ?? [];
+  const visible = items.slice(0, 5);
+  const extra = Math.max(0, total - visible.length);
+  const hasOverflow = extra > 0;
+  const cellCount = Math.min(5, visible.length + (hasOverflow ? 1 : 0));
+
+  const initialsOf = (name: string) => {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
 
   const isShared = round.status === "shared";
   const open = () => navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
