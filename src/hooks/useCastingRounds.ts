@@ -5,8 +5,12 @@ import type { RoundPreset } from "@/lib/casting/roundPreset";
 export interface CastingRound {
   id: string;
   casting_id: string;
+  casting_role_id: string | null;
   label: string;
   field_preset: RoundPreset;
+  status: string; // 'draft' | 'shared'
+  share_token: string | null;
+  shared_at: string | null;
   created_at: string;
   created_by: string | null;
   talents_count?: number;
