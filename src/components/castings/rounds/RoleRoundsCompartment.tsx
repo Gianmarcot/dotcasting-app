@@ -162,12 +162,13 @@ export const RoleRoundsCompartment = ({
         </button>
       </div>
 
-      <CreateRoundDialog
+      <RoundWizardDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
         castingId={castingId}
         roleId={role.id}
-        defaultLabel={`${rounds.length + 1}° invio - ${role.name}`}
+        roleName={role.name}
+        defaultRoundNumber={rounds.length + 1}
       />
     </div>
   );
