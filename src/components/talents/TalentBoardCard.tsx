@@ -97,6 +97,29 @@ export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }:
         </div>
       )}
 
+      {/* Material indicators */}
+      {materialIndicators && (
+        <div className="absolute top-2 right-2 flex gap-1">
+          {materialIndicators.photos > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <ImageIcon className="h-3 w-3" />
+              {materialIndicators.photos}
+            </span>
+          )}
+          {materialIndicators.videos > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <Video className="h-3 w-3" />
+              {materialIndicators.videos}
+            </span>
+          )}
+          {materialIndicators.hasPdf && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <FileText className="h-3 w-3" />
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Bottom info band */}
       <div className="absolute inset-x-0 bottom-0 bg-[#1a1a1a]/90 px-3 py-2 text-white">
         <div className="truncate text-sm font-medium">{name}</div>
