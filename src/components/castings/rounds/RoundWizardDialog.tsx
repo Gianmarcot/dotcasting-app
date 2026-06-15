@@ -321,46 +321,124 @@ export const RoundWizardDialog = (props: Props) => {
 
   // ----- step content
   const Step1 = (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Mode switch */}
+      <div className="inline-flex rounded-full bg-muted p-1 text-sm">
+        <button
+          type="button"
+          onClick={() => setSelectionMode("by_status")}
+          className={`px-4 py-1.5 rounded-full transition-colors ${
+            selectionMode === "by_status" ? "bg-white shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          Per stato
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectionMode("manual")}
+          className={`px-4 py-1.5 rounded-full transition-colors ${
+            selectionMode === "manual" ? "bg-white shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          Manuale
+        </button>
+      </div>
+
+      {selectionMode === "by_status" && (
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Includi talent con
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_FILTERS.map((f) => {
+              const active = statusFilters.has(f.key);
+              const count = roleTalents.filter((r) => f.match(r)).length;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  onClick={() => toggleFilter(f.key)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    active
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-white text-foreground border-border hover:border-foreground/40"
+                  }`}
+                >
+                  {f.label} <span className="opacity-60">· {count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Talent confermati dall'azienda in questo ruolo
+          {selectionMode === "by_status"
+            ? "Talent inclusi automaticamente dai filtri"
+            : "Spunta i talent da includere"}
         </p>
-        {confirmed.length > 0 && (
+        {selectionMode === "manual" && roleTalents.length > 0 && (
           <Button type="button" variant="ghost" size="sm" onClick={toggleAll}>
             {allSelected ? "Deseleziona tutti" : "Seleziona tutti"}
           </Button>
         )}
       </div>
-      <div className="border rounded-lg max-h-[420px] overflow-y-auto divide-y">
-        {confirmedLoading && (
+
+      <div className="border rounded-lg max-h-[380px] overflow-y-auto divide-y">
+        {roleTalentsLoading && (
           <div className="p-6 text-sm text-muted-foreground text-center">Caricamento…</div>
         )}
-        {!confirmedLoading && confirmed.length === 0 && (
+        {!roleTalentsLoading && roleTalents.length === 0 && (
           <div className="p-8 text-sm text-muted-foreground text-center">
-            Nessun talent confermato in questo ruolo.
+            Nessun talent in questo ruolo.
           </div>
         )}
-        {confirmed.map((t) => {
+        {(selectionMode === "by_status"
+          ? roleTalents.filter((r) => selected.has(r.roleTalentId))
+          : roleTalents
+        ).map((t) => {
           const checked = selected.has(t.roleTalentId);
-          return (
-            <label
-              key={t.roleTalentId}
-              className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-muted/40"
-            >
-              <Checkbox checked={checked} onCheckedChange={() => toggle(t.roleTalentId)} />
+          const badge = statusBadge(t);
+          const isManual = selectionMode === "manual";
+          const Row = (
+            <div className="flex items-center gap-3 px-3 py-2 w-full">
+              {isManual && (
+                <Checkbox checked={checked} onCheckedChange={() => toggle(t.roleTalentId)} />
+              )}
               <Avatar className="h-10 w-10">
                 {t.photoUrl && <AvatarImage src={t.photoUrl} alt={t.name} />}
                 <AvatarFallback className="text-xs">{initials(t.name) || "?"}</AvatarFallback>
               </Avatar>
               <span className="text-sm flex-1 truncate">{t.name}</span>
+              {badge && (
+                <Badge
+                  variant="secondary"
+                  className={`text-[11px] font-normal pointer-events-none ${badge.tone}`}
+                >
+                  {badge.label}
+                </Badge>
+              )}
+            </div>
+          );
+          return isManual ? (
+            <label key={t.roleTalentId} className="flex cursor-pointer hover:bg-muted/40">
+              {Row}
             </label>
+          ) : (
+            <div key={t.roleTalentId}>{Row}</div>
           );
         })}
+        {selectionMode === "by_status" && !roleTalentsLoading && selected.size === 0 && roleTalents.length > 0 && (
+          <div className="p-6 text-sm text-muted-foreground text-center">
+            Nessun talent corrisponde ai filtri selezionati.
+          </div>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">{selected.size} selezionati</p>
+      <p className="text-xs text-muted-foreground">{selected.size} talent selezionati</p>
     </div>
   );
+
 
   const FieldsPanel = (
     <div className="space-y-5">
