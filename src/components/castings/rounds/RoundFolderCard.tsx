@@ -27,10 +27,26 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
 
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
-  const visible = items.slice(0, 5);
-  const extra = Math.max(0, total - visible.length);
+  // Ordina: prima con foto, poi senza (stable). Solo per la presentazione dello stack.
+  const ordered = [...items]
+    .map((it, idx) => ({ it, idx }))
+    .sort((a, b) => {
+      const ap = a.it.photoUrl ? 0 : 1;
+      const bp = b.it.photoUrl ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      return a.idx - b.idx;
+    })
+    .map((x) => x.it);
+  const stackItems = ordered.slice(0, 4);
+  const extra = Math.max(0, total - 4);
   const hasOverflow = extra > 0;
-  const cellCount = Math.min(5, visible.length + (hasOverflow ? 1 : 0));
+  // Layers: front first (highest z). Optionally append "+N" at the back.
+  const layers: Array<{ kind: "photo" | "more"; item?: typeof stackItems[number] }> = [
+    ...stackItems.map((it) => ({ kind: "photo" as const, item: it })),
+    ...(hasOverflow ? [{ kind: "more" as const }] : []),
+  ];
+  // Rotation/offset presets per layer index (front = 0)
+  const rotations = [0, -4, 6, -3, 9];
 
   const initialsOf = (name: string) => {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -103,50 +119,57 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         </Badge>
       </div>
 
-      {/* Photo strip — altezza fissa = una riga piena di 5 miniature 5/7 */}
+      {/* Photo stack — ventaglio sovrapposto, altezza fissa */}
       <div className="px-4">
-        <div className="w-full aspect-[25/7] flex gap-1 items-stretch justify-start overflow-hidden">
+        <div className="relative w-full h-44 overflow-hidden group/stack">
           {total === 0 ? (
-            <div className="w-full h-full rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
+            <div className="absolute inset-0 m-2 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
               Nessun talent
             </div>
           ) : (
-            <>
-              {visible.map((it, i) => (
-                <div
-                  key={i}
-                  className="h-full rounded-md overflow-hidden bg-muted/40"
-                  style={{
-                    aspectRatio: "5 / 7",
-                    flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
-                  }}
-                >
-                  {it.photoUrl ? (
-                    <img
-                      src={it.photoUrl}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center bg-[#2C2C2A] text-white font-tenor uppercase text-xs tracking-wide">
-                      {initialsOf(it.name)}
-                    </div>
-                  )}
-                </div>
-              ))}
-              {hasOverflow && (
-                <div
-                  className="h-full rounded-md bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
-                  style={{
-                    aspectRatio: "5 / 7",
-                    flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
-                  }}
-                >
-                  +{extra}
-                </div>
-              )}
-            </>
+            <div className="absolute inset-0 flex items-center justify-center">
+              {layers.map((layer, i) => {
+                const z = layers.length - i;
+                const rot = rotations[i] ?? 0;
+                const baseGap = 24;
+                const hoverGap = 36;
+                const offset = i * baseGap - ((layers.length - 1) * baseGap) / 2;
+                const offsetHover = i * hoverGap - ((layers.length - 1) * hoverGap) / 2;
+                const rotHover = rot * 1.15;
+                const baseTransform = `translate(-50%, -50%) translateX(${offset}px) rotate(${rot}deg)`;
+                const hoverTransform = `translate(-50%, -50%) translateX(${offsetHover}px) rotate(${rotHover}deg)`;
+                const isMore = layer.kind === "more";
+                return (
+                  <div
+                    key={i}
+                    className="absolute top-1/2 left-1/2 h-[88%] aspect-[5/7] rounded-md overflow-hidden bg-muted/40 border-2 border-white pointer-events-none transition-transform duration-200 ease-out group-hover/stack:[transform:var(--t-hover)]"
+                    style={{
+                      zIndex: z,
+                      transform: baseTransform,
+                      ["--t-hover" as any]: hoverTransform,
+                      opacity: isMore ? 0.9 : 1,
+                    }}
+                  >
+                    {isMore ? (
+                      <div className="h-full w-full flex items-center justify-center bg-muted text-sm font-medium text-muted-foreground">
+                        +{extra}
+                      </div>
+                    ) : layer.item?.photoUrl ? (
+                      <img
+                        src={layer.item.photoUrl}
+                        alt=""
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center bg-[#2C2C2A] text-white font-tenor uppercase text-xs tracking-wide">
+                        {initialsOf(layer.item?.name ?? "")}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       </div>
