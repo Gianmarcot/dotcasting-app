@@ -85,6 +85,22 @@ const travelToText = (v: unknown): string | null => {
   return null;
 };
 
+/**
+ * Reroute a Supabase Storage URL through the image transformation endpoint,
+ * capping the longest side at ~1500px. Falls back to the original URL when
+ * the path doesn't match the public object format (e.g. external URLs).
+ */
+const transformPhotoUrl = (url: string): string => {
+  if (!url) return url;
+  const marker = "/storage/v1/object/public/";
+  if (!url.includes(marker)) return url;
+  const base = url.replace(marker, "/storage/v1/render/image/public/");
+  const sep = base.includes("?") ? "&" : "?";
+  return `${base}${sep}width=1500&height=1500&resize=contain&quality=80`;
+};
+
+
+
 export function mapToTalent(p: DbProfile): Talent {
   const a: Partial<DbAttrs> = Array.isArray(p.attributes)
     ? (p.attributes[0] ?? {})
@@ -149,7 +165,7 @@ export function mapToTalent(p: DbProfile): Talent {
     photos: (p.media ?? [])
       .filter(m => m.media_type === "photo" && (m.category ?? "main_photos") === "main_photos")
       .sort((x, y) => x.sort_order - y.sort_order)
-      .map(m => m.url),
+      .map(m => transformPhotoUrl(m.url)),
   };
 }
 
