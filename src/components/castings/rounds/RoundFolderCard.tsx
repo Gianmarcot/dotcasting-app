@@ -104,7 +104,8 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
       </div>
 
       {/* Photo strip — only real talents, aspect 5/7 */}
-      <div className="flex-1 px-4 flex gap-1 items-start justify-start min-h-0 mb-2">
+      <div className="px-4 flex gap-1 items-start justify-start min-h-0">
+
         {total === 0 ? (
           <div className="flex-1 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground" style={{ aspectRatio: "5 / 7" }}>
             Nessun talent
@@ -151,7 +152,8 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
 
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2 text-xs text-muted-foreground">
+      <div className="mt-auto flex items-center justify-between px-4 pt-3 pb-2 text-xs text-muted-foreground">
+
         <span className="truncate">
           {total} talent · {format(new Date(round.created_at), "d MMM yyyy", { locale: itLocale })}
         </span>
