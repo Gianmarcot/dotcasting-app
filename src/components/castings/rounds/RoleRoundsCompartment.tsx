@@ -120,9 +120,9 @@ export const RoleRoundsCompartment = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nuovo invio
+          <Button size="sm" variant="outline" onClick={openRole}>
+            Vai alla selezione
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
       </div>
