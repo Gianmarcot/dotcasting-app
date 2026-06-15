@@ -31,6 +31,8 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   castingId: string;
+  roleId?: string;
+  defaultLabel?: string;
 }
 
 interface RoleGroup {
@@ -56,7 +58,7 @@ const photoCountToValue = (n: number | null | undefined) =>
 const valueToPhotoCount = (v: string): number | null =>
   v === "all" ? null : parseInt(v, 10);
 
-export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
+export const CreateRoundDialog = ({ open, onOpenChange, castingId, roleId, defaultLabel }: Props) => {
   const [label, setLabel] = useState("");
   const [preset, setPreset] = useState<RoundPreset>(PRESET_ESSENZIALE);
   const [selectedRT, setSelectedRT] = useState<Set<string>>(new Set());
@@ -68,13 +70,13 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
 
   useEffect(() => {
     if (open) {
-      setLabel(`Round ${new Date().toLocaleDateString("it-IT")}`);
+      setLabel(defaultLabel || `Round ${new Date().toLocaleDateString("it-IT")}`);
       setPreset(PRESET_ESSENZIALE);
       setSelectedRT(new Set());
       setProgress(null);
       setErrors([]);
     }
-  }, [open]);
+  }, [open, defaultLabel]);
 
   // Load role talents grouped by role
   const {
@@ -83,14 +85,16 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
     isError: groupsIsError,
     error: groupsError,
   } = useQuery({
-    queryKey: ["round-role-talents", castingId],
+    queryKey: ["round-role-talents", castingId, roleId ?? "all"],
     enabled: open && !!castingId,
     queryFn: async () => {
-      const { data: roles, error: e1 } = await supabase
+      let rolesQuery = supabase
         .from("casting_roles")
         .select("id, name")
         .eq("casting_id", castingId)
         .order("created_at", { ascending: true });
+      if (roleId) rolesQuery = rolesQuery.eq("id", roleId);
+      const { data: roles, error: e1 } = await rolesQuery;
       if (e1) throw e1;
       const roleIds = (roles ?? []).map(r => r.id);
       if (!roleIds.length) return [] as RoleGroup[];
@@ -161,7 +165,7 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
     setIsGenerating(true);
     setErrors([]);
     try {
-      const round = await createRound.mutateAsync({ castingId, label, preset });
+      const round = await createRound.mutateAsync({ castingId, castingRoleId: roleId ?? null, label, preset });
       const items = await fetchRoundTalents(Array.from(selectedRT));
       setProgress({ done: 0, total: items.length });
       const localErrors: string[] = [];

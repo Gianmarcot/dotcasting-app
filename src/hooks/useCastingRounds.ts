@@ -5,8 +5,12 @@ import type { RoundPreset } from "@/lib/casting/roundPreset";
 export interface CastingRound {
   id: string;
   casting_id: string;
+  casting_role_id: string | null;
   label: string;
   field_preset: RoundPreset;
+  status: string; // 'draft' | 'shared'
+  share_token: string | null;
+  shared_at: string | null;
   created_at: string;
   created_by: string | null;
   talents_count?: number;
@@ -56,6 +60,7 @@ export const useCreateRound = () => {
   return useMutation({
     mutationFn: async (input: {
       castingId: string;
+      castingRoleId?: string | null;
       label: string;
       preset: RoundPreset;
     }) => {
@@ -73,8 +78,10 @@ export const useCreateRound = () => {
         .from("casting_rounds")
         .insert({
           casting_id: input.castingId,
+          casting_role_id: input.castingRoleId ?? null,
           label: input.label,
           field_preset: input.preset as any,
+          status: "draft",
           created_by: createdBy,
         })
         .select()
@@ -84,6 +91,7 @@ export const useCreateRound = () => {
     },
     onSuccess: (d) => {
       qc.invalidateQueries({ queryKey: ["casting-rounds", d.casting_id] });
+      qc.invalidateQueries({ queryKey: ["rounds-by-role", d.casting_id] });
     },
   });
 };

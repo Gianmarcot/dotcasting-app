@@ -337,27 +337,39 @@ export type Database = {
       casting_rounds: {
         Row: {
           casting_id: string
+          casting_role_id: string | null
           created_at: string
           created_by: string | null
           field_preset: Json
           id: string
           label: string
+          share_token: string | null
+          shared_at: string | null
+          status: string
         }
         Insert: {
           casting_id: string
+          casting_role_id?: string | null
           created_at?: string
           created_by?: string | null
           field_preset?: Json
           id?: string
           label: string
+          share_token?: string | null
+          shared_at?: string | null
+          status?: string
         }
         Update: {
           casting_id?: string
+          casting_role_id?: string | null
           created_at?: string
           created_by?: string | null
           field_preset?: Json
           id?: string
           label?: string
+          share_token?: string | null
+          shared_at?: string | null
+          status?: string
         }
         Relationships: [
           {
@@ -365,6 +377,13 @@ export type Database = {
             columns: ["casting_id"]
             isOneToOne: false
             referencedRelation: "castings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "casting_rounds_casting_role_id_fkey"
+            columns: ["casting_role_id"]
+            isOneToOne: false
+            referencedRelation: "casting_roles"
             referencedColumns: ["id"]
           },
           {

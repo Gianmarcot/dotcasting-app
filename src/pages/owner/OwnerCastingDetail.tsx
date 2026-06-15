@@ -18,7 +18,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
-import { RoundsSection } from "@/components/castings/rounds/RoundsSection";
+import { useRoundsByRole } from "@/hooks/useRoundsByRole";
+import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
@@ -256,43 +257,9 @@ export const OwnerCastingDetail = () => {
         )}
       </div>
 
-      {/* Confirmed by company — aggregated */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-medium">Confermati dall'azienda ({confirmedWithRole.length})</h2>
-        {confirmedWithRole.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            Nessun talent ancora confermato dall'azienda
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {confirmedWithRole.map((rt) => {
-              const age = getAge(rt.profile?.birth_date ?? null);
-              return (
-                <div key={rt.id} className="flex items-center gap-3 p-4 rounded-xl bg-white border">
-                  <Avatar className="h-11 w-11">
-                    {rt.profile?.profile_photo_url && <AvatarImage src={rt.profile.profile_photo_url} />}
-                    <AvatarFallback className="text-xs bg-[#729128]/15 text-[#729128]">
-                      {rt.profile?.first_name?.[0]}{rt.profile?.last_name?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">
-                      {rt.profile?.first_name} {rt.profile?.last_name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {[age ? `${age} anni` : null, rt.profile?.city].filter(Boolean).join(" · ")}
-                    </p>
-                    <Badge className="mt-1 bg-[#729128]/15 text-[#729128] text-xs">{rt.roleName}</Badge>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      {/* Rounds per ruolo */}
+      <RoundsByRoleBlock castingId={castingId!} roles={roles} confirmedByRole={confirmedByRole} />
 
-      {/* Rounds — comp card PDF */}
-      <RoundsSection castingId={castingId!} />
 
       <AddRoleDialog
         open={roleDialogOpen}

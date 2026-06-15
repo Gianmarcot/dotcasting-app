@@ -2,11 +2,19 @@ import { useState } from "react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
 import { Badge } from "@/components/ui/badge";
+import { Image as ImageIcon, Video, FileText } from "lucide-react";
+
+export interface MaterialIndicators {
+  photos: number;
+  videos: number;
+  hasPdf: boolean;
+}
 
 interface Props {
   talent: TalentWithAttributes;
   photos: TalentMainPhoto[];
   onClick?: () => void;
+  materialIndicators?: MaterialIndicators;
 }
 
 const buildDisplayName = (t: TalentWithAttributes) => {
@@ -30,7 +38,7 @@ const buildLocation = (t: TalentWithAttributes) => {
   return isIt ? (t.city || "") : [t.city, t.country].filter(Boolean).join(", ");
 };
 
-export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
+export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }: Props) => {
   const [hover, setHover] = useState(false);
   const name = buildDisplayName(talent);
   const initials = buildInitials(talent).toUpperCase();
@@ -86,6 +94,29 @@ export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
               {cat}
             </Badge>
           ))}
+        </div>
+      )}
+
+      {/* Material indicators */}
+      {materialIndicators && (
+        <div className="absolute top-2 right-2 flex gap-1">
+          {materialIndicators.photos > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <ImageIcon className="h-3 w-3" />
+              {materialIndicators.photos}
+            </span>
+          )}
+          {materialIndicators.videos > 0 && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <Video className="h-3 w-3" />
+              {materialIndicators.videos}
+            </span>
+          )}
+          {materialIndicators.hasPdf && (
+            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
+              <FileText className="h-3 w-3" />
+            </span>
+          )}
         </div>
       )}
 
