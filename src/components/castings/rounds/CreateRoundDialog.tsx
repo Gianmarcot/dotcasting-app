@@ -58,7 +58,7 @@ const photoCountToValue = (n: number | null | undefined) =>
 const valueToPhotoCount = (v: string): number | null =>
   v === "all" ? null : parseInt(v, 10);
 
-export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
+export const CreateRoundDialog = ({ open, onOpenChange, castingId, roleId, defaultLabel }: Props) => {
   const [label, setLabel] = useState("");
   const [preset, setPreset] = useState<RoundPreset>(PRESET_ESSENZIALE);
   const [selectedRT, setSelectedRT] = useState<Set<string>>(new Set());
@@ -70,13 +70,13 @@ export const CreateRoundDialog = ({ open, onOpenChange, castingId }: Props) => {
 
   useEffect(() => {
     if (open) {
-      setLabel(`Round ${new Date().toLocaleDateString("it-IT")}`);
+      setLabel(defaultLabel || `Round ${new Date().toLocaleDateString("it-IT")}`);
       setPreset(PRESET_ESSENZIALE);
       setSelectedRT(new Set());
       setProgress(null);
       setErrors([]);
     }
-  }, [open]);
+  }, [open, defaultLabel]);
 
   // Load role talents grouped by role
   const {
