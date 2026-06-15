@@ -417,6 +417,7 @@ export const CastingFormDialog = ({
             </div>
           </form>
         </Form>
+        )}
       </DialogContent>
     </Dialog>
   );
