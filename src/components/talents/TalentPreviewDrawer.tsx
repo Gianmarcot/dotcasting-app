@@ -289,6 +289,12 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
               <ExternalLink className="h-4 w-4 mr-2" />
               Apri profilo completo
             </Button>
+            {extraAction ? (
+              <Button className="flex-1" variant="secondary" onClick={extraAction.onClick}>
+                {extraAction.icon}
+                <span className={extraAction.icon ? "ml-2" : ""}>{extraAction.label}</span>
+              </Button>
+            ) : null}
             <Button className="flex-1" onClick={() => setInviteOpen(true)}>
               <Send className="h-4 w-4 mr-2" />
               Aggiungi a un casting
