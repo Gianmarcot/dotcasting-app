@@ -81,14 +81,29 @@ export const AICastingCreator = ({ onCreated, variant = "card" }: AICastingCreat
     if (!prompt.trim() || isProcessing) return;
     const result = await generateCasting(prompt.trim());
     if (result) {
-      await createCastingFromAI(result);
+      const created = await createCastingFromAI(result);
       setPrompt("");
+      if (created?.id) onCreated?.(created.id);
     }
   };
 
+  const containerClass =
+    variant === "bare"
+      ? "space-y-4"
+      : "bg-card border border-border rounded-xl p-5 space-y-4";
+
   return (
-    <div className="bg-card border border-border rounded-xl p-5 space-y-4">
+    <div className={containerClass}>
       {/* Header */}
+      {variant === "card" && (
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <h3 className="text-base font-medium text-foreground">Crea casting con AI</h3>
+          <Badge variant="outline" className="text-xs font-normal bg-primary/10 text-primary border-primary/20">
+            Beta
+          </Badge>
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
         <h3 className="text-base font-medium text-foreground">Crea casting con AI</h3>
