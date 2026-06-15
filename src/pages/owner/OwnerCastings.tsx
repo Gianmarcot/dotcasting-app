@@ -145,8 +145,6 @@ export const OwnerCastings = () => {
         </Button>
       </div>
 
-      <AICastingCreator />
-
       <CastingFilters
         status={statusFilter}
         search={searchFilter}
@@ -154,32 +152,32 @@ export const OwnerCastings = () => {
         onSearchChange={setSearchFilter}
       />
 
-      <div className="space-y-4">
-        {isLoading ? (
-          <>
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </>
-        ) : castings && castings.length > 0 ? (
-          castings.map((casting) => (
-            <CastingCard
+      {isLoading ? (
+        <div className="rounded-2xl border bg-white divide-y divide-border/60 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-14 w-full rounded-none" />
+          ))}
+        </div>
+      ) : castings && castings.length > 0 ? (
+        <div className="rounded-2xl border bg-white divide-y divide-border/60 overflow-hidden">
+          {castings.map((casting) => (
+            <CastingRow
               key={casting.id}
               casting={casting}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onStatusChange={handleStatusChange}
             />
-          ))
-        ) : (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>Nessun casting trovato</p>
-            <Button variant="link" onClick={handleCreate}>
-              Crea il tuo primo casting
-            </Button>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12 text-muted-foreground">
+          <p>Nessun casting trovato</p>
+          <Button variant="link" onClick={handleCreate}>
+            Crea il tuo primo casting
+          </Button>
+        </div>
+      )}
 
       <CastingFormDialog
         casting={selectedCasting}
