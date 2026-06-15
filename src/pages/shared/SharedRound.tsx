@@ -7,7 +7,7 @@ import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import logo from "/logo.png";
+const logo = "/logo.png";
 
 interface RpcTalentRow {
   role_talent_id: string;
