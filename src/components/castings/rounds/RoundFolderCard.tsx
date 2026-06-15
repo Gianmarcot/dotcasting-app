@@ -27,10 +27,26 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
 
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
-  const visible = items.slice(0, 5);
-  const extra = Math.max(0, total - visible.length);
+  // Ordina: prima con foto, poi senza (stable). Solo per la presentazione dello stack.
+  const ordered = [...items]
+    .map((it, idx) => ({ it, idx }))
+    .sort((a, b) => {
+      const ap = a.it.photoUrl ? 0 : 1;
+      const bp = b.it.photoUrl ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      return a.idx - b.idx;
+    })
+    .map((x) => x.it);
+  const stackItems = ordered.slice(0, 4);
+  const extra = Math.max(0, total - 4);
   const hasOverflow = extra > 0;
-  const cellCount = Math.min(5, visible.length + (hasOverflow ? 1 : 0));
+  // Layers: front first (highest z). Optionally append "+N" at the back.
+  const layers: Array<{ kind: "photo" | "more"; item?: typeof stackItems[number] }> = [
+    ...stackItems.map((it) => ({ kind: "photo" as const, item: it })),
+    ...(hasOverflow ? [{ kind: "more" as const }] : []),
+  ];
+  // Rotation/offset presets per layer index (front = 0)
+  const rotations = [0, -4, 6, -3, 9];
 
   const initialsOf = (name: string) => {
     const parts = name.trim().split(/\s+/).filter(Boolean);

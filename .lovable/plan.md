@@ -1,36 +1,56 @@
-# Griglia invii: 2 colonne, altezze uniformi, miniature contenute
-
 ## Obiettivo
-- La griglia invii resta a 2 colonne su desktop (1 su mobile), niente masonry.
-- Tutte le schede invio e la cella "Aggiungi invio" hanno la STESSA altezza, indipendentemente dal numero di talent.
-- Le miniature non sfondano più la card e il footer "N talent · data" resta sotto le foto senza sovrapposizioni.
 
-## Cosa cambia
+Sostituire la striscia di miniature affiancate nelle schede invio (`RoundFolderCard`) con uno **stack a ventaglio** stile provino: foto sovrapposte, leggermente ruotate, con bordo bianco a stacco. Solo presentazione; nessuna modifica a dati, schema, hook, board interna dell'invio o cover di PDF/TalentCardWeb.
 
-### 1) `RoleRoundsCompartment.tsx` (griglia)
-- Mantieni `grid grid-cols-1 sm:grid-cols-2 gap-4`.
-- Aggiungi `auto-rows-fr` così tutte le celle della stessa riga stirano alla stessa altezza.
-- La cella "Aggiungi invio": rimuovi `h-44` e aggiungi `h-full min-h-44` per adattarsi all'altezza della scheda accanto, mantenendo un'altezza minima sensata anche quando è da sola.
+## File da toccare
 
-### 2) `RoundFolderCard.tsx` (singola scheda)
-Il problema attuale: la card ha `h-44` (176px) e la striscia foto ha celle con `aspect-ratio: 5/7` larghe 1/5 della card. Con 2 colonne le card sono più larghe (~380–460px), quindi ogni cella diventa ~106–129px di altezza e va in overflow sopra il footer.
+- `src/components/castings/rounds/RoundFolderCard.tsx` — solo il blocco "Photo strip".
 
-Soluzione: fissare l'altezza della striscia miniature a quella di una riga piena da 5 thumbnail.
+Nessun altro file modificato. Hook `useRoundPreviewPhotos` resta com'è (fornisce già `items` con `photoUrl` e `name`, e `total`).
 
-- Rimuovi `h-44` dalla card; l'altezza diventa intrinseca (header + striscia + footer) ed è la stessa per tutte perché la striscia ha aspect fisso.
-- Striscia foto: container con `w-full aspect-[25/7] overflow-hidden` (≈ 5 celle 5/7 affiancate). Imposta `items-stretch` invece di `items-start` e rimuovi `min-h-0`.
-- Celle (thumbnail, placeholder iniziali, badge `+N`): mantieni `aspectRatio: 5/7` e `flex: 0 0 calc((100% - (cellCount-1)*4px) / 5)`. Aggiungi `h-full` così rimangono allineate all'altezza della striscia; le celle "vuote" semplicemente non esistono e la card con 1 thumbnail mostra la miniatura a sinistra e spazio bianco a destra — l'altezza della striscia non cambia.
-- Caso `total === 0`: il placeholder "Nessun talent" prende `w-full h-full` dentro la striscia (rimuovi `aspectRatio` su quel singolo elemento, eredita l'altezza dal container).
-- Footer: rimane com'è (`mt-auto ...`). Con la striscia ad altezza fissa, sta sempre sotto le foto.
+## Comportamento
 
-## Dettagli tecnici
+- Contenitore con altezza fissa (riusa l'attuale ingombro verticale della striscia, es. ~`h-44` o equivalente basato su `aspect-[5/7]` della card frontale + padding laterale) per garantire che la scheda invio mantenga la stessa altezza indipendentemente dal numero di talent.
+- Fino a **4 card frontali** sovrapposte (`position: absolute`), ciascuna con la foto principale (sort_order = 0 — già quanto restituito dall'hook).
+- Ogni card:
+  - aspect-ratio **5:7**, `object-fit: cover`
+  - bordo **2px** del colore di sfondo della scheda (bianco), `rounded-md`
+  - nessuna ombra pesante (al massimo una sottilissima per leggibilità)
+- Offset orizzontale crescente (~**24px** tra una card e l'altra) e rotazione alternata contenuta (es. `0deg, -4deg, +6deg, -3deg, +9deg`). Card in primo piano (`z-index` più alto) dritta o quasi.
+- Centratura: lo stack è centrato orizzontalmente nel contenitore (translate baseline + offset cumulativo per-card).
 
-Aspect ratio della striscia: 5 celle 5/7 affiancate → larghezza:altezza ≈ (5 · 5) / 7 = 25/7. Usiamo `aspect-[25/7]`, approssimazione corretta (i 4×4px di gap sono trascurabili al variare della larghezza e non causano overflow perché le celle hanno `flex-basis` calcolato sul gap reale).
+## Conteggio eccedenza
 
-Risultato: tutte le schede invio hanno la stessa altezza (header fisso + striscia ad aspect costante + footer fisso). La cella tratteggiata "Aggiungi invio" si stira con `h-full` grazie a `auto-rows-fr` sulla griglia.
+- Se `total > 4`: l'ultima card (dietro, z-index più basso, leggermente sfumata con `opacity ~0.85` o overlay neutro) mostra **`+N`** dove `N = total − 4`.
+- Se `total ≤ 4`: niente card "+N", solo le foto reali (1..4).
+- Se `total === 0`: placeholder testuale "Nessun talent" come oggi, centrato nel contenitore (nessuno stack).
 
-## File toccati
-- `src/components/castings/rounds/RoleRoundsCompartment.tsx` — aggiungi `auto-rows-fr` alla griglia; cambia classi del bottone "Aggiungi invio".
-- `src/components/castings/rounds/RoundFolderCard.tsx` — rimuovi `h-44`, imposta aspect fisso sulla striscia foto, adatta placeholder vuoto.
+## Ordine di presentazione (solo nello stack)
 
-Nessuna modifica a logica, dati o altri componenti.
+- Calcolo locale: ordina `items` mettendo prima quelli con `photoUrl` non nullo, poi quelli senza, **stabile**. Prendi i primi 4 per le card foto, poi eventualmente +N.
+- I talent senza foto (placeholder iniziali su `#2C2C2A`) finiscono dietro nello stack, mai come card frontale, **a meno che** non esista nemmeno un talent con foto: in quel caso la card frontale è un placeholder iniziali (caso degenere accettabile).
+- Non modifica l'ordine dei talent altrove (questa è una `[...items].sort()` locale al componente).
+
+## Interazione
+
+- Hover (solo desktop, `@media (hover: hover)` o `group-hover` di Tailwind sul container scheda): le card aumentano l'offset orizzontale (~da 24px a ~36px) e leggermente la rotazione, con `transition: transform 200ms ease`. Effetto "sfogliato".
+- Nessun elemento dello stack è cliccabile/interattivo: `pointer-events-none` sulle card interne; il click sulla scheda invio continua a navigare all'invio (gestito dal contenitore esistente).
+- Touch: nessun hover (default — non aggiungiamo handler touch), stack statico.
+
+## Responsive
+
+- Lo stack scala con la larghezza della scheda. Su mobile (scheda a colonna singola, più larga) lo stack resta statico (l'hover non si applica). Altezza fissa del contenitore preserva l'allineamento delle schede nella griglia 2 colonne con `auto-rows-fr`.
+
+## Vincoli ribaditi
+
+- Nessun cambiamento a header, badge stato, footer "N talent · data", icone azione (Edit/Share/Copy/Regen).
+- Nessun cambiamento a `RoleRoundsCompartment`, board interna invio, `TalentCardPDF`, `TalentCardWeb`, `fetchRoundTalents`, schema DB, query.
+
+## Diagramma stack (schematico)
+
+```text
+            [card1 frontale, rot 0°, z=40]
+          [card2 dietro, +24px, rot -4°, z=30]
+        [card3 dietro, +48px, rot +6°, z=20]
+      [card4 / "+N" dietro, +72px, rot -3°, z=10]
+```
