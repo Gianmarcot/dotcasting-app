@@ -18,7 +18,8 @@ import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
-import { RoundsSection } from "@/components/castings/rounds/RoundsSection";
+import { useRoundsByRole } from "@/hooks/useRoundsByRole";
+import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
