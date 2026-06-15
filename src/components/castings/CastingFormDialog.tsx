@@ -84,7 +84,7 @@ export const CastingFormDialog = ({
   const { data: companies } = useCompanies();
   const navigate = useNavigate();
   const isEdit = !!casting;
-  const [step, setStep] = useState<"choose" | "form">(isEdit ? "form" : "choose");
+  const [step, setStep] = useState<"choose" | "ai" | "form">(isEdit ? "form" : "choose");
 
   useEffect(() => {
     if (open) setStep(isEdit ? "form" : "choose");
