@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import { useLayoutEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -21,13 +23,33 @@ interface Props {
   preview?: RoundPreviewPhotos;
 }
 
+const FAN_ROTATIONS = [0, -4, 6, -3, 9];
+const FAN_GAP = 24; // px tra una card e l'altra nel ventaglio
+const GRID_GAP = 4; // px tra le card in modalità griglia
+const STACK_HEIGHT = 176; // = h-44
+
 export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const navigate = useNavigate();
   const share = useShareRound();
+  const [hovered, setHovered] = useState(false);
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [stripWidth, setStripWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setStripWidth(entry.contentRect.width);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
-  // Ordina: prima con foto, poi senza (stable). Solo per la presentazione dello stack.
+  // Ordina solo per presentazione: prima con foto, poi senza (stabile).
   const ordered = [...items]
     .map((it, idx) => ({ it, idx }))
     .sort((a, b) => {
@@ -40,13 +62,11 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const stackItems = ordered.slice(0, 4);
   const extra = Math.max(0, total - 4);
   const hasOverflow = extra > 0;
-  // Layers: front first (highest z). Optionally append "+N" at the back.
   const layers: Array<{ kind: "photo" | "more"; item?: typeof stackItems[number] }> = [
     ...stackItems.map((it) => ({ kind: "photo" as const, item: it })),
     ...(hasOverflow ? [{ kind: "more" as const }] : []),
   ];
-  // Rotation/offset presets per layer index (front = 0)
-  const rotations = [0, -4, 6, -3, 9];
+  const n = layers.length;
 
   const initialsOf = (name: string) => {
     const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -84,7 +104,6 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
 
   const regenerate = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Re-open in detail page; actual regen wired there.
     navigate(`/owner/castings/${castingId}/rounds/${round.id}?regen=1`);
   };
 
@@ -93,12 +112,36 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
     navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
   };
 
+  // Calcola le posizioni "griglia": 5 colonne max, card 5:7 dimensionate sull'altezza disponibile,
+  // poi centrate. Se non c'è ancora la misura, fallback a una stima ragionevole.
+  const gridSlots = (() => {
+    const slots = Math.max(n, 1);
+    // Altezza card in griglia: tutta la striscia (con minimo respiro).
+    const cardH = STACK_HEIGHT * 0.95;
+    const cardW = (cardH * 5) / 7;
+    const totalW = slots * cardW + (slots - 1) * GRID_GAP;
+    const startX = (stripWidth - totalW) / 2 + cardW / 2; // centro della prima card
+    return Array.from({ length: slots }, (_, i) => ({
+      x: startX + i * (cardW + GRID_GAP) - stripWidth / 2,
+      cardW,
+      cardH,
+    }));
+  })();
+
+  // Posizioni "ventaglio"
+  const fanSlots = Array.from({ length: n }, (_, i) => ({
+    x: i * FAN_GAP - ((n - 1) * FAN_GAP) / 2,
+    rotate: FAN_ROTATIONS[i] ?? 0,
+  }));
+
   return (
     <div
       role="button"
       tabIndex={0}
       onClick={open}
       onKeyDown={(e) => e.key === "Enter" && open()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className="group flex flex-col rounded-2xl border bg-white hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer overflow-hidden"
     >
       {/* Header */}
@@ -119,36 +162,47 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         </Badge>
       </div>
 
-      {/* Photo stack — ventaglio sovrapposto, altezza fissa */}
+      {/* Photo stack — ventaglio di default, griglia al hover */}
       <div className="px-4">
-        <div className="relative w-full h-44 overflow-hidden group/stack">
+        <div
+          ref={stripRef}
+          className="relative w-full overflow-hidden"
+          style={{ height: STACK_HEIGHT }}
+        >
           {total === 0 ? (
             <div className="absolute inset-0 m-2 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
               Nessun talent
             </div>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <>
               {layers.map((layer, i) => {
-                const z = layers.length - i;
-                const rot = rotations[i] ?? 0;
-                const baseGap = 24;
-                const hoverGap = 36;
-                const offset = i * baseGap - ((layers.length - 1) * baseGap) / 2;
-                const offsetHover = i * hoverGap - ((layers.length - 1) * hoverGap) / 2;
-                const rotHover = rot * 1.15;
-                const baseTransform = `translate(-50%, -50%) translateX(${offset}px) rotate(${rot}deg)`;
-                const hoverTransform = `translate(-50%, -50%) translateX(${offsetHover}px) rotate(${rotHover}deg)`;
+                const z = n - i; // front = highest
+                const fan = fanSlots[i];
+                const grid = gridSlots[i];
                 const isMore = layer.kind === "more";
+                const target = hovered
+                  ? { x: grid.x, rotate: 0, width: grid.cardW, height: grid.cardH }
+                  : {
+                      x: fan.x,
+                      rotate: fan.rotate,
+                      width: (STACK_HEIGHT * 0.88 * 5) / 7,
+                      height: STACK_HEIGHT * 0.88,
+                    };
                 return (
-                  <div
+                  <motion.div
                     key={i}
-                    className="absolute top-1/2 left-1/2 h-[88%] aspect-[5/7] rounded-md overflow-hidden bg-muted/40 border-2 border-white pointer-events-none transition-transform duration-200 ease-out group-hover/stack:[transform:var(--t-hover)]"
-                    style={{
-                      zIndex: z,
-                      transform: baseTransform,
-                      ["--t-hover" as any]: hoverTransform,
-                      opacity: isMore ? 0.9 : 1,
+                    className="absolute top-1/2 left-1/2 rounded-md overflow-hidden bg-muted/40 border-2 border-white pointer-events-none"
+                    style={{ zIndex: z, opacity: isMore ? 0.92 : 1 }}
+                    initial={false}
+                    animate={{
+                      x: target.x,
+                      rotate: target.rotate,
+                      width: target.width,
+                      height: target.height,
+                      translateX: "-50%",
+                      translateY: "-50%",
                     }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
                   >
                     {isMore ? (
                       <div className="h-full w-full flex items-center justify-center bg-muted text-sm font-medium text-muted-foreground">
@@ -166,19 +220,16 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
                         {initialsOf(layer.item?.name ?? "")}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </>
           )}
         </div>
       </div>
 
-
-
       {/* Footer */}
       <div className="mt-auto flex items-center justify-between px-4 pt-3 pb-2 text-xs text-muted-foreground">
-
         <span className="truncate">
           {total} talent · {format(new Date(round.created_at), "d MMM yyyy", { locale: itLocale })}
         </span>
