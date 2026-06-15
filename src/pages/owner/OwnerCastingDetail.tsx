@@ -256,8 +256,6 @@ export const OwnerCastingDetail = () => {
       </div>
 
 
-      {/* Rounds per ruolo */}
-      <RoundsByRoleBlock castingId={castingId!} roles={roles} confirmedByRole={confirmedByRole} />
 
 
       <AddRoleDialog
