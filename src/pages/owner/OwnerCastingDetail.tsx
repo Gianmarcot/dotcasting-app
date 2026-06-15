@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useCastingRoles } from "@/hooks/useCastingRoles";
 import { useRoleTalents, type RoleTalentWithProfile } from "@/hooks/useRoleTalents";
-import { CastingRoleCard } from "@/components/castings/CastingRoleCard";
 import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import type { Tables } from "@/integrations/supabase/types";
@@ -222,33 +221,32 @@ export const OwnerCastingDetail = () => {
         </div>
       </div>
 
-      {/* Roles Section */}
+      {/* Ruoli e invii */}
       <div className="space-y-4">
-        <h2 className="text-lg font-medium">Ruoli ({roles.length})</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-medium">Ruoli e invii ({roles.length})</h2>
+        </div>
 
         {rolesLoading ? (
           <div className="space-y-3">
-            <Skeleton className="h-24 w-full" />
-            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-40 w-full" />
           </div>
         ) : roles.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
+          <div className="dc-card p-10 text-center text-muted-foreground">
             <p>Nessun ruolo definito</p>
             <Button variant="link" onClick={() => setRoleDialogOpen(true)}>
               Crea il primo ruolo
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
-            {roles.map((role) => (
-              <CastingRoleCard
-                key={role.id}
-                role={role}
-                castingId={castingId!}
-                onEdit={handleEditRole}
-                confirmedCount={confirmedByRole[role.id] || 0}
-              />
-            ))}
+          <div className="space-y-4">
+            <RoundsByRoleBlock
+              castingId={castingId!}
+              roles={roles}
+              confirmedByRole={confirmedByRole}
+              onEditRole={handleEditRole}
+            />
             <Button variant="outline" onClick={() => setRoleDialogOpen(true)} className="w-full">
               <Plus className="h-4 w-4 mr-2" />
               Aggiungi ruolo
@@ -256,6 +254,7 @@ export const OwnerCastingDetail = () => {
           </div>
         )}
       </div>
+
 
       {/* Rounds per ruolo */}
       <RoundsByRoleBlock castingId={castingId!} roles={roles} confirmedByRole={confirmedByRole} />
