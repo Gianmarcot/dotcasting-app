@@ -119,19 +119,6 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         </Badge>
       </div>
 
-      {/* Photo strip — altezza fissa = una riga piena di 5 miniature 5/7 */}
-      <div className="px-4">
-        <div className="w-full aspect-[25/7] flex gap-1 items-stretch justify-start overflow-hidden">
-          {total === 0 ? (
-            <div className="w-full h-full rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
-              Nessun talent
-            </div>
-          ) : (
-            <>
-              {visible.map((it, i) => (
-                <div
-                  key={i}
-                  className="h-full rounded-md overflow-hidden bg-muted/40"
       {/* Photo stack — ventaglio sovrapposto, altezza fissa */}
       <div className="px-4">
         <div className="relative w-full h-44 overflow-hidden group/stack">
@@ -142,27 +129,25 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               {layers.map((layer, i) => {
-                const z = layers.length - i; // front = highest
+                const z = layers.length - i;
                 const rot = rotations[i] ?? 0;
-                // Base offset from center for fan; front centered.
                 const baseGap = 24;
                 const hoverGap = 36;
                 const offset = i * baseGap - ((layers.length - 1) * baseGap) / 2;
                 const offsetHover = i * hoverGap - ((layers.length - 1) * hoverGap) / 2;
+                const rotHover = rot * 1.15;
+                const baseTransform = `translate(-50%, -50%) translateX(${offset}px) rotate(${rot}deg)`;
+                const hoverTransform = `translate(-50%, -50%) translateX(${offsetHover}px) rotate(${rotHover}deg)`;
                 const isMore = layer.kind === "more";
                 return (
                   <div
                     key={i}
-                    className="absolute top-1/2 left-1/2 h-[88%] aspect-[5/7] rounded-md overflow-hidden bg-muted/40 border-2 border-white pointer-events-none transition-transform duration-200 ease-out"
+                    className="absolute top-1/2 left-1/2 h-[88%] aspect-[5/7] rounded-md overflow-hidden bg-muted/40 border-2 border-white pointer-events-none transition-transform duration-200 ease-out group-hover/stack:[transform:var(--t-hover)]"
                     style={{
                       zIndex: z,
-                      transform: `translate(-50%, -50%) translateX(${offset}px) rotate(${rot}deg)`,
-                      // @ts-expect-error custom prop used in hover
-                      ["--fan-hover-transform" as any]: `translate(-50%, -50%) translateX(${offsetHover}px) rotate(${rot * 1.15}deg)`,
-                    }}
-                    onMouseEnter={(e) => {
-                      // Apply hover via JS-controlled style only on devices that support hover.
-                      // Cheap: rely on group hover with inline var → we just toggle via CSS below.
+                      transform: baseTransform,
+                      ["--t-hover" as any]: hoverTransform,
+                      opacity: isMore ? 0.9 : 1,
                     }}
                   >
                     {isMore ? (
