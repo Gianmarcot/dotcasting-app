@@ -4,7 +4,7 @@ import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from 
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentBoardGrid } from "@/components/talents/TalentBoardGrid";
 import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
-import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
+import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -223,7 +223,7 @@ export const OwnerTalents = () => {
         </div>
       </div>
 
-      <TalentDetailDialog
+      <TalentPreviewDrawer
         talent={selectedTalent}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
