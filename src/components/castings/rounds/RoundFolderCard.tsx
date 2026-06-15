@@ -212,7 +212,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
                     translateX: "-50%",
                     translateY: "-50%",
                   }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 >
                   {item.photoUrl ? (
                     <img
