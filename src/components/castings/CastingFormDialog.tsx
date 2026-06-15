@@ -1,4 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Sparkles, FilePlus, ArrowLeft } from "lucide-react";
+import { AICastingCreator } from "@/components/castings/AICastingCreator";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -79,6 +82,14 @@ export const CastingFormDialog = ({
   defaultCompanyId,
 }: CastingFormDialogProps) => {
   const { data: companies } = useCompanies();
+  const navigate = useNavigate();
+  const isEdit = !!casting;
+  const [step, setStep] = useState<"choose" | "ai" | "form">(isEdit ? "form" : "choose");
+
+  useEffect(() => {
+    if (open) setStep(isEdit ? "form" : "choose");
+  }, [open, isEdit]);
+
 
   const form = useForm<CastingFormValues>({
     resolver: zodResolver(castingSchema),
@@ -134,12 +145,73 @@ export const CastingFormDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
-            {casting ? "Modifica Casting" : "Nuovo Casting"}
+          <DialogTitle className="flex items-center gap-2">
+            {!isEdit && step !== "choose" && (
+              <button
+                type="button"
+                onClick={() => setStep("choose")}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Indietro"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </button>
+            )}
+            {isEdit
+              ? "Modifica Casting"
+              : step === "ai"
+              ? "Crea con AI"
+              : "Nuovo Casting"}
           </DialogTitle>
         </DialogHeader>
 
-        <Form {...form}>
+        {step === "choose" && !isEdit ? (
+          <div className="space-y-4 pt-2">
+            <p className="text-sm text-muted-foreground">
+              Come vuoi creare questo casting?
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setStep("ai")}
+                className="text-left rounded-xl border border-border bg-card p-5 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Descrivi con AI</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Scrivi o detta una breve descrizione: l'AI prepara titolo, ruoli e requisiti.
+                </p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("form")}
+                className="text-left rounded-xl border border-border bg-card p-5 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <FilePlus className="h-4 w-4 text-primary" />
+                  <span className="font-medium">Parti da zero</span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Compila il form manualmente con i dati del casting.
+                </p>
+              </button>
+            </div>
+          </div>
+        ) : step === "ai" && !isEdit ? (
+          <div className="pt-2">
+            <AICastingCreator
+              variant="bare"
+              onCreated={(id) => {
+                onOpenChange(false);
+                navigate(`/owner/castings/${id}`);
+              }}
+            />
+          </div>
+        ) : (
+          <Form {...form}>
+
+
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
               control={form.control}
@@ -348,6 +420,7 @@ export const CastingFormDialog = ({
             </div>
           </form>
         </Form>
+        )}
       </DialogContent>
     </Dialog>
   );
