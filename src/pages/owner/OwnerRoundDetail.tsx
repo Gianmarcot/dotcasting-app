@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw, Edit, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -54,14 +54,18 @@ export const OwnerRoundDetail = () => {
   const isShared = round?.status === "shared";
 
   // Fetch role name for the wizard header
-  useMemo(() => {
+  useEffect(() => {
     if (!round?.casting_role_id) return;
+    let cancelled = false;
     supabase
       .from("casting_roles")
       .select("name")
       .eq("id", round.casting_role_id)
       .maybeSingle()
-      .then(({ data }) => setRoleName(data?.name ?? null));
+      .then(({ data }) => {
+        if (!cancelled) setRoleName(data?.name ?? null);
+      });
+    return () => { cancelled = true; };
   }, [round?.casting_role_id]);
 
   const filtered = useMemo(() => {
