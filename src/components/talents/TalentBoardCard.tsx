@@ -38,7 +38,7 @@ const buildLocation = (t: TalentWithAttributes) => {
   return isIt ? (t.city || "") : [t.city, t.country].filter(Boolean).join(", ");
 };
 
-export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
+export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }: Props) => {
   const [hover, setHover] = useState(false);
   const name = buildDisplayName(talent);
   const initials = buildInitials(talent).toUpperCase();
