@@ -27,9 +27,50 @@ import { fetchRoundTalents } from "@/lib/casting/fetchRoundTalents";
 import { generateRoundPdfs } from "@/lib/casting/generateRound";
 import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import { useCreateRound } from "@/hooks/useCastingRounds";
-import { useRoleConfirmedTalents } from "@/hooks/useRoleConfirmedTalents";
+import { useRoleTalentsForRound, RoleTalentRow } from "@/hooks/useRoleConfirmedTalents";
 import { useUpdateRound } from "@/hooks/useUpdateRound";
+import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+
+type SelectionMode = "by_status" | "manual";
+type StatusFilterKey =
+  | "company_confirmed"
+  | "talent_confirmed"
+  | "both_confirmed"
+  | "talent_invited"
+  | "company_pending";
+
+const STATUS_FILTERS: {
+  key: StatusFilterKey;
+  label: string;
+  match: (r: RoleTalentRow) => boolean;
+}[] = [
+  { key: "company_confirmed", label: "Confermati azienda", match: (r) => r.companyStatus === "confirmed" },
+  { key: "talent_confirmed", label: "Confermati talent", match: (r) => r.talentStatus === "confirmed" },
+  {
+    key: "both_confirmed",
+    label: "Confermati su entrambi i lati",
+    match: (r) => r.companyStatus === "confirmed" && r.talentStatus === "confirmed",
+  },
+  { key: "talent_invited", label: "Invitati", match: (r) => r.talentStatus === "invited" },
+  { key: "company_pending", label: "In attesa azienda", match: (r) => r.companyStatus === "pending" },
+];
+
+const statusBadge = (r: RoleTalentRow): { label: string; tone: string } | null => {
+  if (r.companyStatus === "confirmed" && r.talentStatus === "confirmed")
+    return { label: "Conf. entrambi", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.companyStatus === "confirmed")
+    return { label: "Conf. azienda", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.talentStatus === "confirmed")
+    return { label: "Conf. talent", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.companyStatus === "pending")
+    return { label: "In attesa azienda", tone: "bg-[#C88500]/15 text-[#C88500]" };
+  if (r.talentStatus === "invited")
+    return { label: "Invitato", tone: "bg-[#C88500]/15 text-[#C88500]" };
+  if (r.talentStatus === "rejected")
+    return { label: "Rifiutato", tone: "bg-[#A30A2B]/15 text-[#A30A2B]" };
+  return null;
+};
 
 type WizardMode = "create" | "edit";
 
@@ -116,18 +157,55 @@ export const RoundWizardDialog = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const { data: confirmed = [], isLoading: confirmedLoading } =
-    useRoleConfirmedTalents(roleId, open);
+  const [selectionMode, setSelectionMode] = useState<SelectionMode>("by_status");
+  const [statusFilters, setStatusFilters] = useState<Set<StatusFilterKey>>(
+    new Set(["company_confirmed"]),
+  );
 
-  const allSelected = confirmed.length > 0 && confirmed.every((t) => selected.has(t.roleTalentId));
+  useEffect(() => {
+    if (!open) return;
+    if (mode === "edit") {
+      setSelectionMode("manual");
+    } else {
+      setSelectionMode("by_status");
+      setStatusFilters(new Set(["company_confirmed"]));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const { data: roleTalents = [], isLoading: roleTalentsLoading } =
+    useRoleTalentsForRound(roleId, open);
+
+  // Derive selection when filters change (by_status mode only)
+  useEffect(() => {
+    if (selectionMode !== "by_status") return;
+    const active = STATUS_FILTERS.filter((f) => statusFilters.has(f.key));
+    if (active.length === 0) {
+      setSelected(new Set());
+      return;
+    }
+    const next = new Set<string>();
+    roleTalents.forEach((r) => {
+      if (active.some((f) => f.match(r))) next.add(r.roleTalentId);
+    });
+    setSelected(next);
+  }, [selectionMode, statusFilters, roleTalents]);
+
+  const allSelected = roleTalents.length > 0 && roleTalents.every((t) => selected.has(t.roleTalentId));
   const toggleAll = () => {
     if (allSelected) setSelected(new Set());
-    else setSelected(new Set(confirmed.map((t) => t.roleTalentId)));
+    else setSelected(new Set(roleTalents.map((t) => t.roleTalentId)));
   };
   const toggle = (id: string) =>
     setSelected((prev) => {
       const n = new Set(prev);
       n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  const toggleFilter = (key: StatusFilterKey) =>
+    setStatusFilters((prev) => {
+      const n = new Set(prev);
+      n.has(key) ? n.delete(key) : n.add(key);
       return n;
     });
 
@@ -243,46 +321,124 @@ export const RoundWizardDialog = (props: Props) => {
 
   // ----- step content
   const Step1 = (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      {/* Mode switch */}
+      <div className="inline-flex rounded-full bg-muted p-1 text-sm">
+        <button
+          type="button"
+          onClick={() => setSelectionMode("by_status")}
+          className={`px-4 py-1.5 rounded-full transition-colors ${
+            selectionMode === "by_status" ? "bg-white shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          Per stato
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectionMode("manual")}
+          className={`px-4 py-1.5 rounded-full transition-colors ${
+            selectionMode === "manual" ? "bg-white shadow-sm" : "text-muted-foreground"
+          }`}
+        >
+          Manuale
+        </button>
+      </div>
+
+      {selectionMode === "by_status" && (
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+            Includi talent con
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {STATUS_FILTERS.map((f) => {
+              const active = statusFilters.has(f.key);
+              const count = roleTalents.filter((r) => f.match(r)).length;
+              return (
+                <button
+                  key={f.key}
+                  type="button"
+                  onClick={() => toggleFilter(f.key)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    active
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-white text-foreground border-border hover:border-foreground/40"
+                  }`}
+                >
+                  {f.label} <span className="opacity-60">· {count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Talent confermati dall'azienda in questo ruolo
+          {selectionMode === "by_status"
+            ? "Talent inclusi automaticamente dai filtri"
+            : "Spunta i talent da includere"}
         </p>
-        {confirmed.length > 0 && (
+        {selectionMode === "manual" && roleTalents.length > 0 && (
           <Button type="button" variant="ghost" size="sm" onClick={toggleAll}>
             {allSelected ? "Deseleziona tutti" : "Seleziona tutti"}
           </Button>
         )}
       </div>
-      <div className="border rounded-lg max-h-[420px] overflow-y-auto divide-y">
-        {confirmedLoading && (
+
+      <div className="border rounded-lg max-h-[380px] overflow-y-auto divide-y">
+        {roleTalentsLoading && (
           <div className="p-6 text-sm text-muted-foreground text-center">Caricamento…</div>
         )}
-        {!confirmedLoading && confirmed.length === 0 && (
+        {!roleTalentsLoading && roleTalents.length === 0 && (
           <div className="p-8 text-sm text-muted-foreground text-center">
-            Nessun talent confermato in questo ruolo.
+            Nessun talent in questo ruolo.
           </div>
         )}
-        {confirmed.map((t) => {
+        {(selectionMode === "by_status"
+          ? roleTalents.filter((r) => selected.has(r.roleTalentId))
+          : roleTalents
+        ).map((t) => {
           const checked = selected.has(t.roleTalentId);
-          return (
-            <label
-              key={t.roleTalentId}
-              className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-muted/40"
-            >
-              <Checkbox checked={checked} onCheckedChange={() => toggle(t.roleTalentId)} />
+          const badge = statusBadge(t);
+          const isManual = selectionMode === "manual";
+          const Row = (
+            <div className="flex items-center gap-3 px-3 py-2 w-full">
+              {isManual && (
+                <Checkbox checked={checked} onCheckedChange={() => toggle(t.roleTalentId)} />
+              )}
               <Avatar className="h-10 w-10">
                 {t.photoUrl && <AvatarImage src={t.photoUrl} alt={t.name} />}
                 <AvatarFallback className="text-xs">{initials(t.name) || "?"}</AvatarFallback>
               </Avatar>
               <span className="text-sm flex-1 truncate">{t.name}</span>
+              {badge && (
+                <Badge
+                  variant="secondary"
+                  className={`text-[11px] font-normal pointer-events-none ${badge.tone}`}
+                >
+                  {badge.label}
+                </Badge>
+              )}
+            </div>
+          );
+          return isManual ? (
+            <label key={t.roleTalentId} className="flex cursor-pointer hover:bg-muted/40">
+              {Row}
             </label>
+          ) : (
+            <div key={t.roleTalentId}>{Row}</div>
           );
         })}
+        {selectionMode === "by_status" && !roleTalentsLoading && selected.size === 0 && roleTalents.length > 0 && (
+          <div className="p-6 text-sm text-muted-foreground text-center">
+            Nessun talent corrisponde ai filtri selezionati.
+          </div>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">{selected.size} selezionati</p>
+      <p className="text-xs text-muted-foreground">{selected.size} talent selezionati</p>
     </div>
   );
+
 
   const FieldsPanel = (
     <div className="space-y-5">
