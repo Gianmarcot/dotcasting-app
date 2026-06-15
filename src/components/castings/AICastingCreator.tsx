@@ -15,7 +15,12 @@ const SUGGESTED_PROMPTS = [
 const isSpeechSupported = typeof window !== "undefined" && 
   ("SpeechRecognition" in window || "webkitSpeechRecognition" in window);
 
-export const AICastingCreator = () => {
+interface AICastingCreatorProps {
+  onCreated?: (castingId: string) => void;
+  variant?: "card" | "bare";
+}
+
+export const AICastingCreator = ({ onCreated, variant = "card" }: AICastingCreatorProps = {}) => {
   const [prompt, setPrompt] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any>(null);
