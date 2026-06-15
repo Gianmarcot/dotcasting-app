@@ -60,6 +60,7 @@ export const useCreateRound = () => {
   return useMutation({
     mutationFn: async (input: {
       castingId: string;
+      castingRoleId?: string | null;
       label: string;
       preset: RoundPreset;
     }) => {
@@ -77,8 +78,10 @@ export const useCreateRound = () => {
         .from("casting_rounds")
         .insert({
           casting_id: input.castingId,
+          casting_role_id: input.castingRoleId ?? null,
           label: input.label,
           field_preset: input.preset as any,
+          status: "draft",
           created_by: createdBy,
         })
         .select()
@@ -88,6 +91,7 @@ export const useCreateRound = () => {
     },
     onSuccess: (d) => {
       qc.invalidateQueries({ queryKey: ["casting-rounds", d.casting_id] });
+      qc.invalidateQueries({ queryKey: ["rounds-by-role", d.casting_id] });
     },
   });
 };
