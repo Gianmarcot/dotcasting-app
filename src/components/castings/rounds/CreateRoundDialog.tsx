@@ -31,6 +31,8 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   castingId: string;
+  roleId?: string;
+  defaultLabel?: string;
 }
 
 interface RoleGroup {
