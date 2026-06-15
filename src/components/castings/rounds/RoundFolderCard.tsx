@@ -116,8 +116,8 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   // poi centrate. Se non c'è ancora la misura, fallback a una stima ragionevole.
   const gridSlots = (() => {
     const slots = Math.max(n, 1);
-    // Altezza card in griglia: tutta la striscia (con minimo respiro).
-    const cardH = STACK_HEIGHT * 0.95;
+    // Stessa dimensione delle card in ventaglio: nessuno scale-up al hover.
+    const cardH = STACK_HEIGHT * 0.88;
     const cardW = (cardH * 5) / 7;
     const totalW = slots * cardW + (slots - 1) * GRID_GAP;
     const startX = (stripWidth - totalW) / 2 + cardW / 2; // centro della prima card
