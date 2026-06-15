@@ -1,75 +1,109 @@
-# Riorganizzazione UI sezione Casting (owner)
+# Round come cartelle dentro il dettaglio casting
 
-Solo UI/composizione: nessuna modifica a hook, query, schemi o logica di mutazione.
+Tre blocchi: migration → compartimenti per ruolo → vista invio.
 
-## 1. Lista casting → righe compatte
+## 1. Migration schema
 
-Nuovo componente `src/components/castings/CastingRow.tsx` (sostituisce `CastingCard` nella lista; il file vecchio resta per eventuali altri usi ma può essere rimosso se non referenziato altrove).
+Aggiungo colonne a `casting_rounds` per legare il round al ruolo e gestire la condivisione. Le RLS attuali (`Owners manage casting rounds` per owner/admin) coprono già le nuove colonne — nessuna modifica policy richiesta in questo step (l'accesso pubblico via token sarà una RPC separata in un prompt futuro).
 
-Struttura riga (allineamento a colonne fisse, anche con dati mancanti → `—`):
+```sql
+alter table public.casting_rounds
+  add column if not exists casting_role_id uuid references public.casting_roles(id) on delete cascade,
+  add column if not exists status text not null default 'draft',
+  add column if not exists share_token text unique,
+  add column if not exists shared_at timestamptz;
 
-```text
-●  Titolo casting           Azienda · data/luogo                 N candidature   ⋮
+create index if not exists idx_rounds_role on public.casting_rounds(casting_role_id);
 ```
 
-- **Pallino stato** (`h-2 w-2 rounded-full`):
-  - `active` → verde (`bg-[hsl(var(--success))]` o token equivalente già usato)
-  - `draft` → grigio chiaro
-  - `closed` → grigio scuro
-  - Parola dello stato esposta tramite `Tooltip` sul pallino e ripetuta come label nel menu kebab.
-- **Titolo**: `font-medium`, click sull'intera riga → `navigate(/owner/castings/:id)` (riuso navigazione esistente).
-- **Metadati tenui** (`text-muted-foreground text-sm`): `azienda · (data formattata it-IT | primo luogo | —)`. Riusa `formatDates` già presente in `CastingCard`.
-- **Contatore candidature**: `applications[0]?.count` con etichetta "N candidature" (`text-sm text-muted-foreground`).
-- **Kebab** (`MoreVertical`): identico `DropdownMenu` di oggi (Apri, Modifica, transizioni di stato, Elimina) — copio le azioni da `CastingCard` senza modificarle. `stopPropagation` per non triggerare il click riga.
+Vincolo soft: `status` libero (`draft` | `shared`), validato dal client. Nessun NOT NULL su `casting_role_id` per non rompere i round esistenti, ma tutti i nuovi round verranno creati con `casting_role_id` valorizzato.
 
-Contenitore unico in `OwnerCastings.tsx`:
-```tsx
-<div className="rounded-2xl border bg-white divide-y divide-border/60 overflow-hidden">
-  {castings.map(c => <CastingRow … />)}
-</div>
-```
-Densità ~56 px per riga su desktop ⇒ 8–10 visibili senza scroll.
+## 2. Corpo del dettaglio casting → compartimenti per ruolo
 
-**Mobile** (`sm:` breakpoint): riga in due livelli — riga 1 `[pallino] [titolo] [kebab]`; riga 2 metadati + contatore. Layout via flex/wrap, nessun nuovo componente.
+File: `src/pages/owner/OwnerCastingDetail.tsx`.
 
-Le **tab di stato** (`CastingFilters`, già presente) + ricerca restano sopra la lista nella stessa barra di oggi. Nessuna modifica a quel componente.
+- **Rimosso**: la sezione "Confermati dall'azienda" aggregata flat (lines 259–292) e la vecchia `<RoundsSection castingId={castingId!} />` flat (line 295). La query `allRoleTalents` resta perché alimenta `confirmedByRole` mostrato nell'header del compartimento.
+- **Nuovo blocco** sotto "Ruoli": rendering di ogni `role` con il nuovo componente `RoleRoundsCompartment` che incapsula header + griglia round del ruolo.
+- L'attuale lista `CastingRoleCard` resta invariata sopra (nessun cambiamento al dettaglio ruolo).
 
-Skeleton: 6× riga `h-14` invece dei 3× `h-32` attuali.
+Nuovo componente `src/components/castings/rounds/RoleRoundsCompartment.tsx`:
+- Header con: nome ruolo, contatore "N confermati" (passato come prop), bottone "Nuovo invio".
+- Body: griglia `grid-cols-1 md:grid-cols-2 gap-4` con
+  - una `RoundFolderCard` per ogni round del ruolo
+  - una `AddRoundCard` tratteggiata in coda
+- Stile contenitore: `rounded-2xl border bg-white p-5 space-y-4`.
 
-## 2. Rimozione del box "Crea Casting con AI" dalla lista
+Nuovo componente `src/components/castings/rounds/RoundFolderCard.tsx`:
+- Altezza fissa (es. `h-44`), layout 3 sezioni verticali:
+  1. Header: label round (es. "1° invio") + `Badge` stato (Bozza grigio / Condiviso verde).
+  2. Striscia foto: max 5 miniature 2:3 ravvicinate (`flex gap-1`), ultima cella "+N" se i talent superano 5. Se 0 talent: una sola cella placeholder con iniziali del round o icona.
+  3. Footer: "N talent · data" + icone azione (right-aligned):
+     - `draft` → Edit, Share
+     - `shared` → Copy link, RotateCcw (rigenera)
+- Click card → naviga a `/owner/castings/:castingId/rounds/:roundId`.
+- Le miniature sono caricate via una nuova query batch `useRoundPreviewPhotos(roundIds)` che per ogni round prende fino a 5 `profile_photo_url` dai talent agganciati (join `casting_round_talents` → `role_talents` → `profiles`).
 
-In `src/pages/owner/OwnerCastings.tsx`: rimuovere `<AICastingCreator />` e il relativo import. Il componente `AICastingCreator.tsx` viene riusato (spostato concettualmente) nel passo 0 del dialog — vedi sotto.
+Nuovo hook `src/hooks/useRoundsByRole.ts`:
+- `useRoundsByRole(castingId, roleIds)` → singola query filtrata per `casting_role_id in (...)` con conteggio talent, ordinata `created_at desc`. Restituisce `Map<roleId, CastingRound[]>`.
+- Sostituisce `useCastingRounds` solo nel dettaglio casting; l'hook esistente resta per altre eventuali viste (non rimosso).
 
-## 3. Passo 0 nel dialog "Crea Casting"
+Modifica minima a `useCastingRounds`/`useCreateRound`:
+- Estendo l'interface `CastingRound` con `casting_role_id`, `status`, `share_token`, `shared_at`.
+- `useCreateRound` accetta `casting_role_id` e default `status: "draft"`.
 
-Modifica a `src/components/castings/CastingFormDialog.tsx` (il dialog di creazione/modifica esistente — non c'è un vero wizard multi-step, lo step 0 vive come schermata interna allo stesso dialog).
+Nuovo dialog `CreateRoleRoundDialog` (wrap del `CreateRoundDialog` esistente):
+- Stesso dialog di configurazione preset/talent, ma con `casting_role_id` precompilato. La sezione "Talent da includere" viene filtrata ai soli `role_talents` di quel ruolo (preselezione opzionale: solo `company_status = confirmed` o `shortlisted`).
+- Refactor minimo dentro `CreateRoundDialog.tsx`: aggiungo prop opzionale `roleId?: string` che, se presente, limita il filtro e passa `casting_role_id` alla create mutation.
 
-Nuovo stato locale `step: "choose" | "form"`:
+## 3. Vista invio (round detail)
 
-- **Apertura in modalità "create"** (`casting === null`) → parte da `step = "choose"`.
-- **Apertura in modalità "edit"** (`casting !== null`) → parte direttamente da `step = "form"` (nessuna regressione UX).
+Nuova route: `/owner/castings/:castingId/rounds/:roundId` → `src/pages/owner/OwnerRoundDetail.tsx`. Registrata in `src/App.tsx` accanto alle altre route owner.
 
-### Schermata "choose"
+Layout:
+- Back button "← Torna al casting".
+- Barra top:
+  - Titolo `round.label` + `Badge` stato.
+  - Ricerca per nome (input controllato, filtro client-side sui talent caricati).
+  - Toggle "Raggruppa per stato" (mostra sezioni per `company_status` o `talent_status`).
+  - Azioni a destra in base a stato: `draft` → "Modifica" + "Condividi"; `shared` → "Copia link" + "Rigenera".
+- Griglia talent: riusa **`TalentBoardGrid`** già esistente. Per la virtualizzazione introduco un wrapper `VirtualBoardGrid` che renderizza i talent in batch con `IntersectionObserver` (pagine da 30) — niente nuova dipendenza, soluzione leggera coerente con il vincolo "non duplicare".
+- Click su card → apre `TalentPreviewDrawer` (già esistente, riuso diretto). Per "comp card PDF di questo invio" il drawer accetta una prop opzionale `extraAction?: { label, onClick }`: se passata, mostra un bottone extra nel footer del drawer che apre l'URL del PDF di quel talent in questo round (lookup in `casting_round_talents.pdf_path` → signed URL via `useSignedPdfUrl`).
 
-Due opzioni affiancate (su desktop) / impilate (mobile), come due card cliccabili dentro `DialogContent`:
+Dati:
+- Hook `useRoundDetail(roundId)`: load `casting_rounds` row + `casting_round_talents` con join a `role_talents.profile_id` → profilo + attributes (riusa la proiezione di `useTalents` ma filtrata a quegli id). Restituisce `TalentWithAttributes[]` consumabili dalla board.
+- Conta foto/video/PDF per gli "indicatori materiali" sulla card → estendo `TalentBoardCard` con prop opzionale `materialIndicators?: { photos: number; videos: number; hasPdf: boolean }` (additiva, non rompe l'uso attuale dal Database Talenti).
 
-1. **Descrivi con AI** (icona `Sparkles`)
-   - Espande inline il blocco AI: `Textarea` + esempi (`SUGGESTED_PROMPTS`) + bottone "Genera", **riusando `AICastingCreator`** o estraendone il body in un piccolo `AICastingPromptPanel` se serve incapsulare la callback di successo.
-   - Modifica minima a `useAICasting`: nessuna. Il flusso esistente `generateCasting` → `createCastingFromAI` rimane identico; al termine il dialog si chiude e (riuso del `queryClient.invalidateQueries(["owner-castings"])` già presente) la lista si aggiorna. Coerente con il vincolo "nessuna modifica alla logica di creazione".
-   - Comportamento richiesto "deposita l'utente negli step precompilati": dato che oggi il form manuale non gestisce i ruoli (quelli si aggiungono nella pagina di dettaglio), dopo la creazione AI navighiamo a `/owner/castings/:id` dove l'utente vede titolo/azienda/luoghi/ruoli generati già presenti e modificabili con la UI esistente. Questo è l'equivalente più fedele rispetto all'attuale architettura del form; non viene introdotto un nuovo editor di ruoli.
+Azione "Condividi":
+- Mutation `useShareRound`: genera token via `crypto.randomUUID()`, set `status='shared'`, `share_token`, `shared_at=now()`. Copia in clipboard `/r/:token` (route pubblica da costruire nel prompt futuro — qui solo l'UI di copy).
+- Azione "Rigenera": riapre `CreateRoundDialog` in modalità "rigenera" sullo stesso round (regen PDFs, mantiene selezione). Implementazione minima riusando il flusso esistente; non distruttivo.
 
-2. **Parti da zero** (icona `FilePlus`)
-   - `onClick` → `setStep("form")`. Mostra l'attuale form manuale invariato.
+Mobile: griglia `grid-cols-2`, drawer full-width (già gestito).
 
-Header del dialog: titolo "Nuovo Casting" + breadcrumb minimo `Scegli metodo › Compila` quando si è in `step="form"` da create, con bottone "Indietro" che riporta a `choose`. In modalità edit nessun breadcrumb.
+## File toccati / creati
 
-Reset di `step` su chiusura del dialog.
+Creati:
+- `src/pages/owner/OwnerRoundDetail.tsx`
+- `src/components/castings/rounds/RoleRoundsCompartment.tsx`
+- `src/components/castings/rounds/RoundFolderCard.tsx`
+- `src/components/castings/rounds/VirtualBoardGrid.tsx`
+- `src/hooks/useRoundsByRole.ts`
+- `src/hooks/useRoundDetail.ts`
+- `src/hooks/useRoundPreviewPhotos.ts`
+- `src/hooks/useShareRound.ts`
 
-## File toccati
+Modificati:
+- `src/pages/owner/OwnerCastingDetail.tsx` — rimosso confermati flat + RoundsSection, aggiunto compartimento per ruolo.
+- `src/components/castings/rounds/CreateRoundDialog.tsx` — accetta `roleId?`, filtra talent e setta `casting_role_id`.
+- `src/hooks/useCastingRounds.ts` — interface estesa, `useCreateRound` accetta `casting_role_id` e `status`.
+- `src/components/talents/TalentBoardCard.tsx` — prop opzionale `materialIndicators`.
+- `src/components/talents/TalentPreviewDrawer.tsx` — prop opzionale `extraAction`.
+- `src/App.tsx` — nuova route round detail.
 
-- `src/pages/owner/OwnerCastings.tsx` — rimuove `AICastingCreator`, sostituisce mappa `CastingCard` con contenitore + `CastingRow`, aggiorna skeleton.
-- `src/components/castings/CastingRow.tsx` — nuovo, basato sulle azioni di `CastingCard`.
-- `src/components/castings/CastingFormDialog.tsx` — aggiunge step 0 (chooser) e branching AI/manuale; nessun cambio ai campi form esistenti.
-- (Opzionale) piccolo refactor: estrarre il body di `AICastingCreator` in un sub-componente riusabile dentro il dialog; il file esistente continua a funzionare ma non è più montato nella pagina lista.
+Migration: 1 file.
 
-Nessuna modifica a: `useCastings`, `useAICasting`, `useCreateCasting/Update/Delete`, edge function `generate-casting`, schema DB, `CastingFilters`, pagina dettaglio.
+Non toccati: header casting, `useCastingRoles`, `OwnerCastingRoleDetail`, `RoleTalents`, `CastingRoleCard`, dettaglio ruolo.
+
+## Note esecuzione
+
+- La migration parte per prima e richiede approvazione separata: dopo l'OK procedo con il codice (i tipi auto-rigenerati includeranno le nuove colonne).
+- Il componente `RoundHistoryItem` resta nel repo ma non più montato — riferimento per eventuali viste future.
