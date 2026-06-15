@@ -146,7 +146,7 @@ export const CastingFormDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {!isEdit && step === "form" && (
+            {!isEdit && step !== "choose" && (
               <button
                 type="button"
                 onClick={() => setStep("choose")}
@@ -156,7 +156,11 @@ export const CastingFormDialog = ({
                 <ArrowLeft className="h-4 w-4" />
               </button>
             )}
-            {isEdit ? "Modifica Casting" : "Nuovo Casting"}
+            {isEdit
+              ? "Modifica Casting"
+              : step === "ai"
+              ? "Crea con AI"
+              : "Nuovo Casting"}
           </DialogTitle>
         </DialogHeader>
 
@@ -168,10 +172,8 @@ export const CastingFormDialog = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  /* AI panel sotto */
-                }}
-                className="text-left rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+                onClick={() => setStep("ai")}
+                className="text-left rounded-xl border border-border bg-card p-5 hover:border-primary/40 hover:bg-accent/30 transition-colors"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -184,7 +186,7 @@ export const CastingFormDialog = ({
               <button
                 type="button"
                 onClick={() => setStep("form")}
-                className="text-left rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:bg-accent/30 transition-colors"
+                className="text-left rounded-xl border border-border bg-card p-5 hover:border-primary/40 hover:bg-accent/30 transition-colors"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <FilePlus className="h-4 w-4 text-primary" />
@@ -195,19 +197,20 @@ export const CastingFormDialog = ({
                 </p>
               </button>
             </div>
-
-            <div className="pt-2">
-              <AICastingCreator
-                variant="bare"
-                onCreated={(id) => {
-                  onOpenChange(false);
-                  navigate(`/owner/castings/${id}`);
-                }}
-              />
-            </div>
+          </div>
+        ) : step === "ai" && !isEdit ? (
+          <div className="pt-2">
+            <AICastingCreator
+              variant="bare"
+              onCreated={(id) => {
+                onOpenChange(false);
+                navigate(`/owner/castings/${id}`);
+              }}
+            />
           </div>
         ) : (
           <Form {...form}>
+
 
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormField
