@@ -56,6 +56,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
+            <Route path="/round/:token" element={<SharedRound />} />
             
             {/* Talent onboarding - protected but outside layout */}
             <Route
