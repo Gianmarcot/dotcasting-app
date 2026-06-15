@@ -112,10 +112,13 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
     return () => window.removeEventListener("keydown", handler);
   }, [open, photos.length]);
 
+  const sheetClass =
+    "w-full sm:w-[40vw] sm:min-w-[440px] sm:max-w-none p-0 flex flex-col gap-0 bg-background sm:rounded-l-[2.5rem] overflow-hidden border-l-0";
+
   if (!talent) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="right" className="w-full sm:max-w-[440px] p-0">
+        <SheetContent side="right" className={sheetClass}>
           <VisuallyHidden>
             <SheetTitle>Anteprima talent</SheetTitle>
           </VisuallyHidden>
@@ -128,7 +131,6 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
   const initials = buildInitials(talent);
   const location = buildLocation(talent);
   const age = calculateAge(talent.birth_date);
-  const meta = [location, age ? `${age} anni` : null].filter(Boolean).join(" · ");
 
   const registry = toRegistry(talent);
   const essentialFields = ESSENTIAL_KEYS.map((k) => {
@@ -160,10 +162,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent
-          side="right"
-          className="w-full sm:max-w-[440px] p-0 flex flex-col gap-0 bg-background"
-        >
+        <SheetContent side="right" className={sheetClass}>
           <VisuallyHidden>
             <SheetTitle>{`Anteprima ${name}`}</SheetTitle>
             <SheetDescription>Anteprima talent</SheetDescription>
@@ -173,7 +172,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
             {/* Gallery */}
             <div
               className="relative w-full bg-[#2C2C2A]"
-              style={{ aspectRatio: "3 / 4" }}
+              style={{ aspectRatio: "4 / 5" }}
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >
@@ -197,7 +196,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
                     type="button"
                     onClick={goPrev}
                     aria-label="Foto precedente"
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -205,11 +204,11 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
                     type="button"
                     onClick={goNext}
                     aria-label="Foto successiva"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition"
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
-                  <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded">
+                  <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-0.5 rounded-full">
                     {photoIdx + 1} / {photos.length}
                   </div>
                 </>
@@ -218,26 +217,30 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
 
             {/* Thumbnail strip */}
             {photos.length > 1 && (
-              <div className="px-4 pt-3">
+              <div className="px-6 pt-4">
                 <TalentPhotoStrip
                   photos={photos}
                   activeIndex={photoIdx}
                   onSelect={setPhotoIdx}
                   name={name}
                   initials={initials}
-                  columnsClassName="grid-cols-5"
+                  columnsClassName="grid-cols-6"
                 />
               </div>
             )}
 
             {/* Header */}
-            <div className="px-5 pt-4">
-              <h2 className="text-xl font-medium text-foreground">{name}</h2>
-              {meta && (
-                <p className="text-sm text-muted-foreground mt-1">{meta}</p>
-              )}
+            <div className="px-6 pt-6 pb-5">
+              <h2 className="text-2xl font-medium text-foreground leading-tight">
+                {name}
+              </h2>
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                {location && <span>{location}</span>}
+                {location && age ? <span aria-hidden>·</span> : null}
+                {age ? <span>{age} anni</span> : null}
+              </div>
               {talent.talent_categories && talent.talent_categories.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-3">
+                <div className="flex flex-wrap gap-1.5 mt-4">
                   {talent.talent_categories.map((cat) => (
                     <Badge key={cat} variant="secondary" className="text-[11px]">
                       {cat}
@@ -249,26 +252,31 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
 
             {/* Key data */}
             {essentialFields.length > 0 && (
-              <div className="px-5 mt-5">
-                <h3 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
-                  Dati chiave
-                </h3>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  {essentialFields.map((f) => (
-                    <div key={f.key} className="flex flex-col">
-                      <dt className="text-xs text-muted-foreground">{f.label}</dt>
-                      <dd className="text-foreground">{f.value}</dd>
-                    </div>
-                  ))}
-                </dl>
+              <div className="px-6 pb-6">
+                <div className="border-t pt-5">
+                  <h3 className="text-xs uppercase tracking-[0.12em] text-muted-foreground mb-4">
+                    Dati chiave
+                  </h3>
+                  <dl className="divide-y divide-border/60">
+                    {essentialFields.map((f) => (
+                      <div
+                        key={f.key}
+                        className="flex items-baseline justify-between gap-4 py-2.5 text-sm"
+                      >
+                        <dt className="text-muted-foreground shrink-0">{f.label}</dt>
+                        <dd className="text-foreground text-right break-words">
+                          {f.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
               </div>
             )}
-
-            <div className="h-6" />
           </div>
 
           {/* Actions */}
-          <div className="border-t bg-background p-4 flex flex-col gap-2 sm:flex-row">
+          <div className="border-t bg-background px-6 py-4 flex flex-col gap-2 sm:flex-row">
             <Button
               variant="outline"
               className="flex-1"
@@ -297,3 +305,4 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange }: Props) => {
     </>
   );
 };
+
