@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { it } from "@/lib/i18n";
 import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
-import { TalentCard } from "@/components/talents/TalentCard";
+import { TalentBoardGrid } from "@/components/talents/TalentBoardGrid";
+import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
 import { TalentDetailDialog } from "@/components/talents/TalentDetailDialog";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Select,
   SelectContent,
@@ -15,7 +17,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, UserPlus, X } from "lucide-react";
+import { Users, UserPlus, X, LayoutGrid, List } from "lucide-react";
+
+type ViewMode = "board" | "portfolio";
+const VIEW_STORAGE_KEY = "owner-talents-view-mode";
+
 
 // Human-readable labels for filter chips
 const FILTER_LABELS: Record<string, string> = {
@@ -57,6 +63,23 @@ export const OwnerTalents = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [sortBy, setSortBy] = useState("recent");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === "undefined") return "board";
+    const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    return saved === "portfolio" ? "portfolio" : "board";
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(VIEW_STORAGE_KEY, viewMode);
+    } catch {}
+  }, [viewMode]);
+
+  const handleSelectTalent = (talent: TalentWithAttributes) => {
+    console.log("[OwnerTalents] onSelectTalent", talent.id, talent);
+    setSelectedTalent(talent);
+    setDialogOpen(true);
+  };
 
   const { data: talents, isLoading } = useTalents(filters);
   const { data: totalCount } = useTalentCount();
@@ -113,23 +136,39 @@ export const OwnerTalents = () => {
 
       <div className="mt-6">
         <div className="flex-1 min-w-0">
-          {/* Top bar: count + sort */}
+          {/* Top bar: count + sort + view toggle */}
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm text-muted-foreground">
               {isLoading
                 ? "Caricamento..."
                 : `${talents?.length || 0} talent trovati${totalCount ? ` su ${totalCount}` : ""}`}
             </p>
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[160px] h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Più recenti</SelectItem>
-                <SelectItem value="name">Nome A–Z</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[160px] h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Più recenti</SelectItem>
+                  <SelectItem value="name">Nome A–Z</SelectItem>
+                </SelectContent>
+              </Select>
+              <ToggleGroup
+                type="single"
+                value={viewMode}
+                onValueChange={(v) => v && setViewMode(v as ViewMode)}
+                className="h-9"
+              >
+                <ToggleGroupItem value="board" aria-label="Vista Board" className="h-9 w-9 p-0">
+                  <LayoutGrid className="h-4 w-4" />
+                </ToggleGroupItem>
+                <ToggleGroupItem value="portfolio" aria-label="Vista Portfolio" className="h-9 w-9 p-0">
+                  <List className="h-4 w-4" />
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
           </div>
+
 
           {/* Active filter chips */}
           {activeChips.length > 0 && (
@@ -172,21 +211,15 @@ export const OwnerTalents = () => {
             </div>
           )}
 
-          {/* Talent grid */}
+          {/* Talent views */}
           {!isLoading && sortedTalents.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {sortedTalents.map((talent) => (
-                <TalentCard
-                  key={talent.id}
-                  talent={talent}
-                  onClick={() => {
-                    setSelectedTalent(talent);
-                    setDialogOpen(true);
-                  }}
-                />
-              ))}
-            </div>
+            viewMode === "board" ? (
+              <TalentBoardGrid talents={sortedTalents} onSelectTalent={handleSelectTalent} />
+            ) : (
+              <TalentPortfolioList talents={sortedTalents} onSelectTalent={handleSelectTalent} />
+            )
           )}
+
         </div>
       </div>
 

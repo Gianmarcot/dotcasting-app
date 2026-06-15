@@ -42,6 +42,7 @@ export interface TalentWithAttributes {
   user_id: string;
   first_name: string | null;
   last_name: string | null;
+  stage_name: string | null;
   city: string | null;
   country: string | null;
   gender: string | null;
@@ -80,6 +81,7 @@ export const useTalents = (filters: TalentFilters = {}) => {
           user_id,
           first_name,
           last_name,
+          stage_name,
           city,
           country,
           gender,
@@ -149,6 +151,7 @@ export const useTalents = (filters: TalentFilters = {}) => {
         user_id: profile.user_id,
         first_name: profile.first_name,
         last_name: profile.last_name,
+        stage_name: profile.stage_name,
         city: profile.city,
         country: profile.country,
         gender: profile.gender,
