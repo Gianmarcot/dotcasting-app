@@ -17,7 +17,7 @@ import { useRoundPreviewPhotos } from "@/hooks/useRoundPreviewPhotos";
 import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
 import { RoundFolderCard } from "./RoundFolderCard";
-import { CreateRoundDialog } from "./CreateRoundDialog";
+import { RoundWizardDialog } from "./RoundWizardDialog";
 
 interface Props {
   role: CastingRole;
