@@ -152,7 +152,8 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
 
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2 text-xs text-muted-foreground">
+      <div className="mt-auto flex items-center justify-between px-4 pt-3 pb-2 text-xs text-muted-foreground">
+
         <span className="truncate">
           {total} talent · {format(new Date(round.created_at), "d MMM yyyy", { locale: itLocale })}
         </span>
