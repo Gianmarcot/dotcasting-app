@@ -27,9 +27,50 @@ import { fetchRoundTalents } from "@/lib/casting/fetchRoundTalents";
 import { generateRoundPdfs } from "@/lib/casting/generateRound";
 import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import { useCreateRound } from "@/hooks/useCastingRounds";
-import { useRoleConfirmedTalents } from "@/hooks/useRoleConfirmedTalents";
+import { useRoleTalentsForRound, RoleTalentRow } from "@/hooks/useRoleConfirmedTalents";
 import { useUpdateRound } from "@/hooks/useUpdateRound";
+import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+
+type SelectionMode = "by_status" | "manual";
+type StatusFilterKey =
+  | "company_confirmed"
+  | "talent_confirmed"
+  | "both_confirmed"
+  | "talent_invited"
+  | "company_pending";
+
+const STATUS_FILTERS: {
+  key: StatusFilterKey;
+  label: string;
+  match: (r: RoleTalentRow) => boolean;
+}[] = [
+  { key: "company_confirmed", label: "Confermati azienda", match: (r) => r.companyStatus === "confirmed" },
+  { key: "talent_confirmed", label: "Confermati talent", match: (r) => r.talentStatus === "confirmed" },
+  {
+    key: "both_confirmed",
+    label: "Confermati su entrambi i lati",
+    match: (r) => r.companyStatus === "confirmed" && r.talentStatus === "confirmed",
+  },
+  { key: "talent_invited", label: "Invitati", match: (r) => r.talentStatus === "invited" },
+  { key: "company_pending", label: "In attesa azienda", match: (r) => r.companyStatus === "pending" },
+];
+
+const statusBadge = (r: RoleTalentRow): { label: string; tone: string } | null => {
+  if (r.companyStatus === "confirmed" && r.talentStatus === "confirmed")
+    return { label: "Conf. entrambi", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.companyStatus === "confirmed")
+    return { label: "Conf. azienda", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.talentStatus === "confirmed")
+    return { label: "Conf. talent", tone: "bg-[#729128]/15 text-[#729128]" };
+  if (r.companyStatus === "pending")
+    return { label: "In attesa azienda", tone: "bg-[#C88500]/15 text-[#C88500]" };
+  if (r.talentStatus === "invited")
+    return { label: "Invitato", tone: "bg-[#C88500]/15 text-[#C88500]" };
+  if (r.talentStatus === "rejected")
+    return { label: "Rifiutato", tone: "bg-[#A30A2B]/15 text-[#A30A2B]" };
+  return null;
+};
 
 type WizardMode = "create" | "edit";
 
