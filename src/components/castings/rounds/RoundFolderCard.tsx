@@ -83,7 +83,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
       tabIndex={0}
       onClick={open}
       onKeyDown={(e) => e.key === "Enter" && open()}
-      className="group flex flex-col rounded-2xl border bg-white hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer overflow-hidden h-44"
+      className="group flex flex-col rounded-2xl border bg-white hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
@@ -103,52 +103,54 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         </Badge>
       </div>
 
-      {/* Photo strip — only real talents, aspect 5/7 */}
-      <div className="px-4 flex gap-1 items-start justify-start min-h-0">
-
-        {total === 0 ? (
-          <div className="flex-1 rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground" style={{ aspectRatio: "5 / 7" }}>
-            Nessun talent
-          </div>
-        ) : (
-          <>
-            {visible.map((it, i) => (
-              <div
-                key={i}
-                className="rounded-md overflow-hidden bg-muted/40"
-                style={{
-                  aspectRatio: "5 / 7",
-                  flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
-                }}
-              >
-                {it.photoUrl ? (
-                  <img
-                    src={it.photoUrl}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-[#2C2C2A] text-white font-tenor uppercase text-xs tracking-wide">
-                    {initialsOf(it.name)}
-                  </div>
-                )}
-              </div>
-            ))}
-            {hasOverflow && (
-              <div
-                className="rounded-md bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
-                style={{
-                  aspectRatio: "5 / 7",
-                  flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
-                }}
-              >
-                +{extra}
-              </div>
-            )}
-          </>
-        )}
+      {/* Photo strip — altezza fissa = una riga piena di 5 miniature 5/7 */}
+      <div className="px-4">
+        <div className="w-full aspect-[25/7] flex gap-1 items-stretch justify-start overflow-hidden">
+          {total === 0 ? (
+            <div className="w-full h-full rounded-md bg-muted/40 flex items-center justify-center text-xs text-muted-foreground">
+              Nessun talent
+            </div>
+          ) : (
+            <>
+              {visible.map((it, i) => (
+                <div
+                  key={i}
+                  className="h-full rounded-md overflow-hidden bg-muted/40"
+                  style={{
+                    aspectRatio: "5 / 7",
+                    flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
+                  }}
+                >
+                  {it.photoUrl ? (
+                    <img
+                      src={it.photoUrl}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-[#2C2C2A] text-white font-tenor uppercase text-xs tracking-wide">
+                      {initialsOf(it.name)}
+                    </div>
+                  )}
+                </div>
+              ))}
+              {hasOverflow && (
+                <div
+                  className="h-full rounded-md bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
+                  style={{
+                    aspectRatio: "5 / 7",
+                    flex: `0 0 calc((100% - ${(cellCount - 1) * 4}px) / 5)`,
+                  }}
+                >
+                  +{extra}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
+
 
 
       {/* Footer */}

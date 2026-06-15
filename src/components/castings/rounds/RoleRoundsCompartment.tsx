@@ -127,8 +127,8 @@ export const RoleRoundsCompartment = ({
         </div>
       </div>
 
-      {/* Griglia invii — 1/2/3 colonne, cella "Aggiungi" inline */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Griglia invii — 2 colonne, altezze uniformi */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-fr">
         {[...rounds]
           .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at))
           .map((r) => (
@@ -142,7 +142,7 @@ export const RoleRoundsCompartment = ({
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="h-44 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
+          className="h-full min-h-44 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
         >
           <Plus className="h-5 w-5" />
           <span className="text-sm">
@@ -150,6 +150,7 @@ export const RoleRoundsCompartment = ({
           </span>
         </button>
       </div>
+
 
 
       <RoundWizardDialog
