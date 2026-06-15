@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, MoreVertical, Edit, Trash2, ExternalLink } from "lucide-react";
+import { Plus, MoreVertical, Edit, Trash2, ExternalLink, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -120,14 +120,12 @@ export const RoleRoundsCompartment = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Nuovo invio
+          <Button size="sm" variant="outline" onClick={openRole}>
+            Vai alla selezione
+            <ChevronRight className="h-4 w-4 ml-1" />
           </Button>
         </div>
       </div>
-
-      <div className="border-t border-border/60" />
 
       {/* Griglia invii — 1/2/3 colonne, cella "Aggiungi" inline */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
