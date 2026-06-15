@@ -2,11 +2,19 @@ import { useState } from "react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
 import { Badge } from "@/components/ui/badge";
+import { Image as ImageIcon, Video, FileText } from "lucide-react";
+
+export interface MaterialIndicators {
+  photos: number;
+  videos: number;
+  hasPdf: boolean;
+}
 
 interface Props {
   talent: TalentWithAttributes;
   photos: TalentMainPhoto[];
   onClick?: () => void;
+  materialIndicators?: MaterialIndicators;
 }
 
 const buildDisplayName = (t: TalentWithAttributes) => {
