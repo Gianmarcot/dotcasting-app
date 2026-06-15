@@ -35,7 +35,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const copyLink = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!round.share_token) return;
-    const url = `${window.location.origin}/r/${round.share_token}`;
+    const url = `${window.location.origin}/round/${round.share_token}`;
     try {
       await navigator.clipboard.writeText(url);
       toast({ title: "Link copiato", description: url });
@@ -48,7 +48,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
     e.stopPropagation();
     try {
       const res = await share.mutateAsync(round.id);
-      const url = `${window.location.origin}/r/${res.share_token}`;
+      const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
       toast({ title: "Invio condiviso", description: url });
     } catch (err: any) {

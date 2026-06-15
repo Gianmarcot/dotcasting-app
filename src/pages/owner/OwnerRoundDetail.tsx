@@ -1,18 +1,28 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw, Edit, FileText } from "lucide-react";
+import { ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw, Edit, FileText, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoundDetail } from "@/hooks/useRoundDetail";
 import { useShareRound } from "@/hooks/useShareRound";
+import { useRegenerateRound } from "@/hooks/useRegenerateRound";
 import { VirtualBoardGrid } from "@/components/talents/VirtualBoardGrid";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
+import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialog";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
 import type { MaterialIndicators } from "@/components/talents/TalentBoardCard";
 import { COMPANY_STATUS_OPTIONS } from "@/hooks/useRoleTalents";
@@ -27,14 +37,36 @@ export const OwnerRoundDetail = () => {
   const navigate = useNavigate();
   const { data, isLoading } = useRoundDetail(roundId);
   const share = useShareRound();
+  const regen = useRegenerateRound();
 
   const [search, setSearch] = useState("");
   const [groupByStatus, setGroupByStatus] = useState(false);
   const [selected, setSelected] = useState<TalentWithAttributes | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [regenOpen, setRegenOpen] = useState(false);
+  const [regenProgress, setRegenProgress] = useState<{ done: number; total: number } | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [roleName, setRoleName] = useState<string | null>(null);
 
   const round = data?.round;
   const isShared = round?.status === "shared";
+
+  // Fetch role name for the wizard header
+  useEffect(() => {
+    if (!round?.casting_role_id) return;
+    let cancelled = false;
+    supabase
+      .from("casting_roles")
+      .select("name")
+      .eq("id", round.casting_role_id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setRoleName(data?.name ?? null);
+      });
+    return () => { cancelled = true; };
+  }, [round?.casting_role_id]);
 
   const filtered = useMemo(() => {
     if (!data) return [];
@@ -90,22 +122,59 @@ export const OwnerRoundDetail = () => {
     window.open(signed.signedUrl, "_blank");
   };
 
+  const buildShareUrl = (token: string) => `${window.location.origin}/round/${token}`;
+
   const copyLink = async () => {
     if (!round?.share_token) return;
-    const url = `${window.location.origin}/r/${round.share_token}`;
+    const url = buildShareUrl(round.share_token);
     await navigator.clipboard.writeText(url).catch(() => {});
     toast({ title: "Link copiato", description: url });
+  };
+
+  const copyShareUrl = async () => {
+    if (!shareUrl) return;
+    await navigator.clipboard.writeText(shareUrl).catch(() => {});
+    toast({ title: "Link copiato" });
   };
 
   const doShare = async () => {
     if (!round) return;
     try {
       const res = await share.mutateAsync(round.id);
-      const url = `${window.location.origin}/r/${res.share_token}`;
-      await navigator.clipboard.writeText(url).catch(() => {});
-      toast({ title: "Invio condiviso", description: url });
+      const url = buildShareUrl(res.share_token);
+      setShareUrl(url);
+      setShareDialogOpen(true);
     } catch (e: any) {
       toast({ title: "Errore", description: e.message, variant: "destructive" });
+    }
+  };
+
+  const doRegen = async () => {
+    if (!data || !round) return;
+    setRegenOpen(false);
+    const ids = data.talents.map((t) => t.roleTalentId);
+    setRegenProgress({ done: 0, total: ids.length });
+    try {
+      const res = await regen.mutateAsync({
+        roundId: round.id,
+        castingId: round.casting_id,
+        preset: round.field_preset,
+        roleTalentIds: ids,
+        onProgress: (done, total) => setRegenProgress({ done, total }),
+      });
+      if (res.errors.length === 0) {
+        toast({ title: "PDF rigenerati", description: `${res.count} comp card aggiornate` });
+      } else {
+        toast({
+          title: "Rigenerato con errori",
+          description: `${res.errors.length} su ${res.count} falliti`,
+          variant: "destructive",
+        });
+      }
+    } catch (e: any) {
+      toast({ title: "Errore", description: e?.message, variant: "destructive" });
+    } finally {
+      setRegenProgress(null);
     }
   };
 
@@ -127,6 +196,10 @@ export const OwnerRoundDetail = () => {
       </div>
     );
   }
+
+  const pdfPathByRoleTalentId: Record<string, string | null> = Object.fromEntries(
+    data.talents.map((t) => [t.roleTalentId, t.pdfPath])
+  );
 
   return (
     <div className="space-y-5 animate-fade-up">
@@ -162,16 +235,43 @@ export const OwnerRoundDetail = () => {
                 <LinkIcon className="h-4 w-4 mr-2" />
                 Copia link
               </Button>
-              <Button variant="outline" size="sm" disabled>
-                <RotateCcw className="h-4 w-4 mr-2" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRegenOpen(true)}
+                disabled={regen.isPending}
+              >
+                {regen.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                )}
                 Rigenera
               </Button>
             </>
           ) : (
             <>
-              <Button variant="outline" size="sm" disabled>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setEditOpen(true)}
+                disabled={regen.isPending}
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 Modifica
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRegenOpen(true)}
+                disabled={regen.isPending || data.talents.length === 0}
+              >
+                {regen.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                )}
+                Rigenera PDF
               </Button>
               <Button size="sm" onClick={doShare} disabled={share.isPending}>
                 <Share2 className="h-4 w-4 mr-2" />
@@ -181,6 +281,16 @@ export const OwnerRoundDetail = () => {
           )}
         </div>
       </div>
+
+      {regenProgress && (
+        <div className="space-y-1">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Rigenerazione PDF…</span>
+            <span>{regenProgress.done} / {regenProgress.total}</span>
+          </div>
+          <Progress value={(regenProgress.done / Math.max(regenProgress.total, 1)) * 100} />
+        </div>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[240px]">
@@ -251,6 +361,64 @@ export const OwnerRoundDetail = () => {
             : undefined
         }
       />
+
+      {round.casting_role_id && (
+        <RoundWizardDialog
+          mode="edit"
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          castingId={round.casting_id}
+          roleId={round.casting_role_id}
+          roleName={roleName ?? undefined}
+          roundId={round.id}
+          initialLabel={round.label}
+          initialPreset={round.field_preset}
+          initialRoleTalentIds={data.talents.map((t) => t.roleTalentId)}
+          pdfPathByRoleTalentId={pdfPathByRoleTalentId}
+        />
+      )}
+
+      <AlertDialog open={regenOpen} onOpenChange={setRegenOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Rigenerare i PDF di questo invio?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {data.talents.length} comp card verranno ricalcolate con i dati attuali dei
+              talent e con lo stesso preset. La selezione dei talent e il link di
+              condivisione non cambiano.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={doRegen}>Rigenera</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invio condiviso</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Da questo momento chiunque abbia il link vedrà i talent e i PDF correnti.
+            </p>
+            <div className="flex gap-2">
+              <Input readOnly value={shareUrl ?? ""} onFocus={(e) => e.currentTarget.select()} />
+              <Button onClick={copyShareUrl}>
+                <LinkIcon className="h-4 w-4 mr-2" />
+                Copia
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShareDialogOpen(false)}>
+              Chiudi
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,19 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+/** 24 random bytes → base64url ≈ 32 url-safe characters. */
+const generateShareToken = (): string => {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
+
 /**
  * Generate a share token and mark the round as shared.
- * The public viewer route + RPC are added in a separate prompt.
+ * Public viewer route is /round/{token} (handled separately).
  */
 export const useShareRound = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (roundId: string) => {
-      const token =
-        (typeof crypto !== "undefined" && "randomUUID" in crypto)
-          ? crypto.randomUUID().replace(/-/g, "")
-          : Math.random().toString(36).slice(2) + Date.now().toString(36);
-
+      const token = generateShareToken();
       const { data, error } = await supabase
         .from("casting_rounds")
         .update({
