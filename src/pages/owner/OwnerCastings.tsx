@@ -5,11 +5,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-import { CastingCard } from "@/components/castings/CastingCard";
+import { CastingRow } from "@/components/castings/CastingRow";
 import { CastingFilters } from "@/components/castings/CastingFilters";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import { DeleteCastingDialog } from "@/components/castings/DeleteCastingDialog";
-import { AICastingCreator } from "@/components/castings/AICastingCreator";
 
 import {
   useCastings,
