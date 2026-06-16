@@ -1,36 +1,79 @@
-## Obiettivo
-Ridurre il peso delle immagini caricate sulla piattaforma applicando una compressione leggera lato client (nel browser), prima di inviarle allo storage. Vantaggi: upload più veloci, meno banda usata, caricamento gallerie più fluido, nessun costo server.
+## 1. Database (migration)
 
-## Approccio
-Aggiungere un'unica utility condivisa `src/lib/media/compressImage.ts` basata su `browser-image-compression` (libreria leggera, ~10KB gzip, già usa Web Worker per non bloccare la UI). La utility viene poi invocata in tutti i punti di upload immagine esistenti.
+Tabella singleton `app_settings`:
 
-### Limiti proposti (modificabili)
-| Tipo immagine | Lato max | Peso target | Formato output |
-|---|---|---|---|
-| Avatar / foto profilo | 1024 px | ~300 KB | JPEG q≈0.85 |
-| Galleria media talent (foto book, polaroid, ecc.) | 2000 px | ~800 KB | JPEG q≈0.85 |
-| Altre immagini (casting, allegati) | 1920 px | ~600 KB | JPEG q≈0.85 |
+```sql
+create table public.app_settings (
+  id boolean primary key default true,
+  agency_name text,
+  agency_logo_url text,
+  contact_email text,
+  contact_phone text,
+  website_url text,
+  updated_at timestamptz not null default now(),
+  constraint app_settings_singleton check (id)
+);
 
-PNG con trasparenza e WebP vengono preservati nel loro formato; solo i JPEG/PNG pesanti vengono ricompressi. File già sotto soglia vengono passati invariati. GIF animate, PDF e video sono ignorati (passano così come sono).
+grant select on public.app_settings to anon, authenticated;
+grant all on public.app_settings to service_role;
 
-## Punti di intervento (file già individuati)
-1. `src/components/profile/ProfilePhotoSection.tsx` — upload avatar → preset "avatar"
-2. `src/pages/talent/TalentOnboarding.tsx` (riga ~148) — foto profilo onboarding → preset "avatar"
-3. `src/hooks/useTalentMedia.ts` (riga ~91) — upload media galleria → preset "gallery"
-4. `src/hooks/useTalentMediaByProfileIdEditable.ts` — variante owner → preset "gallery"
-5. `src/hooks/useUpdateRound.ts` e `src/lib/casting/generateRound.tsx` — eventuali immagini casting → preset "generic"
+alter table public.app_settings enable row level security;
 
-In ogni punto: `const compressed = await compressImage(file, "avatar" | "gallery" | "generic")` subito prima del `.upload()`. Le crop blob generate dal cropper esistente passano comunque dalla utility (sono già JPEG ma vengono ulteriormente normalizzate).
+-- Lettura: tutti (compreso anon) per branding sulla pagina pubblica del round
+create policy "app_settings readable" on public.app_settings for select using (true);
 
-## Dettagli tecnici
-- Dipendenza: `browser-image-compression` (~10KB gzip, MIT, attivamente mantenuta).
-- La utility espone una funzione tipata `compressImage(file: File | Blob, preset: Preset): Promise<File>` con i 3 preset sopra.
-- Mantiene EXIF orientation (importante per foto da smartphone).
-- Restituisce sempre un `File` con nome originale e content-type corretto, così i nomi dei file in storage non cambiano.
-- Fallback: se la compressione fallisce per qualunque motivo, si carica il file originale e si logga un warning (non blocca mai l'utente).
-- Nessuna modifica allo schema DB né alle RLS — è puramente frontend.
+-- Scrittura: solo owner/admin
+create policy "owner/admin update settings" on public.app_settings for update
+  to authenticated using (has_role(auth.uid(),'owner') or has_role(auth.uid(),'admin'));
+create policy "owner/admin insert settings" on public.app_settings for insert
+  to authenticated with check (has_role(auth.uid(),'owner') or has_role(auth.uid(),'admin'));
+
+insert into public.app_settings (id) values (true) on conflict (id) do nothing;
+
+create trigger app_settings_touch_updated_at
+  before update on public.app_settings
+  for each row execute function public.update_updated_at_column();
+```
+
+Bucket Storage `branding` (pubblico) per logo agenzia, con RLS che permette upload/update/delete a owner/admin e SELECT pubblico.
+
+Aggiornare la RPC `get_shared_round` per includere nel payload un campo `branding` (`agency_name`, `agency_logo_url`, `contact_email`) letto da `app_settings` — così la pagina pubblica non interroga `app_settings` direttamente.
+
+## 2. Pagina `/owner/settings`
+
+Sostituire `src/pages/owner/OwnerSettings.tsx` con un layout a **tabs shadcn** (`Agenzia` | `Account`).
+
+**Tab Agenzia** (`src/components/owner/settings/AgencySettingsForm.tsx`)
+- Hook `useAppSettings()` (`src/hooks/useAppSettings.ts`) — query+mutation con react-query.
+- Campi: `agency_name`, logo (upload nel bucket `branding`, preview, sostituzione), `contact_email`, `contact_phone`, `website_url`.
+- Validazione zod (email valida; URL valido se compilato; trim/lunghezze).
+- Upload logo passa per `compressImage(file, "avatar")` già esistente; cancellazione del vecchio file dopo upload del nuovo.
+- Salvataggio: `upsert` con `id: true` → aggiorna la riga singleton.
+
+**Tab Account** (`src/components/owner/settings/AccountSection.tsx`)
+- Mostra email corrente (read-only, da `useAuth`).
+- Form cambio password: nuova password + conferma → `supabase.auth.updateUser({ password })` con validazione (min 8, conferma uguale).
+- Nessuna gestione membri team (placeholder testuale "Disponibile prossimamente" o sezione assente — preferisco assente per non sovra-strutturare).
+
+UI in italiano, `.dc-card`, tipografia da memoria progetto. Responsive (tabs stacked su mobile, form a colonna singola).
+
+## 3. Collegamento branding
+
+**Comp card (PDF + Web)** — `src/lib/casting/roundPreset.ts`, `TalentCardPDF.tsx`, `TalentCardWeb.tsx`, `generateRound.tsx`:
+- Estendere `RoundPreset` o, meglio, aggiungere campo opzionale `branding?: { agencyName?: string; logoUrl?: string; contactEmail?: string }` come parametro a `resolveCard(talent, preset, branding?)`.
+- `ResolvedCard` espone `agencyName`, `agencyLogoUrl`, `agencyContactEmail`.
+- Footer: se `agencyContactEmail` presente mostra quello, altrimenti niente (rimuovere fallback hardcoded `info@dotcasting.com`).
+- `generateRoundPdfs` carica `app_settings` una volta a monte e passa `branding` a `resolveCard`.
+- `useUpdateRound` (genera PDF) idem.
+
+**Pagina pubblica round** — `src/pages/shared/SharedRound.tsx`:
+- Legge `data.branding` dalla RPC.
+- Header: usa `branding.agency_logo_url` (fallback `/logo.png`) e `branding.agency_name` (fallback "dotCasting") al posto dei valori fissi.
+- Passa `branding` al `resolveCard` dentro `TalentBlock` per il footer della comp card web.
+
+Aggiornare i tipi TS della RPC (rigenerati dopo migration).
 
 ## Cosa NON viene fatto
-- Nessuna ricompressione retroattiva delle immagini già caricate (si potrebbe fare in un secondo step con un'edge function on-demand, ma non rientra in questo intervento).
-- Nessuna conversione automatica in WebP/AVIF (si può aggiungere in futuro; richiede valutare compatibilità del download).
-- Nessuna modifica al limite di dimensione massima accettata da Supabase Storage.
+- Niente multi-tenant / tabella `agencies`.
+- Niente sezioni "Default invii", "Notifiche", "Team".
+- Nessuna modifica al logo statico usato nei layout backoffice (sidebar, auth) — la richiesta è limitata a comp card PDF e pagina pubblica round.

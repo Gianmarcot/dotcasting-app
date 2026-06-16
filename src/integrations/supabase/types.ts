@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_settings: {
+        Row: {
+          agency_logo_url: string | null
+          agency_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          id: boolean
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          agency_logo_url?: string | null
+          agency_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          id?: boolean
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          agency_logo_url?: string | null
+          agency_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          id?: boolean
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           casting_id: string
