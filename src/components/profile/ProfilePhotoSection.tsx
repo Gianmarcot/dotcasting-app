@@ -9,6 +9,7 @@ import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
+import { compressImage } from "@/lib/media/compressImage";
 
 interface ProfilePhotoSectionProps {
   externalProfileId?: string;
@@ -43,12 +44,13 @@ export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionPr
 
     setIsUploading(true);
     try {
-      const fileExt = file.name.split(".").pop();
+      const compressed = await compressImage(file, "avatar");
+      const fileExt = compressed.name.split(".").pop();
       const filePath = `${targetUserId}/avatar.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, compressed, { upsert: true });
 
       if (uploadError) throw uploadError;
 

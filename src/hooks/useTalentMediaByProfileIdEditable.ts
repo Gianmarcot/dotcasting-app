@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { MediaCategory } from "@/lib/mediaCategories";
+import { compressImage } from "@/lib/media/compressImage";
 
 export interface TalentMedia {
   id: string;
@@ -92,14 +93,17 @@ export const useUploadMediaByProfileId = () => {
         throw new Error(`Hai raggiunto il limite massimo di ${MAX_MEDIA_COUNT} media`);
       }
 
+      // Compress photos before upload (videos pass through unchanged)
+      const fileToUpload = mediaType === "photo" ? await compressImage(file, "gallery") : file;
+
       // Generate unique filename
-      const fileExt = file instanceof File ? file.name.split(".").pop() : "jpg";
+      const fileExt = fileToUpload instanceof File ? fileToUpload.name.split(".").pop() : "jpg";
       const fileName = `${userId}/${mediaType}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("talent-media")
-        .upload(fileName, file);
+        .upload(fileName, fileToUpload);
 
       if (uploadError) throw uploadError;
 

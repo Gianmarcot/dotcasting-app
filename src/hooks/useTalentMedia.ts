@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./useProfile";
 import { toast } from "@/hooks/use-toast";
 import type { MediaCategory } from "@/lib/mediaCategories";
+import { compressImage } from "@/lib/media/compressImage";
 
 export interface TalentMedia {
   id: string;
@@ -81,14 +82,17 @@ export const useUploadMedia = () => {
         }
       }
 
+      // Compress photos before upload (videos pass through unchanged)
+      const fileToUpload = mediaType === "photo" ? await compressImage(file, "gallery") : file;
+
       // Generate unique filename
-      const fileExt = file instanceof File ? file.name.split(".").pop() : "jpg";
+      const fileExt = fileToUpload instanceof File ? fileToUpload.name.split(".").pop() : "jpg";
       const fileName = `${profile.user_id}/${mediaType}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from("talent-media")
-        .upload(fileName, file);
+        .upload(fileName, fileToUpload);
 
       if (uploadError) throw uploadError;
 
@@ -167,10 +171,12 @@ export const useReplaceMediaFile = () => {
       }
 
       // Upload new file
+      // Compress crop before upload
+      const compressed = await compressImage(newFile, "gallery");
       const fileName = `${userId}/photo/${Date.now()}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from("talent-media")
-        .upload(fileName, newFile);
+        .upload(fileName, compressed);
       if (uploadError) throw uploadError;
 
       const { data: urlData } = supabase.storage

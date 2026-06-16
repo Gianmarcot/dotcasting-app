@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
+import { compressImage } from "@/lib/media/compressImage";
 
 // Talent category options
 const TALENT_CATEGORIES = [
@@ -140,12 +141,13 @@ export const TalentOnboarding = () => {
       
       // Upload photo if selected
       if (photoFile) {
-        const fileExt = photoFile.name.split(".").pop();
+        const compressed = await compressImage(photoFile, "avatar");
+        const fileExt = compressed.name.split(".").pop();
         const filePath = `${user.id}/avatar.${fileExt}`;
-        
+
         const { error: uploadError } = await supabase.storage
           .from("avatars")
-          .upload(filePath, photoFile, { upsert: true });
+          .upload(filePath, compressed, { upsert: true });
         
         if (uploadError) {
           console.error("Upload error:", uploadError);
