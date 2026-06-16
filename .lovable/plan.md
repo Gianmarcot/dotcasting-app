@@ -1,44 +1,46 @@
-## Redesign pagina pubblica `/round/:token`
+# Pagina cliente — Dettagli talent + restyle design system
 
-Sostituisco il blocco-talent attuale (basato su `TalentCardWeb`, pensata per il PDF) con una griglia compatta di tile in stile prototipo "Functional grid" scelto.
+Due interventi sulla pagina pubblica `/round/:token` (`src/pages/shared/SharedRound.tsx`).
 
-### Cosa cambia in `src/pages/shared/SharedRound.tsx`
+## 1. Pulsante "Vedi dettagli" + drawer
 
-1. **Layout pagina**
-   - Container `max-w-6xl` su sfondo crema, padding responsive `p-4 md:p-8 pb-32`.
-   - Header centrato: logo agenzia (h-8), titolo `casting — ruolo` in Tenor Sans uppercase, sottotitolo label round in micro-caps.
+Su ogni tile aggiungo un pulsante "Dettagli" (in basso, accanto al download PDF). Al click apre un **Sheet/Drawer** laterale (a destra, `w-full sm:max-w-2xl`) con:
 
-2. **Griglia talent**
-   - `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`.
-   - Niente più embed di `TalentCardWeb`: i talent diventano tile autonomi.
+- Header: nome talent (Tenor Sans uppercase), badge stato se non selezionabile, pulsante download PDF.
+- Carosello/griglia foto: tutte le `talent.photos` del round (non solo la prima), in griglia 2-col con aspect 3:4 e click per lightbox semplice (apertura immagine full).
+- Sezione attributi raggruppati (riusando `mapToTalent` già presente):
+  - Generale: età, altezza, città, nazionalità
+  - Misure: taglia maglia, pantaloni, scarpe, collo, vita, fianchi, petto
+  - Aspetto: occhi, capelli, carnagione, corporatura
+  - Lingue, abilità/skill
+  - Bio (se presente)
+- Footer drawer con CTA "Seleziona / Deseleziona" se `selectable`, così il cliente può decidere senza chiudere il drawer.
 
-3. **Tile talent** (nuovo componente locale `TalentTile`)
-   - Foto `aspect-[3/4]` (prima foto da `media[]`), object-cover, hover zoom `scale-[1.03]`.
-   - Card `bg-white border border-black/5 rounded-sm overflow-hidden`, hover `shadow-xl`.
-   - Overlay top-left: checkbox custom (quadrato 28px bordato bordeaux che si riempie quando selected, tick bianco) + label "Selezionato" solo quando attiva.
-   - Quando il round non è più editabile: niente checkbox, mostro `StatusPill` (Confermato verde / Scartato bordeaux) al suo posto.
-   - Sotto la foto: nome in Tenor Sans uppercase + icona Download bordeaux a destra (stop propagation, chiama edge function esistente `get-round-pdf-url`).
-   - Griglia attributi 2-col con label micro-caps opacità 40 + valore bold: Altezza, Taglia (pantaloni/maglia fallback), Occhi, Capelli; Città a tutta riga. Vengono mostrati solo gli attributi valorizzati.
-   - Click sull'intera tile → toggle selezione (solo se `selectable`).
+Il drawer è puramente client-side: nessuna nuova query (i dati arrivano già da `get_shared_round` via `mapToTalent`). Niente cambi al backend.
 
-4. **Sticky bottom bar**
-   - Indicatore animato (ping bordeaux) + conteggio "N selezionati" (singolare/plurale).
-   - CTA `Conferma selezione` rounded-full bordeaux con shadow morbida.
+Componente nuovo locale: `TalentDetailSheet` dentro `SharedRound.tsx` (o estratto in `src/pages/shared/_SharedRoundDetailSheet.tsx` se cresce). Usa `@/components/ui/sheet`.
 
-5. **Comportamenti preservati**
-   - Pre-popolazione `selected` dai `company_status === 'confirmed'`.
-   - Dialog password e flusso `confirm_round_selection` invariati.
-   - Banner "Selezione chiusa" quando round non è più l'ultimo.
-   - Schermate `Loading` / `Unavailable` invariate.
+## 2. UI coerente al design system
 
-### Cosa NON cambia
-- Backend, RPC, edge function.
-- Schema dati.
-- Routing.
-- Componente `TalentCardWeb` (resta usato altrove: preview owner, PDF).
+Allineo il file alle regole core (cards `.dc-card`, rounded-3xl, bordeaux brand, spacing).
 
-### Note tecniche
-- Uso `mapToTalent` esistente per ricavare i campi (`altezza_cm`, `taglia_pantaloni`, `occhi`, `capelli`, `citta`, `photos`).
-- Tipografia: `font-tenor` (heading) e `font-dm` (body) già definiti nel progetto.
-- Colori: token espliciti del brand (#F5F0E8, #A30A2B, #1A1A1A, #729128) per coerenza con la pagina pubblica fuori-app.
-- Nessuna nuova dipendenza.
+Cambi puntuali in `SharedRound.tsx`:
+
+- **Cards talent**: da `rounded-sm border bg-white` → `rounded-3xl bg-white border-0 shadow-sm` (stile `.dc-card`). Foto con `rounded-t-3xl`. Ring di selezione `ring-2 ring-[#A30A2B]` invariato ma su angoli `rounded-3xl`.
+- **Checkbox overlay**: da quadrato `w-7 h-7` a `rounded-full w-8 h-8` coerente con i pill components.
+- **Banner "Selezione chiusa"**: `rounded-3xl` + shadow-sm, niente border.
+- **Sticky footer**: già `rounded-full` sul bottone, ok. Aumento padding mobile e uso `border-t border-black/5`.
+- **Pulsanti azione tile**: riga in basso con due icon-button piccoli (`Dettagli` con `Eye`, `PDF` con `Download`) allineati a destra, stile bordeaux text + hover.
+- **Pill "Selezionato"**: la sostituisco con la stessa `StatusPill` (verde "Selezionato") per coerenza con le altre pill di stato.
+- **Tipografia**: confermo Tenor Sans uppercase per headers e DM Sans body (già presenti). Rimuovo `tracking-widest` dove troppo aggressivo sui valori dati.
+- **Dialog password**: aggiungo `rounded-3xl` al `DialogContent` e bottone primario bordeaux full-rounded per coerenza.
+
+## Fuori scope
+
+- Nessun cambio a `get_shared_round`, edge functions, RLS, o logica di conferma.
+- Nessun cambio alle altre pagine owner.
+- Lightbox: implementazione minima inline (overlay con immagine), non riuso `MediaLightbox` per evitare dipendenze auth.
+
+## File toccati
+
+- `src/pages/shared/SharedRound.tsx` (modifica)
