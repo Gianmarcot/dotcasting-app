@@ -24,7 +24,6 @@ const allNavItems = [
   { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
-  { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },
 ];
 
 const navItems = allNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[item.flag!]);
@@ -84,6 +83,18 @@ export const OwnerSidebar = () => {
             </p>
           </div>
         </div>
+
+        <Link
+          to="/owner/settings"
+          className={
+            location.pathname.startsWith("/owner/settings")
+              ? "dc-sidebar-admin-nav-item-active"
+              : "dc-sidebar-admin-nav-item-inactive"
+          }
+        >
+          <Settings className="h-4 w-4" />
+          {it.backoffice.settings}
+        </Link>
 
         <button onClick={handleLogout} className="dc-sidebar-admin-action">
           <LogOut className="h-4 w-4" />
