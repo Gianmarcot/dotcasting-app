@@ -23,6 +23,7 @@ import { useRegenerateRound } from "@/hooks/useRegenerateRound";
 import { VirtualBoardGrid } from "@/components/talents/VirtualBoardGrid";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialog";
+import { ClientPasswordCard } from "@/components/castings/rounds/ClientPasswordCard";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
 import type { MaterialIndicators } from "@/components/talents/TalentBoardCard";
 import { COMPANY_STATUS_OPTIONS } from "@/hooks/useRoleTalents";
