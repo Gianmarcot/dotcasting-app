@@ -600,9 +600,9 @@ export default function SharedRound() {
           if (!confirmMutation.isPending) setPwdOpen(o);
         }}
       >
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="max-w-sm rounded-3xl bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
           <DialogHeader>
-            <DialogTitle className="font-tenor uppercase tracking-widest">Conferma selezione</DialogTitle>
+            <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">Conferma selezione</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -612,7 +612,7 @@ export default function SharedRound() {
             }}
             className="space-y-3"
           >
-            <Label htmlFor="round-pwd" className="text-sm">
+            <Label htmlFor="round-pwd" className="text-sm text-[#F5F0E8]">
               Inserisci la password fornita dall'agenzia
             </Label>
             <Input
@@ -622,9 +622,9 @@ export default function SharedRound() {
               onChange={(e) => setPassword(e.target.value)}
               autoFocus
               autoComplete="current-password"
-              className="rounded-full"
+              className="rounded-full bg-[#1A1A1A] border-white/10 text-[#F5F0E8] placeholder:text-white/40"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/50">
               Confermerai {selected.size} talent. Gli altri saranno marcati come scartati.
             </p>
             <DialogFooter className="gap-2">
@@ -633,7 +633,7 @@ export default function SharedRound() {
                 variant="outline"
                 onClick={() => setPwdOpen(false)}
                 disabled={confirmMutation.isPending}
-                className="rounded-full"
+                className="rounded-full bg-transparent border-white/20 text-[#F5F0E8] hover:bg-white/10 hover:text-[#F5F0E8]"
               >
                 Annulla
               </Button>
