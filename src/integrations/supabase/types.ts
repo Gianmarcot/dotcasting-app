@@ -806,6 +806,7 @@ export type Database = {
           has_vat_number: boolean | null
           id: string
           id_document_url: string | null
+          is_shortlisted: boolean
           last_name: string | null
           main_occupation: string | null
           nationality: string | null
@@ -821,6 +822,7 @@ export type Database = {
           stage_name: string | null
           talent_categories: string[] | null
           travel_availability: Json | null
+          triaged_at: string | null
           updated_at: string
           user_id: string
           vat_number: string | null
@@ -854,6 +856,7 @@ export type Database = {
           has_vat_number?: boolean | null
           id?: string
           id_document_url?: string | null
+          is_shortlisted?: boolean
           last_name?: string | null
           main_occupation?: string | null
           nationality?: string | null
@@ -869,6 +872,7 @@ export type Database = {
           stage_name?: string | null
           talent_categories?: string[] | null
           travel_availability?: Json | null
+          triaged_at?: string | null
           updated_at?: string
           user_id: string
           vat_number?: string | null
@@ -902,6 +906,7 @@ export type Database = {
           has_vat_number?: boolean | null
           id?: string
           id_document_url?: string | null
+          is_shortlisted?: boolean
           last_name?: string | null
           main_occupation?: string | null
           nationality?: string | null
@@ -917,6 +922,7 @@ export type Database = {
           stage_name?: string | null
           talent_categories?: string[] | null
           travel_availability?: Json | null
+          triaged_at?: string | null
           updated_at?: string
           user_id?: string
           vat_number?: string | null
