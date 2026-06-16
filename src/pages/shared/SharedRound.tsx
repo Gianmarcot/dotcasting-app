@@ -126,16 +126,16 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
 
   return (
     <div
-      className={`group relative bg-white rounded-3xl overflow-hidden shadow-sm transition-all ${
+      className={`group relative bg-[#1A1A1A] rounded-3xl overflow-hidden shadow-sm transition-all ${
         selectable ? "cursor-pointer hover:shadow-md" : ""
-      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-black/5"}`}
+      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5"}`}
       onClick={() => selectable && onToggle()}
     >
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
         {selectable && (
           <div
             className={`w-8 h-8 rounded-full border-2 border-[#A30A2B] flex items-center justify-center transition-colors shadow-sm ${
-              selected ? "bg-[#A30A2B]" : "bg-white/90 backdrop-blur-sm"
+              selected ? "bg-[#A30A2B]" : "bg-black/40 backdrop-blur-sm"
             }`}
             aria-hidden
           >
@@ -156,7 +156,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
         </div>
       )}
 
-      <div className="aspect-[3/4] overflow-hidden bg-[#EFE7DA]">
+      <div className="aspect-[3/4] overflow-hidden bg-[#0F0F0F]">
         {photo ? (
           <img
             src={photo}
@@ -165,23 +165,23 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#999]">
+          <div className="w-full h-full flex items-center justify-center text-white/30">
             <ImageOff className="h-8 w-8" />
           </div>
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-5 text-[#F5F0E8]">
         <h2 className="font-tenor text-lg sm:text-xl uppercase tracking-wider leading-tight mb-3">
           {talent.nome}
         </h2>
 
-        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-[11px] uppercase tracking-wide border-t border-black/5 pt-3">
+        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-[11px] uppercase tracking-wide border-t border-white/10 pt-3">
           {attrs.map((a) =>
             a.value ? (
               <div key={a.label} className={a.full ? "col-span-2" : ""}>
                 <p className="opacity-40 mb-0.5">{a.label}</p>
-                <p className="font-bold text-[#1A1A1A] normal-case tracking-normal text-sm">
+                <p className="font-bold text-[#F5F0E8] normal-case tracking-normal text-sm">
                   {a.value}
                 </p>
               </div>
@@ -189,7 +189,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black/5">
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10">
           <Button
             type="button"
             onClick={(e) => {
@@ -209,7 +209,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
               dl.mutate();
             }}
             disabled={!row.pdf_path || dl.isPending}
-            className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/5 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/20 shrink-0"
+            className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/15 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/40 shrink-0"
           >
             {dl.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
