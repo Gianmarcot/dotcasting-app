@@ -37,12 +37,10 @@ Deno.serve(async (req) => {
 
     const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
-    const { data: isAdmin } = await admin.rpc("has_role", {
-      _user_id: inviterId,
-      _role: "admin",
-    });
-    if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Solo gli Admin possono invitare membri" }), {
+    const { data: isAdmin } = await admin.rpc("has_role", { _user_id: inviterId, _role: "admin" });
+    const { data: isOwner } = await admin.rpc("has_role", { _user_id: inviterId, _role: "owner" });
+    if (!isAdmin && !isOwner) {
+      return new Response(JSON.stringify({ error: "Non hai i permessi per invitare membri" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

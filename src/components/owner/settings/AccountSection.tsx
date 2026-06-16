@@ -104,7 +104,7 @@ export const AccountSection = () => {
         </div>
       </form>
 
-      {userRole === "admin" && <TeamMembersSection />}
+      {(userRole === "admin" || userRole === "owner") && <TeamMembersSection />}
     </div>
   );
 };
