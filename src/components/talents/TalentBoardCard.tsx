@@ -21,7 +21,7 @@ const buildDisplayName = (t: TalentWithAttributes) => {
   if (t.stage_name) return t.stage_name;
   const f = t.first_name?.trim() || "";
   const l = t.last_name?.trim() || "";
-  if (f && l) return `${f} ${l.charAt(0)}.`;
+  if (f && l) return `${f} ${l}`;
   return f || l || "Senza nome";
 };
 
