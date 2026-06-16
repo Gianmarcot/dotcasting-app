@@ -151,7 +151,7 @@ export const AuthPage = () => {
                 La piattaforma di casting
               </h2>
               <p className="mt-3 text-sm md:text-base text-white/80">
-                Gestisci talent, ruoli e shortlist in un unico spazio.
+                Crea il tuo profilo, carica i tuoi materiali e fatti notare dal mondo del casting.
               </p>
             </div>
 
