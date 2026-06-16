@@ -222,9 +222,12 @@ export const TeamMembersSection = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="owner">Owner — accesso al backoffice</SelectItem>
+                  <SelectItem value="owner">Owner — accesso completo ai contenuti</SelectItem>
                   <SelectItem value="admin">
                     Admin — accesso completo e gestione team
+                  </SelectItem>
+                  <SelectItem value="editor">
+                    Editor — gestione contenuti, niente team né eliminazione account
                   </SelectItem>
                 </SelectContent>
               </Select>
