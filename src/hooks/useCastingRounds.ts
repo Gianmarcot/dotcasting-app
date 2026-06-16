@@ -106,3 +106,37 @@ export const useSignedPdfUrl = () =>
       return data.signedUrl;
     },
   });
+
+export const useDeleteRound = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { roundId: string; castingId: string; castingRoleId?: string | null }) => {
+      // Best-effort: rimuovi i PDF dallo storage prima della cascata DB.
+      try {
+        const { data: list } = await supabase.storage
+          .from("casting-pdfs")
+          .list(`${input.castingId}/${input.roundId}`, { limit: 1000 });
+        const paths = (list ?? []).map((f) => `${input.castingId}/${input.roundId}/${f.name}`);
+        if (paths.length) {
+          await supabase.storage.from("casting-pdfs").remove(paths);
+        }
+      } catch {
+        /* ignora errori storage, procedi col delete del record */
+      }
+      const { error } = await supabase
+        .from("casting_rounds")
+        .delete()
+        .eq("id", input.roundId);
+      if (error) throw error;
+      return input;
+    },
+    onSuccess: (d) => {
+      qc.invalidateQueries({ queryKey: ["casting-rounds", d.castingId] });
+      qc.invalidateQueries({ queryKey: ["rounds-by-role", d.castingId] });
+      if (d.castingRoleId) {
+        qc.invalidateQueries({ queryKey: ["role-confirmed-talents", d.castingRoleId] });
+      }
+    },
+  });
+};
+
