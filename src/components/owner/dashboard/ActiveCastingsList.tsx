@@ -55,21 +55,15 @@ export const ActiveCastingsList = () => {
                 {c.roles.length === 0 ? (
                   <p className="text-xs text-muted-foreground mt-1">Nessun ruolo</p>
                 ) : (
-                  <div className="mt-2 space-y-2">
-                    {c.roles.map((r) => {
-                      const pct = r.total > 0 ? (r.confirmed / r.total) * 100 : 0;
-                      return (
-                        <div key={r.id} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-foreground truncate">{r.name}</span>
-                            <span className="text-muted-foreground shrink-0 ml-2">
-                              {r.confirmed}/{r.total} confermati
-                            </span>
-                          </div>
-                          <Progress value={pct} className="h-1.5" />
-                        </div>
-                      );
-                    })}
+                  <div className="mt-2 space-y-1.5">
+                    {c.roles.map((r) => (
+                      <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
+                        <span className="text-foreground truncate">{r.name}</span>
+                        <Badge variant="secondary" className="shrink-0 font-normal">
+                          {r.total > 0 ? `${r.confirmed}/${r.total} approvati` : "nessun talent"}
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
