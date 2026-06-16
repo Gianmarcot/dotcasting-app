@@ -23,6 +23,7 @@ import { useRegenerateRound } from "@/hooks/useRegenerateRound";
 import { VirtualBoardGrid } from "@/components/talents/VirtualBoardGrid";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialog";
+import { ClientPasswordCard } from "@/components/castings/rounds/ClientPasswordCard";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
 import type { MaterialIndicators } from "@/components/talents/TalentBoardCard";
 import { COMPANY_STATUS_OPTIONS } from "@/hooks/useRoleTalents";
@@ -291,6 +292,12 @@ export const OwnerRoundDetail = () => {
           <Progress value={(regenProgress.done / Math.max(regenProgress.total, 1)) * 100} />
         </div>
       )}
+
+      {isShared && round.casting_id && (
+        <ClientPasswordCard castingId={round.casting_id} />
+      )}
+
+
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[240px]">

@@ -1,43 +1,79 @@
-## Semplificazioni dashboard owner (`/owner`)
+# Selezione talent lato cliente sulla pagina round pubblica
 
-Solo presentazione e una rimozione di logica. Nessuna modifica allo schema DB.
+Aggiunge al link condiviso `/round/:token` la possibilità per il cliente di confermare/scartare i talent. Lettura libera; selezione protetta da password gestita solo server-side.
 
-### 1. Striscia "Nuovi talent" → vetrina
+## 1. Schema e funzioni DB (una sola migrazione)
 
-**File:** `src/hooks/useOwnerDashboard.ts`
-- `useTriageQueue`: rimuovere il filtro `.is("triaged_at", null)`. La query mostra i profili con `onboarding_completed = true` degli ultimi 30 giorni, ordinati per `created_at` desc. Aggiungere `.gte("created_at", since)`.
+```sql
+create extension if not exists pgcrypto;
 
-**File:** `src/components/owner/dashboard/TriageQueueStrip.tsx`
-- Titolo: "Nuovi talent" (rimuovere "da valutare" e il counter tra parentesi).
-- Rimuovere `useTriageTalent`, `handleShortlist`, `handleDiscard`, e l'`extraAction` "Scarta" sul drawer.
-- `TalentPreviewDrawer` resta in sola consultazione.
-- Stato vuoto: "Nessun nuovo talent".
+alter table public.castings
+  add column if not exists client_password_hash text;
+```
 
-**File:** `src/components/owner/dashboard/TriageTalentCard.tsx`
-- Rimuovere il bottone stellina shortlist e la prop `onShortlist`.
-- Click sulla card → `onOpen` (drawer di consultazione), nessun'altra azione.
+### RPC `set_casting_client_password(p_casting_id uuid, p_password text)`
+- `SECURITY DEFINER`, `search_path = public`.
+- Richiede `auth.uid()` non null e che l'utente sia staff (`public.is_staff(auth.uid())`); altrimenti errore.
+- Se `p_password` è null/'' → `client_password_hash = null` (rimuove password).
+- Altrimenti `update castings set client_password_hash = crypt(p_password, gen_salt('bf', 10)) where id = p_casting_id`.
+- GRANT EXECUTE TO authenticated.
 
-`triaged_at` / `is_shortlisted` restano nel DB (non rimossi per sicurezza), semplicemente non più usati dalla dashboard.
+### RPC `get_casting_client_password_status(p_casting_id uuid) returns boolean`
+- `SECURITY DEFINER`, staff-only. Ritorna `client_password_hash is not null`. Usata dall'owner per mostrare "password impostata".
+- GRANT EXECUTE TO authenticated.
 
-### 2. Card metriche: colore sul box, non sul testo
+### RPC `confirm_round_selection(p_token text, p_password text, p_selected uuid[]) returns jsonb`
+- `SECURITY DEFINER`, `search_path = public`. GRANT EXECUTE TO anon, authenticated.
+- Risolve round da `share_token` con `status = 'shared'`; se non trovato → `raise exception 'invalid_link'`.
+- Calcola "ultimo round del ruolo": `max(created_at)` su `casting_rounds` con stesso `casting_role_id`. Se il round risolto non è l'ultimo → `raise exception 'round_locked'`.
+- Carica `castings.client_password_hash` del casting del round. Se null → `raise exception 'password_not_set'`. Verifica `client_password_hash = crypt(p_password, client_password_hash)`; se falso → `raise exception 'invalid_password'` (messaggio generico).
+- Filtra `p_selected` agli `role_talents.id` realmente presenti in `casting_round_talents` per quel round; gli id estranei sono ignorati.
+- Update transazionale sui `role_talents` del round:
+  - id in selezione valida → `company_status = 'confirmed'`
+  - non selezionati → `company_status = 'rejected'`
+- Ritorna `jsonb_build_object('ok', true, 'confirmed', n_confirmed, 'rejected', n_rejected)`.
 
-**File:** `src/components/owner/dashboard/ActionableStatCard.tsx`
-- Rimuovere `text-[hsl(var(--warning))]` sul numero.
-- Quando `value > 0`: applicare alla `Card` un fondo oliva (`bg-[hsl(var(--olive))]`) con `text-charcoal-foreground` (o classe analoga chiara), così titolo/numero/icona ereditano un testo chiaro leggibile su fondo scuro.
-- Quando `value === 0`: card resta `.dc-card` (fondo bianco, testo scuro) come ora.
-- Niente colore sul numero in nessun caso; l'icona usa `currentColor` (regola di progetto già attiva).
+Nessuna modifica alle RLS delle tabelle: rimangono chiuse a `anon`. L'accesso pubblico esiste solo via RPC `SECURITY DEFINER`.
 
-### 3. Casting attivi: solo badge, niente progress bar
+### Estensione `get_shared_round`
+La RPC esistente già ritorna i talent. Aggiungere a ciascun talent il campo `company_status` (da `role_talents.company_status`) e al payload root due flag:
+- `is_latest_round` (boolean): vero sse questo round è l'ultimo del suo ruolo.
+- `has_password` (boolean): vero sse il casting ha `client_password_hash` non nullo.
 
-**File:** `src/components/owner/dashboard/ActiveCastingsList.tsx`
-- Rimuovere `<Progress>` e l'import relativo.
-- Per ogni ruolo, mostrare a destra del nome un solo badge testuale:
-  - `total > 0` → `"{confirmed}/{total} approvati"` (X = `company_status = confirmed`, Y = totale `role_talents` nel ruolo, come confermato).
-  - `total === 0` → `"nessun talent"` (al posto di "0/0 approvati").
-- Badge non interattivo, stile coerente con le linee badge esistenti (nessun hover/colore stato), allineato a destra del nome ruolo.
+Questi servono al client per decidere se mostrare i controlli di selezione e per pre-spuntare i talent già `confirmed`. Non espongono dati sensibili.
 
-### Note
+## 2. UI lato owner (impostazione password)
 
-- Nessuna modifica a schema, RLS, query lato server oltre al filtro `triaged_at` rimosso e al `.gte(created_at)` aggiunto.
-- Responsive invariato: la striscia resta scrollabile orizzontalmente, le due colonne casting/attività restano come ora.
-- Palette: il fondo acceso delle metriche riusa l'oliva già definito nei token (`--olive`), nessun colore nuovo.
+In `OwnerRoundDetail.tsx` (dove c'è già il pulsante "Condividi"/copia link), aggiungere accanto un piccolo riquadro "Password cliente":
+- Mostra stato attuale ("Password impostata" / "Nessuna password") chiamando `get_casting_client_password_status(casting_id)`.
+- Input password + pulsante "Salva password" → chiama `set_casting_client_password`.
+- Pulsante "Rimuovi" se già impostata.
+- Hint: "Comunica la password al cliente insieme al link. Senza password il cliente vede ma non può confermare."
+
+Nessuna password viene mai letta dal client: si fa solo `set` e `status` (booleano).
+
+## 3. UI lato cliente in `src/pages/shared/SharedRound.tsx`
+
+- La galleria talent (`TalentCardWeb`) resta visibile senza password.
+- Se `is_latest_round` è falso: mostra banner in alto "Selezione chiusa — round superato da uno più recente". Nessun controllo, nessun pulsante. Per ciascun talent, badge readonly che riflette `company_status` ('confirmed' verde, 'rejected' rosso tenue, altro nulla).
+- Se `is_latest_round` è vero:
+  - Su ogni card un controllo "Conferma" (checkbox grande, area tap ampia, mobile-first). Stato locale `selected: Set<roleTalentId>`, pre-popolato con i talent il cui `company_status === 'confirmed'`.
+  - Footer sticky con contatore "X selezionati" e pulsante primario "Conferma selezione".
+  - Click sul pulsante → apre `Dialog` con un solo campo password e pulsante "Conferma". Submit chiama `supabase.rpc('confirm_round_selection', { p_token, p_password, p_selected: Array.from(selected) })`.
+  - Errore con messaggio `invalid_password` o codice generico → toast "Password non corretta". Nessun altro dettaglio.
+  - Errore `round_locked` → toast "Selezione non più disponibile" e refetch.
+  - Errore `password_not_set` → toast "Selezione non ancora abilitata, contatta l'agenzia".
+  - Successo → toast "Selezione confermata", chiusura dialog, refetch della query `["shared-round", token]` per riflettere i nuovi `company_status`. La selezione resta modificabile finché il round è l'ultimo.
+
+Responsive: il dialog password e il pulsante sticky sono pensati per mobile (pulsante full-width, padding generoso).
+
+## 4. Vincoli rispettati
+- Password mai inviata né verificata nel client: solo dentro la RPC. Hash bcrypt via `pgcrypto`, mai in chiaro nel DB.
+- Nessuna apertura RLS ad `anon` su tabelle: tutto via RPC `SECURITY DEFINER`.
+- Niente notifiche talent in questa fase.
+- Lo stato selezione usa `role_talents.company_status` esistente; nessun nuovo campo.
+
+## 5. Dettagli tecnici (riferimento)
+- File toccati frontend: `src/pages/shared/SharedRound.tsx` (selezione + dialog password), `src/pages/owner/OwnerRoundDetail.tsx` (riquadro password cliente). Eventuale nuovo `src/hooks/useCastingClientPassword.ts` per le due RPC owner.
+- Migrazione SQL singola con: estensione pgcrypto, colonna, tre nuove RPC, ricreazione di `get_shared_round` per aggiungere `is_latest_round`, `has_password`, e `company_status` per talent.
+- Tipi Supabase si rigenerano dopo l'approvazione della migrazione.
