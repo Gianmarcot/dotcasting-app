@@ -128,7 +128,7 @@ export const AuthPage = () => {
   const goNext = () => setSlideIndex((i) => (i + 1) % SLIDES.length);
 
   return (
-    <div className="min-h-screen bg-background grid md:grid-cols-2">
+    <div className="min-h-screen bg-background grid md:grid-cols-[minmax(0,600px)_1fr]">
       {/* Left — image slider */}
       <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem] bg-black">
         {SLIDES.map((src, i) => (
