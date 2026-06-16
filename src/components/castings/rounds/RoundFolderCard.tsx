@@ -296,6 +296,48 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
           )}
         </div>
       </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent onClick={stop} className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-tenor uppercase tracking-widest">
+              Eliminare l'invio?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              L'invio "{round.label}" verrà eliminato insieme ai PDF e al link di condivisione.
+              Lo stato dei talent (confermati/scartati) rimane invariato. Operazione irreversibile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white"
+              disabled={deleteRound.isPending}
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  await deleteRound.mutateAsync({
+                    roundId: round.id,
+                    castingId,
+                    castingRoleId: round.casting_role_id,
+                  });
+                  toast({ title: "Invio eliminato" });
+                  setConfirmDelete(false);
+                } catch (err: any) {
+                  toast({
+                    title: "Errore",
+                    description: err?.message,
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
+
 };
