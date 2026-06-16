@@ -136,7 +136,7 @@ export const AuthPage = () => {
             key={src}
             src={src}
             alt=""
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ease-out ${
+            className={`absolute inset-0 w-full h-full object-cover md:rounded-r-[2rem] transition-opacity duration-700 ease-out [transform:translateZ(0)] ${
               i === slideIndex ? "opacity-100" : "opacity-0"
             }`}
           />
