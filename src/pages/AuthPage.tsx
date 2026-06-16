@@ -178,7 +178,7 @@ export const AuthPage = () => {
       </div>
 
       {/* Right — form (no card) */}
-      <div className="flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-1">
