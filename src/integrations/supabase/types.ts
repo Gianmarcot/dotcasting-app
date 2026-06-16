@@ -469,6 +469,7 @@ export type Database = {
       castings: {
         Row: {
           category: string | null
+          client_password_hash: string | null
           company_id: string | null
           compensation_amount: number | null
           compensation_type: string | null
@@ -487,6 +488,7 @@ export type Database = {
         }
         Insert: {
           category?: string | null
+          client_password_hash?: string | null
           company_id?: string | null
           compensation_amount?: number | null
           compensation_type?: string | null
@@ -505,6 +507,7 @@ export type Database = {
         }
         Update: {
           category?: string | null
+          client_password_hash?: string | null
           company_id?: string | null
           compensation_amount?: number | null
           compensation_type?: string | null
@@ -1321,6 +1324,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_round_selection: {
+        Args: { p_password: string; p_selected: string[]; p_token: string }
+        Returns: Json
+      }
+      get_casting_client_password_status: {
+        Args: { p_casting_id: string }
+        Returns: boolean
+      }
       get_invitation_by_token: { Args: { p_token: string }; Returns: Json }
       get_shared_round: { Args: { p_token: string }; Returns: Json }
       has_role: {
@@ -1343,6 +1354,10 @@ export type Database = {
         }[]
       }
       remove_team_member: { Args: { p_user_id: string }; Returns: undefined }
+      set_casting_client_password: {
+        Args: { p_casting_id: string; p_password: string }
+        Returns: undefined
+      }
       update_member_role: {
         Args: {
           p_new_role: Database["public"]["Enums"]["app_role"]
