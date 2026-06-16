@@ -130,6 +130,7 @@ export const TeamMembersSection = () => {
                       <SelectContent>
                         <SelectItem value="owner">Owner</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="editor">Editor</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
