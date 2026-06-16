@@ -124,13 +124,15 @@ export default function SharedRound() {
 
   if (isError || !data?.round || !data.talents) return <Unavailable />;
 
-  const { round, casting, role, talents } = data;
+  const { round, casting, role, talents, branding } = data;
+  const logoSrc = branding?.agency_logo_url || logo;
+  const agencyLabel = branding?.agency_name || "dotCasting";
 
   return (
     <div className="min-h-screen bg-[#F5F0E8]">
       <header className="border-b border-[#E5DDD0] bg-[#F5F0E8]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-3">
-          <img src={logo} alt="dotCasting" className="h-8" />
+          <img src={logoSrc} alt={agencyLabel} className="h-10 max-w-[180px] object-contain" />
           <h1 className="font-tenor uppercase tracking-wide text-xl sm:text-2xl text-[#333333]">
             {casting?.title}
             {role?.name ? ` — ${role.name}` : ""}
@@ -146,13 +148,13 @@ export default function SharedRound() {
           <p className="text-center font-dm text-[#666]">Nessun talent in questo invio.</p>
         ) : (
           talents.map((t) => (
-            <TalentBlock key={t.role_talent_id} row={t} preset={round.field_preset} token={token!} />
+            <TalentBlock key={t.role_talent_id} row={t} preset={round.field_preset} token={token!} branding={branding} />
           ))
         )}
       </main>
 
       <footer className="py-8 text-center font-dm text-xs text-[#999]">
-        dotCasting
+        {agencyLabel}
       </footer>
     </div>
   );
