@@ -559,9 +559,9 @@ export default function SharedRound() {
 
 
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
           <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 text-[#F5F0E8]">
               <span className="flex h-3 w-3 relative shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A30A2B]"></span>
@@ -575,7 +575,7 @@ export default function SharedRound() {
             </div>
             <Button
               onClick={() => setPwdOpen(true)}
-              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/20 h-auto"
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/30 h-auto"
             >
               <Check className="h-4 w-4 mr-2" />
               Conferma selezione
