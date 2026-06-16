@@ -1,13 +1,14 @@
-## Obiettivo
-Nelle card del database talenti (`/owner/talents`), la banda nera piena in basso (`bg-[#1a1a1a]/90`) verrà sostituita con un overlay con fade gradiente, in modo che il testo (nome + meta) galleggi su una sfumatura da trasparente (alto) a nero (basso), lasciando vedere la foto sottostante.
+Piano: Card talento — testo bottom ingrandito e nome completo
 
-## Modifica
-File: `src/components/talents/TalentBoardCard.tsx` (righe 123-129)
+File interessato: `src/components/talents/TalentBoardCard.tsx`
 
-- Aumentare l'altezza dell'area inferiore per ospitare il fade.
-- Cambiare `bg-[#1a1a1a]/90 px-3 py-2` in un gradiente: `bg-gradient-to-t from-black/85 via-black/50 to-transparent pt-10 pb-2 px-3`.
-- Mantenere `text-white` su nome e `text-white/80` sul meta per leggibilità.
-- Nessun'altra modifica al layout, alla logica hover o agli indicatori materiali.
+1. **Mostrare il nome completo**
+   - In `buildDisplayName`, quando non c'è `stage_name`, restituire `\`${f} ${l}\`` (nome + cognome intero) invece di `\`${f} ${l.charAt(0)}.\`` (nome + iniziale).
+   - Rimuovere la classe `truncate` dal div del nome in overlay bottom per permettere la visualizzazione completa.
 
-## Nessuna modifica
-- Lista, filtri, dati, modalità portfolio non vengono toccati.
+2. **Ingrandire leggermente i testi**
+   - Nome: da `text-sm` a `text-[15px]`.
+   - Meta (città / età): da `text-[11px]` a `text-[12px]`.
+
+3. **Verifica layout**
+   - Assicurarsi che l'overlay gradiente bottom (`pt-10 pb-2`) abbia spazio sufficiente a contenere eventuali nomi su due righe senza sovrapporsi agli indicatori superiori.

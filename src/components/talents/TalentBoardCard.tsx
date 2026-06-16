@@ -21,7 +21,7 @@ const buildDisplayName = (t: TalentWithAttributes) => {
   if (t.stage_name) return t.stage_name;
   const f = t.first_name?.trim() || "";
   const l = t.last_name?.trim() || "";
-  if (f && l) return `${f} ${l.charAt(0)}.`;
+  if (f && l) return `${f} ${l}`;
   return f || l || "Senza nome";
 };
 
@@ -122,9 +122,9 @@ export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }:
 
       {/* Bottom fade overlay */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-3 pt-10 pb-2 text-white">
-        <div className="truncate text-sm font-medium">{name}</div>
+        <div className="text-[15px] font-medium leading-tight">{name}</div>
         {meta && (
-          <div className="truncate text-[11px] text-white/80 mt-0.5">{meta}</div>
+          <div className="truncate text-[12px] text-white/80 mt-0.5">{meta}</div>
         )}
       </div>
     </button>
