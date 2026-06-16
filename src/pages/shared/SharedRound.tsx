@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { mapToTalent } from "@/lib/casting/fetchRoundTalents";
 import { RoundPreset } from "@/lib/casting/roundPreset";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,24 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Loader2, Check, ImageOff } from "lucide-react";
+import { Check, Loader2, MousePointerClick, X } from "lucide-react";
 import { toast } from "sonner";
+import TalentTile, { type SharedRpcTalentRow, type SharedCompanyStatus } from "./_TalentTile";
+import TalentDetailSheet from "./_TalentDetailSheet";
 
 const logo = "/logo.png";
-
-type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
-
-interface RpcTalentRow {
-  role_talent_id: string;
-  pdf_path: string | null;
-  company_status: CompanyStatus | null;
-  profile: Record<string, unknown>;
-  attributes: Record<string, unknown> | null;
-  media: Array<{ url: string; sort_order: number; media_type: string; category: string | null }>;
-}
 
 interface BrandingPayload {
   agency_name?: string | null;
@@ -41,7 +32,7 @@ interface SharedRoundPayload {
   casting?: { title: string };
   role?: { name: string };
   branding?: BrandingPayload;
-  talents?: RpcTalentRow[];
+  talents?: SharedRpcTalentRow[];
   is_latest_round?: boolean;
   has_password?: boolean;
 }
@@ -58,150 +49,11 @@ const Unavailable = () => (
   </div>
 );
 
-const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
-  if (status === "confirmed")
-    return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#729128]/15 text-[#729128]">
-        <Check className="h-3 w-3" /> Confermato
-      </span>
-    );
-  if (status === "rejected")
-    return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/10 text-[#A30A2B]">
-        Scartato
-      </span>
-    );
-  return null;
+const setsEqual = (a: Set<string>, b: Set<string>) => {
+  if (a.size !== b.size) return false;
+  for (const v of a) if (!b.has(v)) return false;
+  return true;
 };
-
-interface TalentTileProps {
-  row: RpcTalentRow;
-  token: string;
-  selectable: boolean;
-  selected: boolean;
-  showStatus: boolean;
-  onToggle: () => void;
-}
-
-function TalentTile({ row, token, selectable, selected, showStatus, onToggle }: TalentTileProps) {
-  const talent = mapToTalent({
-    ...row.profile,
-    attributes: row.attributes ? [row.attributes] : null,
-    media: row.media ?? [],
-  } as unknown as Parameters<typeof mapToTalent>[0]);
-
-  const photo = talent.photos?.[0];
-
-  const dl = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("get-round-pdf-url", {
-        body: { token, roleTalentId: row.role_talent_id },
-      });
-      if (error || !data?.url) throw new Error("Download non disponibile");
-      return data.url as string;
-    },
-    onSuccess: (url) => window.open(url, "_blank", "noopener"),
-    onError: () => toast.error("Download non disponibile"),
-  });
-
-  const attrs: Array<{ label: string; value: string | null; full?: boolean }> = [
-    { label: "Altezza", value: talent.altezza_cm ? `${talent.altezza_cm} cm` : null },
-    {
-      label: "Taglia",
-      value: talent.taglia_pantaloni || talent.taglia_maglia || null,
-    },
-    { label: "Occhi", value: talent.occhi ?? null },
-    { label: "Capelli", value: talent.capelli ?? null },
-    { label: "Città", value: talent.citta ?? null, full: true },
-  ];
-
-  return (
-    <div
-      className={`group relative bg-white border rounded-sm overflow-hidden transition-all ${
-        selectable
-          ? "cursor-pointer hover:shadow-xl border-black/5"
-          : "border-black/5"
-      } ${selected ? "ring-2 ring-[#A30A2B] border-[#A30A2B]" : ""}`}
-      onClick={() => selectable && onToggle()}
-    >
-      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
-        {selectable && (
-          <div
-            className={`w-7 h-7 border-2 border-[#A30A2B] flex items-center justify-center transition-colors shadow-sm ${
-              selected ? "bg-[#A30A2B]" : "bg-white/80 backdrop-blur-sm"
-            }`}
-            aria-hidden
-          >
-            <Check
-              className={`h-4 w-4 text-white transition-opacity ${
-                selected ? "opacity-100" : "opacity-0"
-              }`}
-              strokeWidth={3}
-            />
-          </div>
-        )}
-        {selectable && selected && (
-          <span className="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
-            Selezionato
-          </span>
-        )}
-        {!selectable && showStatus && <StatusPill status={row.company_status ?? null} />}
-      </div>
-
-      <div className="aspect-[3/4] overflow-hidden bg-[#EFE7DA]">
-        {photo ? (
-          <img
-            src={photo}
-            alt={talent.nome}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#999]">
-            <ImageOff className="h-8 w-8" />
-          </div>
-        )}
-      </div>
-
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-4 gap-3">
-          <h2 className="font-tenor text-lg sm:text-xl uppercase tracking-wider leading-tight">
-            {talent.nome}
-          </h2>
-          <button
-            type="button"
-            title="Scarica PDF"
-            onClick={(e) => {
-              e.stopPropagation();
-              dl.mutate();
-            }}
-            disabled={!row.pdf_path || dl.isPending}
-            className="shrink-0 text-[#A30A2B] hover:opacity-70 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed p-1 -m-1"
-          >
-            {dl.isPending ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Download className="h-5 w-5" />
-            )}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-[11px] uppercase tracking-wide border-t border-black/5 pt-4">
-          {attrs.map((a) =>
-            a.value ? (
-              <div key={a.label} className={a.full ? "col-span-2" : ""}>
-                <p className="opacity-40 mb-0.5">{a.label}</p>
-                <p className="font-bold text-[#1A1A1A] normal-case tracking-normal text-sm">
-                  {a.value}
-                </p>
-              </div>
-            ) : null
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function SharedRound() {
   const { token } = useParams<{ token: string }>();
@@ -217,20 +69,24 @@ export default function SharedRound() {
     },
   });
 
+  const initialConfirmed = useMemo(() => {
+    if (!data?.talents) return new Set<string>();
+    return new Set(
+      data.talents
+        .filter((t) => t.company_status === "confirmed")
+        .map((t) => t.role_talent_id)
+    );
+  }, [data?.talents]);
+
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [mode, setMode] = useState<"browse" | "select">("browse");
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [pwdOpen, setPwdOpen] = useState(false);
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    if (!data?.talents) return;
-    setSelected(
-      new Set(
-        data.talents
-          .filter((t) => t.company_status === "confirmed")
-          .map((t) => t.role_talent_id)
-      )
-    );
-  }, [data?.talents]);
+    setSelected(new Set(initialConfirmed));
+  }, [initialConfirmed]);
 
   const confirmMutation = useMutation({
     mutationFn: async (pwd: string) => {
@@ -248,8 +104,8 @@ export default function SharedRound() {
       setPassword("");
       qc.invalidateQueries({ queryKey: ["shared-round", token] });
     },
-    onError: (err: any) => {
-      const msg = String(err?.message ?? "");
+    onError: (err: unknown) => {
+      const msg = String((err as { message?: string })?.message ?? "");
       if (msg.includes("invalid_password")) toast.error("Password non corretta");
       else if (msg.includes("round_locked")) {
         toast.error("Selezione non più disponibile");
@@ -268,7 +124,8 @@ export default function SharedRound() {
   const toggle = (id: string) =>
     setSelected((prev) => {
       const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
       return n;
     });
 
@@ -289,41 +146,125 @@ export default function SharedRound() {
   const logoSrc = branding?.agency_logo_url || logo;
   const agencyLabel = branding?.agency_name || "dotCasting";
 
-  return (
-    <div className="min-h-screen bg-[#F5F0E8] font-dm text-[#1A1A1A] p-4 md:p-8 pb-32">
-      <div className="max-w-6xl mx-auto">
-        <header className="text-center mb-10 md:mb-12">
-          <div className="flex justify-center mb-6 opacity-80">
-            <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
-          </div>
-          <h1 className="font-tenor text-xl md:text-3xl uppercase tracking-widest mb-2 leading-tight">
-            {casting?.title}
-            {role?.name ? ` — ${role.name}` : ""}
-          </h1>
-          {round.label && (
-            <p className="text-[11px] uppercase tracking-widest opacity-60">{round.label}</p>
-          )}
-        </header>
+  // se non selectable la modalità è "sola lettura" anche se mode === browse
+  const tileMode: "browse" | "select" | "readonly" = !selectable
+    ? "readonly"
+    : mode;
 
+  const hasChanges = !setsEqual(selected, initialConfirmed);
+  const inSelectMode = selectable && mode === "select";
+
+  const detailRow = detailId
+    ? talents.find((t) => t.role_talent_id === detailId) ?? null
+    : null;
+
+  return (
+    <div className="min-h-screen bg-[#F5F0E8] font-dm text-[#1A1A1A] pb-32">
+      {/* HEADER sticky */}
+      <header
+        className={`sticky top-0 z-30 backdrop-blur-md border-b transition-colors ${
+          inSelectMode
+            ? "bg-[#A30A2B]/10 border-[#A30A2B]/20"
+            : "bg-[#F5F0E8]/90 border-black/5"
+        }`}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src={logoSrc}
+                alt={agencyLabel}
+                className="h-7 max-w-[120px] object-contain opacity-80"
+              />
+              <div className="min-w-0">
+                <p className="font-tenor uppercase tracking-widest text-xs sm:text-sm truncate">
+                  {casting?.title}
+                  {role?.name ? ` · ${role.name}` : ""}
+                </p>
+                {round.label && (
+                  <p className="text-[10px] uppercase tracking-widest text-[#999] truncate">
+                    {round.label}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {selectable && (
+              <Button
+                onClick={() => setMode((m) => (m === "select" ? "browse" : "select"))}
+                variant={inSelectMode ? "default" : "outline"}
+                className={`shrink-0 rounded-full uppercase tracking-widest text-[10px] sm:text-xs font-bold px-4 sm:px-5 h-9 ${
+                  inSelectMode
+                    ? "bg-[#A30A2B] text-white hover:bg-[#850822]"
+                    : "bg-transparent border-[#A30A2B]/40 text-[#A30A2B] hover:bg-[#A30A2B]/10 hover:text-[#A30A2B]"
+                }`}
+              >
+                {inSelectMode ? (
+                  <>
+                    <X className="h-3.5 w-3.5 mr-1.5" />
+                    Fine
+                  </>
+                ) : (
+                  <>
+                    <MousePointerClick className="h-3.5 w-3.5 mr-1.5" />
+                    Seleziona
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+
+          {/* istruzioni */}
+          {selectable && (
+            <div className="mt-3">
+              {inSelectMode ? (
+                <p className="text-xs sm:text-sm font-dm text-[#A30A2B] font-medium">
+                  Modalità selezione attiva — tocca un talent per spuntarlo.
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs sm:text-sm font-dm text-[#1A1A1A]">
+                    Tocca un talent per vederne i dettagli. Attiva
+                    <span className="font-bold"> Seleziona </span>
+                    per spuntare rapidamente più talent.
+                  </p>
+                  <p className="text-[10px] sm:text-xs text-[#999] mt-0.5">
+                    Potrai modificare la selezione finché il round è attivo.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 md:pt-8">
         {!isLatest && (
-          <div className="mb-8 max-w-2xl mx-auto bg-white border border-black/5 rounded-sm p-4 text-center text-sm font-dm text-[#666]">
-            Selezione chiusa — questo invio è stato superato da uno più recente.
+          <div className="mb-6 bg-white border border-black/5 p-4 text-center text-sm font-dm text-[#666]">
+            <p className="font-bold text-[#1A1A1A] mb-1">Questa selezione è chiusa.</p>
+            <p>È disponibile una versione più recente. Contatta l'agenzia per il link aggiornato.</p>
           </div>
         )}
 
         {talents.length === 0 ? (
-          <p className="text-center font-dm text-[#666] py-16">Nessun talent in questo invio.</p>
+          <p className="text-center font-dm text-[#666] py-16">
+            Nessun talent in questo invio.
+          </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
             {talents.map((t) => (
               <TalentTile
                 key={t.role_talent_id}
                 row={t}
-                token={token!}
-                selectable={selectable}
                 selected={selected.has(t.role_talent_id)}
-                showStatus={!isLatest || !hasPassword}
-                onToggle={() => toggle(t.role_talent_id)}
+                mode={tileMode}
+                onClick={() => {
+                  if (tileMode === "select") {
+                    toggle(t.role_talent_id);
+                  } else {
+                    setDetailId(t.role_talent_id);
+                  }
+                }}
               />
             ))}
           </div>
@@ -332,34 +273,55 @@ export default function SharedRound() {
         <footer className="pt-12 pb-4 text-center font-dm text-xs text-[#999] uppercase tracking-widest">
           {agencyLabel}
         </footer>
-      </div>
+      </main>
 
+      {/* BARRA AZIONE */}
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-black/10 px-4 sm:px-6 py-3 sm:py-4 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex h-3 w-3 relative shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A30A2B]"></span>
+        <div className="fixed bottom-0 left-0 right-0 z-40 px-3 sm:px-0 pb-3 sm:pb-6 pointer-events-none">
+          <div
+            className="pointer-events-auto mx-auto bg-white border border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-full sm:max-w-md px-5 py-2.5 flex items-center justify-between gap-3"
+            style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom))" }}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="flex h-2.5 w-2.5 relative shrink-0">
+                {hasChanges && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
+                )}
+                <span
+                  className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                    hasChanges ? "bg-[#A30A2B]" : "bg-[#CCC]"
+                  }`}
+                ></span>
               </span>
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-widest">
-                {selected.size}{" "}
-                <span className="font-normal opacity-60">
-                  {selected.size === 1 ? "selezionato" : "selezionati"}
-                </span>
+              <p className="text-xs font-dm font-bold truncate">
+                {selected.size === 0
+                  ? "Nessun selezionato"
+                  : `${selected.size} ${selected.size === 1 ? "selezionato" : "selezionati"}`}
               </p>
             </div>
             <Button
               onClick={() => setPwdOpen(true)}
-              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/20 h-auto"
+              disabled={!hasChanges}
+              className="shrink-0 rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-5 py-2 h-auto disabled:opacity-40 disabled:bg-[#A30A2B]"
             >
-              <Check className="h-4 w-4 mr-2" />
-              Conferma selezione
+              Conferma
             </Button>
           </div>
         </div>
       )}
 
+      {/* DETTAGLIO TALENT */}
+      <TalentDetailSheet
+        row={detailRow}
+        token={token!}
+        open={!!detailRow}
+        onOpenChange={(o) => !o && setDetailId(null)}
+        selected={detailRow ? selected.has(detailRow.role_talent_id) : false}
+        canToggleSelection={selectable}
+        onToggleSelection={() => detailRow && toggle(detailRow.role_talent_id)}
+      />
+
+      {/* DIALOG PASSWORD */}
       <Dialog
         open={pwdOpen}
         onOpenChange={(o) => {
@@ -368,7 +330,14 @@ export default function SharedRound() {
       >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Conferma selezione</DialogTitle>
+            <DialogTitle className="font-tenor uppercase tracking-widest text-lg">
+              Conferma selezione
+            </DialogTitle>
+            <DialogDescription className="font-dm text-sm text-[#666] pt-2">
+              Confermerai <span className="font-bold text-[#1A1A1A]">{selected.size}</span>{" "}
+              {selected.size === 1 ? "talent" : "talent"}. I non selezionati saranno marcati come scartati.
+              Potrai modificare la selezione finché il round è attivo.
+            </DialogDescription>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -378,21 +347,20 @@ export default function SharedRound() {
             }}
             className="space-y-3"
           >
-            <Label htmlFor="round-pwd" className="text-sm">
-              Inserisci la password fornita dall'agenzia
-            </Label>
-            <Input
-              id="round-pwd"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoFocus
-              autoComplete="current-password"
-            />
-            <p className="text-xs text-muted-foreground">
-              Confermerai {selected.size} talent. Gli altri saranno marcati come scartati.
-            </p>
-            <DialogFooter className="gap-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="round-pwd" className="text-xs uppercase tracking-widest text-[#666]">
+                Password fornita dall'agenzia
+              </Label>
+              <Input
+                id="round-pwd"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                inputMode="text"
+              />
+            </div>
+            <DialogFooter className="gap-2 pt-2">
               <Button
                 type="button"
                 variant="outline"
@@ -401,8 +369,13 @@ export default function SharedRound() {
               >
                 Annulla
               </Button>
-              <Button type="submit" disabled={confirmMutation.isPending || !password}>
+              <Button
+                type="submit"
+                disabled={confirmMutation.isPending || !password}
+                className="bg-[#A30A2B] hover:bg-[#850822] text-white"
+              >
                 {confirmMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <Check className="h-4 w-4 mr-2" />
                 Conferma
               </Button>
             </DialogFooter>
