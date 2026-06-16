@@ -495,8 +495,8 @@ export default function SharedRound() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F0E8] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#666]" />
+      <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-white/60" />
       </div>
     );
   }
