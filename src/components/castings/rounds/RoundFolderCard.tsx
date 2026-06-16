@@ -68,8 +68,11 @@ const useCanHover = () => {
 export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const navigate = useNavigate();
   const share = useShareRound();
+  const deleteRound = useDeleteRound();
   const canHover = useCanHover();
   const [hovered, setHovered] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
 
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
