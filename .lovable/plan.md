@@ -1,27 +1,44 @@
-## Test richiesto
+## Redesign pagina pubblica `/round/:token`
 
-Casting selezionato: **"Spot TV Brand di Moda"** → ruolo **"Modella 1"** (6 talent in shortlist, già usato in 4 round).
+Sostituisco il blocco-talent attuale (basato su `TalentCardWeb`, pensata per il PDF) con una griglia compatta di tile in stile prototipo "Functional grid" scelto.
 
-Password cliente: `supergiuly`.
+### Cosa cambia in `src/pages/shared/SharedRound.tsx`
 
-## Passi del test
+1. **Layout pagina**
+   - Container `max-w-6xl` su sfondo crema, padding responsive `p-4 md:p-8 pb-32`.
+   - Header centrato: logo agenzia (h-8), titolo `casting — ruolo` in Tenor Sans uppercase, sottotitolo label round in micro-caps.
 
-1. **Apertura casting** in preview e impostazione password cliente tramite il pannello "Password cliente" su un round (se non già impostata).
-2. **Creazione nuovo invio** su "Modella 1" via "Nuovo invio" → wizard → condivisione (`status = shared`, ottenimento `share_token`).
-3. **Apertura link pubblico** `/round/:token` in viewport mobile per verificare:
-   - gallery visibile senza password
-   - checkbox di selezione abilitate (round è il più recente, password impostata)
-4. **Selezione**: confermo 2 talent su 6, lascio gli altri 4 deselezionati.
-5. **Salvataggio** con password `supergiuly` → attesa toast di successo.
-6. **Verifica stati** lato DB e UI:
-   - I 2 selezionati → `role_talents.company_status = 'confirmed'`
-   - I 4 deselezionati → `company_status = 'rejected'`
-   - Refresh pagina owner: i badge/label sui talent del ruolo riflettono i nuovi stati.
-7. **Test negativo rapido**: ritento il salvataggio con password errata → atteso errore "Password non corretta".
+2. **Griglia talent**
+   - `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6`.
+   - Niente più embed di `TalentCardWeb`: i talent diventano tile autonomi.
 
-## Note
+3. **Tile talent** (nuovo componente locale `TalentTile`)
+   - Foto `aspect-[3/4]` (prima foto da `media[]`), object-cover, hover zoom `scale-[1.03]`.
+   - Card `bg-white border border-black/5 rounded-sm overflow-hidden`, hover `shadow-xl`.
+   - Overlay top-left: checkbox custom (quadrato 28px bordato bordeaux che si riempie quando selected, tick bianco) + label "Selezionato" solo quando attiva.
+   - Quando il round non è più editabile: niente checkbox, mostro `StatusPill` (Confermato verde / Scartato bordeaux) al suo posto.
+   - Sotto la foto: nome in Tenor Sans uppercase + icona Download bordeaux a destra (stop propagation, chiama edge function esistente `get-round-pdf-url`).
+   - Griglia attributi 2-col con label micro-caps opacità 40 + valore bold: Altezza, Taglia (pantaloni/maglia fallback), Occhi, Capelli; Città a tutta riga. Vengono mostrati solo gli attributi valorizzati.
+   - Click sull'intera tile → toggle selezione (solo se `selectable`).
 
-- Test non distruttivo per il casting: cambia solo `company_status` di 6 `role_talents` e crea un round in più (utente ha chiesto di lasciarlo in piedi).
-- Nessuna modifica al codice prevista. Se emergono bug, mi fermo e li segnalo prima di proporre fix.
+4. **Sticky bottom bar**
+   - Indicatore animato (ping bordeaux) + conteggio "N selezionati" (singolare/plurale).
+   - CTA `Conferma selezione` rounded-full bordeaux con shadow morbida.
 
-Approva per eseguire il test nella preview.
+5. **Comportamenti preservati**
+   - Pre-popolazione `selected` dai `company_status === 'confirmed'`.
+   - Dialog password e flusso `confirm_round_selection` invariati.
+   - Banner "Selezione chiusa" quando round non è più l'ultimo.
+   - Schermate `Loading` / `Unavailable` invariate.
+
+### Cosa NON cambia
+- Backend, RPC, edge function.
+- Schema dati.
+- Routing.
+- Componente `TalentCardWeb` (resta usato altrove: preview owner, PDF).
+
+### Note tecniche
+- Uso `mapToTalent` esistente per ricavare i campi (`altezza_cm`, `taglia_pantaloni`, `occhi`, `capelli`, `citta`, `photos`).
+- Tipografia: `font-tenor` (heading) e `font-dm` (body) già definiti nel progetto.
+- Colori: token espliciti del brand (#F5F0E8, #A30A2B, #1A1A1A, #729128) per coerenza con la pagina pubblica fuori-app.
+- Nessuna nuova dipendenza.
