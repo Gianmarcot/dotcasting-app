@@ -281,20 +281,18 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
 
   return (
     <>
-      <Sheet open={open} onOpenChange={(o) => !o && onClose()}>
-        <SheetContent
-          side="right"
-          className="w-full sm:max-w-2xl bg-[#F5F0E8] p-0 border-0 overflow-y-auto"
-        >
-          <SheetHeader className="sticky top-0 z-10 bg-[#F5F0E8]/95 backdrop-blur-md px-6 py-5 border-b border-black/5 flex-row items-center justify-between space-y-0">
-            <div className="flex-1 min-w-0">
-              <SheetTitle className="font-tenor uppercase tracking-widest text-xl text-[#1A1A1A] truncate">
+      <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border-0">
+          <DialogHeader className="sticky top-0 z-10 bg-[#F5F0E8]/95 backdrop-blur-md px-6 py-5 border-b border-black/5 flex-row items-center justify-between space-y-0 shrink-0">
+            <div className="flex-1 min-w-0 text-left">
+              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#1A1A1A] truncate text-left">
                 {talent.nome}
-              </SheetTitle>
-              <div className="flex items-center gap-2 mt-1.5">
-                <StatusPill status={row.company_status ?? null} />
-                {selectable && selected && <SelectedPill />}
-              </div>
+              </DialogTitle>
+              {selectable && selected && (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <SelectedPill />
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -315,79 +313,81 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 <X className="h-5 w-5" />
               </button>
             </div>
-          </SheetHeader>
+          </DialogHeader>
 
-          <div className="p-6 space-y-8 pb-32">
-            {photos.length > 0 ? (
-              <div className="grid grid-cols-2 gap-3">
-                {photos.map((p, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setLightbox(p)}
-                    className="aspect-[3/4] overflow-hidden bg-[#EFE7DA] rounded-2xl group"
-                  >
-                    <img
-                      src={p}
-                      alt={`${talent.nome} ${i + 1}`}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                    />
-                  </button>
-                ))}
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-8">
+              {photos.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {photos.map((p, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setLightbox(p)}
+                      className="aspect-[3/4] overflow-hidden bg-[#EFE7DA] rounded-2xl group"
+                    >
+                      <img
+                        src={p}
+                        alt={`${talent.nome} ${i + 1}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="aspect-[3/4] flex items-center justify-center bg-[#EFE7DA] rounded-2xl text-[#999]">
+                  <ImageOff className="h-8 w-8" />
+                </div>
+              )}
+
+              <div className="bg-white rounded-3xl shadow-sm p-6 space-y-7">
+                <DetailSection title="Generale">
+                  <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
+                  <DetailRow label="Genere" value={talent.genere} />
+                  <DetailRow label="Città" value={talent.citta} />
+                  <DetailRow label="Nazionalità" value={talent.nazionalita} />
+                  <DetailRow label="Etnia" value={talent.etnia} />
+                  <DetailRow
+                    label="Città di lavoro"
+                    value={talent.citta_lavoro?.join(", ") ?? null}
+                  />
+                </DetailSection>
+
+                <DetailSection title="Aspetto">
+                  <DetailRow label="Altezza" value={talent.altezza_cm ? `${talent.altezza_cm} cm` : null} />
+                  <DetailRow label="Peso" value={talent.peso_kg ? `${talent.peso_kg} kg` : null} />
+                  <DetailRow label="Occhi" value={talent.occhi} />
+                  <DetailRow label="Capelli" value={talent.capelli} />
+                  <DetailRow label="Lunghezza capelli" value={talent.capelli_lunghezza} />
+                  <DetailRow label="Tipo capelli" value={talent.capelli_tipo} />
+                  <DetailRow label="Segni particolari" value={talent.segni_particolari?.join(", ") ?? null} />
+                </DetailSection>
+
+                <DetailSection title="Misure">
+                  <DetailRow label="Taglia maglia" value={talent.taglia_maglia} />
+                  <DetailRow label="Taglia pantaloni" value={talent.taglia_pantaloni} />
+                  <DetailRow label="Taglia giacca" value={talent.taglia_giacca} />
+                  <DetailRow label="Scarpe" value={talent.numero_scarpe} />
+                  <DetailRow label="Collo" value={talent.collo_cm ? `${talent.collo_cm} cm` : null} />
+                  <DetailRow label="Petto" value={talent.petto_cm ? `${talent.petto_cm} cm` : null} />
+                  <DetailRow label="Vita" value={talent.vita_cm ? `${talent.vita_cm} cm` : null} />
+                  <DetailRow label="Fianchi" value={talent.fianchi_cm ? `${talent.fianchi_cm} cm` : null} />
+                  <DetailRow label="Spalle" value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null} />
+                </DetailSection>
+
+                <DetailSection title="Lingue & abilità">
+                  <DetailRow label="Lingue" value={talent.lingue?.join(", ") ?? null} />
+                  <DetailRow label="Abilità" value={talent.abilita?.join(", ") ?? null} />
+                  <DetailRow label="Patenti" value={talent.patenti?.join(", ") ?? null} />
+                  <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
+                </DetailSection>
               </div>
-            ) : (
-              <div className="aspect-[3/4] flex items-center justify-center bg-[#EFE7DA] rounded-2xl text-[#999]">
-                <ImageOff className="h-8 w-8" />
-              </div>
-            )}
-
-            <div className="bg-white rounded-3xl shadow-sm p-6 space-y-7">
-              <DetailSection title="Generale">
-                <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
-                <DetailRow label="Genere" value={talent.genere} />
-                <DetailRow label="Città" value={talent.citta} />
-                <DetailRow label="Nazionalità" value={talent.nazionalita} />
-                <DetailRow label="Etnia" value={talent.etnia} />
-                <DetailRow
-                  label="Città di lavoro"
-                  value={talent.citta_lavoro?.join(", ") ?? null}
-                />
-              </DetailSection>
-
-              <DetailSection title="Aspetto">
-                <DetailRow label="Altezza" value={talent.altezza_cm ? `${talent.altezza_cm} cm` : null} />
-                <DetailRow label="Peso" value={talent.peso_kg ? `${talent.peso_kg} kg` : null} />
-                <DetailRow label="Occhi" value={talent.occhi} />
-                <DetailRow label="Capelli" value={talent.capelli} />
-                <DetailRow label="Lunghezza capelli" value={talent.capelli_lunghezza} />
-                <DetailRow label="Tipo capelli" value={talent.capelli_tipo} />
-                <DetailRow label="Segni particolari" value={talent.segni_particolari?.join(", ") ?? null} />
-              </DetailSection>
-
-              <DetailSection title="Misure">
-                <DetailRow label="Taglia maglia" value={talent.taglia_maglia} />
-                <DetailRow label="Taglia pantaloni" value={talent.taglia_pantaloni} />
-                <DetailRow label="Taglia giacca" value={talent.taglia_giacca} />
-                <DetailRow label="Scarpe" value={talent.numero_scarpe} />
-                <DetailRow label="Collo" value={talent.collo_cm ? `${talent.collo_cm} cm` : null} />
-                <DetailRow label="Petto" value={talent.petto_cm ? `${talent.petto_cm} cm` : null} />
-                <DetailRow label="Vita" value={talent.vita_cm ? `${talent.vita_cm} cm` : null} />
-                <DetailRow label="Fianchi" value={talent.fianchi_cm ? `${talent.fianchi_cm} cm` : null} />
-                <DetailRow label="Spalle" value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null} />
-              </DetailSection>
-
-              <DetailSection title="Lingue & abilità">
-                <DetailRow label="Lingue" value={talent.lingue?.join(", ") ?? null} />
-                <DetailRow label="Abilità" value={talent.abilita?.join(", ") ?? null} />
-                <DetailRow label="Patenti" value={talent.patenti?.join(", ") ?? null} />
-                <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
-              </DetailSection>
             </div>
           </div>
 
           {selectable && (
-            <div className="fixed bottom-0 right-0 w-full sm:max-w-2xl bg-white/95 backdrop-blur-md border-t border-black/5 px-6 py-4 z-20">
+            <div className="shrink-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-6 py-4">
               <Button
                 onClick={onToggle}
                 className={`w-full rounded-full font-bold uppercase tracking-widest text-xs h-12 ${
@@ -400,8 +400,8 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
               </Button>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
 
       {lightbox && (
         <div
