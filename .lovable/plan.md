@@ -1,27 +1,42 @@
-## Fix Pagina Cliente (`/round/:token`)
+## Fix RLS upload logo — utente già `owner`
 
-Modifiche solo a `src/pages/shared/SharedRound.tsx`.
+### Diagnosi
+Eseguito controllo su `varetti96@gmail.com`:
+- UID: `10f51330-a67d-4492-90ee-a179f35400e9`
+- Ruoli in `public.user_roles`: **`owner`** ✓
+- Funzione `public.is_staff` esistente, con EXECUTE concesso a `authenticated` ✓
+- Policy `Staff can upload any avatar` su `storage.objects` con `WITH CHECK (bucket_id = 'avatars' AND public.is_staff(auth.uid()))` ✓
+- Nessun file presente in `avatars/branding/` → upload mai riuscito.
 
-### 1. Drawer → Modale centrata
-- Sostituire `Sheet/SheetContent` con `Dialog/DialogContent` per i dettagli talent.
-- Dimensioni: `max-w-4xl w-[95vw] max-h-[90vh]`, contenuto interno scrollabile, angoli `rounded-3xl`, sfondo cream `#F5F0E8`.
-- Header sticky con nome talent + azioni (PDF, chiudi).
-- Footer sticky interno (non più `fixed`) con il CTA Seleziona/Rimuovi quando `selectable`.
-- Griglia foto: passare a `grid-cols-2 md:grid-cols-3` per sfruttare la larghezza.
+Tutto è in ordine a livello di database. Il fallimento è quasi certamente dovuto al fatto che il tentativo è avvenuto **prima** che la migration precedente (estensione delle policy a tutti gli staff) fosse applicata, e la sessione del browser sta riusando lo stesso JWT/contesto.
 
-### 2. Pulsante "Dettagli" primario
-- Sulla tile, sostituire il link testuale bordeaux con un `Button` pieno bordeaux a pill: `bg-[#A30A2B] text-white hover:bg-[#850822] rounded-full` con icona `Eye`, label "Vedi dettagli", `flex-1` per occupare la riga.
-- Il bottone Download PDF resta come icon-button a fianco (stile invariato).
+### Azione richiesta a te
+1. Logout dall'app
+2. Login di nuovo
+3. Riprovare l'upload del logo
 
-### 3. Etichetta "Selezionato" più visibile e ricollocata
-- Spostare la `SelectedPill` dall'angolo in alto a destra ad accanto alla spunta in alto a sinistra (stesso contenitore flex già esistente).
-- Cambiare lo stile in pill ad alto contrasto: `bg-white text-[#A30A2B] shadow-sm` (sfondo pieno chiaro, leggibile su qualsiasi foto).
-- Rimuovere l'icona `Check` dalla pill (la spunta circolare a sinistra è già visibile → no ridondanza).
-- L'angolo in alto a destra mostra ora solo lo `StatusPill` (confermato/scartato) quando applicabile.
+### Hardening (in parallelo)
+Aggiungo una policy esplicita e ridondante che consente l'INSERT/UPDATE/DELETE sul path `branding/*` del bucket `avatars` agli utenti con ruolo `owner` o `admin`, senza passare da `is_staff` — così l'upload funziona anche se in futuro `is_staff` venisse modificato.
 
-### 4. Coerenza etichette nel detail modal
-- Nell'header della modale rimuovere `StatusPill` (che mostrava "Confermato"/"Scartato" — stato lato agenzia, fuori contesto per il cliente).
-- Mantenere solo `SelectedPill` quando `selectable && selected`. Se non selezionato, nessuna pill.
+```sql
+DROP POLICY IF EXISTS "Owner/Admin can manage avatars branding" ON storage.objects;
+
+CREATE POLICY "Owner/Admin can manage avatars branding"
+  ON storage.objects FOR ALL TO authenticated
+  USING (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = 'branding'
+    AND (public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin'))
+  )
+  WITH CHECK (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = 'branding'
+    AND (public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin'))
+  );
+```
 
 ### Out of scope
-- Nessun cambio a backend, RPC, edge functions, altre pagine.
+- Nessun cambio al frontend
+- Nessun cambio agli altri bucket / altre tabelle
+
+Se dopo logout+login+migration di hardening continui a vedere lo stesso errore, ti chiederò uno screenshot del messaggio completo dal devtools per capire da quale operazione arriva esattamente.
