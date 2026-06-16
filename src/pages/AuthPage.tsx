@@ -9,7 +9,6 @@ import { it } from "@/lib/i18n";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import logo from "@/assets/logo.png";
-import logoWhite from "@/assets/logo-white.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
 import slide3 from "@/assets/auth-slide-3.jpg.asset.json";
@@ -129,9 +128,9 @@ export const AuthPage = () => {
   const goNext = () => setSlideIndex((i) => (i + 1) % SLIDES.length);
 
   return (
-    <div className="min-h-screen bg-background grid md:grid-cols-2">
+    <div className="min-h-screen bg-background flex">
       {/* Left — image slider */}
-      <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem] bg-black">
+      <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem] bg-black md:max-w-[720px] md:flex-1">
         {SLIDES.map((src, i) => (
           <img
             key={src}
@@ -144,10 +143,7 @@ export const AuthPage = () => {
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
 
-        <div className="relative z-10 h-full flex flex-col justify-between p-10">
-          <Link to="/" className="inline-flex">
-            <img src={logoWhite} alt="dotCasting" className="h-8" />
-          </Link>
+        <div className="relative z-10 h-full flex flex-col justify-end p-10">
 
           <div className="flex items-end justify-between gap-6">
             <div className="text-white max-w-md">
@@ -155,7 +151,7 @@ export const AuthPage = () => {
                 La piattaforma di casting
               </h2>
               <p className="mt-3 text-sm md:text-base text-white/80">
-                Gestisci talent, ruoli e shortlist in un unico spazio.
+                Crea il tuo profilo, carica i tuoi materiali e fatti notare dal mondo del casting.
               </p>
             </div>
 
@@ -182,7 +178,7 @@ export const AuthPage = () => {
       </div>
 
       {/* Right — form (no card) */}
-      <div className="flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-1">
