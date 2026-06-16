@@ -141,7 +141,7 @@ export const AuthPage = () => {
             }`}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30 md:rounded-r-[2rem] pointer-events-none" />
 
         <div className="relative z-10 h-full flex flex-col justify-end p-10">
 
