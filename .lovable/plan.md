@@ -1,32 +1,13 @@
-# Apri la gestione team agli Owner
+## Obiettivo
+Nelle card del database talenti (`/owner/talents`), la banda nera piena in basso (`bg-[#1a1a1a]/90`) verrà sostituita con un overlay con fade gradiente, in modo che il testo (nome + meta) galleggi su una sfumatura da trasparente (alto) a nero (basso), lasciando vedere la foto sottostante.
 
-Rimuovo il vincolo "solo Admin": sia Owner che Admin potranno invitare membri, cambiare ruoli e rimuovere altri membri del team.
+## Modifica
+File: `src/components/talents/TalentBoardCard.tsx` (righe 123-129)
 
-## Modifiche
+- Aumentare l'altezza dell'area inferiore per ospitare il fade.
+- Cambiare `bg-[#1a1a1a]/90 px-3 py-2` in un gradiente: `bg-gradient-to-t from-black/85 via-black/50 to-transparent pt-10 pb-2 px-3`.
+- Mantenere `text-white` su nome e `text-white/80` sul meta per leggibilità.
+- Nessun'altra modifica al layout, alla logica hover o agli indicatori materiali.
 
-### 1. Database (migrazione)
-
-Aggiorno le 3 RPC SECURITY DEFINER per accettare entrambi i ruoli:
-- `list_team_members()` — controllo `has_role(auth.uid(), 'admin') OR has_role(auth.uid(), 'owner')`.
-- `update_member_role(p_user_id, p_new_role)` — stesso check.
-- `remove_team_member(p_user_id)` — stesso check.
-Mantengo intatte le tutele: non rimuovere te stesso, non rimuovere/declassare l'ultimo Admin.
-
-Aggiorno la policy RLS su `team_invitations`:
-- `USING (has_role(auth.uid(),'admin') OR has_role(auth.uid(),'owner'))`.
-
-### 2. Edge function `invite-team-member`
-
-Cambio il check da "solo admin" a "owner o admin". Stesso messaggio d'errore in italiano per chi non ha né owner né admin.
-
-### 3. Frontend
-
-`AccountSection.tsx`: cambio la condizione di rendering da
-`userRole === 'admin'` a `userRole === 'admin' || userRole === 'owner'`,
-così tu (Owner) vedi subito la sezione "Gestione team".
-
-## Note
-
-- L'ultimo Admin resta protetto dai check nelle RPC, anche se ora un Owner potrebbe tentare di declassarlo: la RPC restituisce errore "Non puoi rimuovere l'ultimo Admin".
-- Nessun cambio alla pagina pubblica `/accept-invitation`.
-- Nessun cambio alla sidebar.
+## Nessuna modifica
+- Lista, filtri, dati, modalità portfolio non vengono toccati.
