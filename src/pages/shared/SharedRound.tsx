@@ -81,8 +81,8 @@ const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
 };
 
 const SelectedPill = () => (
-  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/10 text-[#A30A2B]">
-    <Check className="h-3 w-3" /> Selezionato
+  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white text-[#A30A2B] shadow-sm">
+    Selezionato
   </span>
 );
 
