@@ -194,6 +194,17 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-2" /> Rigenera con dati attuali
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-[#A30A2B] focus:text-[#A30A2B]"
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setConfirmDelete(true);
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" /> Elimina invio
+              </DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
