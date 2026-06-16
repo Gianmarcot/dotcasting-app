@@ -9,6 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
+import authHero from "@/assets/auth-hero.jpg";
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -114,95 +116,121 @@ export const AuthPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-1">
-            <img src={logo} alt="dotCasting" className="h-8" />
+    <div className="min-h-screen bg-background grid md:grid-cols-2">
+      {/* Left panel — hero image */}
+      <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem]">
+        <img
+          src={authHero}
+          alt="dotCasting"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40" />
+        <div className="relative z-10 h-full flex flex-col justify-between p-10">
+          <Link to="/" className="inline-flex">
+            <img src={logoWhite} alt="dotCasting" className="h-8" />
           </Link>
+          <div className="text-white max-w-md">
+            <h2 className="font-tenor uppercase tracking-wide text-3xl md:text-4xl leading-tight">
+              La piattaforma di casting
+            </h2>
+            <p className="mt-3 text-sm md:text-base text-white/80">
+              Gestisci talent, ruoli e shortlist in un unico spazio.
+            </p>
+          </div>
         </div>
+      </div>
 
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-semibold">
-              {isLogin ? it.auth.loginTitle : it.auth.signupTitle}
-            </CardTitle>
-            <CardDescription>
-              {isLogin ? it.auth.loginSubtitle : it.auth.signupSubtitle}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">{it.auth.email}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="nome@esempio.it"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+      {/* Right panel — form */}
+      <div className="flex items-center justify-center p-6 md:p-12">
+        <div className="w-full max-w-md">
+          {/* Logo (mobile only) */}
+          <div className="text-center mb-8 md:hidden">
+            <Link to="/" className="inline-flex items-center gap-1">
+              <img src={logo} alt="dotCasting" className="h-8" />
+            </Link>
+          </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">{it.auth.password}</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              {!isLogin && (
+          <Card className="dc-card">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-semibold">
+                {isLogin ? it.auth.loginTitle : it.auth.signupTitle}
+              </CardTitle>
+              <CardDescription>
+                {isLogin ? it.auth.loginSubtitle : it.auth.signupSubtitle}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">{it.auth.confirmPassword}</Label>
+                  <Label htmlFor="email">{it.auth.email}</Label>
                   <Input
-                    id="confirmPassword"
-                    type="password"
-                    placeholder="••••••••"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    id="email"
+                    type="email"
+                    placeholder="nome@esempio.it"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
-              )}
 
-              <Button 
-                type="submit" 
-                className="w-full" 
-                size="lg"
-                disabled={isLoading}
-              >
-                {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
-              </Button>
-            </form>
+                <div className="space-y-2">
+                  <Label htmlFor="password">{it.auth.password}</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
 
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isLogin ? (
-                  <>
-                    {it.auth.noAccount}{" "}
-                    <span className="text-primary font-medium">{it.auth.signup}</span>
-                  </>
-                ) : (
-                  <>
-                    {it.auth.hasAccount}{" "}
-                    <span className="text-primary font-medium">{it.auth.login}</span>
-                  </>
+                {!isLogin && (
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">{it.auth.confirmPassword}</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </div>
                 )}
-              </button>
-            </div>
-          </CardContent>
-        </Card>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  size="lg"
+                  disabled={isLoading}
+                >
+                  {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
+                </Button>
+              </form>
+
+              <div className="mt-6 text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {isLogin ? (
+                    <>
+                      {it.auth.noAccount}{" "}
+                      <span className="text-primary font-medium">{it.auth.signup}</span>
+                    </>
+                  ) : (
+                    <>
+                      {it.auth.hasAccount}{" "}
+                      <span className="text-primary font-medium">{it.auth.login}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
