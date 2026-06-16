@@ -8,7 +8,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
@@ -18,9 +29,11 @@ import {
   Folder,
   MoreVertical,
   Edit,
+  Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { CastingRound } from "@/hooks/useCastingRounds";
+import { useDeleteRound } from "@/hooks/useCastingRounds";
 import type { RoundPreviewPhotos } from "@/hooks/useRoundPreviewPhotos";
 import { useShareRound } from "@/hooks/useShareRound";
 
@@ -29,6 +42,7 @@ interface Props {
   castingId: string;
   preview?: RoundPreviewPhotos;
 }
+
 
 const FAN_ROTATIONS = [0, -4, 6, -3, 9];
 const FAN_GAP_REST = 18;
@@ -54,8 +68,11 @@ const useCanHover = () => {
 export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
   const navigate = useNavigate();
   const share = useShareRound();
+  const deleteRound = useDeleteRound();
   const canHover = useCanHover();
   const [hovered, setHovered] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
 
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
@@ -177,6 +194,17 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-2" /> Rigenera con dati attuali
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-[#A30A2B] focus:text-[#A30A2B]"
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setConfirmDelete(true);
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" /> Elimina invio
+              </DropdownMenuItem>
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -268,6 +296,48 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
           )}
         </div>
       </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent onClick={stop} className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-tenor uppercase tracking-widest">
+              Eliminare l'invio?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              L'invio "{round.label}" verrà eliminato insieme ai PDF e al link di condivisione.
+              Lo stato dei talent (confermati/scartati) rimane invariato. Operazione irreversibile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white"
+              disabled={deleteRound.isPending}
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  await deleteRound.mutateAsync({
+                    roundId: round.id,
+                    castingId,
+                    castingRoleId: round.casting_role_id,
+                  });
+                  toast({ title: "Invio eliminato" });
+                  setConfirmDelete(false);
+                } catch (err: any) {
+                  toast({
+                    title: "Errore",
+                    description: err?.message,
+                    variant: "destructive",
+                  });
+                }
+              }}
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
+
 };
