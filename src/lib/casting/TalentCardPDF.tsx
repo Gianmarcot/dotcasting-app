@@ -138,9 +138,11 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
           {/* footer in basso */}
           <View style={s.footer}>
             <View style={s.logoDot}>
-              <Text style={s.logoGlyph}>.C</Text>
+              <Text style={s.logoGlyph}>{card.agencyName ? card.agencyName.slice(0, 2).toUpperCase() : ".C"}</Text>
             </View>
-            {card.showAgencyContact && <Text style={s.footerText}>info@dotcasting.com</Text>}
+            {card.showAgencyContact && card.agencyContactEmail && (
+              <Text style={s.footerText}>{card.agencyContactEmail}</Text>
+            )}
           </View>
         </View>
       </View>

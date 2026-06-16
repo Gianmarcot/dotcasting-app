@@ -1,27 +1,34 @@
 import { it } from "@/lib/i18n";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AgencySettingsForm } from "@/components/owner/settings/AgencySettingsForm";
+import { AccountSection } from "@/components/owner/settings/AccountSection";
 
 export const OwnerSettings = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="text-2xl text-foreground">
+        <h1 className="font-tenor uppercase tracking-wide text-2xl text-foreground">
           {it.backoffice.settings}
         </h1>
         <p className="text-muted-foreground mt-1">
-          Configura la piattaforma
+          Configura agenzia e account
         </p>
       </div>
 
-      <Card>
-        <CardContent className="p-12 text-center">
-          <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            Le impostazioni saranno disponibili a breve
-          </p>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="agency" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="agency">Agenzia</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="agency">
+          <AgencySettingsForm />
+        </TabsContent>
+
+        <TabsContent value="account">
+          <AccountSection />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

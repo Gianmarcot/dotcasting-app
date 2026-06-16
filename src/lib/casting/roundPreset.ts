@@ -45,6 +45,16 @@ export interface ResolvedCard {
   /** foto galleria, a gruppi di 3 per pagina */
   galleryPages: string[][];
   showAgencyContact: boolean;
+  /** branding agenzia da app_settings (caricato a monte e passato in input) */
+  agencyName?: string | null;
+  agencyLogoUrl?: string | null;
+  agencyContactEmail?: string | null;
+}
+
+export interface BrandingInput {
+  agencyName?: string | null;
+  agencyLogoUrl?: string | null;
+  agencyContactEmail?: string | null;
 }
 
 const chunk = <T,>(arr: T[], size: number): T[][] => {
@@ -53,7 +63,11 @@ const chunk = <T,>(arr: T[], size: number): T[][] => {
   return out;
 };
 
-export function resolveCard(talent: Talent, preset: RoundPreset): ResolvedCard {
+export function resolveCard(
+  talent: Talent,
+  preset: RoundPreset,
+  branding?: BrandingInput,
+): ResolvedCard {
   const visible = FIELD_REGISTRY.filter(f => preset.fields.includes(f.key));
 
   const rows: ResolvedRow[] = [];
@@ -81,5 +95,8 @@ export function resolveCard(talent: Talent, preset: RoundPreset): ResolvedCard {
     coverPhotos: [talent.photos[0], talent.photos[1]],
     galleryPages: chunk(limited, 3),
     showAgencyContact: preset.showAgencyContact !== false,
+    agencyName: branding?.agencyName ?? null,
+    agencyLogoUrl: branding?.agencyLogoUrl ?? null,
+    agencyContactEmail: branding?.agencyContactEmail ?? null,
   };
 }

@@ -9,8 +9,9 @@ import { Buffer } from "buffer";
 import { pdf } from "@react-pdf/renderer";
 import { supabase } from "@/integrations/supabase/client";
 import { Talent } from "./talentFields";
-import { RoundPreset, resolveCard } from "./roundPreset";
+import { RoundPreset, resolveCard, BrandingInput } from "./roundPreset";
 import { TalentCardPDF } from "./TalentCardPDF";
+import { fetchAppSettings } from "@/hooks/useAppSettings";
 
 // Polyfill Buffer per @react-pdf/renderer (fetchImage usa Buffer.isBuffer)
 if (!(globalThis as { Buffer?: unknown }).Buffer) {
@@ -37,9 +38,17 @@ export async function generateRoundPdfs(opts: {
   const { castingId, roundId, items, preset, onProgress } = opts;
   const results: RoundResult[] = [];
 
+  // Carica branding una sola volta a monte
+  const settings = await fetchAppSettings().catch(() => null);
+  const branding: BrandingInput = {
+    agencyName: settings?.agency_name ?? null,
+    agencyLogoUrl: settings?.agency_logo_url ?? null,
+    agencyContactEmail: settings?.contact_email ?? null,
+  };
+
   for (let i = 0; i < items.length; i++) {
     const { roleTalentId, talent } = items[i];
-    const card = resolveCard(talent, preset);
+    const card = resolveCard(talent, preset, branding);
 
     const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
 

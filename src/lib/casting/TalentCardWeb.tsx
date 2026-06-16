@@ -91,10 +91,16 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
 
           {/* footer in basso */}
           <div className="flex items-center justify-center gap-2.5 mt-6">
-            <span className="w-7 h-7 rounded-full bg-[#F4F0EC] text-[#1a1a1a] grid place-items-center font-display text-sm">
-              .C
+            <span className="w-7 h-7 rounded-full bg-[#F4F0EC] text-[#1a1a1a] grid place-items-center font-display text-sm overflow-hidden">
+              {card.agencyLogoUrl ? (
+                <img src={card.agencyLogoUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                card.agencyName ? card.agencyName.slice(0, 2).toUpperCase() : ".C"
+              )}
             </span>
-            {card.showAgencyContact && <span className={TEXT_SIZE}>info@dotcasting.com</span>}
+            {card.showAgencyContact && card.agencyContactEmail && (
+              <span className={TEXT_SIZE}>{card.agencyContactEmail}</span>
+            )}
           </div>
         </div>
       </div>
