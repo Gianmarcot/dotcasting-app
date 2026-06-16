@@ -17,10 +17,17 @@ interface RpcTalentRow {
   media: Array<{ url: string; sort_order: number; media_type: string; category: string | null }>;
 }
 
+interface BrandingPayload {
+  agency_name?: string | null;
+  agency_logo_url?: string | null;
+  contact_email?: string | null;
+}
+
 interface SharedRoundPayload {
   round?: { id: string; label: string; field_preset: RoundPreset; shared_at: string };
   casting?: { title: string };
   role?: { name: string };
+  branding?: BrandingPayload;
   talents?: RpcTalentRow[];
 }
 
