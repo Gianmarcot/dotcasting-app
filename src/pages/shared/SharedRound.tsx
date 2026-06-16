@@ -16,8 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Loader2, Check, ImageOff, Eye, X } from "lucide-react";
 import { toast } from "sonner";
+import logoWhite from "@/assets/logo-white.png";
 
-const logo = "/logo.png";
+const logo = logoWhite;
 
 type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
 
