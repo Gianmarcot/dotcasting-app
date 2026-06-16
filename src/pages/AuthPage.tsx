@@ -38,7 +38,7 @@ export const AuthPage = () => {
   useEffect(() => {
     const checkAndRedirect = async () => {
       if (user && !authLoading && userRole) {
-        if (userRole === "owner" || userRole === "admin") {
+        if (userRole === "owner" || userRole === "admin" || userRole === "editor") {
           navigate("/owner", { replace: true });
         } else if (userRole === "talent") {
           const { data } = await supabase
