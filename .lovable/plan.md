@@ -1,79 +1,83 @@
-## 1. Database (migration)
+# Gestione account team + riorganizzazione sidebar
 
-Tabella singleton `app_settings`:
+## 1. Sidebar: sposta "Impostazioni" in fondo
 
-```sql
-create table public.app_settings (
-  id boolean primary key default true,
-  agency_name text,
-  agency_logo_url text,
-  contact_email text,
-  contact_phone text,
-  website_url text,
-  updated_at timestamptz not null default now(),
-  constraint app_settings_singleton check (id)
-);
+In `src/components/layout/OwnerSidebar.tsx`:
+- Rimuovi "Impostazioni" dalla lista `allNavItems` principale.
+- Aggiungilo nel footer della sidebar, **sopra** il pulsante "Esci" (logout), come voce a sé stante con stile coerente alle altre voci di navigazione (icona + label, evidenziazione attiva su `/owner/settings`).
+- Stesso trattamento in `MobileBottomNavOwner.tsx` (Impostazioni rimane nel drawer "Altro", spostato in fondo).
 
-grant select on public.app_settings to anon, authenticated;
-grant all on public.app_settings to service_role;
+## 2. Gestione team multi-utente (tab "Account" in /owner/settings)
 
-alter table public.app_settings enable row level security;
+Solo gli **Admin** possono invitare/rimuovere membri. Gli **Owner** vedono solo il proprio account (cambio password).
 
--- Lettura: tutti (compreso anon) per branding sulla pagina pubblica del round
-create policy "app_settings readable" on public.app_settings for select using (true);
+### 2.1 Schema (nuova migrazione)
 
--- Scrittura: solo owner/admin
-create policy "owner/admin update settings" on public.app_settings for update
-  to authenticated using (has_role(auth.uid(),'owner') or has_role(auth.uid(),'admin'));
-create policy "owner/admin insert settings" on public.app_settings for insert
-  to authenticated with check (has_role(auth.uid(),'owner') or has_role(auth.uid(),'admin'));
+Nuova tabella `team_invitations` per tracciare gli inviti in sospeso:
+- `email` (text, unique con status='pending'), `role` (`app_role`: owner|admin), `invited_by` (uuid → auth.users), `token` (text unique), `status` (pending|accepted|revoked|expired), `expires_at` (timestamptz, default now()+7d), `accepted_at` (timestamptz, nullable).
+- RLS: solo Admin può SELECT/INSERT/UPDATE/DELETE. Lettura pubblica via RPC `get_invitation_by_token(token)` per la pagina di accettazione.
+- GRANT a `authenticated` e `service_role`.
 
-insert into public.app_settings (id) values (true) on conflict (id) do nothing;
+Nuova RPC `list_team_members()` (SECURITY DEFINER, solo Admin):
+- Ritorna `[{ user_id, email, role, created_at, last_sign_in_at }]` joinando `auth.users` + `user_roles`. Necessaria perché `auth.users` non è leggibile dal client.
 
-create trigger app_settings_touch_updated_at
-  before update on public.app_settings
-  for each row execute function public.update_updated_at_column();
-```
+Nuova RPC `update_member_role(target_user_id, new_role)` (SECURITY DEFINER, solo Admin, blocca self-demote dell'ultimo Admin).
 
-Bucket Storage `branding` (pubblico) per logo agenzia, con RLS che permette upload/update/delete a owner/admin e SELECT pubblico.
+Nuova RPC `remove_team_member(target_user_id)` (SECURITY DEFINER, solo Admin, blocca rimozione di se stesso e dell'ultimo Admin).
 
-Aggiornare la RPC `get_shared_round` per includere nel payload un campo `branding` (`agency_name`, `agency_logo_url`, `contact_email`) letto da `app_settings` — così la pagina pubblica non interroga `app_settings` direttamente.
+### 2.2 Edge Functions
 
-## 2. Pagina `/owner/settings`
+**`invite-team-member`** (verify_jwt validato in-code):
+- Input: `{ email, role: 'owner'|'admin' }`.
+- Verifica che il chiamante sia Admin via `has_role`.
+- Crea record in `team_invitations` con token random.
+- Invia email di invito via Lovable Emails (`send-transactional-email`) con link `${VITE_PUBLIC_APP_URL}/accept-invitation?token=...`.
+- Se l'utente esiste già: ritorna errore "utente già registrato".
 
-Sostituire `src/pages/owner/OwnerSettings.tsx` con un layout a **tabs shadcn** (`Agenzia` | `Account`).
+**`accept-team-invitation`** (pubblica):
+- Input: `{ token, password }`.
+- Valida token (non scaduto, status='pending').
+- Crea utente via `supabase.auth.admin.createUser({ email, password, email_confirm: true })`.
+- Inserisce ruolo in `user_roles` dal campo `invitations.role`.
+- Marca invito come `accepted`.
 
-**Tab Agenzia** (`src/components/owner/settings/AgencySettingsForm.tsx`)
-- Hook `useAppSettings()` (`src/hooks/useAppSettings.ts`) — query+mutation con react-query.
-- Campi: `agency_name`, logo (upload nel bucket `branding`, preview, sostituzione), `contact_email`, `contact_phone`, `website_url`.
-- Validazione zod (email valida; URL valido se compilato; trim/lunghezze).
-- Upload logo passa per `compressImage(file, "avatar")` già esistente; cancellazione del vecchio file dopo upload del nuovo.
-- Salvataggio: `upsert` con `id: true` → aggiorna la riga singleton.
+**`revoke-team-invitation`** (verify_jwt, solo Admin): marca invito come `revoked`.
 
-**Tab Account** (`src/components/owner/settings/AccountSection.tsx`)
-- Mostra email corrente (read-only, da `useAuth`).
-- Form cambio password: nuova password + conferma → `supabase.auth.updateUser({ password })` con validazione (min 8, conferma uguale).
-- Nessuna gestione membri team (placeholder testuale "Disponibile prossimamente" o sezione assente — preferisco assente per non sovra-strutturare).
+### 2.3 Frontend
 
-UI in italiano, `.dc-card`, tipografia da memoria progetto. Responsive (tabs stacked su mobile, form a colonna singola).
+**`src/hooks/useTeamMembers.ts`** (nuovo): `useTeamMembers()`, `useTeamInvitations()`, `useInviteMember()`, `useUpdateMemberRole()`, `useRemoveMember()`, `useRevokeInvitation()`.
 
-## 3. Collegamento branding
+**`src/components/owner/settings/TeamMembersSection.tsx`** (nuovo, solo visibile se `userRole === 'admin'`):
+- Tabella membri attivi: email, ruolo (Select Owner/Admin), ultimo accesso, azione "Rimuovi" (con AlertDialog di conferma).
+- Sezione "Inviti in sospeso": email, ruolo, data, azione "Revoca".
+- Pulsante "Invita membro" → Dialog con form (email + ruolo).
+- Toast di conferma in italiano.
 
-**Comp card (PDF + Web)** — `src/lib/casting/roundPreset.ts`, `TalentCardPDF.tsx`, `TalentCardWeb.tsx`, `generateRound.tsx`:
-- Estendere `RoundPreset` o, meglio, aggiungere campo opzionale `branding?: { agencyName?: string; logoUrl?: string; contactEmail?: string }` come parametro a `resolveCard(talent, preset, branding?)`.
-- `ResolvedCard` espone `agencyName`, `agencyLogoUrl`, `agencyContactEmail`.
-- Footer: se `agencyContactEmail` presente mostra quello, altrimenti niente (rimuovere fallback hardcoded `info@dotcasting.com`).
-- `generateRoundPdfs` carica `app_settings` una volta a monte e passa `branding` a `resolveCard`.
-- `useUpdateRound` (genera PDF) idem.
+**`src/components/owner/settings/AccountSection.tsx`** (modifica esistente):
+- In cima: dati account personale (email read-only, form cambio password — già presenti).
+- Sotto, se Admin: render `<TeamMembersSection />` con titolo "Gestione team".
+- Se Owner non-admin: solo dati personali, nessuna sezione team.
 
-**Pagina pubblica round** — `src/pages/shared/SharedRound.tsx`:
-- Legge `data.branding` dalla RPC.
-- Header: usa `branding.agency_logo_url` (fallback `/logo.png`) e `branding.agency_name` (fallback "dotCasting") al posto dei valori fissi.
-- Passa `branding` al `resolveCard` dentro `TalentBlock` per il footer della comp card web.
+**`src/pages/AcceptInvitation.tsx`** (nuovo, route pubblica `/accept-invitation`):
+- Legge `?token=` dalla URL.
+- Form: nuova password + conferma password.
+- Chiama `accept-team-invitation` edge function.
+- Su successo: redirect a `/auth` con toast "Account creato, accedi".
+- Su token invalido/scaduto: messaggio errore.
 
-Aggiornare i tipi TS della RPC (rigenerati dopo migration).
+**`src/App.tsx`**: aggiungi route pubblica `/accept-invitation`.
 
-## Cosa NON viene fatto
-- Niente multi-tenant / tabella `agencies`.
-- Niente sezioni "Default invii", "Notifiche", "Team".
-- Nessuna modifica al logo statico usato nei layout backoffice (sidebar, auth) — la richiesta è limitata a comp card PDF e pagina pubblica round.
+## Vincoli rispettati
+
+- Solo Admin gestisce team; Owner vede solo il proprio account.
+- Italiano (it-IT) su tutta la UI.
+- Nessuna nuova sezione fuori da Impostazioni.
+- Singleton `app_settings` invariato.
+- Email via Lovable Emails (richiede dominio email configurato — se mancante, mostrerò il dialog di setup al momento dell'implementazione della Edge Function).
+
+## Dettagli tecnici principali
+
+- Tabella `team_invitations` con RLS `has_role(auth.uid(), 'admin')`.
+- 3 RPC SECURITY DEFINER per leggere `auth.users` ed evitare race su demote/remove dell'ultimo admin (CHECK: `(select count(*) from user_roles where role='admin') > 1`).
+- 3 Edge Functions per invite/accept/revoke; `accept` usa `service_role` per creare utente.
+- Cambio ruolo gestito client-side via RPC, non via tabella diretta (per validazioni).

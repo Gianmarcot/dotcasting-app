@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { TeamMembersSection } from "@/components/owner/settings/TeamMembersSection";
 
 const pwdSchema = z
   .object({
@@ -19,7 +20,7 @@ const pwdSchema = z
   });
 
 export const AccountSection = () => {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,6 +103,8 @@ export const AccountSection = () => {
           </Button>
         </div>
       </form>
+
+      {userRole === "admin" && <TeamMembersSection />}
     </div>
   );
 };
