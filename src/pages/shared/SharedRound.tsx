@@ -152,11 +152,12 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
             />
           </div>
         )}
+        {selectable && selected && <SelectedPill />}
       </div>
 
-      {(showStatus || (selectable && selected)) && (
+      {showStatus && (
         <div className="absolute top-3 right-3 z-10">
-          {selectable && selected ? <SelectedPill /> : <StatusPill status={row.company_status ?? null} />}
+          <StatusPill status={row.company_status ?? null} />
         </div>
       )}
 
@@ -193,18 +194,18 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-1 mt-4 pt-3 border-t border-black/5">
-          <button
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black/5">
+          <Button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onOpenDetails();
             }}
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-[#A30A2B] hover:bg-[#A30A2B]/5 px-3 py-2 rounded-full transition-colors"
+            className="flex-1 rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[11px] h-10"
           >
-            <Eye className="h-4 w-4" />
-            Dettagli
-          </button>
+            <Eye className="h-4 w-4 mr-2" />
+            Vedi dettagli
+          </Button>
           <button
             type="button"
             title="Scarica PDF"
@@ -213,7 +214,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
               dl.mutate();
             }}
             disabled={!row.pdf_path || dl.isPending}
-            className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/5 disabled:opacity-30 disabled:cursor-not-allowed h-9 w-9 rounded-full transition-colors"
+            className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/5 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/20 shrink-0"
           >
             {dl.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
