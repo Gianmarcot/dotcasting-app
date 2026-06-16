@@ -1,13 +1,8 @@
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Sparkles, X } from "lucide-react";
-import { toast } from "sonner";
-import {
-  useTriageQueue,
-  useTriageTalent,
-  TriageTalent,
-} from "@/hooks/useOwnerDashboard";
+import { Sparkles } from "lucide-react";
+import { useTriageQueue, TriageTalent } from "@/hooks/useOwnerDashboard";
 import { TriageTalentCard } from "./TriageTalentCard";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
@@ -35,7 +30,6 @@ const triageToDrawer = (t: TriageTalent): TalentWithAttributes => ({
 
 export const TriageQueueStrip = () => {
   const { data: talents = [], isLoading } = useTriageQueue(20);
-  const triage = useTriageTalent();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const openTalent = useMemo(
@@ -43,40 +37,12 @@ export const TriageQueueStrip = () => {
     [talents, openId],
   );
 
-  const handleShortlist = (id: string) => {
-    triage.mutate(
-      { profileId: id, action: "shortlist" },
-      {
-        onSuccess: () => toast.success("Aggiunto alla shortlist"),
-        onError: (e: any) => toast.error(e?.message || "Errore"),
-      },
-    );
-  };
-
-  const handleDiscard = (id: string) => {
-    triage.mutate(
-      { profileId: id, action: "discard" },
-      {
-        onSuccess: () => {
-          toast.success("Talent scartato");
-          setOpenId(null);
-        },
-        onError: (e: any) => toast.error(e?.message || "Errore"),
-      },
-    );
-  };
-
   return (
     <Card className="dc-card">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
-          Nuovi talent da valutare
-          {talents.length > 0 && (
-            <span className="text-sm font-normal text-muted-foreground">
-              ({talents.length})
-            </span>
-          )}
+          Nuovi talent
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -89,7 +55,7 @@ export const TriageQueueStrip = () => {
         ) : talents.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             <Sparkles className="h-10 w-10 mx-auto mb-2 opacity-50" />
-            <p>Nessun nuovo talent da valutare</p>
+            <p>Nessun nuovo talent</p>
           </div>
         ) : (
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-1 px-1">
@@ -98,7 +64,6 @@ export const TriageQueueStrip = () => {
                 key={t.id}
                 talent={t}
                 onOpen={() => setOpenId(t.id)}
-                onShortlist={() => handleShortlist(t.id)}
               />
             ))}
           </div>
@@ -109,15 +74,6 @@ export const TriageQueueStrip = () => {
         talent={openTalent ? triageToDrawer(openTalent) : null}
         open={!!openTalent}
         onOpenChange={(o) => !o && setOpenId(null)}
-        extraAction={
-          openTalent
-            ? {
-                label: "Scarta",
-                icon: <X className="h-4 w-4" />,
-                onClick: () => handleDiscard(openTalent.id),
-              }
-            : undefined
-        }
       />
     </Card>
   );

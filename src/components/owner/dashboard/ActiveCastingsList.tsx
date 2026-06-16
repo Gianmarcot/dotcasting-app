@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
 import { Film, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useActiveCastingsWithProgress } from "@/hooks/useOwnerDashboard";
 
 export const ActiveCastingsList = () => {
@@ -55,21 +55,15 @@ export const ActiveCastingsList = () => {
                 {c.roles.length === 0 ? (
                   <p className="text-xs text-muted-foreground mt-1">Nessun ruolo</p>
                 ) : (
-                  <div className="mt-2 space-y-2">
-                    {c.roles.map((r) => {
-                      const pct = r.total > 0 ? (r.confirmed / r.total) * 100 : 0;
-                      return (
-                        <div key={r.id} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-foreground truncate">{r.name}</span>
-                            <span className="text-muted-foreground shrink-0 ml-2">
-                              {r.confirmed}/{r.total} confermati
-                            </span>
-                          </div>
-                          <Progress value={pct} className="h-1.5" />
-                        </div>
-                      );
-                    })}
+                  <div className="mt-2 space-y-1.5">
+                    {c.roles.map((r) => (
+                      <div key={r.id} className="flex items-center justify-between gap-2 text-xs">
+                        <span className="text-foreground truncate">{r.name}</span>
+                        <Badge variant="secondary" className="shrink-0 font-normal">
+                          {r.total > 0 ? `${r.confirmed}/${r.total} approvati` : "nessun talent"}
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
