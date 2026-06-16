@@ -1,42 +1,31 @@
-## Fix RLS upload logo — utente già `owner`
+# Dark theme — Pagina cliente (SharedRound)
 
-### Diagnosi
-Eseguito controllo su `varetti96@gmail.com`:
-- UID: `10f51330-a67d-4492-90ee-a179f35400e9`
-- Ruoli in `public.user_roles`: **`owner`** ✓
-- Funzione `public.is_staff` esistente, con EXECUTE concesso a `authenticated` ✓
-- Policy `Staff can upload any avatar` su `storage.objects` con `WITH CHECK (bucket_id = 'avatars' AND public.is_staff(auth.uid()))` ✓
-- Nessun file presente in `avatars/branding/` → upload mai riuscito.
+Adatto solo i colori della pagina `/shared/round/...` (e della modale Dettagli) mantenendo identica la struttura, i componenti, gli spazi e i comportamenti attuali.
 
-Tutto è in ordine a livello di database. Il fallimento è quasi certamente dovuto al fatto che il tentativo è avvenuto **prima** che la migration precedente (estensione delle policy a tutti gli staff) fosse applicata, e la sessione del browser sta riusando lo stesso JWT/contesto.
+## Mappa colori
 
-### Azione richiesta a te
-1. Logout dall'app
-2. Login di nuovo
-3. Riprovare l'upload del logo
+| Elemento | Attuale | Nuovo (dark) |
+|---|---|---|
+| Sfondo pagina | `#F5F0E8` (cream) | `#0F0F0F` |
+| Superfici card | `bg-white` | `#1A1A1A` |
+| Testo principale | `#333333` | `#F5F0E8` |
+| Testo secondario / muted | `#666` | `white/60` |
+| Divider / bordi sottili | `border-black/10` | `border-white/10` |
+| Bordeaux brand (accento, CTA, "Selezionato") | `#A30A2B` | invariato |
+| Status verde / giallo / rosso | invariati | invariati (su fondo scuro restano leggibili) |
+| Modale Dettagli | fondo bianco | fondo `#1A1A1A`, testi chiari |
+| Header / logo | logo scuro | uso `logo-white.png` |
+| Schermata "Link non disponibile" e prompt password | cream + scuro | scuro + chiaro |
 
-### Hardening (in parallelo)
-Aggiungo una policy esplicita e ridondante che consente l'INSERT/UPDATE/DELETE sul path `branding/*` del bucket `avatars` agli utenti con ruolo `owner` o `admin`, senza passare da `is_staff` — così l'upload funziona anche se in futuro `is_staff` venisse modificato.
+Il bordeaux `#A30A2B` resta l'unico accento brand; nessun nuovo colore introdotto.
 
-```sql
-DROP POLICY IF EXISTS "Owner/Admin can manage avatars branding" ON storage.objects;
+## File toccati
 
-CREATE POLICY "Owner/Admin can manage avatars branding"
-  ON storage.objects FOR ALL TO authenticated
-  USING (
-    bucket_id = 'avatars'
-    AND (storage.foldername(name))[1] = 'branding'
-    AND (public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin'))
-  )
-  WITH CHECK (
-    bucket_id = 'avatars'
-    AND (storage.foldername(name))[1] = 'branding'
-    AND (public.has_role(auth.uid(),'owner') OR public.has_role(auth.uid(),'admin'))
-  );
-```
+- `src/pages/shared/SharedRound.tsx` — sostituzione classi colore (sfondo, card, testi, pill, divider) + swap logo.
+- Eventuali sotto-componenti usati solo in questa pagina: stessa sostituzione di token colore.
 
-### Out of scope
-- Nessun cambio al frontend
-- Nessun cambio agli altri bucket / altre tabelle
+## Fuori scope
 
-Se dopo logout+login+migration di hardening continui a vedere lo stesso errore, ti chiederò uno screenshot del messaggio completo dal devtools per capire da quale operazione arriva esattamente.
+- Nessuna modifica a layout, griglia, card structure, modale, copy, comportamenti, drawer mobile.
+- Nessuna modifica a `index.css`, tailwind config o ad altre pagine (admin / talent restano com'erano).
+- Nessun toggle light/dark: la pagina cliente diventa dark in modo fisso.

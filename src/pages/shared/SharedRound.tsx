@@ -16,8 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Loader2, Check, ImageOff, Eye, X } from "lucide-react";
 import { toast } from "sonner";
+import logoWhite from "@/assets/logo-white.png";
 
-const logo = "/logo.png";
+const logo = logoWhite;
 
 type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
 
@@ -47,12 +48,12 @@ interface SharedRoundPayload {
 }
 
 const Unavailable = () => (
-  <div className="min-h-screen bg-[#F5F0E8] flex flex-col items-center justify-center px-6 text-center">
+  <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 text-center">
     <img src={logo} alt="dotCasting" className="h-10 mb-8 opacity-80" />
-    <h1 className="font-tenor uppercase tracking-wide text-2xl text-[#333333] mb-2">
+    <h1 className="font-tenor uppercase tracking-wide text-2xl text-[#F5F0E8] mb-2">
       Link non disponibile
     </h1>
-    <p className="font-dm text-[#666] max-w-sm">
+    <p className="font-dm text-white/60 max-w-sm">
       Il link non è più attivo oppure non è valido.
     </p>
   </div>
@@ -61,13 +62,13 @@ const Unavailable = () => (
 const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
   if (status === "confirmed")
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#729128]/15 text-[#729128]">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#729128]/25 text-[#A8C76E]">
         <Check className="h-3 w-3" /> Confermato
       </span>
     );
   if (status === "rejected")
     return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/10 text-[#A30A2B]">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/25 text-[#E88599]">
         Scartato
       </span>
     );
@@ -75,7 +76,7 @@ const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
 };
 
 const SelectedPill = () => (
-  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white text-[#A30A2B] shadow-sm">
+  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#F5F0E8] text-[#A30A2B] shadow-sm">
     Selezionato
   </span>
 );
@@ -125,16 +126,16 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
 
   return (
     <div
-      className={`group relative bg-white rounded-3xl overflow-hidden shadow-sm transition-all ${
+      className={`group relative bg-[#1A1A1A] rounded-3xl overflow-hidden shadow-sm transition-all ${
         selectable ? "cursor-pointer hover:shadow-md" : ""
-      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-black/5"}`}
+      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5"}`}
       onClick={() => selectable && onToggle()}
     >
       <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
         {selectable && (
           <div
             className={`w-8 h-8 rounded-full border-2 border-[#A30A2B] flex items-center justify-center transition-colors shadow-sm ${
-              selected ? "bg-[#A30A2B]" : "bg-white/90 backdrop-blur-sm"
+              selected ? "bg-[#A30A2B]" : "bg-black/40 backdrop-blur-sm"
             }`}
             aria-hidden
           >
@@ -155,7 +156,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
         </div>
       )}
 
-      <div className="aspect-[3/4] overflow-hidden bg-[#EFE7DA]">
+      <div className="aspect-[3/4] overflow-hidden bg-[#0F0F0F]">
         {photo ? (
           <img
             src={photo}
@@ -164,23 +165,23 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#999]">
+          <div className="w-full h-full flex items-center justify-center text-white/30">
             <ImageOff className="h-8 w-8" />
           </div>
         )}
       </div>
 
-      <div className="p-5">
+      <div className="p-5 text-[#F5F0E8]">
         <h2 className="font-tenor text-lg sm:text-xl uppercase tracking-wider leading-tight mb-3">
           {talent.nome}
         </h2>
 
-        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-[11px] uppercase tracking-wide border-t border-black/5 pt-3">
+        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-[11px] uppercase tracking-wide border-t border-white/10 pt-3">
           {attrs.map((a) =>
             a.value ? (
               <div key={a.label} className={a.full ? "col-span-2" : ""}>
                 <p className="opacity-40 mb-0.5">{a.label}</p>
-                <p className="font-bold text-[#1A1A1A] normal-case tracking-normal text-sm">
+                <p className="font-bold text-[#F5F0E8] normal-case tracking-normal text-sm">
                   {a.value}
                 </p>
               </div>
@@ -188,7 +189,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
           )}
         </div>
 
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black/5">
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10">
           <Button
             type="button"
             onClick={(e) => {
@@ -208,7 +209,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
               dl.mutate();
             }}
             disabled={!row.pdf_path || dl.isPending}
-            className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/5 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/20 shrink-0"
+            className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/15 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/40 shrink-0"
           >
             {dl.isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -237,7 +238,7 @@ const DetailRow = ({ label, value }: { label: string; value: string | number | n
   return (
     <div>
       <p className="text-[10px] uppercase tracking-widest opacity-40 mb-0.5">{label}</p>
-      <p className="text-sm text-[#1A1A1A]">{value}</p>
+      <p className="text-sm text-[#F5F0E8]">{value}</p>
     </div>
   );
 };
@@ -247,7 +248,7 @@ const DetailSection = ({ title, children }: { title: string; children: React.Rea
   if (!hasContent) return null;
   return (
     <section className="space-y-3">
-      <h3 className="font-tenor uppercase tracking-widest text-xs text-[#A30A2B]">{title}</h3>
+      <h3 className="font-tenor uppercase tracking-widest text-xs text-[#E88599]">{title}</h3>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </section>
   );
@@ -276,10 +277,10 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border-0">
-          <DialogHeader className="sticky top-0 z-10 bg-[#F5F0E8]/95 backdrop-blur-md px-6 py-5 border-b border-black/5 flex-row items-center justify-between space-y-0 shrink-0">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#0F0F0F] text-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border border-white/10">
+          <DialogHeader className="sticky top-0 z-10 bg-[#0F0F0F]/95 backdrop-blur-md px-6 py-5 border-b border-white/10 flex-row items-center justify-between space-y-0 shrink-0">
             <div className="flex-1 min-w-0 text-left">
-              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#1A1A1A] truncate text-left">
+              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#F5F0E8] truncate text-left">
                 {talent.nome}
               </DialogTitle>
               {selectable && selected && (
@@ -294,7 +295,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 title="Scarica PDF"
                 onClick={() => dl.mutate()}
                 disabled={!row.pdf_path || dl.isPending}
-                className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/10 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/20 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
               >
                 {dl.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               </button>
@@ -302,7 +303,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 type="button"
                 onClick={onClose}
                 aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-[#333] hover:bg-black/5 h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-[#F5F0E8] hover:bg-white/10 h-10 w-10 rounded-full transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -318,7 +319,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                       key={i}
                       type="button"
                       onClick={() => setLightbox(p)}
-                      className="aspect-[3/4] overflow-hidden bg-[#EFE7DA] rounded-2xl group"
+                      className="aspect-[3/4] overflow-hidden bg-[#1A1A1A] rounded-2xl group"
                     >
                       <img
                         src={p}
@@ -330,12 +331,12 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   ))}
                 </div>
               ) : (
-                <div className="aspect-[3/4] flex items-center justify-center bg-[#EFE7DA] rounded-2xl text-[#999]">
+                <div className="aspect-[3/4] flex items-center justify-center bg-[#1A1A1A] rounded-2xl text-white/30">
                   <ImageOff className="h-8 w-8" />
                 </div>
               )}
 
-              <div className="bg-white rounded-3xl shadow-sm p-6 space-y-7">
+              <div className="bg-[#1A1A1A] rounded-3xl shadow-sm p-6 space-y-7">
                 <DetailSection title="Generale">
                   <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
                   <DetailRow label="Genere" value={talent.genere} />
@@ -381,12 +382,12 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
           </div>
 
           {selectable && (
-            <div className="shrink-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-6 py-4">
+            <div className="shrink-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-6 py-4">
               <Button
                 onClick={onToggle}
                 className={`w-full rounded-full font-bold uppercase tracking-widest text-xs h-12 ${
                   selected
-                    ? "bg-white border border-[#A30A2B] text-[#A30A2B] hover:bg-[#A30A2B]/5"
+                    ? "bg-transparent border border-[#A30A2B] text-[#E88599] hover:bg-[#A30A2B]/10"
                     : "bg-[#A30A2B] hover:bg-[#850822] text-white"
                 }`}
               >
@@ -494,8 +495,8 @@ export default function SharedRound() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F0E8] flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-[#666]" />
+      <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-white/60" />
       </div>
     );
   }
@@ -511,10 +512,10 @@ export default function SharedRound() {
   const detailsRow = detailsId ? talents.find((t) => t.role_talent_id === detailsId) ?? null : null;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] font-dm text-[#1A1A1A] p-4 md:p-8 pb-32">
+    <div className="min-h-screen bg-[#0F0F0F] font-dm text-[#F5F0E8] p-4 md:p-8 pb-32">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-10 md:mb-12">
-          <div className="flex justify-center mb-6 opacity-80">
+          <div className="flex justify-center mb-6 opacity-90">
             <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
           </div>
           <h1 className="font-tenor text-xl md:text-3xl uppercase tracking-widest mb-2 leading-tight">
@@ -527,13 +528,13 @@ export default function SharedRound() {
         </header>
 
         {!isLatest && (
-          <div className="mb-8 max-w-2xl mx-auto bg-white rounded-3xl shadow-sm p-5 text-center text-sm font-dm text-[#666]">
+          <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl shadow-sm p-5 text-center text-sm font-dm text-white/60 border border-white/5">
             Selezione chiusa — questo invio è stato superato da uno più recente.
           </div>
         )}
 
         {talents.length === 0 ? (
-          <p className="text-center font-dm text-[#666] py-16">Nessun talent in questo invio.</p>
+          <p className="text-center font-dm text-white/60 py-16">Nessun talent in questo invio.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {talents.map((t) => (
@@ -551,15 +552,16 @@ export default function SharedRound() {
           </div>
         )}
 
-        <footer className="pt-12 pb-4 text-center font-dm text-xs text-[#999] uppercase tracking-widest">
+        <footer className="pt-12 pb-4 text-center font-dm text-xs text-white/40 uppercase tracking-widest">
           {agencyLabel}
         </footer>
       </div>
 
+
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+        <div className="fixed bottom-0 left-0 right-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
           <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 text-[#F5F0E8]">
               <span className="flex h-3 w-3 relative shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A30A2B]"></span>
@@ -573,7 +575,7 @@ export default function SharedRound() {
             </div>
             <Button
               onClick={() => setPwdOpen(true)}
-              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/20 h-auto"
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/30 h-auto"
             >
               <Check className="h-4 w-4 mr-2" />
               Conferma selezione
@@ -598,9 +600,9 @@ export default function SharedRound() {
           if (!confirmMutation.isPending) setPwdOpen(o);
         }}
       >
-        <DialogContent className="max-w-sm rounded-3xl">
+        <DialogContent className="max-w-sm rounded-3xl bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
           <DialogHeader>
-            <DialogTitle className="font-tenor uppercase tracking-widest">Conferma selezione</DialogTitle>
+            <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">Conferma selezione</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
@@ -610,7 +612,7 @@ export default function SharedRound() {
             }}
             className="space-y-3"
           >
-            <Label htmlFor="round-pwd" className="text-sm">
+            <Label htmlFor="round-pwd" className="text-sm text-[#F5F0E8]">
               Inserisci la password fornita dall'agenzia
             </Label>
             <Input
@@ -620,9 +622,9 @@ export default function SharedRound() {
               onChange={(e) => setPassword(e.target.value)}
               autoFocus
               autoComplete="current-password"
-              className="rounded-full"
+              className="rounded-full bg-[#1A1A1A] border-white/10 text-[#F5F0E8] placeholder:text-white/40"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-white/50">
               Confermerai {selected.size} talent. Gli altri saranno marcati come scartati.
             </p>
             <DialogFooter className="gap-2">
@@ -631,7 +633,7 @@ export default function SharedRound() {
                 variant="outline"
                 onClick={() => setPwdOpen(false)}
                 disabled={confirmMutation.isPending}
-                className="rounded-full"
+                className="rounded-full bg-transparent border-white/20 text-[#F5F0E8] hover:bg-white/10 hover:text-[#F5F0E8]"
               >
                 Annulla
               </Button>
