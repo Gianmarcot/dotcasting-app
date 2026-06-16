@@ -121,7 +121,7 @@ export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }:
       )}
 
       {/* Bottom fade overlay */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/50 to-transparent px-3 pt-10 pb-2 text-white">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-3 pt-12 pb-2 text-white">
         <div className="text-[15px] font-medium leading-tight">{name}</div>
         {meta && (
           <div className="truncate text-[12px] text-white/80 mt-0.5">{meta}</div>
