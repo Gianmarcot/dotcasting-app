@@ -59,13 +59,15 @@ export interface TriageTalent {
 
 export const useTriageQueue = (limit: number = 20) => {
   return useQuery({
-    queryKey: ["owner-triage-queue", limit],
+    queryKey: ["owner-new-talents", limit],
     queryFn: async (): Promise<TriageTalent[]> => {
+      const since = new Date();
+      since.setDate(since.getDate() - 30);
       const { data, error } = await supabase
         .from("profiles")
         .select("id, user_id, first_name, last_name, stage_name, city, country, birth_date, profile_photo_url, created_at")
-        .is("triaged_at" as any, null)
         .eq("onboarding_completed", true)
+        .gte("created_at", since.toISOString())
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
