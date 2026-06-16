@@ -9,7 +9,6 @@ import { it } from "@/lib/i18n";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import logo from "@/assets/logo.png";
-import logoWhite from "@/assets/logo-white.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
 import slide3 from "@/assets/auth-slide-3.jpg.asset.json";
