@@ -8,7 +8,18 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
@@ -18,9 +29,11 @@ import {
   Folder,
   MoreVertical,
   Edit,
+  Trash2,
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { CastingRound } from "@/hooks/useCastingRounds";
+import { useDeleteRound } from "@/hooks/useCastingRounds";
 import type { RoundPreviewPhotos } from "@/hooks/useRoundPreviewPhotos";
 import { useShareRound } from "@/hooks/useShareRound";
 
@@ -29,6 +42,7 @@ interface Props {
   castingId: string;
   preview?: RoundPreviewPhotos;
 }
+
 
 const FAN_ROTATIONS = [0, -4, 6, -3, 9];
 const FAN_GAP_REST = 18;
