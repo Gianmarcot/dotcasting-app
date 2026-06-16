@@ -1,15 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { mapToTalent } from "@/lib/casting/fetchRoundTalents";
-import { resolveCard, RoundPreset } from "@/lib/casting/roundPreset";
-import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
+import { RoundPreset } from "@/lib/casting/roundPreset";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +12,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Download, Loader2, Check } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Download, Loader2, Check, ImageOff } from "lucide-react";
 import { toast } from "sonner";
 
 const logo = "/logo.png";
@@ -61,58 +58,39 @@ const Unavailable = () => (
   </div>
 );
 
-const StatusBadge = ({ status }: { status: CompanyStatus | null }) => {
+const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
   if (status === "confirmed")
     return (
-      <Badge
-        variant="secondary"
-        className="bg-[#729128]/15 text-[#729128] pointer-events-none"
-      >
-        Confermato
-      </Badge>
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#729128]/15 text-[#729128]">
+        <Check className="h-3 w-3" /> Confermato
+      </span>
     );
   if (status === "rejected")
     return (
-      <Badge
-        variant="secondary"
-        className="bg-[#A30A2B]/10 text-[#A30A2B] pointer-events-none"
-      >
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/10 text-[#A30A2B]">
         Scartato
-      </Badge>
+      </span>
     );
   return null;
 };
 
-const TalentBlock = ({
-  row,
-  preset,
-  token,
-  branding,
-  selectable,
-  selected,
-  onToggle,
-  showStatusBadge,
-}: {
+interface TalentTileProps {
   row: RpcTalentRow;
-  preset: RoundPreset;
   token: string;
-  branding?: BrandingPayload;
   selectable: boolean;
   selected: boolean;
+  showStatus: boolean;
   onToggle: () => void;
-  showStatusBadge: boolean;
-}) => {
+}
+
+function TalentTile({ row, token, selectable, selected, showStatus, onToggle }: TalentTileProps) {
   const talent = mapToTalent({
     ...row.profile,
     attributes: row.attributes ? [row.attributes] : null,
     media: row.media ?? [],
   } as unknown as Parameters<typeof mapToTalent>[0]);
 
-  const card = resolveCard(talent, preset, {
-    agencyName: branding?.agency_name ?? null,
-    agencyLogoUrl: branding?.agency_logo_url ?? null,
-    agencyContactEmail: branding?.contact_email ?? null,
-  });
+  const photo = talent.photos?.[0];
 
   const dl = useMutation({
     mutationFn: async () => {
@@ -122,55 +100,108 @@ const TalentBlock = ({
       if (error || !data?.url) throw new Error("Download non disponibile");
       return data.url as string;
     },
-    onSuccess: (url) => {
-      window.open(url, "_blank", "noopener");
-    },
+    onSuccess: (url) => window.open(url, "_blank", "noopener"),
     onError: () => toast.error("Download non disponibile"),
   });
 
+  const attrs: Array<{ label: string; value: string | null; full?: boolean }> = [
+    { label: "Altezza", value: talent.altezza_cm ? `${talent.altezza_cm} cm` : null },
+    {
+      label: "Taglia",
+      value: talent.taglia_pantaloni || talent.taglia_maglia || null,
+    },
+    { label: "Occhi", value: talent.occhi ?? null },
+    { label: "Capelli", value: talent.capelli ?? null },
+    { label: "Città", value: talent.citta ?? null, full: true },
+  ];
+
   return (
     <div
-      className={`dc-card p-4 sm:p-6 transition-shadow ${
-        selectable && selected ? "ring-2 ring-[#729128]/60" : ""
-      }`}
+      className={`group relative bg-white border rounded-sm overflow-hidden transition-all ${
+        selectable
+          ? "cursor-pointer hover:shadow-xl border-black/5"
+          : "border-black/5"
+      } ${selected ? "ring-2 ring-[#A30A2B] border-[#A30A2B]" : ""}`}
+      onClick={() => selectable && onToggle()}
     >
-      {(selectable || showStatusBadge) && (
-        <div className="flex items-center justify-between mb-4 gap-3">
-          {selectable ? (
-            <label className="flex items-center gap-3 cursor-pointer select-none">
-              <Checkbox
-                checked={selected}
-                onCheckedChange={onToggle}
-                className="h-6 w-6"
-              />
-              <span className="font-dm text-sm text-[#333333]">
-                {selected ? "Selezionato" : "Conferma talent"}
-              </span>
-            </label>
-          ) : (
-            <span />
-          )}
-          {showStatusBadge && <StatusBadge status={row.company_status ?? null} />}
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+        {selectable && (
+          <div
+            className={`w-7 h-7 border-2 border-[#A30A2B] flex items-center justify-center transition-colors shadow-sm ${
+              selected ? "bg-[#A30A2B]" : "bg-white/80 backdrop-blur-sm"
+            }`}
+            aria-hidden
+          >
+            <Check
+              className={`h-4 w-4 text-white transition-opacity ${
+                selected ? "opacity-100" : "opacity-0"
+              }`}
+              strokeWidth={3}
+            />
+          </div>
+        )}
+        {selectable && selected && (
+          <span className="text-[10px] font-bold uppercase tracking-wider text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+            Selezionato
+          </span>
+        )}
+        {!selectable && showStatus && <StatusPill status={row.company_status ?? null} />}
+      </div>
+
+      <div className="aspect-[3/4] overflow-hidden bg-[#EFE7DA]">
+        {photo ? (
+          <img
+            src={photo}
+            alt={talent.nome}
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-[#999]">
+            <ImageOff className="h-8 w-8" />
+          </div>
+        )}
+      </div>
+
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-4 gap-3">
+          <h2 className="font-tenor text-lg sm:text-xl uppercase tracking-wider leading-tight">
+            {talent.nome}
+          </h2>
+          <button
+            type="button"
+            title="Scarica PDF"
+            onClick={(e) => {
+              e.stopPropagation();
+              dl.mutate();
+            }}
+            disabled={!row.pdf_path || dl.isPending}
+            className="shrink-0 text-[#A30A2B] hover:opacity-70 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed p-1 -m-1"
+          >
+            {dl.isPending ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Download className="h-5 w-5" />
+            )}
+          </button>
         </div>
-      )}
-      <TalentCardWeb card={card} />
-      <div className="mt-4 flex justify-end">
-        <Button
-          onClick={() => dl.mutate()}
-          disabled={!row.pdf_path || dl.isPending}
-          className="rounded-full"
-        >
-          {dl.isPending ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4 mr-2" />
+
+        <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-[11px] uppercase tracking-wide border-t border-black/5 pt-4">
+          {attrs.map((a) =>
+            a.value ? (
+              <div key={a.label} className={a.full ? "col-span-2" : ""}>
+                <p className="opacity-40 mb-0.5">{a.label}</p>
+                <p className="font-bold text-[#1A1A1A] normal-case tracking-normal text-sm">
+                  {a.value}
+                </p>
+              </div>
+            ) : null
           )}
-          Scarica PDF
-        </Button>
+        </div>
       </div>
     </div>
   );
-};
+}
 
 export default function SharedRound() {
   const { token } = useParams<{ token: string }>();
@@ -190,7 +221,6 @@ export default function SharedRound() {
   const [pwdOpen, setPwdOpen] = useState(false);
   const [password, setPassword] = useState("");
 
-  // Pre-populate selection from current company_status
   useEffect(() => {
     if (!data?.talents) return;
     setSelected(
@@ -220,9 +250,8 @@ export default function SharedRound() {
     },
     onError: (err: any) => {
       const msg = String(err?.message ?? "");
-      if (msg.includes("invalid_password")) {
-        toast.error("Password non corretta");
-      } else if (msg.includes("round_locked")) {
+      if (msg.includes("invalid_password")) toast.error("Password non corretta");
+      else if (msg.includes("round_locked")) {
         toast.error("Selezione non più disponibile");
         qc.invalidateQueries({ queryKey: ["shared-round", token] });
         setPwdOpen(false);
@@ -232,9 +261,7 @@ export default function SharedRound() {
       } else if (msg.includes("invalid_link")) {
         toast.error("Link non valido");
         setPwdOpen(false);
-      } else {
-        toast.error("Errore, riprova");
-      }
+      } else toast.error("Errore, riprova");
     },
   });
 
@@ -263,58 +290,68 @@ export default function SharedRound() {
   const agencyLabel = branding?.agency_name || "dotCasting";
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] pb-32">
-      <header className="border-b border-[#E5DDD0] bg-[#F5F0E8]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 flex flex-col items-center text-center gap-3">
-          <img src={logoSrc} alt={agencyLabel} className="h-10 max-w-[180px] object-contain" />
-          <h1 className="font-tenor uppercase tracking-wide text-xl sm:text-2xl text-[#333333]">
+    <div className="min-h-screen bg-[#F5F0E8] font-dm text-[#1A1A1A] p-4 md:p-8 pb-32">
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-10 md:mb-12">
+          <div className="flex justify-center mb-6 opacity-80">
+            <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
+          </div>
+          <h1 className="font-tenor text-xl md:text-3xl uppercase tracking-widest mb-2 leading-tight">
             {casting?.title}
             {role?.name ? ` — ${role.name}` : ""}
           </h1>
           {round.label && (
-            <p className="font-dm text-sm text-[#666]">{round.label}</p>
+            <p className="text-[11px] uppercase tracking-widest opacity-60">{round.label}</p>
           )}
-        </div>
-      </header>
+        </header>
 
-      {!isLatest && (
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6">
-          <div className="dc-card p-4 text-sm font-dm text-[#666] text-center">
+        {!isLatest && (
+          <div className="mb-8 max-w-2xl mx-auto bg-white border border-black/5 rounded-sm p-4 text-center text-sm font-dm text-[#666]">
             Selezione chiusa — questo invio è stato superato da uno più recente.
           </div>
-        </div>
-      )}
-
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-        {talents.length === 0 ? (
-          <p className="text-center font-dm text-[#666]">Nessun talent in questo invio.</p>
-        ) : (
-          talents.map((t) => (
-            <TalentBlock
-              key={t.role_talent_id}
-              row={t}
-              preset={round.field_preset}
-              token={token!}
-              branding={branding}
-              selectable={selectable}
-              selected={selected.has(t.role_talent_id)}
-              onToggle={() => toggle(t.role_talent_id)}
-              showStatusBadge={!isLatest || !hasPassword}
-            />
-          ))
         )}
-      </main>
+
+        {talents.length === 0 ? (
+          <p className="text-center font-dm text-[#666] py-16">Nessun talent in questo invio.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {talents.map((t) => (
+              <TalentTile
+                key={t.role_talent_id}
+                row={t}
+                token={token!}
+                selectable={selectable}
+                selected={selected.has(t.role_talent_id)}
+                showStatus={!isLatest || !hasPassword}
+                onToggle={() => toggle(t.role_talent_id)}
+              />
+            ))}
+          </div>
+        )}
+
+        <footer className="pt-12 pb-4 text-center font-dm text-xs text-[#999] uppercase tracking-widest">
+          {agencyLabel}
+        </footer>
+      </div>
 
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-0 inset-x-0 border-t border-[#E5DDD0] bg-[#F5F0E8]/95 backdrop-blur">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-            <span className="font-dm text-sm text-[#333333]">
-              {selected.size} selezionati
-            </span>
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-black/10 px-4 sm:px-6 py-3 sm:py-4 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-3 w-3 relative shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A30A2B]"></span>
+              </span>
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-widest">
+                {selected.size}{" "}
+                <span className="font-normal opacity-60">
+                  {selected.size === 1 ? "selezionato" : "selezionati"}
+                </span>
+              </p>
+            </div>
             <Button
               onClick={() => setPwdOpen(true)}
-              className="rounded-full"
-              size="lg"
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/20 h-auto"
             >
               <Check className="h-4 w-4 mr-2" />
               Conferma selezione
@@ -323,11 +360,12 @@ export default function SharedRound() {
         </div>
       )}
 
-      <footer className="py-8 text-center font-dm text-xs text-[#999]">
-        {agencyLabel}
-      </footer>
-
-      <Dialog open={pwdOpen} onOpenChange={(o) => { if (!confirmMutation.isPending) setPwdOpen(o); }}>
+      <Dialog
+        open={pwdOpen}
+        onOpenChange={(o) => {
+          if (!confirmMutation.isPending) setPwdOpen(o);
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Conferma selezione</DialogTitle>
@@ -364,9 +402,7 @@ export default function SharedRound() {
                 Annulla
               </Button>
               <Button type="submit" disabled={confirmMutation.isPending || !password}>
-                {confirmMutation.isPending && (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                )}
+                {confirmMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 Conferma
               </Button>
             </DialogFooter>
