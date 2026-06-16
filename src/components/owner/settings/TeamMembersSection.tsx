@@ -55,7 +55,7 @@ export const TeamMembersSection = () => {
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"owner" | "admin">("owner");
+  const [role, setRole] = useState<TeamRole>("owner");
   const [linkDialog, setLinkDialog] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; email: string } | null>(null);
 
