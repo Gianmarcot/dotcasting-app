@@ -48,7 +48,8 @@ Deno.serve(async (req) => {
 
     const body = await req.json();
     const email = String(body.email ?? "").trim().toLowerCase();
-    const role = body.role === "admin" ? "admin" : "owner";
+    const role =
+      body.role === "admin" ? "admin" : body.role === "editor" ? "editor" : "owner";
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return new Response(JSON.stringify({ error: "Email non valida" }), {

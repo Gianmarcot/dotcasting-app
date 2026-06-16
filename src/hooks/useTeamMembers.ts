@@ -5,7 +5,7 @@ import { toast } from "sonner";
 export type TeamMember = {
   user_id: string;
   email: string;
-  role: "owner" | "admin";
+  role: "owner" | "admin" | "editor";
   created_at: string;
   last_sign_in_at: string | null;
 };
@@ -13,7 +13,7 @@ export type TeamMember = {
 export type TeamInvitation = {
   id: string;
   email: string;
-  role: "owner" | "admin";
+  role: "owner" | "admin" | "editor";
   token: string;
   status: "pending" | "accepted" | "revoked" | "expired";
   expires_at: string;
@@ -47,7 +47,7 @@ export const useTeamInvitations = () =>
 export const useInviteMember = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { email: string; role: "owner" | "admin" }) => {
+    mutationFn: async (input: { email: string; role: "owner" | "admin" | "editor" }) => {
       const { data, error } = await supabase.functions.invoke("invite-team-member", {
         body: input,
       });
@@ -84,7 +84,7 @@ export const useRevokeInvitation = () => {
 export const useUpdateMemberRole = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { user_id: string; new_role: "owner" | "admin" }) => {
+    mutationFn: async (input: { user_id: string; new_role: "owner" | "admin" | "editor" }) => {
       const { error } = await supabase.rpc("update_member_role", {
         p_user_id: input.user_id,
         p_new_role: input.new_role,

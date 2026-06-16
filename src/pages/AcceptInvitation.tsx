@@ -77,7 +77,7 @@ export default function AcceptInvitation() {
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
             {valid
-              ? `Sei stato invitato come ${info?.role === "admin" ? "Admin" : "Owner"}. Imposta una password per ${info?.email}.`
+              ? `Sei stato invitato come ${info?.role === "admin" ? "Admin" : info?.role === "editor" ? "Editor" : "Owner"}. Imposta una password per ${info?.email}.`
               : "L'invito non è valido o è scaduto."}
           </p>
         </div>

@@ -40,7 +40,9 @@ import {
   useRemoveMember,
 } from "@/hooks/useTeamMembers";
 
-const roleLabel = (r: "owner" | "admin") => (r === "admin" ? "Admin" : "Owner");
+type TeamRole = "owner" | "admin" | "editor";
+const roleLabel = (r: TeamRole) =>
+  r === "admin" ? "Admin" : r === "editor" ? "Editor" : "Owner";
 
 export const TeamMembersSection = () => {
   const { user } = useAuth();
@@ -53,7 +55,7 @@ export const TeamMembersSection = () => {
 
   const [inviteOpen, setInviteOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"owner" | "admin">("owner");
+  const [role, setRole] = useState<TeamRole>("owner");
   const [linkDialog, setLinkDialog] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; email: string } | null>(null);
 
@@ -128,6 +130,7 @@ export const TeamMembersSection = () => {
                       <SelectContent>
                         <SelectItem value="owner">Owner</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="editor">Editor</SelectItem>
                       </SelectContent>
                     </Select>
                     <Button
@@ -219,9 +222,12 @@ export const TeamMembersSection = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="owner">Owner — accesso al backoffice</SelectItem>
+                  <SelectItem value="owner">Owner — accesso completo ai contenuti</SelectItem>
                   <SelectItem value="admin">
                     Admin — accesso completo e gestione team
+                  </SelectItem>
+                  <SelectItem value="editor">
+                    Editor — gestione contenuti, niente team né eliminazione account
                   </SelectItem>
                 </SelectContent>
               </Select>
