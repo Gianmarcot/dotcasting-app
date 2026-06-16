@@ -47,10 +47,12 @@ const TalentBlock = ({
   row,
   preset,
   token,
+  branding,
 }: {
   row: RpcTalentRow;
   preset: RoundPreset;
   token: string;
+  branding?: BrandingPayload;
 }) => {
   const talent = mapToTalent({
     ...row.profile,
@@ -58,7 +60,11 @@ const TalentBlock = ({
     media: row.media ?? [],
   } as unknown as Parameters<typeof mapToTalent>[0]);
 
-  const card = resolveCard(talent, preset);
+  const card = resolveCard(talent, preset, {
+    agencyName: branding?.agency_name ?? null,
+    agencyLogoUrl: branding?.agency_logo_url ?? null,
+    agencyContactEmail: branding?.contact_email ?? null,
+  });
 
   const dl = useMutation({
     mutationFn: async () => {
