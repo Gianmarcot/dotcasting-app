@@ -277,10 +277,10 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border-0">
-          <DialogHeader className="sticky top-0 z-10 bg-[#F5F0E8]/95 backdrop-blur-md px-6 py-5 border-b border-black/5 flex-row items-center justify-between space-y-0 shrink-0">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#0F0F0F] text-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border border-white/10">
+          <DialogHeader className="sticky top-0 z-10 bg-[#0F0F0F]/95 backdrop-blur-md px-6 py-5 border-b border-white/10 flex-row items-center justify-between space-y-0 shrink-0">
             <div className="flex-1 min-w-0 text-left">
-              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#1A1A1A] truncate text-left">
+              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#F5F0E8] truncate text-left">
                 {talent.nome}
               </DialogTitle>
               {selectable && selected && (
@@ -295,7 +295,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 title="Scarica PDF"
                 onClick={() => dl.mutate()}
                 disabled={!row.pdf_path || dl.isPending}
-                className="inline-flex items-center justify-center text-[#A30A2B] hover:bg-[#A30A2B]/10 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/20 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
               >
                 {dl.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               </button>
@@ -303,7 +303,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 type="button"
                 onClick={onClose}
                 aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-[#333] hover:bg-black/5 h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-[#F5F0E8] hover:bg-white/10 h-10 w-10 rounded-full transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -319,7 +319,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                       key={i}
                       type="button"
                       onClick={() => setLightbox(p)}
-                      className="aspect-[3/4] overflow-hidden bg-[#EFE7DA] rounded-2xl group"
+                      className="aspect-[3/4] overflow-hidden bg-[#1A1A1A] rounded-2xl group"
                     >
                       <img
                         src={p}
@@ -331,12 +331,12 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   ))}
                 </div>
               ) : (
-                <div className="aspect-[3/4] flex items-center justify-center bg-[#EFE7DA] rounded-2xl text-[#999]">
+                <div className="aspect-[3/4] flex items-center justify-center bg-[#1A1A1A] rounded-2xl text-white/30">
                   <ImageOff className="h-8 w-8" />
                 </div>
               )}
 
-              <div className="bg-white rounded-3xl shadow-sm p-6 space-y-7">
+              <div className="bg-[#1A1A1A] rounded-3xl shadow-sm p-6 space-y-7">
                 <DetailSection title="Generale">
                   <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
                   <DetailRow label="Genere" value={talent.genere} />
@@ -382,12 +382,12 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
           </div>
 
           {selectable && (
-            <div className="shrink-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-6 py-4">
+            <div className="shrink-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-6 py-4">
               <Button
                 onClick={onToggle}
                 className={`w-full rounded-full font-bold uppercase tracking-widest text-xs h-12 ${
                   selected
-                    ? "bg-white border border-[#A30A2B] text-[#A30A2B] hover:bg-[#A30A2B]/5"
+                    ? "bg-transparent border border-[#A30A2B] text-[#E88599] hover:bg-[#A30A2B]/10"
                     : "bg-[#A30A2B] hover:bg-[#850822] text-white"
                 }`}
               >
