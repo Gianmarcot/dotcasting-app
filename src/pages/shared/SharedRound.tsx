@@ -512,10 +512,10 @@ export default function SharedRound() {
   const detailsRow = detailsId ? talents.find((t) => t.role_talent_id === detailsId) ?? null : null;
 
   return (
-    <div className="min-h-screen bg-[#F5F0E8] font-dm text-[#1A1A1A] p-4 md:p-8 pb-32">
+    <div className="min-h-screen bg-[#0F0F0F] font-dm text-[#F5F0E8] p-4 md:p-8 pb-32">
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-10 md:mb-12">
-          <div className="flex justify-center mb-6 opacity-80">
+          <div className="flex justify-center mb-6 opacity-90">
             <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
           </div>
           <h1 className="font-tenor text-xl md:text-3xl uppercase tracking-widest mb-2 leading-tight">
@@ -528,13 +528,13 @@ export default function SharedRound() {
         </header>
 
         {!isLatest && (
-          <div className="mb-8 max-w-2xl mx-auto bg-white rounded-3xl shadow-sm p-5 text-center text-sm font-dm text-[#666]">
+          <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl shadow-sm p-5 text-center text-sm font-dm text-white/60 border border-white/5">
             Selezione chiusa — questo invio è stato superato da uno più recente.
           </div>
         )}
 
         {talents.length === 0 ? (
-          <p className="text-center font-dm text-[#666] py-16">Nessun talent in questo invio.</p>
+          <p className="text-center font-dm text-white/60 py-16">Nessun talent in questo invio.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {talents.map((t) => (
@@ -552,10 +552,11 @@ export default function SharedRound() {
           </div>
         )}
 
-        <footer className="pt-12 pb-4 text-center font-dm text-xs text-[#999] uppercase tracking-widest">
+        <footer className="pt-12 pb-4 text-center font-dm text-xs text-white/40 uppercase tracking-widest">
           {agencyLabel}
         </footer>
       </div>
+
 
       {selectable && talents.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-black/5 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
