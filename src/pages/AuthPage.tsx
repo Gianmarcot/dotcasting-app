@@ -9,7 +9,6 @@ import { it } from "@/lib/i18n";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import logo from "@/assets/logo.png";
-import logoWhite from "@/assets/logo-white.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
 import slide3 from "@/assets/auth-slide-3.jpg.asset.json";
@@ -129,7 +128,7 @@ export const AuthPage = () => {
   const goNext = () => setSlideIndex((i) => (i + 1) % SLIDES.length);
 
   return (
-    <div className="min-h-screen bg-background grid md:grid-cols-2">
+    <div className="min-h-screen bg-background grid md:grid-cols-[minmax(0,600px)_1fr]">
       {/* Left — image slider */}
       <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem] bg-black">
         {SLIDES.map((src, i) => (
@@ -145,17 +144,15 @@ export const AuthPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
 
         <div className="relative z-10 h-full flex flex-col justify-between p-10">
-          <Link to="/" className="inline-flex">
-            <img src={logoWhite} alt="dotCasting" className="h-8" />
-          </Link>
+          <div />
 
           <div className="flex items-end justify-between gap-6">
             <div className="text-white max-w-md">
               <h2 className="font-tenor uppercase tracking-wide text-3xl md:text-4xl leading-tight">
-                La piattaforma di casting
+                IL TUO PALCO DIGITALE
               </h2>
               <p className="mt-3 text-sm md:text-base text-white/80">
-                Gestisci talent, ruoli e shortlist in un unico spazio.
+                Crea il tuo profilo, partecipa ai casting e fatti notare dai professionisti.
               </p>
             </div>
 
