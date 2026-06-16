@@ -1324,6 +1324,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       is_team_manager: { Args: never; Returns: boolean }
       list_team_members: {
         Args: never
