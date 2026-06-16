@@ -18,25 +18,35 @@ export const ActionableStatCard = ({ title, value, icon: Icon, link, isLoading }
   return (
     <Card
       onClick={() => navigate(link)}
-      className="dc-card cursor-pointer hover:shadow-md transition-shadow"
+      className={`cursor-pointer transition-shadow hover:shadow-md border-0 shadow-sm rounded-3xl ${
+        needsAttention
+          ? "bg-olive text-olive-foreground"
+          : "bg-white text-foreground"
+      }`}
     >
       <CardContent className="p-5">
         <div className="flex items-center justify-between">
           <div className="min-w-0">
-            <p className="text-sm text-muted-foreground">{title}</p>
+            <p
+              className={`text-sm ${
+                needsAttention ? "text-olive-foreground/80" : "text-muted-foreground"
+              }`}
+            >
+              {title}
+            </p>
             {isLoading ? (
               <Skeleton className="h-9 w-16 mt-1" />
             ) : (
-              <p
-                className={`text-3xl font-semibold mt-1 ${
-                  needsAttention ? "text-[hsl(var(--warning))]" : "text-foreground"
-                }`}
-              >
+              <p className="text-3xl font-semibold mt-1">
                 {value.toLocaleString("it-IT")}
               </p>
             )}
           </div>
-          <Icon className="h-8 w-8 text-muted-foreground/60" />
+          <Icon
+            className={`h-8 w-8 ${
+              needsAttention ? "opacity-80" : "text-muted-foreground/60"
+            }`}
+          />
         </div>
       </CardContent>
     </Card>
