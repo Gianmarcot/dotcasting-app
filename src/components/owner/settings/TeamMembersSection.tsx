@@ -40,7 +40,9 @@ import {
   useRemoveMember,
 } from "@/hooks/useTeamMembers";
 
-const roleLabel = (r: "owner" | "admin") => (r === "admin" ? "Admin" : "Owner");
+type TeamRole = "owner" | "admin" | "editor";
+const roleLabel = (r: TeamRole) =>
+  r === "admin" ? "Admin" : r === "editor" ? "Editor" : "Owner";
 
 export const TeamMembersSection = () => {
   const { user } = useAuth();
