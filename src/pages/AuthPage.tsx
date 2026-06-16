@@ -144,17 +144,15 @@ export const AuthPage = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
 
         <div className="relative z-10 h-full flex flex-col justify-between p-10">
-          <Link to="/" className="inline-flex">
-            <img src={logoWhite} alt="dotCasting" className="h-8" />
-          </Link>
+          <div />
 
           <div className="flex items-end justify-between gap-6">
             <div className="text-white max-w-md">
               <h2 className="font-tenor uppercase tracking-wide text-3xl md:text-4xl leading-tight">
-                La piattaforma di casting
+                IL TUO PALCO DIGITALE
               </h2>
               <p className="mt-3 text-sm md:text-base text-white/80">
-                Gestisci talent, ruoli e shortlist in un unico spazio.
+                Crea il tuo profilo, partecipa ai casting e fatti notare dai professionisti.
               </p>
             </div>
 
