@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Loader2, Check, ImageOff, Eye, X } from "lucide-react";
+import { Download, Loader2, Check, ImageOff, X, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 
