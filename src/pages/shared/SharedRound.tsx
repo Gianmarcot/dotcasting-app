@@ -126,37 +126,36 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
 
   return (
     <div
-      className={`group relative bg-[#1A1A1A] rounded-3xl overflow-hidden shadow-sm transition-all ${
-        selectable ? "cursor-pointer hover:shadow-md" : ""
-      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5"}`}
-      onClick={() => selectable && onToggle()}
+      className={`group relative bg-[#1A1A1A] rounded-3xl p-3 transition-all cursor-pointer ${
+        selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5"
+      }`}
+      onClick={() => onOpenDetails()}
     >
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-        {selectable && (
-          <div
-            className={`w-8 h-8 rounded-full border-2 border-[#A30A2B] flex items-center justify-center transition-colors shadow-sm ${
-              selected ? "bg-[#A30A2B]" : "bg-black/40 backdrop-blur-sm"
-            }`}
-            aria-hidden
-          >
-            <Check
-              className={`h-4 w-4 text-white transition-opacity ${
-                selected ? "opacity-100" : "opacity-0"
-              }`}
-              strokeWidth={3}
-            />
-          </div>
-        )}
-        {selectable && selected && <SelectedPill />}
-      </div>
+      {selectable && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
+          aria-label={selected ? "Deseleziona" : "Seleziona"}
+          className={`absolute top-4 left-4 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+            selected
+              ? "bg-[#A30A2B] border-2 border-[#A30A2B]"
+              : "bg-black/40 backdrop-blur-sm border-2 border-white/30"
+          }`}
+        >
+          {selected && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+        </button>
+      )}
 
       {showStatus && (
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-4 right-4 z-10">
           <StatusPill status={row.company_status ?? null} />
         </div>
       )}
 
-      <div className="aspect-[3/4] overflow-hidden bg-[#0F0F0F]">
+      <div className="rounded-2xl overflow-hidden aspect-[3/4] w-full bg-[#0F0F0F]">
         {photo ? (
           <img
             src={photo}
@@ -171,53 +170,32 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
         )}
       </div>
 
-      <div className="p-5 text-[#F5F0E8]">
-        <h2 className="font-tenor text-lg sm:text-xl uppercase tracking-wider leading-tight mb-3">
-          {talent.nome}
-        </h2>
-
-        <div className="grid grid-cols-2 gap-y-2.5 gap-x-4 text-[11px] uppercase tracking-wide border-t border-white/10 pt-3">
-          {attrs.map((a) =>
-            a.value ? (
-              <div key={a.label} className={a.full ? "col-span-2" : ""}>
-                <p className="opacity-40 mb-0.5">{a.label}</p>
-                <p className="font-bold text-[#F5F0E8] normal-case tracking-normal text-sm">
-                  {a.value}
-                </p>
-              </div>
-            ) : null
+      <div className="pt-3 pb-1 px-1 flex items-end justify-between gap-2">
+        <div className="min-w-0">
+          <h2 className="font-tenor uppercase text-sm tracking-wide text-[#F5F0E8] truncate">
+            {talent.nome}
+          </h2>
+          <p className="text-[11px] text-white/50 mt-0.5 truncate">
+            {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta]
+              .filter(Boolean)
+              .join(" • ")}
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Apri dettagli"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenDetails();
+          }}
+          className="shrink-0 text-white/40 hover:text-white/80 transition-colors"
+        >
+          {dl.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
           )}
-        </div>
-
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10">
-          <Button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenDetails();
-            }}
-            className="flex-1 rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[11px] h-10"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Vedi dettagli
-          </Button>
-          <button
-            type="button"
-            title="Scarica PDF"
-            onClick={(e) => {
-              e.stopPropagation();
-              dl.mutate();
-            }}
-            disabled={!row.pdf_path || dl.isPending}
-            className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/15 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors border border-[#A30A2B]/40 shrink-0"
-          >
-            {dl.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-          </button>
-        </div>
+        </button>
       </div>
     </div>
   );
