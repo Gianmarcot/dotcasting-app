@@ -101,28 +101,11 @@ interface TalentTileProps {
 }
 
 function TalentTile({ row, token, selectable, selected, showStatus, onToggle, onOpenDetails }: TalentTileProps) {
+  void token;
   const talent = buildTalent(row);
   const photo = talent.photos?.[0];
 
-  const dl = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("get-round-pdf-url", {
-        body: { token, roleTalentId: row.role_talent_id },
-      });
-      if (error || !data?.url) throw new Error("Download non disponibile");
-      return data.url as string;
-    },
-    onSuccess: (url) => window.open(url, "_blank", "noopener"),
-    onError: () => toast.error("Download non disponibile"),
-  });
 
-  const attrs: Array<{ label: string; value: string | null; full?: boolean }> = [
-    { label: "Altezza", value: talent.altezza_cm ? `${talent.altezza_cm} cm` : null },
-    { label: "Taglia", value: talent.taglia_pantaloni || talent.taglia_maglia || null },
-    { label: "Occhi", value: talent.occhi ?? null },
-    { label: "Capelli", value: talent.capelli ?? null },
-    { label: "Città", value: talent.citta ?? null, full: true },
-  ];
 
   return (
     <div
