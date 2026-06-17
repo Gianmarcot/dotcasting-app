@@ -5,10 +5,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { mapToTalent } from "@/lib/casting/fetchRoundTalents";
 import { RoundPreset } from "@/lib/casting/roundPreset";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
+import { Download, Loader2, Check, ImageOff, X, Maximize2 } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 
@@ -44,8 +50,12 @@ interface SharedRoundPayload {
 const Unavailable = () => (
   <div className="min-h-screen bg-[#0F0F0F] flex flex-col items-center justify-center px-6 text-center">
     <img src={logo} alt="dotCasting" className="h-10 mb-8 opacity-80" />
-    <h1 className="font-tenor uppercase tracking-wide text-2xl text-[#F5F0E8] mb-2">Link non disponibile</h1>
-    <p className="text-white/60 max-w-sm">Il link non è più attivo oppure non è valido.</p>
+    <h1 className="font-tenor uppercase tracking-wide text-2xl text-[#F5F0E8] mb-2">
+      Link non disponibile
+    </h1>
+    <p className="font-dm text-white/60 max-w-sm">
+      Il link non è più attivo oppure non è valido.
+    </p>
   </div>
 );
 
@@ -65,6 +75,12 @@ const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
   return null;
 };
 
+const SelectedPill = () => (
+  <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#F5F0E8] text-[#A30A2B] shadow-sm">
+    Selezionato
+  </span>
+);
+
 type MappedTalent = ReturnType<typeof mapToTalent>;
 
 const buildTalent = (row: RpcTalentRow): MappedTalent =>
@@ -76,6 +92,7 @@ const buildTalent = (row: RpcTalentRow): MappedTalent =>
 
 interface TalentTileProps {
   row: RpcTalentRow;
+  token: string;
   selectable: boolean;
   selected: boolean;
   showStatus: boolean;
@@ -83,39 +100,37 @@ interface TalentTileProps {
   onOpenDetails: () => void;
 }
 
-function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDetails }: TalentTileProps) {
+function TalentTile({ row, token, selectable, selected, showStatus, onToggle, onOpenDetails }: TalentTileProps) {
+  void token;
   const talent = buildTalent(row);
   const photo = talent.photos?.[0];
 
+
+
   return (
     <div
-      className={`group relative bg-[#1A1A1A] rounded-3xl p-3 transition-all ${
-        selectable ? "cursor-pointer" : ""
-      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"}`}
-      onClick={onOpenDetails}
+      className={`group relative bg-[#1A1A1A] rounded-3xl p-3 transition-all cursor-pointer ${
+        selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5"
+      }`}
+      onClick={() => onOpenDetails()}
     >
-      <div className="pt-9 relative">
-  {selectable && (
-    <div
-      className="absolute top-0 left-0 z-10 p-2"
-      onClick={(e) => { e.stopPropagation(); onToggle(); }}
-    >
-      <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
-        selected ? "bg-[#A30A2B] border-[#A30A2B]" : "bg-[#1A1A1A] border-white/30"
-      }`}>
-        <Check className={`h-4 w-4 text-white transition-opacity ${selected ? "opacity-100" : "opacity-0"}`} strokeWidth={3} />
-      </div>
-    </div>
-  )}
-
-  <div className="rounded-2xl overflow-hidden aspect-[3/4] w-full bg-[#0F0F0F]">
-    {photo ? (
-      <img ... />
-    ) : (
-      <div ...><ImageOff /></div>
-    )}
-  </div>
-</div>
+      {selectable && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle();
+          }}
+          aria-label={selected ? "Deseleziona" : "Seleziona"}
+          className={`absolute top-4 left-4 z-10 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+            selected
+              ? "bg-[#A30A2B] border-2 border-[#A30A2B]"
+              : "bg-black/40 backdrop-blur-sm border-2 border-white/30"
+          }`}
+        >
+          {selected && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+        </button>
+      )}
 
       {showStatus && (
         <div className="absolute top-4 right-4 z-10">
@@ -132,29 +147,31 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
             className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20">
-            <ImageOff className="h-6 w-6" />
+          <div className="w-full h-full flex items-center justify-center text-white/30">
+            <ImageOff className="h-8 w-8" />
           </div>
         )}
       </div>
 
       <div className="pt-3 pb-1 px-1 flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-tenor uppercase text-sm tracking-wide text-[#F5F0E8] leading-tight truncate">
+          <h2 className="font-tenor uppercase text-sm tracking-wide text-[#F5F0E8] truncate">
             {talent.nome}
-          </p>
+          </h2>
           <p className="text-[11px] text-white/50 mt-0.5 truncate">
-            {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
+            {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta]
+              .filter(Boolean)
+              .join(" • ")}
           </p>
         </div>
         <button
           type="button"
+          aria-label="Apri dettagli"
           onClick={(e) => {
             e.stopPropagation();
             onOpenDetails();
           }}
-          className="shrink-0 text-white/40 hover:text-white/70 transition-colors"
-          aria-label="Apri dettagli"
+          className="shrink-0 text-white/40 hover:text-white/80 transition-colors"
         >
           <Maximize2 className="h-4 w-4" />
         </button>
@@ -223,6 +240,11 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
               <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#F5F0E8] truncate text-left">
                 {talent.nome}
               </DialogTitle>
+              {selectable && selected && (
+                <div className="flex items-center gap-2 mt-1.5">
+                  <SelectedPill />
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -278,7 +300,10 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   <DetailRow label="Città" value={talent.citta} />
                   <DetailRow label="Nazionalità" value={talent.nazionalita} />
                   <DetailRow label="Etnia" value={talent.etnia} />
-                  <DetailRow label="Città di lavoro" value={talent.citta_lavoro?.join(", ") ?? null} />
+                  <DetailRow
+                    label="Città di lavoro"
+                    value={talent.citta_lavoro?.join(", ") ?? null}
+                  />
                 </DetailSection>
 
                 <DetailSection title="Aspetto">
@@ -300,10 +325,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   <DetailRow label="Petto" value={talent.petto_cm ? `${talent.petto_cm} cm` : null} />
                   <DetailRow label="Vita" value={talent.vita_cm ? `${talent.vita_cm} cm` : null} />
                   <DetailRow label="Fianchi" value={talent.fianchi_cm ? `${talent.fianchi_cm} cm` : null} />
-                  <DetailRow
-                    label="Spalle"
-                    value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null}
-                  />
+                  <DetailRow label="Spalle" value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null} />
                 </DetailSection>
 
                 <DetailSection title="Lingue & abilità">
@@ -326,14 +348,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                     : "bg-[#A30A2B] hover:bg-[#850822] text-white"
                 }`}
               >
-                {selected ? (
-                  "Rimuovi selezione"
-                ) : (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Seleziona talent
-                  </>
-                )}
+                {selected ? "Rimuovi selezione" : (<><Check className="h-4 w-4 mr-2" />Seleziona talent</>)}
               </Button>
             </div>
           )}
@@ -383,11 +398,16 @@ export default function SharedRound() {
   const [pwdOpen, setPwdOpen] = useState(false);
   const [password, setPassword] = useState("");
   const [detailsId, setDetailsId] = useState<string | null>(null);
-  const [bulkDownloading, setBulkDownloading] = useState(false);
 
   useEffect(() => {
     if (!data?.talents) return;
-    setSelected(new Set(data.talents.filter((t) => t.company_status === "confirmed").map((t) => t.role_talent_id)));
+    setSelected(
+      new Set(
+        data.talents
+          .filter((t) => t.company_status === "confirmed")
+          .map((t) => t.role_talent_id)
+      )
+    );
   }, [data?.talents]);
 
   const confirmMutation = useMutation({
@@ -430,24 +450,6 @@ export default function SharedRound() {
       return n;
     });
 
-  const handleBulkDownload = async () => {
-    if (!data?.talents) return;
-    setBulkDownloading(true);
-    const withPdf = data.talents.filter((t) => t.pdf_path);
-    for (const t of withPdf) {
-      try {
-        const { data: res } = await supabase.functions.invoke("get-round-pdf-url", {
-          body: { token, roleTalentId: t.role_talent_id },
-        });
-        if (res?.url) {
-          window.open(res.url, "_blank", "noopener");
-          await new Promise((r) => setTimeout(r, 400));
-        }
-      } catch {}
-    }
-    setBulkDownloading(false);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0F0F0F] flex items-center justify-center">
@@ -464,93 +466,119 @@ export default function SharedRound() {
   const selectable = isLatest && hasPassword;
   const logoSrc = branding?.agency_logo_url || logo;
   const agencyLabel = branding?.agency_name || "dotCasting";
-  const detailsRow = detailsId ? (talents.find((t) => t.role_talent_id === detailsId) ?? null) : null;
+  const detailsRow = detailsId ? talents.find((t) => t.role_talent_id === detailsId) ?? null : null;
+
+  const downloadAll = async () => {
+    const items = talents.filter((t) => t.pdf_path);
+    if (items.length === 0) {
+      toast.error("Nessun PDF disponibile");
+      return;
+    }
+    for (const t of items) {
+      try {
+        const { data: res, error } = await supabase.functions.invoke("get-round-pdf-url", {
+          body: { token: token!, roleTalentId: t.role_talent_id },
+        });
+        if (error || !res?.url) continue;
+        window.open(res.url as string, "_blank", "noopener");
+        await new Promise((r) => setTimeout(r, 400));
+      } catch {
+        // skip
+      }
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#0F0F0F] text-[#F5F0E8] p-4 md:p-8 pb-32">
+    <div className="min-h-screen bg-[#0F0F0F] font-dm text-[#F5F0E8] p-4 md:p-8 pb-32">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <header className="text-center mb-10 md:mb-12">
+        <header className="text-center mb-8 md:mb-10">
           <div className="flex justify-center mb-8 opacity-90">
             <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
           </div>
-          {casting?.title && <p className="text-xs uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>}
-          <h1 className="font-tenor text-5xl md:text-6xl uppercase tracking-wider text-[#F5F0E8] leading-none mb-3">
-            {role?.name}
-          </h1>
-          {round.label && <p className="text-xs uppercase tracking-widest text-white/50">{round.label}</p>}
+          {casting?.title && (
+            <p className="font-dm text-[11px] uppercase tracking-widest opacity-50 mb-4">
+              / {casting.title}
+            </p>
+          )}
+          {role?.name && (
+            <h1 className="font-tenor text-5xl md:text-6xl uppercase tracking-wider leading-[1.05] mb-4">
+              {role.name}
+            </h1>
+          )}
+          {round.label && (
+            <p className="text-xs uppercase tracking-widest opacity-50">{round.label}</p>
+          )}
         </header>
 
         {!isLatest && (
-          <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl p-5 text-center text-sm text-white/60 border border-white/5">
+          <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl shadow-sm p-5 text-center text-sm font-dm text-white/60 border border-white/5">
             Selezione chiusa — questo invio è stato superato da uno più recente.
           </div>
         )}
 
-        {talents.length === 0 ? (
-          <p className="text-center text-white/60 py-16">Nessun talent in questo invio.</p>
-        ) : (
-          <>
-            {/* Counter row */}
-            <div className="flex items-center justify-between mb-6">
-              <span className="text-sm text-white/50">{talents.length} profili</span>
-              <button
-                type="button"
-                onClick={handleBulkDownload}
-                disabled={bulkDownloading}
-                className="inline-flex items-center gap-2 border border-white/20 rounded-full text-sm px-5 py-2 bg-transparent text-[#F5F0E8] hover:bg-white/5 transition-colors disabled:opacity-50"
-              >
-                {bulkDownloading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" /> Download in corso…
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-4 w-4" /> Scarica tutti i pdf
-                  </>
-                )}
-              </button>
-            </div>
-
-            {/* Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {talents.map((t) => (
-                <TalentTile
-                  key={t.role_talent_id}
-                  row={t}
-                  selectable={selectable}
-                  selected={selected.has(t.role_talent_id)}
-                  showStatus={!isLatest || !hasPassword}
-                  onToggle={() => toggle(t.role_talent_id)}
-                  onOpenDetails={() => setDetailsId(t.role_talent_id)}
-                />
-              ))}
-            </div>
-          </>
+        {talents.length > 0 && (
+          <div className="flex items-center justify-between mb-5 px-1">
+            <p className="text-sm opacity-60">{talents.length} profili</p>
+            <button
+              type="button"
+              onClick={downloadAll}
+              className="inline-flex items-center gap-2 border border-white/20 rounded-full text-sm px-5 py-2 bg-transparent text-[#F5F0E8] hover:bg-white/5 transition-colors"
+            >
+              Scarica tutti i pdf
+              <Download className="h-4 w-4" />
+            </button>
+          </div>
         )}
 
-        <footer className="pt-12 pb-4 text-center text-xs text-white/40 uppercase tracking-widest">
+        {talents.length === 0 ? (
+          <p className="text-center font-dm text-white/60 py-16">Nessun talent in questo invio.</p>
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {talents.map((t) => (
+              <TalentTile
+                key={t.role_talent_id}
+                row={t}
+                token={token!}
+                selectable={selectable}
+                selected={selected.has(t.role_talent_id)}
+                showStatus={!isLatest || !hasPassword}
+                onToggle={() => toggle(t.role_talent_id)}
+                onOpenDetails={() => setDetailsId(t.role_talent_id)}
+              />
+            ))}
+          </div>
+        )}
+
+        <footer className="pt-12 pb-4 text-center font-dm text-xs text-white/40 uppercase tracking-widest">
           {agencyLabel}
         </footer>
       </div>
 
-      {/* Floating selection bar */}
+
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#1A1A1A]/95 backdrop-blur-md rounded-full shadow-xl border border-white/10 px-5 py-3">
-          <div className="flex items-center gap-2 text-[#F5F0E8]">
-            <Check className="h-4 w-4 text-[#A30A2B]" strokeWidth={3} />
-            <span className="text-sm font-bold whitespace-nowrap">
-              {selected.size} <span className="font-normal opacity-60">di {talents.length} selezionati</span>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+          <div className="flex items-center gap-3 bg-[#1A1A1A]/95 backdrop-blur-md border border-white/10 rounded-full pl-5 pr-2 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <span className="flex h-2.5 w-2.5 relative shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#A30A2B]"></span>
             </span>
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap">
+              {selected.size}{" "}
+              <span className="font-normal opacity-60">
+                {selected.size === 1 ? "selezionato" : "selezionati"}
+              </span>
+            </p>
+            <Button
+              onClick={() => setPwdOpen(true)}
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-5 sm:px-6 h-10"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Conferma
+            </Button>
           </div>
-          <Button
-            onClick={() => setPwdOpen(true)}
-            className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold text-xs px-5 py-2 h-auto"
-          >
-            Prosegui →
-          </Button>
         </div>
       )}
+
 
       <TalentDetailSheet
         row={detailsRow}
@@ -570,9 +598,7 @@ export default function SharedRound() {
       >
         <DialogContent className="max-w-sm rounded-3xl bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
           <DialogHeader>
-            <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">
-              Conferma selezione
-            </DialogTitle>
+            <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">Conferma selezione</DialogTitle>
           </DialogHeader>
           <form
             onSubmit={(e) => {
