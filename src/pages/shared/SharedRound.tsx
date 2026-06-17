@@ -94,7 +94,6 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
       } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"}`}
       onClick={onOpenDetails}
     >
-      {/* Checkbox — absolute sulla card */}
       {selectable && (
         <div
           className="absolute top-3 left-3 z-10"
@@ -122,7 +121,6 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
         </div>
       )}
 
-      {/* Immagine con padding 48px su 3 lati, 0 in basso */}
       <div className="px-12 pt-12 pb-0">
         <div className="overflow-hidden aspect-[5/7]">
           {photo ? (
@@ -140,28 +138,26 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
         </div>
       </div>
 
-      {/* Info */}
-      <div className="p-6 flex items-end justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-tenor uppercase text-[18px] tracking-wide text-[#F5F0E8] leading-tight truncate">
-            {talent.nome}
-          </p>
-          <p className="text-[12px] text-white/50 mt-0.5 truncate">
-            {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenDetails();
-          }}
-          className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-transparent hover:bg-white/10 transition-colors"
-          aria-label="Apri dettagli"
-        >
-          <Maximize2 className="h-6 w-6 text-white/40" />
-        </button>
+      <div className="p-6">
+        <p className="font-display uppercase text-[18px] tracking-wide text-[#F5F0E8] leading-tight truncate">
+          {talent.nome}
+        </p>
+        <p className="text-[12px] text-white/50 mt-0.5 truncate">
+          {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
+        </p>
       </div>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenDetails();
+        }}
+        className="absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center bg-transparent hover:bg-white/10 transition-colors"
+        aria-label="Apri dettagli"
+      >
+        <Maximize2 className="h-6 w-6 text-white" />
+      </button>
     </div>
   );
 }
