@@ -173,11 +173,7 @@ function TalentTile({ row, token, selectable, selected, showStatus, onToggle, on
           }}
           className="shrink-0 text-white/40 hover:text-white/80 transition-colors"
         >
-          {dl.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
+          <Maximize2 className="h-4 w-4" />
         </button>
       </div>
     </div>
