@@ -94,7 +94,12 @@ export default {
   				'Segoe UI Symbol',
   				'Noto Color Emoji'
   			],
-  			serif: [
+			display: [
+				'Tenor Sans',
+				'ui-serif',
+				'Georgia',
+				'serif'
+			],
   				'ui-serif',
   				'Georgia',
   				'Cambria',
