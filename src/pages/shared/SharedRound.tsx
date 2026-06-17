@@ -468,19 +468,45 @@ export default function SharedRound() {
   const agencyLabel = branding?.agency_name || "dotCasting";
   const detailsRow = detailsId ? talents.find((t) => t.role_talent_id === detailsId) ?? null : null;
 
+  const downloadAll = async () => {
+    const items = talents.filter((t) => t.pdf_path);
+    if (items.length === 0) {
+      toast.error("Nessun PDF disponibile");
+      return;
+    }
+    for (const t of items) {
+      try {
+        const { data: res, error } = await supabase.functions.invoke("get-round-pdf-url", {
+          body: { token: token!, roleTalentId: t.role_talent_id },
+        });
+        if (error || !res?.url) continue;
+        window.open(res.url as string, "_blank", "noopener");
+        await new Promise((r) => setTimeout(r, 400));
+      } catch {
+        // skip
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0F0F0F] font-dm text-[#F5F0E8] p-4 md:p-8 pb-32">
       <div className="max-w-6xl mx-auto">
-        <header className="text-center mb-10 md:mb-12">
-          <div className="flex justify-center mb-6 opacity-90">
+        <header className="text-center mb-8 md:mb-10">
+          <div className="flex justify-center mb-8 opacity-90">
             <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
           </div>
-          <h1 className="font-tenor text-xl md:text-3xl uppercase tracking-widest mb-2 leading-tight">
-            {casting?.title}
-            {role?.name ? ` — ${role.name}` : ""}
-          </h1>
+          {casting?.title && (
+            <p className="font-dm text-[11px] uppercase tracking-widest opacity-50 mb-4">
+              / {casting.title}
+            </p>
+          )}
+          {role?.name && (
+            <h1 className="font-tenor text-5xl md:text-6xl uppercase tracking-wider leading-[1.05] mb-4">
+              {role.name}
+            </h1>
+          )}
           {round.label && (
-            <p className="text-[11px] uppercase tracking-widest opacity-60">{round.label}</p>
+            <p className="text-xs uppercase tracking-widest opacity-50">{round.label}</p>
           )}
         </header>
 
@@ -490,10 +516,24 @@ export default function SharedRound() {
           </div>
         )}
 
+        {talents.length > 0 && (
+          <div className="flex items-center justify-between mb-5 px-1">
+            <p className="text-sm opacity-60">{talents.length} profili</p>
+            <button
+              type="button"
+              onClick={downloadAll}
+              className="inline-flex items-center gap-2 border border-white/20 rounded-full text-sm px-5 py-2 bg-transparent text-[#F5F0E8] hover:bg-white/5 transition-colors"
+            >
+              Scarica tutti i pdf
+              <Download className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {talents.length === 0 ? (
           <p className="text-center font-dm text-white/60 py-16">Nessun talent in questo invio.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {talents.map((t) => (
               <TalentTile
                 key={t.role_talent_id}
@@ -516,30 +556,29 @@ export default function SharedRound() {
 
 
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-4 sm:px-6 py-3 sm:py-4 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.4)]">
-          <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 text-[#F5F0E8]">
-              <span className="flex h-3 w-3 relative shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#A30A2B]"></span>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+          <div className="flex items-center gap-3 bg-[#1A1A1A]/95 backdrop-blur-md border border-white/10 rounded-full pl-5 pr-2 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            <span className="flex h-2.5 w-2.5 relative shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A30A2B] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#A30A2B]"></span>
+            </span>
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap">
+              {selected.size}{" "}
+              <span className="font-normal opacity-60">
+                {selected.size === 1 ? "selezionato" : "selezionati"}
               </span>
-              <p className="text-xs sm:text-sm font-bold uppercase tracking-widest">
-                {selected.size}{" "}
-                <span className="font-normal opacity-60">
-                  {selected.size === 1 ? "selezionato" : "selezionati"}
-                </span>
-              </p>
-            </div>
+            </p>
             <Button
               onClick={() => setPwdOpen(true)}
-              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-6 sm:px-8 py-3 shadow-lg shadow-[#A30A2B]/30 h-auto"
+              className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold uppercase tracking-widest text-[10px] sm:text-xs px-5 sm:px-6 h-10"
             >
               <Check className="h-4 w-4 mr-2" />
-              Conferma selezione
+              Conferma
             </Button>
           </div>
         </div>
       )}
+
 
       <TalentDetailSheet
         row={detailsRow}
