@@ -53,9 +53,9 @@
     --muted: 40 15% 88%;
     --muted-foreground: 220 10% 45%;
 
-    /* Accent - Dark charcoal for contrast cards */
-    --accent: 347 88% 34%;
-    --accent-foreground: 40 25% 97%;
+    /* Accent - Warm sand, distinct from primary */
+    --accent: 35 35% 85%;
+    --accent-foreground: 220 15% 15%;
 
     /* Destructive */
     --destructive: 0 72% 51%;
