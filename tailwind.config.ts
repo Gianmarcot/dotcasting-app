@@ -100,6 +100,7 @@ export default {
 				'Georgia',
 				'serif'
 			],
+  			serif: [
   				'ui-serif',
   				'Georgia',
   				'Cambria',
