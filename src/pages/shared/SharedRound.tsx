@@ -159,8 +159,6 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
 >
   <Maximize2 className="h-6 w-6 text-white" />
 </button>
-      </div>
-    </div>
   );
 }
 
