@@ -467,7 +467,7 @@ export default function SharedRound() {
 
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-[#F5F0E8] p-4 md:p-8 pb-32">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-[1280px] mx-auto">
         {/* Header */}
         <header className="text-center mb-10 md:mb-12">
           <div className="flex justify-center mb-8 opacity-90">
