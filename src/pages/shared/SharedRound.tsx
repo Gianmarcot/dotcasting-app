@@ -141,12 +141,12 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
       </div>
 
       {/* Info */}
-      <div className="pt-3 pb-3 px-3 flex items-end justify-between gap-2">
+      <div className="p-6 flex items-end justify-between gap-2">
         <div className="min-w-0">
-          <p className="font-tenor uppercase text-sm tracking-wide text-[#F5F0E8] leading-tight truncate">
+          <p className="font-tenor uppercase text-[18px] tracking-wide text-[#F5F0E8] leading-tight truncate">
             {talent.nome}
           </p>
-          <p className="text-[11px] text-white/50 mt-0.5 truncate">
+          <p className="text-[12px] text-white/50 mt-0.5 truncate">
             {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
           </p>
         </div>
@@ -156,10 +156,10 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
             e.stopPropagation();
             onOpenDetails();
           }}
-          className="shrink-0 text-white/40 hover:text-white/70 transition-colors"
+          className="shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-transparent hover:bg-white/10 transition-colors"
           aria-label="Apri dettagli"
         >
-          <Maximize2 className="h-4 w-4" />
+          <Maximize2 className="h-6 w-6 text-white/40" />
         </button>
       </div>
     </div>
