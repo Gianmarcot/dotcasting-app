@@ -1,4 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/DMSans-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/DMSans-Bold.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Tenor Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/TenorSans-Regular.ttf") format("truetype");
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
