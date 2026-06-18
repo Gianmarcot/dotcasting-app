@@ -538,20 +538,24 @@ export default function SharedRound() {
 
       {/* Floating selection bar */}
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 bg-[#1A1A1A]/95 backdrop-blur-md rounded-full shadow-xl border border-white/10 px-5 py-3">
-          <div className="flex items-center gap-2 text-[#F5F0E8]">
-            <Check className="h-4 w-4 text-[#A30A2B]" strokeWidth={3} />
-            <span className="text-sm font-bold whitespace-nowrap">
-              {selected.size} <span className="font-normal opacity-60">di {talents.length} selezionati</span>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-6 bg-[#F5F0E8] rounded-full shadow-2xl pl-4 pr-2 py-2 w-[min(680px,calc(100vw-2rem))]">
+          <div className="flex items-center gap-3 text-[#1A1A1A] pl-2">
+            <div className="w-9 h-9 rounded-full bg-[#A30A2B] flex items-center justify-center shrink-0">
+              <Check className="h-4 w-4 text-white" strokeWidth={3} />
+            </div>
+            <span className="text-base whitespace-nowrap">
+              <span className="font-bold">{selected.size}</span>
+              <span className="opacity-70"> di {talents.length} selezionati</span>
             </span>
           </div>
           <Button
             onClick={() => setPwdOpen(true)}
-            className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white font-bold text-xs px-5 py-2 h-auto"
+            className="rounded-full bg-[#A30A2B] hover:bg-[#850822] text-white text-base px-7 h-12"
           >
             Prosegui →
           </Button>
         </div>
+
       )}
 
       <TalentDetailSheet
