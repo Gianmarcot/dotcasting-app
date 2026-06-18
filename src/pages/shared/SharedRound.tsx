@@ -476,11 +476,15 @@ export default function SharedRound() {
           <div className="flex justify-center mb-8 opacity-90">
             <img src={logoSrc} alt={agencyLabel} className="h-[38px] max-w-[140px] object-contain" />
           </div>
-          {casting?.title && <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>}
+          {casting?.title && (
+            <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>
+          )}
           <h1 className="font-tenor text-5xl md:text-6xl uppercase tracking-wider text-[#F5F0E8] leading-none mb-3">
             {role?.name}
           </h1>
-          {round.label && <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50">{round.label}</p>}
+          {round.label && (
+            <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50">{round.label}</p>
+          )}
         </header>
 
         {!isLatest && (
@@ -538,7 +542,7 @@ export default function SharedRound() {
 
       {/* Floating selection bar */}
       {selectable && talents.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-6 bg-[#F5F0E8] rounded-full shadow-2xl pl-8 pr-4 py-4 w-[min(680px,calc(100vw-2rem))] h-[80px]">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-6 bg-[#F5F0E8] rounded-full shadow-2xl pl-8 pr-4 py-4 w-[min(480px,calc(100vw-2rem))] h-[80px]">
           <div className="flex items-center gap-3 text-[#1A1A1A]">
             <div className="w-10 h-10 rounded-full bg-[#A30A2B] flex items-center justify-center shrink-0">
               <Check className="h-6 w-6 text-white" strokeWidth={3} />
@@ -555,7 +559,6 @@ export default function SharedRound() {
             Prosegui →
           </Button>
         </div>
-
       )}
 
       <TalentDetailSheet
