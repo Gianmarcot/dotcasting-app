@@ -11,8 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
+import { MOCK_SHARED_ROUND } from "./sharedRoundMock";
 
 const logo = logoWhite;
+const PREVIEW_TOKEN = "preview";
 
 type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
 
@@ -372,6 +374,7 @@ export default function SharedRound() {
     queryKey: ["shared-round", token],
     enabled: !!token,
     queryFn: async (): Promise<SharedRoundPayload> => {
+      if (token === PREVIEW_TOKEN) return MOCK_SHARED_ROUND as unknown as SharedRoundPayload;
       const { data, error } = await supabase.rpc("get_shared_round", { p_token: token! });
       if (error) throw error;
       return (data ?? {}) as SharedRoundPayload;

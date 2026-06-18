@@ -93,7 +93,7 @@ export const MOCK_SHARED_ROUND = {
   round: {
     id: "mock-round",
     label: "Selezione 1",
-    field_preset: "default" as RoundPreset,
+    field_preset: "default" as unknown as RoundPreset,
     shared_at: new Date().toISOString(),
   },
   casting: { title: "Campagna Primavera 2026" },
