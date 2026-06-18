@@ -94,7 +94,7 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
       className={`group relative bg-[#1A1A1A] rounded-2xl transition-all ${
         selectable ? "cursor-pointer" : ""
       } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"}`}
-      onClick={onOpenDetails}
+      onClick={selectable ? onToggle : undefined}
     >
       {selectable && (
         <div
