@@ -529,7 +529,7 @@ export default function SharedRound() {
           </>
         )}
 
-        <footer className="pt-12 pb-16 text-center text-xs text-white/40 uppercase tracking-widest">
+        <footer className="pt-12 pb-32 text-center text-s text-white/50 tracking-wide">
           {branding?.contact_email || "info@dotcgroup.com"}
         </footer>
       </div>
