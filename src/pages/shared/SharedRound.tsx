@@ -482,14 +482,17 @@ export default function SharedRound() {
         </header>
 
         {selectable && (
-          <div className="flex items-center justify-center gap-6 mb-10 text-white/40 text-xs">
+          <div
+            className="flex items-center justify-center gap-6 mb-10 text-[14px]"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+          >
             <span className="flex items-center gap-1.5">
-              <span className="w-4 h-4 rounded-full border border-white/40 inline-flex items-center justify-center shrink-0">
+              <span className="w-4 h-4 rounded-full border border-white/60 inline-flex items-center justify-center shrink-0">
                 <Check className="h-2.5 w-2.5" strokeWidth={3} />
               </span>
               Seleziona i talent e invia la tua scelta
             </span>
-            <span className="text-white/20">·</span>
+            <span className="w-px h-4 bg-white/20" />
             <span className="flex items-center gap-1.5">
               <Maximize2 className="h-3.5 w-3.5 shrink-0" />
               Clicca per vedere tutti i dettagli
