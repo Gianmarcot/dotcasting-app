@@ -472,9 +472,9 @@ export default function SharedRound() {
     <div className="min-h-screen bg-[#0F0F0F] text-[#F5F0E8] p-4 md:p-8 pb-32">
       <div className="max-w-[1280px] mx-auto">
         {/* Header */}
-        <header className="text-center mb-10 md:mb-12">
+        <header className="text-center mb-20 md:mb-12">
           <div className="flex justify-center mb-8 opacity-90">
-            <img src={logoSrc} alt={agencyLabel} className="h-[38px] max-w-[140px] object-contain" />
+            <img src={logoSrc} alt={agencyLabel} className="h-[64px] max-w-[140px] object-contain" />
           </div>
           {casting?.title && (
             <p className="font-display text-[20px] uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>
