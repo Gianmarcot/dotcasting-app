@@ -481,6 +481,22 @@ export default function SharedRound() {
           {round.label && <p className="font-display text-[20px] uppercase text-white/50">{round.label}</p>}
         </header>
 
+        {selectable && (
+          <div className="flex items-center justify-center gap-6 mb-10 text-white/40 text-xs">
+            <span className="flex items-center gap-1.5">
+              <span className="w-4 h-4 rounded-full border border-white/40 inline-flex items-center justify-center shrink-0">
+                <Check className="h-2.5 w-2.5" strokeWidth={3} />
+              </span>
+              Seleziona i talent e invia la tua scelta
+            </span>
+            <span className="text-white/20">·</span>
+            <span className="flex items-center gap-1.5">
+              <Maximize2 className="h-3.5 w-3.5 shrink-0" />
+              Clicca per vedere tutti i dettagli
+            </span>
+          </div>
+        )}
+
         {!isLatest && (
           <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl p-5 text-center text-sm text-white/60 border border-white/5">
             Selezione chiusa — questo invio è stato superato da uno più recente.
