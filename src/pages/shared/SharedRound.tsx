@@ -544,8 +544,8 @@ export default function SharedRound() {
       {selectable && talents.length > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center justify-between gap-6 bg-[#F5F0E8] rounded-full shadow-2xl pl-8 pr-4 py-4 w-[min(480px,calc(100vw-2rem))] h-[80px]">
           <div className="flex items-center gap-3 text-[#1A1A1A]">
-            <div className="w-10 h-10 rounded-full bg-[#A30A2B] flex items-center justify-center shrink-0">
-              <Check className="h-6 w-6 text-white" strokeWidth={3} />
+            <div className="w-6 h-6 rounded-full bg-[#A30A2B] flex items-center justify-center shrink-0">
+              <Check className="h-4 w-4 text-white" strokeWidth={3} />
             </div>
             <span className="text-base whitespace-nowrap">
               <span className="font-bold">{selected.size}</span>
