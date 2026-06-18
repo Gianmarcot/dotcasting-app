@@ -474,13 +474,13 @@ export default function SharedRound() {
         {/* Header */}
         <header className="text-center mb-10 md:mb-12">
           <div className="flex justify-center mb-8 opacity-90">
-            <img src={logoSrc} alt={agencyLabel} className="h-8 max-w-[140px] object-contain" />
+            <img src={logoSrc} alt={agencyLabel} className="h-[38px] max-w-[140px] object-contain" />
           </div>
-          {casting?.title && <p className="text-xs uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>}
+          {casting?.title && <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50 mb-3">/ {casting.title}</p>}
           <h1 className="font-tenor text-5xl md:text-6xl uppercase tracking-wider text-[#F5F0E8] leading-none mb-3">
             {role?.name}
           </h1>
-          {round.label && <p className="text-xs uppercase tracking-widest text-white/50">{round.label}</p>}
+          {round.label && <p className="font-tenor text-[20px] uppercase tracking-widest text-white/50">{round.label}</p>}
         </header>
 
         {!isLatest && (
