@@ -7,6 +7,7 @@ import {
   MessageSquare, 
   Building2, 
   Settings,
+  Bell,
   LogOut 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import logoWhite from "@/assets/logo-white.png";
 
 const allNavItems = [
