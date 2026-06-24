@@ -42,6 +42,8 @@ import OwnerMessages from "./pages/owner/OwnerMessages";
 import OwnerCompanies from "./pages/owner/OwnerCompanies";
 import OwnerCompanyDetail from "./pages/owner/OwnerCompanyDetail";
 import OwnerSettings from "./pages/owner/OwnerSettings";
+import OwnerNotifications from "./pages/owner/OwnerNotifications";
+import OwnerNotificationDetail from "./pages/owner/OwnerNotificationDetail";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +110,8 @@ const App = () => (
               <Route path="messages" element={<OwnerMessages />} />
               <Route path="companies" element={<OwnerCompanies />} />
               <Route path="companies/:companyId" element={<OwnerCompanyDetail />} />
+              <Route path="notifications" element={<OwnerNotifications />} />
+              <Route path="notifications/:notificationId" element={<OwnerNotificationDetail />} />
               <Route path="settings" element={<OwnerSettings />} />
             </Route>
 

@@ -1,31 +1,40 @@
-# Dark theme — Pagina cliente (SharedRound)
+## Obiettivo
 
-Adatto solo i colori della pagina `/shared/round/...` (e della modale Dettagli) mantenendo identica la struttura, i componenti, gli spazi e i comportamenti attuali.
+Spostare le notifiche dalla parte alta della sidebar Owner alla zona in basso (vicino a Impostazioni) e trasformarle da popup in una pagina dedicata con lista cronologica e dettaglio della singola notifica.
 
-## Mappa colori
+## Modifiche
 
-| Elemento | Attuale | Nuovo (dark) |
-|---|---|---|
-| Sfondo pagina | `#F5F0E8` (cream) | `#0F0F0F` |
-| Superfici card | `bg-white` | `#1A1A1A` |
-| Testo principale | `#333333` | `#F5F0E8` |
-| Testo secondario / muted | `#666` | `white/60` |
-| Divider / bordi sottili | `border-black/10` | `border-white/10` |
-| Bordeaux brand (accento, CTA, "Selezionato") | `#A30A2B` | invariato |
-| Status verde / giallo / rosso | invariati | invariati (su fondo scuro restano leggibili) |
-| Modale Dettagli | fondo bianco | fondo `#1A1A1A`, testi chiari |
-| Header / logo | logo scuro | uso `logo-white.png` |
-| Schermata "Link non disponibile" e prompt password | cream + scuro | scuro + chiaro |
+### 1. Nuova rotta `/owner/notifications`
+- Aggiungere in `src/App.tsx` la rotta `notifications` dentro il blocco `/owner` (protetta, dentro `OwnerLayout`).
+- Aggiungere anche `notifications/:notificationId` per il dettaglio.
 
-Il bordeaux `#A30A2B` resta l'unico accento brand; nessun nuovo colore introdotto.
+### 2. Nuova pagina `src/pages/owner/OwnerNotifications.tsx`
+- Lista cronologica (più recenti in alto) di tutte le notifiche dell'utente, usando `useNotifications()` esistente (nessuna modifica al data layer).
+- Layout in stile editoriale coerente col resto del backoffice: titolo "Notifiche", contatore non lette, pulsante "Segna tutte come lette".
+- Raggruppamento per data (Oggi / Ieri / Questa settimana / Più vecchie).
+- Ogni riga: icona tipo, titolo, descrizione, timestamp relativo, dot "non letta". Click sulla riga → naviga a `/owner/notifications/:id` e marca come letta.
+- Stato vuoto e stato loading (skeleton).
 
-## File toccati
+### 3. Nuova pagina dettaglio `src/pages/owner/OwnerNotificationDetail.tsx`
+- Mostra una singola notifica: icona + titolo grande, timestamp completo (data/ora), tipo, descrizione/payload formattato in modo leggibile (chiave/valore per i campi noti del `payload_json`).
+- Pulsante "Indietro" verso `/owner/notifications`.
+- Se la notifica ha un riferimento azionabile nel payload (es. `casting_id`, `thread_id`), mostrare un pulsante CTA che porta alla risorsa relativa. Solo se il payload lo contiene — nessuna logica nuova lato dati.
+- Marca automaticamente come letta all'apertura.
 
-- `src/pages/shared/SharedRound.tsx` — sostituzione classi colore (sfondo, card, testi, pill, divider) + swap logo.
-- Eventuali sotto-componenti usati solo in questa pagina: stessa sostituzione di token colore.
+### 4. Sidebar Owner (`src/components/layout/OwnerSidebar.tsx`)
+- Rimuovere `<NotificationBell />` dall'header in alto.
+- Nel blocco footer (sotto il divider, sopra Impostazioni) aggiungere una voce di navigazione "Notifiche" con icona `Bell`, link a `/owner/notifications`, con badge contatore non lette accanto al label (riusando `useUnreadNotificationsCount`).
+- Stessa stilistica di "Impostazioni" (active/inactive).
 
-## Fuori scope
+### 5. Mobile (solo se rilevante)
+- `MobileHeader` / `MobileBottomNavOwner`: se mostrano la bell come popover, sostituire con link alla pagina `/owner/notifications`. Da verificare in build mode e adeguare in modo minimale.
 
-- Nessuna modifica a layout, griglia, card structure, modale, copy, comportamenti, drawer mobile.
-- Nessuna modifica a `index.css`, tailwind config o ad altre pagine (admin / talent restano com'erano).
-- Nessun toggle light/dark: la pagina cliente diventa dark in modo fisso.
+## Cosa NON cambia
+- `useNotifications`, `useMarkNotificationAsRead`, `useMarkAllNotificationsAsRead`: invariati.
+- Componente `NotificationBell` resta nel codebase ma non più montato nella sidebar Owner (può essere rimosso in seguito se non più usato altrove).
+- Nessuna modifica DB, RLS, edge functions, i18n core.
+- Lato Talent: nessuna modifica (richiesta riguarda backoffice Owner).
+
+## Dettagli tecnici
+- Titoli/descrizioni notifica: riusare le funzioni `getNotificationTitle` / `getNotificationDescription` estraendole da `NotificationBell.tsx` in un piccolo helper `src/lib/notifications.ts` per condividerle tra lista e dettaglio.
+- Stile coerente con `.dc-card`, Tenor Sans per heading, DM Sans body, palette esistente.
