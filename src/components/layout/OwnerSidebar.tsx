@@ -32,6 +32,7 @@ const navItems = allNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[i
 export const OwnerSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const unreadCount = useUnreadNotificationsCount();
 
   const handleLogout = async () => {
     await signOut();
@@ -45,7 +46,6 @@ export const OwnerSidebar = () => {
           <img src={logoWhite} alt="dotCasting" className="h-7" />
           <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Admin</span>
         </Link>
-        <NotificationBell />
       </div>
 
       {/* Navigation */}
@@ -84,6 +84,23 @@ export const OwnerSidebar = () => {
             </p>
           </div>
         </div>
+
+        <Link
+          to="/owner/notifications"
+          className={
+            location.pathname.startsWith("/owner/notifications")
+              ? "dc-sidebar-admin-nav-item-active"
+              : "dc-sidebar-admin-nav-item-inactive"
+          }
+        >
+          <Bell className="h-4 w-4" />
+          <span className="flex-1">Notifiche</span>
+          {unreadCount > 0 && (
+            <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </Link>
 
         <Link
           to="/owner/settings"
