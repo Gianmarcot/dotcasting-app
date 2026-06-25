@@ -261,6 +261,20 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
         }),
       );
 
+      (selectionsRes.data || []).forEach((n: any) => {
+        const p = n.payload_json || {};
+        const role = p.role_name || "Ruolo";
+        const confirmed = p.confirmed ?? 0;
+        const total = p.total ?? 0;
+        items.push({
+          id: `sel-${n.id}`,
+          type: "round_selection_confirmed",
+          title: "Selezione confermata",
+          description: `${role} · ${confirmed} di ${total} talent approvati`,
+          timestamp: n.sent_at,
+        });
+      });
+
       return items
         .filter((i) => i.timestamp)
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
