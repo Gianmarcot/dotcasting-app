@@ -189,7 +189,7 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
     queryFn: async (): Promise<OwnerActivityItem[]> => {
       const items: OwnerActivityItem[] = [];
 
-      const [castingsRes, invitationsRes, roundsRes] = await Promise.all([
+      const [castingsRes, invitationsRes, roundsRes, selectionsRes] = await Promise.all([
         supabase
           .from("castings")
           .select("id, title, created_at")
@@ -208,6 +208,12 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
           .eq("status", "shared")
           .not("shared_at", "is", null)
           .order("shared_at", { ascending: false })
+          .limit(limit),
+        supabase
+          .from("notifications")
+          .select("id, payload_json, sent_at")
+          .eq("type", "round_selection_confirmed")
+          .order("sent_at", { ascending: false })
           .limit(limit),
       ]);
 
