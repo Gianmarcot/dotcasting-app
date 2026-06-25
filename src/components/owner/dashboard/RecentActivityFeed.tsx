@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Film, UserCheck, UserX, Share2 } from "lucide-react";
+import { Clock, Film, UserCheck, UserX, Share2, CheckCircle2 } from "lucide-react";
 import { useOwnerRecentActivity, OwnerActivityItem } from "@/hooks/useOwnerDashboard";
 
 const formatDate = (dateStr: string) => {
