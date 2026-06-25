@@ -173,7 +173,7 @@ export const useActiveCastingsWithProgress = () => {
 };
 
 // ---------- Recent activity (no applications) ----------
-export type OwnerActivityType = "casting_created" | "invitation_response" | "round_shared";
+export type OwnerActivityType = "casting_created" | "invitation_response" | "round_shared" | "round_selection_confirmed";
 
 export interface OwnerActivityItem {
   id: string;
@@ -189,7 +189,7 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
     queryFn: async (): Promise<OwnerActivityItem[]> => {
       const items: OwnerActivityItem[] = [];
 
-      const [castingsRes, invitationsRes, roundsRes] = await Promise.all([
+      const [castingsRes, invitationsRes, roundsRes, selectionsRes] = await Promise.all([
         supabase
           .from("castings")
           .select("id, title, created_at")
@@ -208,6 +208,12 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
           .eq("status", "shared")
           .not("shared_at", "is", null)
           .order("shared_at", { ascending: false })
+          .limit(limit),
+        supabase
+          .from("notifications")
+          .select("id, payload_json, sent_at")
+          .eq("type", "round_selection_confirmed")
+          .order("sent_at", { ascending: false })
           .limit(limit),
       ]);
 
@@ -254,6 +260,20 @@ export const useOwnerRecentActivity = (limit: number = 10) => {
           timestamp: r.shared_at,
         }),
       );
+
+      (selectionsRes.data || []).forEach((n: any) => {
+        const p = n.payload_json || {};
+        const role = p.role_name || "Ruolo";
+        const confirmed = p.confirmed ?? 0;
+        const total = p.total ?? 0;
+        items.push({
+          id: `sel-${n.id}`,
+          type: "round_selection_confirmed",
+          title: "Selezione confermata",
+          description: `${role} · ${confirmed} di ${total} talent approvati`,
+          timestamp: n.sent_at,
+        });
+      });
 
       return items
         .filter((i) => i.timestamp)

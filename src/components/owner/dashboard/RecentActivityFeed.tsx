@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Film, UserCheck, UserX, Share2 } from "lucide-react";
+import { Clock, Film, UserCheck, UserX, Share2, CheckCircle2 } from "lucide-react";
 import { useOwnerRecentActivity, OwnerActivityItem } from "@/hooks/useOwnerDashboard";
 
 const formatDate = (dateStr: string) => {
@@ -19,6 +19,7 @@ const formatDate = (dateStr: string) => {
 const renderIcon = (item: OwnerActivityItem) => {
   if (item.type === "casting_created") return <Film className="h-4 w-4" />;
   if (item.type === "round_shared") return <Share2 className="h-4 w-4" />;
+  if (item.type === "round_selection_confirmed") return <CheckCircle2 className="h-4 w-4" />;
   if (item.type === "invitation_response") {
     return item.title.includes("accettato") ? (
       <UserCheck className="h-4 w-4" />
