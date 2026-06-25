@@ -1,40 +1,70 @@
 ## Obiettivo
+Quando il cliente conferma la selezione su `/round/:token`, l'owner riceve una notifica visibile nel feed "Attività recente" della dashboard.
 
-Spostare le notifiche dalla parte alta della sidebar Owner alla zona in basso (vicino a Impostazioni) e trasformarle da popup in una pagina dedicata con lista cronologica e dettaglio della singola notifica.
+## 1. Migration: aggiornare `confirm_round_selection`
 
-## Modifiche
+Estendere la funzione RPC esistente (mantenendo la logica attuale di validazione token, password, update `role_talents`) aggiungendo, prima del `return`:
 
-### 1. Nuova rotta `/owner/notifications`
-- Aggiungere in `src/App.tsx` la rotta `notifications` dentro il blocco `/owner` (protetta, dentro `OwnerLayout`).
-- Aggiungere anche `notifications/:notificationId` per il dettaglio.
+- Recuperare `role.name`, `casting.title`, `casting.id`, e il totale talent del round (count su `casting_round_talents`).
+- Inserire una riga in `public.notifications` per ogni utente staff (owner + admin) tramite:
+  ```sql
+  INSERT INTO public.notifications (user_id, type, payload_json)
+  SELECT ur.user_id,
+         'round_selection_confirmed',
+         jsonb_build_object(
+           'round_id', v_round.id,
+           'casting_id', v_casting.id,
+           'casting_title', v_casting.title,
+           'role_name', v_role.name,
+           'confirmed', v_confirmed,
+           'total', v_total
+         )
+  FROM public.user_roles ur
+  WHERE ur.role IN ('owner','admin');
+  ```
+- La funzione resta `SECURITY DEFINER` quindi l'insert funziona anche senza utente autenticato.
+- Nessuna modifica a RLS o GRANT (tabella e policy già esistenti).
 
-### 2. Nuova pagina `src/pages/owner/OwnerNotifications.tsx`
-- Lista cronologica (più recenti in alto) di tutte le notifiche dell'utente, usando `useNotifications()` esistente (nessuna modifica al data layer).
-- Layout in stile editoriale coerente col resto del backoffice: titolo "Notifiche", contatore non lette, pulsante "Segna tutte come lette".
-- Raggruppamento per data (Oggi / Ieri / Questa settimana / Più vecchie).
-- Ogni riga: icona tipo, titolo, descrizione, timestamp relativo, dot "non letta". Click sulla riga → naviga a `/owner/notifications/:id` e marca come letta.
-- Stato vuoto e stato loading (skeleton).
+## 2. Hook `useOwnerRecentActivity`
 
-### 3. Nuova pagina dettaglio `src/pages/owner/OwnerNotificationDetail.tsx`
-- Mostra una singola notifica: icona + titolo grande, timestamp completo (data/ora), tipo, descrizione/payload formattato in modo leggibile (chiave/valore per i campi noti del `payload_json`).
-- Pulsante "Indietro" verso `/owner/notifications`.
-- Se la notifica ha un riferimento azionabile nel payload (es. `casting_id`, `thread_id`), mostrare un pulsante CTA che porta alla risorsa relativa. Solo se il payload lo contiene — nessuna logica nuova lato dati.
-- Marca automaticamente come letta all'apertura.
+In `src/hooks/useOwnerDashboard.ts`:
 
-### 4. Sidebar Owner (`src/components/layout/OwnerSidebar.tsx`)
-- Rimuovere `<NotificationBell />` dall'header in alto.
-- Nel blocco footer (sotto il divider, sopra Impostazioni) aggiungere una voce di navigazione "Notifiche" con icona `Bell`, link a `/owner/notifications`, con badge contatore non lette accanto al label (riusando `useUnreadNotificationsCount`).
-- Stessa stilistica di "Impostazioni" (active/inactive).
+- Aggiungere `"round_selection_confirmed"` al tipo `OwnerActivityType`.
+- Aggiungere una quarta query in `Promise.all` che legge da `notifications`:
+  ```ts
+  supabase
+    .from("notifications")
+    .select("id, payload_json, sent_at")
+    .eq("type", "round_selection_confirmed")
+    .order("sent_at", { ascending: false })
+    .limit(limit)
+  ```
+  Nota: la tabella è filtrata da RLS per `user_id = auth.uid()`, quindi ogni staff vede solo le proprie righe (corretto: la migration inserisce una riga per ciascuno).
+- Mappare i risultati in `OwnerActivityItem`:
+  - `id`: `sel-${n.id}`
+  - `type`: `"round_selection_confirmed"`
+  - `title`: `"Selezione confermata"`
+  - `description`: `` `${payload.role_name} · ${payload.confirmed} di ${payload.total} talent approvati` ``
+  - `timestamp`: `n.sent_at`
+- I nuovi item entrano nello stesso `items[]` e vengono ordinati cronologicamente con il sort esistente. Logica precedente invariata.
 
-### 5. Mobile (solo se rilevante)
-- `MobileHeader` / `MobileBottomNavOwner`: se mostrano la bell come popover, sostituire con link alla pagina `/owner/notifications`. Da verificare in build mode e adeguare in modo minimale.
+## 3. Componente `RecentActivityFeed`
 
-## Cosa NON cambia
-- `useNotifications`, `useMarkNotificationAsRead`, `useMarkAllNotificationsAsRead`: invariati.
-- Componente `NotificationBell` resta nel codebase ma non più montato nella sidebar Owner (può essere rimosso in seguito se non più usato altrove).
-- Nessuna modifica DB, RLS, edge functions, i18n core.
-- Lato Talent: nessuna modifica (richiesta riguarda backoffice Owner).
+In `src/components/owner/dashboard/RecentActivityFeed.tsx`:
 
-## Dettagli tecnici
-- Titoli/descrizioni notifica: riusare le funzioni `getNotificationTitle` / `getNotificationDescription` estraendole da `NotificationBell.tsx` in un piccolo helper `src/lib/notifications.ts` per condividerle tra lista e dettaglio.
-- Stile coerente con `.dc-card`, Tenor Sans per heading, DM Sans body, palette esistente.
+- Importare un'icona adatta da `lucide-react` (es. `CheckCircle2`).
+- In `renderIcon`, aggiungere il branch:
+  ```ts
+  if (item.type === "round_selection_confirmed") return <CheckCircle2 className="h-4 w-4" />;
+  ```
+- Nessun altro cambiamento (titolo e descrizione arrivano già dall'hook).
+
+## File toccati
+- Migration SQL (CREATE OR REPLACE FUNCTION `confirm_round_selection`)
+- `src/hooks/useOwnerDashboard.ts`
+- `src/components/owner/dashboard/RecentActivityFeed.tsx`
+
+## Fuori scope
+- Nessuna modifica alla pagina pubblica `SharedRound.tsx`.
+- Nessuna modifica alla logica esistente del feed o alle altre query.
+- Nessuna modifica alla pagina/route `/owner/notifications` (la notifica vi comparirà automaticamente, ma non è richiesto adattamento UI specifico).
