@@ -173,7 +173,7 @@ export const useActiveCastingsWithProgress = () => {
 };
 
 // ---------- Recent activity (no applications) ----------
-export type OwnerActivityType = "casting_created" | "invitation_response" | "round_shared";
+export type OwnerActivityType = "casting_created" | "invitation_response" | "round_shared" | "round_selection_confirmed";
 
 export interface OwnerActivityItem {
   id: string;
