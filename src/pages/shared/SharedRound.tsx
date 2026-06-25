@@ -88,7 +88,6 @@ interface TalentTileProps {
 function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDetails }: TalentTileProps) {
   const talent = buildTalent(row);
   const photo = talent.photos?.[0];
-  const hoverPhoto = talent.photos?.[1];
 
   return (
     <div
@@ -125,26 +124,14 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
       )}
 
       <div className="px-12 pt-12 pb-0">
-        <div className="relative overflow-hidden aspect-[5/7]">
+        <div className="overflow-hidden aspect-[5/7]">
           {photo ? (
-            <>
-              <img
-                src={photo}
-                alt={talent.nome}
-                loading="lazy"
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
-                  hoverPhoto ? "group-hover:opacity-0" : ""
-                }`}
-              />
-              {hoverPhoto && (
-                <img
-                  src={hoverPhoto}
-                  alt={talent.nome}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                />
-              )}
-            </>
+            <img
+              src={photo}
+              alt={talent.nome}
+              loading="lazy"
+              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white/20 bg-[#0F0F0F]">
               <ImageOff className="h-6 w-6" />
@@ -152,7 +139,6 @@ function TalentTile({ row, selectable, selected, showStatus, onToggle, onOpenDet
           )}
         </div>
       </div>
-
 
       <div className="p-6">
         <p className="font-display uppercase text-[18px] tracking-wide text-[#F5F0E8] leading-tight truncate">
