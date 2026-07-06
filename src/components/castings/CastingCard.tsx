@@ -14,6 +14,7 @@ import { it } from "@/lib/i18n";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import type { CastingWithRelations } from "@/hooks/useCastings";
+import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
