@@ -137,6 +137,29 @@ export const useDeleteCasting = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-castings"] });
+    },
+  });
+};
+
+export const useToggleCastingFavorite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, is_favorite }: { id: string; is_favorite: boolean }) => {
+      const { data, error } = await supabase
+        .from("castings")
+        .update({ is_favorite })
+        .eq("id", id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["favorite-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail", variables.id] });
     },
   });
 };
