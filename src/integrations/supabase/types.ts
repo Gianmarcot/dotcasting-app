@@ -480,6 +480,7 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          is_favorite: boolean
           locations: string[] | null
           start_date: string | null
           status: string | null
@@ -499,6 +500,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          is_favorite?: boolean
           locations?: string[] | null
           start_date?: string | null
           status?: string | null
@@ -518,6 +520,7 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          is_favorite?: boolean
           locations?: string[] | null
           start_date?: string | null
           status?: string | null
