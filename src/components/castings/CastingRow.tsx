@@ -93,6 +93,12 @@ export const CastingRow = ({
       }}
       className="group flex items-center gap-3 px-4 py-3 hover:bg-muted/40 cursor-pointer transition-colors"
     >
+      <FavoriteCastingStar
+        castingId={casting.id}
+        isFavorite={Boolean((casting as any).is_favorite)}
+        size={16}
+      />
+
       {/* Status dot */}
       <TooltipProvider delayDuration={200}>
         <Tooltip>
