@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -8,7 +9,10 @@ import {
   Building2, 
   Settings,
   Bell,
-  LogOut 
+  LogOut,
+  Star,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -16,6 +20,7 @@ import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
+import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
 import logoWhite from "@/assets/logo-white.png";
 
 const allNavItems = [
