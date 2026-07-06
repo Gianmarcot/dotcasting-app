@@ -74,6 +74,11 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <FavoriteCastingStar
+                castingId={casting.id}
+                isFavorite={Boolean((casting as any).is_favorite)}
+              />
               <h3 className="text-foreground text-lg font-medium">
                 {casting.title}
               </h3>
