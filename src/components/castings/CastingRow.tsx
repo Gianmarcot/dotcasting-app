@@ -26,6 +26,7 @@ import { it } from "@/lib/i18n";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import type { CastingWithRelations } from "@/hooks/useCastings";
+import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 import { cn } from "@/lib/utils";
 
 const statusDot: Record<string, string> = {
