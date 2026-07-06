@@ -72,6 +72,8 @@ export const OwnerSidebar = () => {
             );
           })}
         </ul>
+
+        <FavoritesSection />
       </nav>
 
       {/* User section */}
