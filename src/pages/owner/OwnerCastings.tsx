@@ -21,16 +21,22 @@ import {
 } from "@/hooks/useCastings";
 
 export const OwnerCastings = () => {
+  const [searchParams] = useSearchParams();
+  const favoritesOnly = searchParams.get("favorites") === "1";
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchFilter, setSearchFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCasting, setSelectedCasting] = useState<CastingWithRelations | null>(null);
 
-  const { data: castings, isLoading } = useCastings({
+  const { data: castingsRaw, isLoading } = useCastings({
     status: statusFilter,
     search: searchFilter,
   });
+
+  const castings = favoritesOnly
+    ? castingsRaw?.filter((c) => Boolean((c as any).is_favorite))
+    : castingsRaw;
 
   const createMutation = useCreateCasting();
   const updateMutation = useUpdateCasting();
