@@ -140,10 +140,12 @@ export const OwnerCastings = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl text-foreground">
-            {it.backoffice.castings}
+            {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Gestisci i casting della piattaforma
+            {favoritesOnly
+              ? "I casting che hai marcato con la stella"
+              : "Gestisci i casting della piattaforma"}
           </p>
         </div>
         <Button onClick={handleCreate}>
