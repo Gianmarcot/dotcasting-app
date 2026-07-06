@@ -19,6 +19,7 @@ import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
+import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
@@ -177,7 +178,12 @@ export const OwnerCastingDetail = () => {
 
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <FavoriteCastingStar
+                castingId={casting.id}
+                isFavorite={Boolean((casting as any).is_favorite)}
+                size={22}
+              />
               <h1 className="text-2xl text-foreground">{casting.title}</h1>
               <Badge className={statusColors[casting.status || "draft"]}>
                 {statusLabels[casting.status || "draft"]}

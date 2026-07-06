@@ -14,6 +14,7 @@ import { it } from "@/lib/i18n";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import type { CastingWithRelations } from "@/hooks/useCastings";
+import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
@@ -72,7 +73,11 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <FavoriteCastingStar
+                castingId={casting.id}
+                isFavorite={Boolean((casting as any).is_favorite)}
+              />
               <h3 className="text-foreground text-lg font-medium">
                 {casting.title}
               </h3>

@@ -1,70 +1,59 @@
+
 ## Obiettivo
-Quando il cliente conferma la selezione su `/round/:token`, l'owner riceve una notifica visibile nel feed "Attività recente" della dashboard.
+Permettere a owner/admin di marcare un casting come "preferito" (stella) e mostrare i preferiti in una sezione dedicata della sidebar sotto le voci principali.
 
-## 1. Migration: aggiornare `confirm_round_selection`
+## Ambito
+Preferiti **condivisi dal team**: la stella è un flag sul casting, visibile e modificabile da tutti gli staff.
 
-Estendere la funzione RPC esistente (mantenendo la logica attuale di validazione token, password, update `role_talents`) aggiungendo, prima del `return`:
+## 1. Database
+Nuova migrazione che aggiunge una colonna al casting:
 
-- Recuperare `role.name`, `casting.title`, `casting.id`, e il totale talent del round (count su `casting_round_talents`).
-- Inserire una riga in `public.notifications` per ogni utente staff (owner + admin) tramite:
-  ```sql
-  INSERT INTO public.notifications (user_id, type, payload_json)
-  SELECT ur.user_id,
-         'round_selection_confirmed',
-         jsonb_build_object(
-           'round_id', v_round.id,
-           'casting_id', v_casting.id,
-           'casting_title', v_casting.title,
-           'role_name', v_role.name,
-           'confirmed', v_confirmed,
-           'total', v_total
-         )
-  FROM public.user_roles ur
-  WHERE ur.role IN ('owner','admin');
-  ```
-- La funzione resta `SECURITY DEFINER` quindi l'insert funziona anche senza utente autenticato.
-- Nessuna modifica a RLS o GRANT (tabella e policy già esistenti).
+- `ALTER TABLE public.castings ADD COLUMN is_favorite boolean NOT NULL DEFAULT false;`
+- Indice parziale `CREATE INDEX ON public.castings (updated_at DESC) WHERE is_favorite;` per la lista sidebar.
 
-## 2. Hook `useOwnerRecentActivity`
+Nessuna nuova tabella, nessun cambio di RLS/GRANT (le policy esistenti su `castings` coprono già l'update da parte di owner/admin).
 
-In `src/hooks/useOwnerDashboard.ts`:
+## 2. Hook / dati
+- `src/hooks/useCastings.ts`: aggiungere `useToggleCastingFavorite({ id, is_favorite })` che fa `update({ is_favorite }).eq('id', id)` e invalida `owner-castings`, `favorite-castings`, `casting-detail`.
+- Nuovo hook `useFavoriteCastings()` in `src/hooks/useFavoriteCastings.ts`: `select id, title, status` da `castings` con `is_favorite = true`, ordinati per `updated_at desc`, limit 20. Query key `["favorite-castings"]`.
 
-- Aggiungere `"round_selection_confirmed"` al tipo `OwnerActivityType`.
-- Aggiungere una quarta query in `Promise.all` che legge da `notifications`:
-  ```ts
-  supabase
-    .from("notifications")
-    .select("id, payload_json, sent_at")
-    .eq("type", "round_selection_confirmed")
-    .order("sent_at", { ascending: false })
-    .limit(limit)
-  ```
-  Nota: la tabella è filtrata da RLS per `user_id = auth.uid()`, quindi ogni staff vede solo le proprie righe (corretto: la migration inserisce una riga per ciascuno).
-- Mappare i risultati in `OwnerActivityItem`:
-  - `id`: `sel-${n.id}`
-  - `type`: `"round_selection_confirmed"`
-  - `title`: `"Selezione confermata"`
-  - `description`: `` `${payload.role_name} · ${payload.confirmed} di ${payload.total} talent approvati` ``
-  - `timestamp`: `n.sent_at`
-- I nuovi item entrano nello stesso `items[]` e vengono ordinati cronologicamente con il sort esistente. Logica precedente invariata.
+## 3. UI stella su casting
+Aggiungere un pulsante stella (icona `Star` di lucide, filled quando attiva, colore bordeaux) che chiama `useToggleCastingFavorite`:
 
-## 3. Componente `RecentActivityFeed`
+- `src/components/castings/CastingCard.tsx` — angolo in alto a destra.
+- `src/components/castings/CastingRow.tsx` — prima cella o accanto al titolo.
+- `src/pages/owner/OwnerCastingDetail.tsx` — accanto al titolo H1, prima del badge di stato.
 
-In `src/components/owner/dashboard/RecentActivityFeed.tsx`:
+Click sulla stella: `stopPropagation` per non aprire il dettaglio, toast di conferma ("Aggiunto ai preferiti" / "Rimosso dai preferiti").
 
-- Importare un'icona adatta da `lucide-react` (es. `CheckCircle2`).
-- In `renderIcon`, aggiungere il branch:
-  ```ts
-  if (item.type === "round_selection_confirmed") return <CheckCircle2 className="h-4 w-4" />;
-  ```
-- Nessun altro cambiamento (titolo e descrizione arrivano già dall'hook).
+## 4. Filtro nella lista casting
+`src/pages/owner/OwnerCastings.tsx`: leggere `?favorites=1` dalla query string e, se presente, filtrare lato client (o estendere `CastingFilters` con `favoritesOnly` e applicarlo in `useCastings`). Aggiungere titolo dinamico "Casting preferiti" quando il filtro è attivo.
 
-## File toccati
-- Migration SQL (CREATE OR REPLACE FUNCTION `confirm_round_selection`)
-- `src/hooks/useOwnerDashboard.ts`
-- `src/components/owner/dashboard/RecentActivityFeed.tsx`
+## 5. Sidebar
+`src/components/layout/OwnerSidebar.tsx`: sotto la `<ul>` delle voci principali e prima del footer, aggiungere una nuova sezione:
 
-## Fuori scope
-- Nessuna modifica alla pagina pubblica `SharedRound.tsx`.
-- Nessuna modifica alla logica esistente del feed o alle altre query.
-- Nessuna modifica alla pagina/route `/owner/notifications` (la notifica vi comparirà automaticamente, ma non è richiesto adattamento UI specifico).
+```text
+──────────────
+★ Preferiti          [Vedi tutti →]
+  • Titolo casting 1
+  • Titolo casting 2
+  • Titolo casting 3
+  ...fino a 8
+```
+
+- Header "Preferiti" con icona `Star`, cliccabile → `/owner/castings?favorites=1`.
+- Sotto, lista dei primi 8 casting preferiti da `useFavoriteCastings()`; ogni voce è un `Link` a `/owner/castings/:id` con testo troncato.
+- Se lista vuota: piccolo testo muted "Nessun preferito".
+- Sezione collassabile (default aperta), stato locale nel componente.
+- Nascondere del tutto la sezione quando la sidebar è in stato collapsed (icon-only), in linea con il pattern esistente.
+
+## 6. Fuori scopo
+- Nessuna modifica alla pagina pubblica del round o al portale talent.
+- Nessuna notifica associata al preferito.
+- Nessun preferito per talent, aziende o applications.
+
+## Dettagli tecnici
+- Icona: `Star` da `lucide-react`, `fill="currentColor"` quando attiva, altrimenti solo stroke.
+- Colore attivo: `text-primary` (bordeaux del design system), non hardcoded.
+- Ordinamento sidebar: `updated_at desc` per riflettere le modifiche recenti in cima.
+- Nessuna paginazione: limit 20 in query, 8 mostrati in sidebar.

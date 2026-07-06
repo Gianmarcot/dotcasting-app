@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { it } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,16 +21,22 @@ import {
 } from "@/hooks/useCastings";
 
 export const OwnerCastings = () => {
+  const [searchParams] = useSearchParams();
+  const favoritesOnly = searchParams.get("favorites") === "1";
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchFilter, setSearchFilter] = useState("");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCasting, setSelectedCasting] = useState<CastingWithRelations | null>(null);
 
-  const { data: castings, isLoading } = useCastings({
+  const { data: castingsRaw, isLoading } = useCastings({
     status: statusFilter,
     search: searchFilter,
   });
+
+  const castings = favoritesOnly
+    ? castingsRaw?.filter((c) => Boolean((c as any).is_favorite))
+    : castingsRaw;
 
   const createMutation = useCreateCasting();
   const updateMutation = useUpdateCasting();
@@ -133,10 +140,12 @@ export const OwnerCastings = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl text-foreground">
-            {it.backoffice.castings}
+            {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Gestisci i casting della piattaforma
+            {favoritesOnly
+              ? "I casting che hai marcato con la stella"
+              : "Gestisci i casting della piattaforma"}
           </p>
         </div>
         <Button onClick={handleCreate}>

@@ -1,0 +1,2 @@
+ALTER TABLE public.castings ADD COLUMN IF NOT EXISTS is_favorite boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS castings_is_favorite_updated_at_idx ON public.castings (updated_at DESC) WHERE is_favorite;
