@@ -129,3 +129,73 @@ export const OwnerSidebar = () => {
     </aside>
   );
 };
+
+const FavoritesSection = () => {
+  const { pathname, search } = useLocation();
+  const [open, setOpen] = useState(true);
+  const { data: favorites = [], isLoading } = useFavoriteCastings();
+
+  const allHref = "/owner/castings?favorites=1";
+  const isAllActive = pathname === "/owner/castings" && search.includes("favorites=1");
+  const displayed = favorites.slice(0, 8);
+
+  return (
+    <div className="mt-6">
+      <div className="border-t border-white/10 mx-2 mb-3" />
+      <div className="flex items-center justify-between px-4 mb-1">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors"
+        >
+          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+          <Star className="h-3.5 w-3.5" />
+          Preferiti
+        </button>
+        {favorites.length > 0 && (
+          <Link
+            to={allHref}
+            className={cn(
+              "text-[10px] uppercase tracking-wider transition-colors",
+              isAllActive ? "text-primary" : "text-white/50 hover:text-white/80",
+            )}
+          >
+            Vedi tutti
+          </Link>
+        )}
+      </div>
+
+      {open && (
+        <ul className="space-y-0.5">
+          {isLoading ? (
+            <li className="px-4 py-2 text-xs text-white/40">Caricamento…</li>
+          ) : displayed.length === 0 ? (
+            <li className="px-4 py-2 text-xs text-white/40">Nessun preferito</li>
+          ) : (
+            displayed.map((c) => {
+              const href = `/owner/castings/${c.id}`;
+              const active = pathname === href || pathname.startsWith(href + "/");
+              return (
+                <li key={c.id}>
+                  <Link
+                    to={href}
+                    className={cn(
+                      "flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm transition-colors",
+                      active
+                        ? "bg-white/10 text-white"
+                        : "text-white/70 hover:bg-white/10 hover:text-white",
+                    )}
+                    title={c.title}
+                  >
+                    <Star className="h-3 w-3 shrink-0 text-primary" fill="currentColor" />
+                    <span className="truncate">{c.title}</span>
+                  </Link>
+                </li>
+              );
+            })
+          )}
+        </ul>
+      )}
+    </div>
+  );
+};
