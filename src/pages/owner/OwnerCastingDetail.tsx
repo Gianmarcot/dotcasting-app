@@ -19,6 +19,7 @@ import { useUpdateCasting } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
+import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
