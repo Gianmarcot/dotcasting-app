@@ -8,12 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   MoreVertical,
   Edit,
   Trash2,
@@ -31,8 +25,8 @@ import { cn } from "@/lib/utils";
 
 const statusDot: Record<string, string> = {
   active: "bg-[#729128]",
-  draft: "bg-muted-foreground/40",
-  closed: "bg-muted-foreground/70",
+  draft: "bg-muted-foreground/50",
+  closed: "bg-[#A30A2B]",
 };
 
 interface CastingRowProps {
@@ -42,6 +36,8 @@ interface CastingRowProps {
   onStatusChange: (id: string, status: string) => void;
 }
 
+const Empty = () => <span className="text-muted-foreground/70">–</span>;
+
 export const CastingRow = ({
   casting,
   onEdit,
@@ -49,7 +45,6 @@ export const CastingRow = ({
   onStatusChange,
 }: CastingRowProps) => {
   const navigate = useNavigate();
-  const applicationsCount = casting.applications?.[0]?.count ?? 0;
 
   const formatDates = () => {
     if (!casting.start_date && !casting.end_date) return null;
@@ -73,13 +68,13 @@ export const CastingRow = ({
     return actions;
   };
 
+  const statusKey = casting.status || "draft";
   const statusLabel =
-    it.casting[casting.status as keyof typeof it.casting] || casting.status || "—";
+    it.casting[statusKey as keyof typeof it.casting] || statusKey;
 
-  const company = casting.company?.name || "—";
-  const dates = formatDates();
+  const company = casting.company?.name;
   const location = casting.locations?.[0];
-  const secondary = dates || location || "—";
+  const dates = formatDates();
 
   const open = () => navigate(`/owner/castings/${casting.id}`);
 
@@ -91,7 +86,7 @@ export const CastingRow = ({
       onKeyDown={(e) => {
         if (e.key === "Enter") open();
       }}
-      className="group flex items-center gap-3 px-4 py-3 hover:bg-muted/40 cursor-pointer transition-colors"
+      className="group grid grid-cols-[32px_minmax(0,1fr)_140px_200px_180px_180px_40px] items-center gap-4 px-4 py-3 hover:bg-muted/40 cursor-pointer transition-colors text-sm"
     >
       <FavoriteCastingStar
         castingId={casting.id}
@@ -99,49 +94,37 @@ export const CastingRow = ({
         size={16}
       />
 
-      {/* Status dot */}
-      <TooltipProvider delayDuration={200}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full shrink-0",
-                statusDot[casting.status || "draft"]
-              )}
-              aria-label={statusLabel as string}
-            />
-          </TooltipTrigger>
-          <TooltipContent side="right">{statusLabel}</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <span className="font-semibold text-foreground truncate">
+        {casting.title}
+      </span>
 
-      {/* Title + meta */}
-      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-3">
-        <span className="text-foreground font-medium truncate">
-          {casting.title}
-        </span>
-        <span className="text-sm text-muted-foreground truncate">
-          {company} · {secondary}
-        </span>
-      </div>
+      <span className="flex items-center gap-2 min-w-0">
+        <span
+          className={cn("h-2 w-2 rounded-full shrink-0", statusDot[statusKey])}
+          aria-hidden
+        />
+        <span className="text-foreground truncate">{statusLabel}</span>
+      </span>
 
-      {/* Count */}
-      <div className="text-sm text-muted-foreground shrink-0 whitespace-nowrap">
-        {applicationsCount} candidature
-      </div>
+      <span className="truncate text-foreground">
+        {company || <Empty />}
+      </span>
 
-      {/* Kebab */}
+      <span className="truncate text-foreground">
+        {location || <Empty />}
+      </span>
+
+      <span className="truncate text-foreground">
+        {dates || <Empty />}
+      </span>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="icon" className="shrink-0">
+          <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenuItem disabled className="opacity-100 text-xs uppercase tracking-wide">
-            Stato: {statusLabel}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={open}>
             <ExternalLink className="h-4 w-4 mr-2" />
             Apri

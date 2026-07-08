@@ -1,59 +1,52 @@
+## Redesign lista Casting (`/owner/castings`)
 
-## Obiettivo
-Permettere a owner/admin di marcare un casting come "preferito" (stella) e mostrare i preferiti in una sezione dedicata della sidebar sotto le voci principali.
+### 1. Struttura tabella
+Trasformare la lista attuale (righe con testo concatenato) in una **tabella con header di colonna** e larghezze fisse tranne il Titolo (flex/1fr).
 
-## Ambito
-Preferiti **condivisi dal team**: la stella è un flag sul casting, visibile e modificabile da tutti gli staff.
-
-## 1. Database
-Nuova migrazione che aggiunge una colonna al casting:
-
-- `ALTER TABLE public.castings ADD COLUMN is_favorite boolean NOT NULL DEFAULT false;`
-- Indice parziale `CREATE INDEX ON public.castings (updated_at DESC) WHERE is_favorite;` per la lista sidebar.
-
-Nessuna nuova tabella, nessun cambio di RLS/GRANT (le policy esistenti su `castings` coprono già l'update da parte di owner/admin).
-
-## 2. Hook / dati
-- `src/hooks/useCastings.ts`: aggiungere `useToggleCastingFavorite({ id, is_favorite })` che fa `update({ is_favorite }).eq('id', id)` e invalida `owner-castings`, `favorite-castings`, `casting-detail`.
-- Nuovo hook `useFavoriteCastings()` in `src/hooks/useFavoriteCastings.ts`: `select id, title, status` da `castings` con `is_favorite = true`, ordinati per `updated_at desc`, limit 20. Query key `["favorite-castings"]`.
-
-## 3. UI stella su casting
-Aggiungere un pulsante stella (icona `Star` di lucide, filled quando attiva, colore bordeaux) che chiama `useToggleCastingFavorite`:
-
-- `src/components/castings/CastingCard.tsx` — angolo in alto a destra.
-- `src/components/castings/CastingRow.tsx` — prima cella o accanto al titolo.
-- `src/pages/owner/OwnerCastingDetail.tsx` — accanto al titolo H1, prima del badge di stato.
-
-Click sulla stella: `stopPropagation` per non aprire il dettaglio, toast di conferma ("Aggiunto ai preferiti" / "Rimosso dai preferiti").
-
-## 4. Filtro nella lista casting
-`src/pages/owner/OwnerCastings.tsx`: leggere `?favorites=1` dalla query string e, se presente, filtrare lato client (o estendere `CastingFilters` con `favoritesOnly` e applicarlo in `useCastings`). Aggiungere titolo dinamico "Casting preferiti" quando il filtro è attivo.
-
-## 5. Sidebar
-`src/components/layout/OwnerSidebar.tsx`: sotto la `<ul>` delle voci principali e prima del footer, aggiungere una nuova sezione:
+Colonne, in ordine:
 
 ```text
-──────────────
-★ Preferiti          [Vedi tutti →]
-  • Titolo casting 1
-  • Titolo casting 2
-  • Titolo casting 3
-  ...fino a 8
+[★ 32px] [Titolo 1fr] [Stato 140px] [Cliente 200px] [Location 180px] [Periodo 180px] [⋮ 40px]
 ```
 
-- Header "Preferiti" con icona `Star`, cliccabile → `/owner/castings?favorites=1`.
-- Sotto, lista dei primi 8 casting preferiti da `useFavoriteCastings()`; ogni voce è un `Link` a `/owner/castings/:id` con testo troncato.
-- Se lista vuota: piccolo testo muted "Nessun preferito".
-- Sezione collassabile (default aperta), stato locale nel componente.
-- Nascondere del tutto la sezione quando la sidebar è in stato collapsed (icon-only), in linea con il pattern esistente.
+Header sopra la lista: `Titolo | Stato | Cliente | Location | Periodo` (piccolo, uppercase, muted). Stella e menu senza etichetta.
 
-## 6. Fuori scopo
-- Nessuna modifica alla pagina pubblica del round o al portale talent.
-- Nessuna notifica associata al preferito.
-- Nessun preferito per talent, aziende o applications.
+### 2. Riga (`CastingRow.tsx`)
+Riscrivere il markup usando le stesse larghezze dell'header (grid o flex con classi coerenti).
 
-## Dettagli tecnici
-- Icona: `Star` da `lucide-react`, `fill="currentColor"` quando attiva, altrimenti solo stroke.
-- Colore attivo: `text-primary` (bordeaux del design system), non hardcoded.
-- Ordinamento sidebar: `updated_at desc` per riflettere le modifiche recenti in cima.
-- Nessuna paginazione: limit 20 in query, 8 mostrati in sidebar.
+- **Stella**: `FavoriteCastingStar` esistente. Aggiornare i colori interni: attiva `text-[#BA7517]`, non attiva `text-muted-foreground` (rimuovere `text-primary` bordeaux). Cambio applicato al componente condiviso — impatta anche card/dettaglio (accettabile, coerente col nuovo linguaggio).
+- **Titolo**: `font-semibold`, truncate.
+- **Stato**: pallino 8px (colori attuali: verde `#729128`, grigio muted per bozza, rosso `#A30A2B` per chiuso) + etichetta testuale (`Attivo` / `Bozza` / `Chiuso`).
+- **Cliente / Location / Periodo**: testo semplice, truncate. Location = primo elemento di `casting.locations`. Periodo = stesso `formatDates()` esistente.
+- **Dati mancanti**: rendering di `<span className="text-muted-foreground">–</span>` per cella vuota. Rimuovere la logica di fallback concatenato "· —".
+- **Rimuovere** la cella "N candidature".
+- Menu tre puntini invariato (stesse azioni).
+
+Click sulla riga (esclusi stella e menu) apre `/owner/castings/:id` — invariato.
+
+### 3. Filtri e controlli (`CastingFilters.tsx` + `OwnerCastings.tsx`)
+
+- **Tabs**: aggiungere `Preferiti` come quinto tab, dopo `Chiuso`. Valore `favorites`.
+- **Ordinamento**: nuovo `Select` (shadcn) accanto alla barra di ricerca con opzioni:
+  - `Più recenti` (default, `created_at desc` — comportamento attuale)
+  - `Cliente` (`company.name` asc, client-side)
+  - `Periodo` (`start_date` asc, null in fondo, client-side)
+- **Barra di ricerca** e **bottone "+ Crea Casting"** in alto a destra: invariati.
+
+### 4. Wiring filtro Preferiti
+`OwnerCastings.tsx` oggi legge `?favorites=1` dal query string. Unificare:
+
+- Se `statusFilter === "favorites"` oppure query string `?favorites=1` → filtro client-side `is_favorite = true`, e il fetch usa `status: "all"`.
+- Quando l'utente clicca il tab `Preferiti`, aggiornare anche il titolo pagina come già fa il ramo `favoritesOnly` esistente.
+- L'ordinamento scelto viene applicato client-side dopo il filtro (semplice `[...list].sort(...)`), così non serve toccare la query Supabase.
+
+### 5. File toccati
+
+- `src/components/castings/CastingRow.tsx` — riscrittura layout tabellare + fallback "–", rimozione conteggio.
+- `src/components/castings/CastingFilters.tsx` — nuovo tab `Preferiti`, nuovo `Select` di ordinamento (esposto via prop `sort` / `onSortChange`).
+- `src/components/castings/FavoriteCastingStar.tsx` — palette ambra `#BA7517` invece del bordeaux.
+- `src/pages/owner/OwnerCastings.tsx` — header colonne, stato `sort`, filtro preferiti via tab, applicazione ordinamento client-side, sincronia con `?favorites=1`.
+
+### 6. Fuori scope
+
+- Nessuna modifica a `CastingCard.tsx` (non usata nella lista principale), dashboard, notifiche, DB, o pagina dettaglio (a parte l'effetto del nuovo colore stella già condiviso).
