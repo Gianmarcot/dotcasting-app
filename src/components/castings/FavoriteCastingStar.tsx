@@ -44,7 +44,7 @@ export const FavoriteCastingStar = ({
       aria-pressed={isFavorite}
       className={cn(
         "inline-flex items-center justify-center rounded-full p-1.5 transition-colors hover:bg-muted/60 disabled:opacity-50",
-        isFavorite ? "text-[#BA7517]" : "text-muted-foreground hover:text-foreground",
+        isFavorite ? "text-primary" : "text-muted-foreground hover:text-foreground",
         className,
       )}
     >
