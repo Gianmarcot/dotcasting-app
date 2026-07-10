@@ -1,26 +1,25 @@
-import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Film, 
-  FileText, 
-  MessageSquare, 
-  Building2, 
+import {
+  LayoutDashboard,
+  Users,
+  Film,
+  FileText,
+  MessageSquare,
+  Building2,
   Settings,
   Bell,
   LogOut,
   Star,
-  ChevronDown,
-  ChevronRight
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
+import { useProfile } from "@/hooks/useProfile";
 import logoWhite from "@/assets/logo-white.png";
 
 const allNavItems = [
@@ -32,16 +31,24 @@ const allNavItems = [
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
 ];
 
-const navItems = allNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[item.flag!]);
+const navItems = allNavItems.filter((item) => !("flag" in item) || FEATURE_FLAGS[item.flag!]);
 
 export const OwnerSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { data: profile } = useProfile();
   const unreadCount = useUnreadNotificationsCount();
 
   const handleLogout = async () => {
     await signOut();
   };
+
+  const firstName = profile?.first_name?.trim() || "";
+  const lastName = profile?.last_name?.trim() || "";
+  const displayInitials =
+    (firstName.charAt(0) + lastName.charAt(0)).toUpperCase() ||
+    user?.email?.charAt(0).toUpperCase() ||
+    "A";
 
   return (
     <aside className="dc-sidebar-admin">
@@ -49,7 +56,9 @@ export const OwnerSidebar = () => {
       <div className="dc-sidebar-header">
         <Link to="/owner" className="flex items-center gap-3">
           <img src={logoWhite} alt="dotCasting" className="h-7" />
-          <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">Admin</span>
+          <span className="text-xs font-display uppercase tracking-widest text-white/60">
+            Admin
+          </span>
         </Link>
       </div>
 
@@ -57,7 +66,8 @@ export const OwnerSidebar = () => {
       <nav className="dc-sidebar-nav">
         <ul className="dc-sidebar-nav-list">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.href || 
+            const isActive =
+              location.pathname === item.href ||
               (item.href !== "/owner" && location.pathname.startsWith(item.href));
             return (
               <li key={item.href}>
@@ -80,15 +90,25 @@ export const OwnerSidebar = () => {
       <div className="dc-sidebar-footer">
         <div className="dc-sidebar-admin-divider" />
         <div className="dc-sidebar-admin-user">
-          <Avatar className="h-8 w-8">
+          <Avatar className="h-9 w-9">
+            {profile?.profile_photo_url ? (
+              <AvatarImage src={profile.profile_photo_url} alt="" />
+            ) : null}
             <AvatarFallback className="dc-avatar-fallback-primary">
-              {user?.email?.charAt(0).toUpperCase() || "A"}
+              {displayInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-white truncate">
-              {user?.email?.split("@")[0] || "Admin"}
-            </p>
+          <div className="flex-1 min-w-0 leading-tight">
+            {firstName || lastName ? (
+              <>
+                <p className="text-sm font-medium text-white truncate">{firstName}</p>
+                <p className="text-sm font-medium text-white truncate">{lastName}</p>
+              </>
+            ) : (
+              <p className="text-sm font-medium text-white truncate">
+                {user?.email?.split("@")[0] || "Admin"}
+              </p>
+            )}
           </div>
         </div>
 
@@ -131,71 +151,59 @@ export const OwnerSidebar = () => {
 };
 
 const FavoritesSection = () => {
-  const { pathname, search } = useLocation();
-  const [open, setOpen] = useState(true);
+  const { pathname } = useLocation();
   const { data: favorites = [], isLoading } = useFavoriteCastings();
 
   const allHref = "/owner/castings?favorites=1";
-  const isAllActive = pathname === "/owner/castings" && search.includes("favorites=1");
   const displayed = favorites.slice(0, 8);
 
   return (
     <div className="mt-6">
       <div className="border-t border-white/10 mx-2 mb-3" />
-      <div className="flex items-center justify-between px-4 mb-1">
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/50 hover:text-white/80 transition-colors"
-        >
-          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-          <Star className="h-3.5 w-3.5" />
-          Preferiti
-        </button>
-        {favorites.length > 0 && (
-          <Link
-            to={allHref}
-            className={cn(
-              "text-[10px] uppercase tracking-wider transition-colors",
-              isAllActive ? "text-primary" : "text-white/50 hover:text-white/80",
-            )}
-          >
-            Vedi tutti
-          </Link>
-        )}
+      <div className="px-4 mb-2">
+        <span className="text-xs uppercase tracking-wider text-white/40">Preferiti</span>
       </div>
 
-      {open && (
-        <ul className="space-y-0.5">
-          {isLoading ? (
-            <li className="px-4 py-2 text-xs text-white/40">Caricamento…</li>
-          ) : displayed.length === 0 ? (
-            <li className="px-4 py-2 text-xs text-white/40">Nessun preferito</li>
-          ) : (
-            displayed.map((c) => {
-              const href = `/owner/castings/${c.id}`;
-              const active = pathname === href || pathname.startsWith(href + "/");
-              return (
-                <li key={c.id}>
-                  <Link
-                    to={href}
-                    className={cn(
-                      "flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm transition-colors",
-                      active
-                        ? "bg-white/10 text-white"
-                        : "text-white/70 hover:bg-white/10 hover:text-white",
-                    )}
-                    title={c.title}
-                  >
-                    <Star className="h-3 w-3 shrink-0 text-primary" fill="currentColor" />
-                    <span className="truncate">{c.title}</span>
-                  </Link>
-                </li>
-              );
-            })
-          )}
-        </ul>
-      )}
+      <ul className="space-y-0.5">
+        {isLoading ? (
+          <li className="px-4 py-2 text-xs text-white/40">Caricamento…</li>
+        ) : displayed.length === 0 ? (
+          <li className="px-4 py-2 text-xs text-white/40">Nessun preferito</li>
+        ) : (
+          displayed.map((c) => {
+            const href = `/owner/castings/${c.id}`;
+            const active = pathname === href || pathname.startsWith(href + "/");
+            return (
+              <li key={c.id}>
+                <Link
+                  to={href}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-1.5 text-sm transition-colors",
+                    active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white",
+                  )}
+                  title={c.title}
+                >
+                  <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" fill="currentColor" />
+                  <span className="truncate">{c.title}</span>
+                </Link>
+              </li>
+            );
+          })
+        )}
+
+        {favorites.length > 0 && (
+          <li>
+            <Link
+              to={allHref}
+              className="flex items-center justify-between gap-2 px-4 py-1.5 text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+            >
+              <span>Visualizza tutti</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </li>
+        )}
+      </ul>
     </div>
   );
 };
+

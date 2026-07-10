@@ -26,7 +26,7 @@ interface CastingCardProps {
   casting: CastingWithRelations;
   onEdit: (casting: CastingWithRelations) => void;
   onDelete: (casting: CastingWithRelations) => void;
-  onStatusChange: (id: string, status: string) => void;
+  onStatusChange?: (id: string, status: string) => void;
 }
 
 export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: CastingCardProps) => {
@@ -137,7 +137,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
                 {statusActions.map((action) => (
                   <DropdownMenuItem 
                     key={action.status} 
-                    onClick={() => onStatusChange(casting.id, action.status)}
+                    onClick={() => onStatusChange?.(casting.id, action.status)}
                   >
                     <action.icon className="h-4 w-4 mr-2" />
                     {action.label}

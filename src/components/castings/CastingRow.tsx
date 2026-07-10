@@ -1,85 +1,46 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  MoreVertical,
-  Edit,
-  Trash2,
-  Play,
-  Pause,
-  RotateCcw,
-  ExternalLink,
-} from "lucide-react";
+import { Pencil, Trash2, ChevronRight } from "lucide-react";
 import { it } from "@/lib/i18n";
-import { format } from "date-fns";
-import { it as itLocale } from "date-fns/locale";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 import { cn } from "@/lib/utils";
 
-const statusDot: Record<string, string> = {
-  active: "bg-[#729128]",
-  draft: "bg-muted-foreground/40",
-  closed: "bg-muted-foreground/70",
+const statusStyles: Record<string, { dot: string; text: string }> = {
+  active: { dot: "bg-[#729128]", text: "text-[#729128]" },
+  draft: { dot: "bg-amber-500", text: "text-amber-600" },
+  closed: { dot: "bg-muted-foreground/60", text: "text-muted-foreground" },
 };
 
 interface CastingRowProps {
   casting: CastingWithRelations;
   onEdit: (casting: CastingWithRelations) => void;
   onDelete: (casting: CastingWithRelations) => void;
-  onStatusChange: (id: string, status: string) => void;
+  onStatusChange?: (id: string, status: string) => void;
 }
 
-export const CastingRow = ({
-  casting,
-  onEdit,
-  onDelete,
-  onStatusChange,
-}: CastingRowProps) => {
+const getInitials = (first?: string | null, last?: string | null) => {
+  const a = first?.charAt(0) ?? "";
+  const b = last?.charAt(0) ?? "";
+  return (a + b).toUpperCase() || "?";
+};
+
+export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
   const navigate = useNavigate();
-  const applicationsCount = casting.applications?.[0]?.count ?? 0;
 
-  const formatDates = () => {
-    if (!casting.start_date && !casting.end_date) return null;
-    const start = casting.start_date
-      ? format(new Date(casting.start_date), "d MMM", { locale: itLocale })
-      : "";
-    const end = casting.end_date
-      ? format(new Date(casting.end_date), "d MMM yyyy", { locale: itLocale })
-      : "";
-    if (start && end) return `${start} - ${end}`;
-    return start || end;
-  };
+  const statusLabel = it.casting[casting.status as keyof typeof it.casting] || casting.status || "—";
+  const status = statusStyles[casting.status || "draft"] ?? statusStyles.draft;
 
-  const getStatusActions = () => {
-    const actions: { label: string; status: string; icon: any }[] = [];
-    if (casting.status === "draft") actions.push({ label: "Pubblica", status: "active", icon: Play });
-    if (casting.status === "active") actions.push({ label: "Chiudi", status: "closed", icon: Pause });
-    if (casting.status === "closed") actions.push({ label: "Riapri", status: "active", icon: RotateCcw });
-    if (casting.status === "active" || casting.status === "closed")
-      actions.push({ label: "Torna a bozza", status: "draft", icon: Edit });
-    return actions;
-  };
-
-  const statusLabel =
-    it.casting[casting.status as keyof typeof it.casting] || casting.status || "—";
-
-  const company = casting.company?.name || "—";
-  const dates = formatDates();
-  const location = casting.locations?.[0];
-  const secondary = dates || location || "—";
+  const confirmed = casting.confirmed_talents ?? [];
+  const shown = confirmed.slice(0, 4);
+  const extra = Math.max(0, confirmed.length - shown.length);
 
   const open = () => navigate(`/owner/castings/${casting.id}`);
 
@@ -91,84 +52,97 @@ export const CastingRow = ({
       onKeyDown={(e) => {
         if (e.key === "Enter") open();
       }}
-      className="group flex items-center gap-3 px-4 py-3 hover:bg-muted/40 cursor-pointer transition-colors"
+      className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-3 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
     >
+      {/* Star */}
       <FavoriteCastingStar
         castingId={casting.id}
         isFavorite={Boolean((casting as any).is_favorite)}
         size={16}
+        variant="amber"
       />
 
-      {/* Status dot */}
-      <TooltipProvider delayDuration={200}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span
-              className={cn(
-                "h-2 w-2 rounded-full shrink-0",
-                statusDot[casting.status || "draft"]
-              )}
-              aria-label={statusLabel as string}
-            />
-          </TooltipTrigger>
-          <TooltipContent side="right">{statusLabel}</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-
-      {/* Title + meta */}
-      <div className="flex-1 min-w-0 flex flex-col sm:flex-row sm:items-center sm:gap-3">
-        <span className="text-foreground font-medium truncate">
+      {/* Title */}
+      <div className="min-w-0">
+        <span className="text-foreground font-medium truncate block">
           {casting.title}
         </span>
-        <span className="text-sm text-muted-foreground truncate">
-          {company} · {secondary}
-        </span>
       </div>
 
-      {/* Count */}
-      <div className="text-sm text-muted-foreground shrink-0 whitespace-nowrap">
-        {applicationsCount} candidature
+      {/* Selezione (avatar stack) */}
+      <div className="flex items-center">
+        {shown.length === 0 ? (
+          <span className="text-sm text-muted-foreground/70">—</span>
+        ) : (
+          <div className="flex items-center">
+            <div className="flex">
+              {shown.map((t, i) => (
+                <Avatar
+                  key={t.profile?.id ?? i}
+                  className={cn("h-7 w-7 ring-2 ring-background", i > 0 && "-ml-2")}
+                >
+                  {t.profile?.profile_photo_url ? (
+                    <AvatarImage src={t.profile.profile_photo_url} alt="" />
+                  ) : null}
+                  <AvatarFallback className="text-[10px] bg-muted">
+                    {getInitials(t.profile?.first_name, t.profile?.last_name)}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+            </div>
+            {extra > 0 && (
+              <span className="ml-2 text-xs text-muted-foreground">+ altri {extra}</span>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Kebab */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenuItem disabled className="opacity-100 text-xs uppercase tracking-wide">
-            Stato: {statusLabel}
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={open}>
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Apri
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onEdit(casting)}>
-            <Edit className="h-4 w-4 mr-2" />
-            {it.common.edit}
-          </DropdownMenuItem>
-          {getStatusActions().map((action) => (
-            <DropdownMenuItem
-              key={action.status}
-              onClick={() => onStatusChange(casting.id, action.status)}
-            >
-              <action.icon className="h-4 w-4 mr-2" />
-              {action.label}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => onDelete(casting)}
-            className="text-destructive focus:text-destructive"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            {it.common.delete}
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {/* Status */}
+      <div className="flex items-center gap-2">
+        <span className={cn("h-2 w-2 rounded-full shrink-0", status.dot)} />
+        <span className={cn("text-sm font-medium", status.text)}>{statusLabel}</span>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit(casting);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Modifica rapida</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(casting);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{it.common.delete}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+      </div>
     </div>
   );
 };

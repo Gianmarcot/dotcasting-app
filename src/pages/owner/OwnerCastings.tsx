@@ -15,9 +15,9 @@ import {
   useCastings,
   useCreateCasting,
   useUpdateCasting,
-  useUpdateCastingStatus,
   useDeleteCasting,
   type CastingWithRelations,
+  type CastingSort,
 } from "@/hooks/useCastings";
 
 export const OwnerCastings = () => {
@@ -25,6 +25,7 @@ export const OwnerCastings = () => {
   const favoritesOnly = searchParams.get("favorites") === "1";
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchFilter, setSearchFilter] = useState("");
+  const [sort, setSort] = useState<CastingSort>("recent");
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedCasting, setSelectedCasting] = useState<CastingWithRelations | null>(null);
@@ -32,6 +33,7 @@ export const OwnerCastings = () => {
   const { data: castingsRaw, isLoading } = useCastings({
     status: statusFilter,
     search: searchFilter,
+    sort,
   });
 
   const castings = favoritesOnly
@@ -40,7 +42,6 @@ export const OwnerCastings = () => {
 
   const createMutation = useCreateCasting();
   const updateMutation = useUpdateCasting();
-  const statusMutation = useUpdateCastingStatus();
   const deleteMutation = useDeleteCasting();
 
   const handleCreate = () => {
@@ -58,22 +59,6 @@ export const OwnerCastings = () => {
     setDeleteOpen(true);
   };
 
-  const handleStatusChange = async (id: string, status: string) => {
-    try {
-      await statusMutation.mutateAsync({ id, status });
-      toast({
-        title: "Stato aggiornato",
-        description: `Il casting è ora "${it.casting[status as keyof typeof it.casting] || status}"`,
-      });
-    } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare lo stato",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleFormSubmit = async (data: Record<string, unknown>) => {
     try {
       const castingData = {
@@ -81,13 +66,13 @@ export const OwnerCastings = () => {
         description: (data.description as string) || null,
         category: (data.category as string) || null,
         company_id: (data.company_id as string) || null,
-        locations: data.locations 
+        locations: data.locations
           ? (data.locations as string).split(",").map((l) => l.trim()).filter(Boolean)
           : null,
         start_date: (data.start_date as string) || null,
         end_date: (data.end_date as string) || null,
-        compensation_amount: data.compensation_amount 
-          ? parseFloat(data.compensation_amount as string) 
+        compensation_amount: data.compensation_amount
+          ? parseFloat(data.compensation_amount as string)
           : null,
         compensation_type: (data.compensation_type as string) || null,
         currency: (data.currency as string) || "EUR",
@@ -95,60 +80,35 @@ export const OwnerCastings = () => {
 
       if (selectedCasting) {
         await updateMutation.mutateAsync({ id: selectedCasting.id, ...castingData });
-        toast({
-          title: "Casting aggiornato",
-          description: "Le modifiche sono state salvate",
-        });
+        toast({ title: "Casting aggiornato", description: "Le modifiche sono state salvate" });
       } else {
         await createMutation.mutateAsync({ ...castingData, status: "draft" });
-        toast({
-          title: "Casting creato",
-          description: "Il nuovo casting è stato salvato come bozza",
-        });
+        toast({ title: "Casting creato", description: "Il nuovo casting è stato salvato come bozza" });
       }
       setFormOpen(false);
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile salvare il casting",
-        variant: "destructive",
-      });
+      toast({ title: "Errore", description: "Impossibile salvare il casting", variant: "destructive" });
     }
   };
 
   const handleDeleteConfirm = async () => {
     if (!selectedCasting) return;
-
     try {
       await deleteMutation.mutateAsync(selectedCasting.id);
-      toast({
-        title: "Casting eliminato",
-        description: "Il casting è stato eliminato con successo",
-      });
+      toast({ title: "Casting eliminato", description: "Il casting è stato eliminato con successo" });
       setDeleteOpen(false);
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile eliminare il casting",
-        variant: "destructive",
-      });
+      toast({ title: "Errore", description: "Impossibile eliminare il casting", variant: "destructive" });
     }
   };
 
   return (
     <div className="space-y-6 animate-fade-up">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl text-foreground">
-            {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {favoritesOnly
-              ? "I casting che hai marcato con la stella"
-              : "Gestisci i casting della piattaforma"}
-          </p>
-        </div>
-        <Button onClick={handleCreate}>
+        <h1 className="text-2xl text-foreground">
+          {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
+        </h1>
+        <Button onClick={handleCreate} className="rounded-full">
           <Plus className="h-4 w-4 mr-2" />
           {it.backoffice.createCasting}
         </Button>
@@ -157,25 +117,34 @@ export const OwnerCastings = () => {
       <CastingFilters
         status={statusFilter}
         search={searchFilter}
+        sort={sort}
         onStatusChange={setStatusFilter}
         onSearchChange={setSearchFilter}
+        onSortChange={setSort}
       />
 
       {isLoading ? (
-        <div className="rounded-2xl border bg-white divide-y divide-border/60 overflow-hidden">
+        <div className="space-y-1">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full rounded-none" />
+            <Skeleton key={i} className="h-14 w-full" />
           ))}
         </div>
       ) : castings && castings.length > 0 ? (
-        <div className="rounded-2xl border bg-white divide-y divide-border/60 overflow-hidden">
+        <div>
+          {/* Column header */}
+          <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
+            <span />
+            <span>Titolo</span>
+            <span>Selezione</span>
+            <span>Stato</span>
+            <span />
+          </div>
           {castings.map((casting) => (
             <CastingRow
               key={casting.id}
               casting={casting}
               onEdit={handleEdit}
               onDelete={handleDelete}
-              onStatusChange={handleStatusChange}
             />
           ))}
         </div>

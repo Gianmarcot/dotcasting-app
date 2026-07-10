@@ -2,14 +2,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
+export type ConfirmedTalentThumb = {
+  profile: { id: string; first_name: string | null; last_name: string | null; profile_photo_url: string | null } | null;
+};
+
 export type CastingWithRelations = Tables<"castings"> & {
   company: { id: string; name: string } | null;
   applications: { count: number }[];
+  confirmed_talents?: ConfirmedTalentThumb[];
 };
+
+export type CastingSort = "recent" | "company" | "status";
 
 export type CastingFilters = {
   status?: string;
   search?: string;
+  sort?: CastingSort;
 };
 
 export const useCastings = (filters?: CastingFilters) => {
@@ -22,8 +30,16 @@ export const useCastings = (filters?: CastingFilters) => {
           *,
           company:companies(id, name),
           applications(count)
-        `)
-        .order("created_at", { ascending: false });
+        `);
+
+      const sort = filters?.sort ?? "recent";
+      if (sort === "company") {
+        query = query.order("name", { referencedTable: "companies", ascending: true, nullsFirst: false });
+      } else if (sort === "status") {
+        query = query.order("status", { ascending: true });
+      } else {
+        query = query.order("created_at", { ascending: false });
+      }
 
       if (filters?.status && filters.status !== "all") {
         query = query.eq("status", filters.status);
@@ -34,9 +50,45 @@ export const useCastings = (filters?: CastingFilters) => {
       }
 
       const { data, error } = await query;
-
       if (error) throw error;
-      return data as CastingWithRelations[];
+
+      const castings = (data ?? []) as CastingWithRelations[];
+      const castingIds = castings.map((c) => c.id);
+      if (castingIds.length === 0) return castings;
+
+      // Fetch confirmed talents via casting_roles → role_talents
+      const { data: roles } = await supabase
+        .from("casting_roles")
+        .select("id, casting_id")
+        .in("casting_id", castingIds);
+
+      const roleToCasting = new Map<string, string>();
+      (roles ?? []).forEach((r: any) => roleToCasting.set(r.id, r.casting_id));
+      const roleIds = Array.from(roleToCasting.keys());
+
+      if (roleIds.length > 0) {
+        const { data: rts } = await supabase
+          .from("role_talents")
+          .select("casting_role_id, profile:profiles!role_talents_profile_id_fkey(id, first_name, last_name, profile_photo_url)")
+          .in("casting_role_id", roleIds)
+          .eq("company_status", "confirmed");
+
+        const byCasting = new Map<string, ConfirmedTalentThumb[]>();
+        (rts ?? []).forEach((rt: any) => {
+          const cid = roleToCasting.get(rt.casting_role_id);
+          if (!cid) return;
+          const arr = byCasting.get(cid) ?? [];
+          arr.push({ profile: rt.profile });
+          byCasting.set(cid, arr);
+        });
+        castings.forEach((c) => {
+          c.confirmed_talents = byCasting.get(c.id) ?? [];
+        });
+      } else {
+        castings.forEach((c) => (c.confirmed_talents = []));
+      }
+
+      return castings;
     },
   });
 };

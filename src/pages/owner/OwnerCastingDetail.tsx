@@ -15,11 +15,12 @@ import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
-import { useUpdateCasting } from "@/hooks/useCastings";
+import { useUpdateCasting, useUpdateCastingStatus } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
@@ -30,7 +31,7 @@ const statusColors: Record<string, string> = {
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
   active: "Attivo",
-  closed: "Chiuso",
+  closed: "Archiviato",
 };
 
 function getAge(birthDate: string | null): number | null {
@@ -66,6 +67,17 @@ export const OwnerCastingDetail = () => {
 
   const { data: roles = [], isLoading: rolesLoading } = useCastingRoles(castingId);
   const updateCasting = useUpdateCasting();
+  const updateStatus = useUpdateCastingStatus();
+
+  const handleStatusChange = async (status: string) => {
+    if (!castingId) return;
+    try {
+      await updateStatus.mutateAsync({ id: castingId, status });
+      toast({ title: "Stato aggiornato" });
+    } catch {
+      toast({ title: "Errore", description: "Impossibile aggiornare lo stato", variant: "destructive" });
+    }
+  };
 
   // Fetch all role talents across all roles for confirmed section
   const roleIds = roles.map((r) => r.id);
@@ -188,6 +200,16 @@ export const OwnerCastingDetail = () => {
               <Badge className={statusColors[casting.status || "draft"]}>
                 {statusLabels[casting.status || "draft"]}
               </Badge>
+              <Select value={casting.status || "draft"} onValueChange={handleStatusChange}>
+                <SelectTrigger className="h-8 w-40 rounded-full">
+                  <SelectValue placeholder="Stato" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Bozza</SelectItem>
+                  <SelectItem value="active">Attivo</SelectItem>
+                  <SelectItem value="closed">Archiviato</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             {casting.company && (
               <p className="text-muted-foreground">{casting.company.name}</p>

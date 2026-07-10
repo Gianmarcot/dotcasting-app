@@ -1,59 +1,75 @@
-
 ## Obiettivo
-Permettere a owner/admin di marcare un casting come "preferito" (stella) e mostrare i preferiti in una sezione dedicata della sidebar sotto le voci principali.
+Ridisegnare la sidebar admin globale e la pagina "Casting" secondo lo screenshot allegato: layout più pulito, filtri semplificati, tabella con header di colonna e azioni rapide in hover.
 
-## Ambito
-Preferiti **condivisi dal team**: la stella è un flag sul casting, visibile e modificabile da tutti gli staff.
+## 1. Sidebar (`src/components/layout/OwnerSidebar.tsx`)
 
-## 1. Database
-Nuova migrazione che aggiunge una colonna al casting:
+**Logo/Header**
+- Rimuovere il badge pillola rossa "Admin".
+- Aggiungere label testuale `ADMIN` accanto al logo (Tenor Sans, tracking wide, colore `text-white/70`).
 
-- `ALTER TABLE public.castings ADD COLUMN is_favorite boolean NOT NULL DEFAULT false;`
-- Indice parziale `CREATE INDEX ON public.castings (updated_at DESC) WHERE is_favorite;` per la lista sidebar.
+**Nav principale**
+- Invariata: Dashboard, Database Talenti, Casting, Centro Messaggi, CRM Aziende.
 
-Nessuna nuova tabella, nessun cambio di RLS/GRANT (le policy esistenti su `castings` coprono già l'update da parte di owner/admin).
+**Sezione Preferiti**
+- Header "PREFERITI" (uppercase, tracking, muted), niente chevron collassabile — sempre aperta.
+- Stella ambra piena (`text-amber-400`, non bordeaux) accanto a ciascun titolo di casting.
+- Link finale "Visualizza tutti" con `ChevronRight` allineato a destra, che punta a `/owner/castings?favorites=1`.
+- Stato vuoto: "Nessun preferito" muted.
 
-## 2. Hook / dati
-- `src/hooks/useCastings.ts`: aggiungere `useToggleCastingFavorite({ id, is_favorite })` che fa `update({ is_favorite }).eq('id', id)` e invalida `owner-castings`, `favorite-castings`, `casting-detail`.
-- Nuovo hook `useFavoriteCastings()` in `src/hooks/useFavoriteCastings.ts`: `select id, title, status` da `castings` con `is_favorite = true`, ordinati per `updated_at desc`, limit 20. Query key `["favorite-castings"]`.
+**Footer utente**
+- Sostituire l'iniziale email con un `<Avatar>` che usa `profile.profile_photo_url` (fallback iniziali).
+- Nome completo su più righe: `first_name` + `last_name` su due righe (uppercase, Tenor Sans) — leggere da `useProfile()`.
+- Notifiche / Impostazioni / Logout invariati sotto.
 
-## 3. UI stella su casting
-Aggiungere un pulsante stella (icona `Star` di lucide, filled quando attiva, colore bordeaux) che chiama `useToggleCastingFavorite`:
+## 2. Header pagina Casting (`src/pages/owner/OwnerCastings.tsx`)
+- Rimuovere il sottotitolo "Gestisci i casting della piattaforma".
+- Titolo `CASTING` (già uppercase via `it.backoffice.castings`).
+- Bottone "+ Nuovo casting" (pill bordeaux) allineato a destra.
 
-- `src/components/castings/CastingCard.tsx` — angolo in alto a destra.
-- `src/components/castings/CastingRow.tsx` — prima cella o accanto al titolo.
-- `src/pages/owner/OwnerCastingDetail.tsx` — accanto al titolo H1, prima del badge di stato.
+## 3. Filtri (`src/components/castings/CastingFilters.tsx`)
+Riscrittura del componente:
+- Sostituire i `Tabs` (Tutti/Bozza/Attivo/Chiuso) con un unico `Select` "Tutti / Bozza / Attivo / Archiviato".
+- Campo di ricerca al centro, placeholder `Cerca per parola chiave`, pill arrotondata piena larghezza.
+- Nuovo `Select` di ordinamento allineato a destra: "Più recenti" (default), "Cliente", "Stato".
+- Le nuove prop `sort` / `onSortChange` vanno propagate dall'`OwnerCastings` e passate a `useCastings` per ordinare la query (`order()` sul campo scelto).
 
-Click sulla stella: `stopPropagation` per non aprire il dettaglio, toast di conferma ("Aggiunto ai preferiti" / "Rimosso dai preferiti").
+## 4. Tabella (`OwnerCastings.tsx` + `CastingRow.tsx`)
 
-## 4. Filtro nella lista casting
-`src/pages/owner/OwnerCastings.tsx`: leggere `?favorites=1` dalla query string e, se presente, filtrare lato client (o estendere `CastingFilters` con `favoritesOnly` e applicarlo in `useCastings`). Aggiungere titolo dinamico "Casting preferiti" quando il filtro è attivo.
+**Contenitore**
+- Rimuovere il wrapping `rounded-2xl border bg-white` per la tabella; le righe poggiano sullo sfondo cream della pagina, separate da un hairline `border-b border-border/40`.
+- Aggiungere una riga header con etichette: (colonna stella vuota) · `Titolo` · `Selezione` · `Stato` · (azioni vuote).
 
-## 5. Sidebar
-`src/components/layout/OwnerSidebar.tsx`: sotto la `<ul>` delle voci principali e prima del footer, aggiungere una nuova sezione:
+**Riga (`CastingRow.tsx`)**
+- Stella: usare colore ambra (`text-amber-400` fill quando attiva, `text-muted-foreground` contorno quando no). Aggiornare `FavoriteCastingStar` per accettare una variante `amber`.
+- Colonna Titolo: solo il titolo del casting, senza company/date/location.
+- Colonna Selezione: stack di avatar sovrapposti dei talent selezionati (fino a 4) + testo `+ altri N`.
+  - Serve un nuovo hook o join per recuperare gli avatar dei talent con `role_talents.company_status = 'confirmed'` per casting.
+  - Estendere `useCastings` per includere `selected_talents:role_talents(profile:profiles(profile_photo_url))` filtrato per `company_status = 'confirmed'` limite 5.
+- Colonna Stato: pallino + label dello stesso colore.
+  - Bozza → ambra (`text-amber-600`)
+  - Attivo → verde (`text-[#729128]`)
+  - Archiviato → grigio (rinominare "Chiuso" in "Archiviato" in `src/lib/i18n.ts` → `it.casting.closed = "Archiviato"`).
 
-```text
-──────────────
-★ Preferiti          [Vedi tutti →]
-  • Titolo casting 1
-  • Titolo casting 2
-  • Titolo casting 3
-  ...fino a 8
-```
+**Azioni riga**
+- Rimuovere completamente il `DropdownMenu` a tre puntini.
+- In hover riga: sfondo `bg-muted/60` (già presente), + rivelare due icon-button:
+  - Matita bordeaux (tooltip "Modifica rapida") → apre il `CastingFormDialog` già esistente.
+  - Cestino (tooltip "Elimina") → apre `DeleteCastingDialog`.
+- Chevron `>` a destra sempre visibile → naviga a `/owner/castings/:id`.
+- Le azioni di cambio stato (Pubblica/Chiudi/Riapri/Torna a bozza) non sono più raggiungibili dalla lista.
 
-- Header "Preferiti" con icona `Star`, cliccabile → `/owner/castings?favorites=1`.
-- Sotto, lista dei primi 8 casting preferiti da `useFavoriteCastings()`; ogni voce è un `Link` a `/owner/castings/:id` con testo troncato.
-- Se lista vuota: piccolo testo muted "Nessun preferito".
-- Sezione collassabile (default aperta), stato locale nel componente.
-- Nascondere del tutto la sezione quando la sidebar è in stato collapsed (icon-only), in linea con il pattern esistente.
+## 5. Cambio stato spostato in OwnerCastingDetail
+- Nella pagina di dettaglio (`src/pages/owner/OwnerCastingDetail.tsx`), verificare la presenza di controlli per cambiare stato. Se mancano, aggiungere accanto al titolo un piccolo `Select` o un gruppo di bottoni (Pubblica / Torna a bozza / Archivia / Riapri) che chiamano `useUpdateCastingStatus`.
 
-## 6. Fuori scopo
-- Nessuna modifica alla pagina pubblica del round o al portale talent.
-- Nessuna notifica associata al preferito.
-- Nessun preferito per talent, aziende o applications.
+## 6. Copy / i18n
+- `src/lib/i18n.ts`: cambiare `it.casting.closed` da "Chiuso" a "Archiviato" (verificare che non rompa altre pagine — se necessario introdurre chiave separata `archived`).
+
+## Fuori scopo
+- Nessuna modifica alla pagina pubblica del round.
+- Nessuna modifica alla sidebar talent.
+- Nessuna modifica allo schema DB.
 
 ## Dettagli tecnici
-- Icona: `Star` da `lucide-react`, `fill="currentColor"` quando attiva, altrimenti solo stroke.
-- Colore attivo: `text-primary` (bordeaux del design system), non hardcoded.
-- Ordinamento sidebar: `updated_at desc` per riflettere le modifiche recenti in cima.
-- Nessuna paginazione: limit 20 in query, 8 mostrati in sidebar.
+- Colore stella ambra: `text-amber-400` (Tailwind). Non aggiungere token custom, è un colore semantico "preferito" isolato.
+- Stack avatar: usare `Avatar` di shadcn con `-ml-2` per overlap e `ring-2 ring-background`.
+- Ordinamento: mappare "cliente" → `.order('company(name)')` (usare `foreignTable`); "stato" → `.order('status')`.
