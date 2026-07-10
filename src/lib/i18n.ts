@@ -58,7 +58,7 @@ export const it = {
     status: "Stato",
     draft: "Bozza",
     active: "Attivo",
-    closed: "Chiuso",
+    closed: "Archiviato",
     apply: "Candidati",
     applied: "Candidatura inviata",
     requirements: "Requisiti",
