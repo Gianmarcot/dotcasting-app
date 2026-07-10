@@ -30,7 +30,7 @@ const statusColors: Record<string, string> = {
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
   active: "Attivo",
-  closed: "Chiuso",
+  closed: "Archiviato",
 };
 
 function getAge(birthDate: string | null): number | null {

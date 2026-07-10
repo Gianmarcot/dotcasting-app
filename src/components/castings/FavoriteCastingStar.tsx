@@ -8,6 +8,7 @@ interface FavoriteCastingStarProps {
   isFavorite: boolean;
   size?: number;
   className?: string;
+  variant?: "primary" | "amber";
 }
 
 export const FavoriteCastingStar = ({
@@ -15,6 +16,7 @@ export const FavoriteCastingStar = ({
   isFavorite,
   size = 18,
   className,
+  variant = "amber",
 }: FavoriteCastingStarProps) => {
   const toggle = useToggleCastingFavorite();
 
@@ -35,6 +37,8 @@ export const FavoriteCastingStar = ({
     }
   };
 
+  const activeColor = variant === "amber" ? "text-amber-400" : "text-primary";
+
   return (
     <button
       type="button"
@@ -44,7 +48,7 @@ export const FavoriteCastingStar = ({
       aria-pressed={isFavorite}
       className={cn(
         "inline-flex items-center justify-center rounded-full p-1.5 transition-colors hover:bg-muted/60 disabled:opacity-50",
-        isFavorite ? "text-primary" : "text-muted-foreground hover:text-foreground",
+        isFavorite ? activeColor : "text-muted-foreground/60 hover:text-foreground",
         className,
       )}
     >

@@ -26,7 +26,7 @@ interface CastingCardProps {
   casting: CastingWithRelations;
   onEdit: (casting: CastingWithRelations) => void;
   onDelete: (casting: CastingWithRelations) => void;
-  onStatusChange: (id: string, status: string) => void;
+  onStatusChange?: (id: string, status: string) => void;
 }
 
 export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: CastingCardProps) => {
