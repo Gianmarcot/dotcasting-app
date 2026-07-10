@@ -200,6 +200,16 @@ export const OwnerCastingDetail = () => {
               <Badge className={statusColors[casting.status || "draft"]}>
                 {statusLabels[casting.status || "draft"]}
               </Badge>
+              <Select value={casting.status || "draft"} onValueChange={handleStatusChange}>
+                <SelectTrigger className="h-8 w-40 rounded-full">
+                  <SelectValue placeholder="Stato" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Bozza</SelectItem>
+                  <SelectItem value="active">Attivo</SelectItem>
+                  <SelectItem value="closed">Archiviato</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             {casting.company && (
               <p className="text-muted-foreground">{casting.company.name}</p>
