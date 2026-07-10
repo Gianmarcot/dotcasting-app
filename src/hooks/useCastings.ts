@@ -2,14 +2,22 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 
+export type ConfirmedTalentThumb = {
+  profile: { id: string; first_name: string | null; last_name: string | null; profile_photo_url: string | null } | null;
+};
+
 export type CastingWithRelations = Tables<"castings"> & {
   company: { id: string; name: string } | null;
   applications: { count: number }[];
+  confirmed_talents?: ConfirmedTalentThumb[];
 };
+
+export type CastingSort = "recent" | "company" | "status";
 
 export type CastingFilters = {
   status?: string;
   search?: string;
+  sort?: CastingSort;
 };
 
 export const useCastings = (filters?: CastingFilters) => {
@@ -21,9 +29,20 @@ export const useCastings = (filters?: CastingFilters) => {
         .select(`
           *,
           company:companies(id, name),
-          applications(count)
-        `)
-        .order("created_at", { ascending: false });
+          applications(count),
+          confirmed_talents:role_talents!inner(
+            profile:profiles!role_talents_profile_id_fkey(id, first_name, last_name, profile_photo_url)
+          )
+        `);
+
+      const sort = filters?.sort ?? "recent";
+      if (sort === "company") {
+        query = query.order("name", { referencedTable: "companies", ascending: true, nullsFirst: false });
+      } else if (sort === "status") {
+        query = query.order("status", { ascending: true });
+      } else {
+        query = query.order("created_at", { ascending: false });
+      }
 
       if (filters?.status && filters.status !== "all") {
         query = query.eq("status", filters.status);
@@ -33,9 +52,20 @@ export const useCastings = (filters?: CastingFilters) => {
         query = query.ilike("title", `%${filters.search}%`);
       }
 
+      // Only include confirmed role_talents rows
+      query = query.eq("role_talents.company_status", "confirmed");
+
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        // Fallback: some castings may have no confirmed talents; re-run without inner join
+        const { data: data2, error: err2 } = await supabase
+          .from("castings")
+          .select(`*, company:companies(id, name), applications(count)`)
+          .order("created_at", { ascending: false });
+        if (err2) throw error;
+        return data2 as CastingWithRelations[];
+      }
       return data as CastingWithRelations[];
     },
   });
