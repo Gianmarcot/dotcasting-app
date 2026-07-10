@@ -15,11 +15,12 @@ import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
-import { useUpdateCasting } from "@/hooks/useCastings";
+import { useUpdateCasting, useUpdateCastingStatus } from "@/hooks/useCastings";
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const statusColors: Record<string, string> = {
   draft: "bg-[#333333]/10 text-[#333333]",
