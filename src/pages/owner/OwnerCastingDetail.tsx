@@ -67,6 +67,17 @@ export const OwnerCastingDetail = () => {
 
   const { data: roles = [], isLoading: rolesLoading } = useCastingRoles(castingId);
   const updateCasting = useUpdateCasting();
+  const updateStatus = useUpdateCastingStatus();
+
+  const handleStatusChange = async (status: string) => {
+    if (!castingId) return;
+    try {
+      await updateStatus.mutateAsync({ id: castingId, status });
+      toast({ title: "Stato aggiornato" });
+    } catch {
+      toast({ title: "Errore", description: "Impossibile aggiornare lo stato", variant: "destructive" });
+    }
+  };
 
   // Fetch all role talents across all roles for confirmed section
   const roleIds = roles.map((r) => r.id);
