@@ -29,10 +29,7 @@ export const useCastings = (filters?: CastingFilters) => {
         .select(`
           *,
           company:companies(id, name),
-          applications(count),
-          confirmed_talents:role_talents!inner(
-            profile:profiles!role_talents_profile_id_fkey(id, first_name, last_name, profile_photo_url)
-          )
+          applications(count)
         `);
 
       const sort = filters?.sort ?? "recent";
@@ -52,21 +49,46 @@ export const useCastings = (filters?: CastingFilters) => {
         query = query.ilike("title", `%${filters.search}%`);
       }
 
-      // Only include confirmed role_talents rows
-      query = query.eq("role_talents.company_status", "confirmed");
-
       const { data, error } = await query;
+      if (error) throw error;
 
-      if (error) {
-        // Fallback: some castings may have no confirmed talents; re-run without inner join
-        const { data: data2, error: err2 } = await supabase
-          .from("castings")
-          .select(`*, company:companies(id, name), applications(count)`)
-          .order("created_at", { ascending: false });
-        if (err2) throw error;
-        return data2 as CastingWithRelations[];
+      const castings = (data ?? []) as CastingWithRelations[];
+      const castingIds = castings.map((c) => c.id);
+      if (castingIds.length === 0) return castings;
+
+      // Fetch confirmed talents via casting_roles → role_talents
+      const { data: roles } = await supabase
+        .from("casting_roles")
+        .select("id, casting_id")
+        .in("casting_id", castingIds);
+
+      const roleToCasting = new Map<string, string>();
+      (roles ?? []).forEach((r: any) => roleToCasting.set(r.id, r.casting_id));
+      const roleIds = Array.from(roleToCasting.keys());
+
+      if (roleIds.length > 0) {
+        const { data: rts } = await supabase
+          .from("role_talents")
+          .select("casting_role_id, profile:profiles!role_talents_profile_id_fkey(id, first_name, last_name, profile_photo_url)")
+          .in("casting_role_id", roleIds)
+          .eq("company_status", "confirmed");
+
+        const byCasting = new Map<string, ConfirmedTalentThumb[]>();
+        (rts ?? []).forEach((rt: any) => {
+          const cid = roleToCasting.get(rt.casting_role_id);
+          if (!cid) return;
+          const arr = byCasting.get(cid) ?? [];
+          arr.push({ profile: rt.profile });
+          byCasting.set(cid, arr);
+        });
+        castings.forEach((c) => {
+          c.confirmed_talents = byCasting.get(c.id) ?? [];
+        });
+      } else {
+        castings.forEach((c) => (c.confirmed_talents = []));
       }
-      return data as CastingWithRelations[];
+
+      return castings;
     },
   });
 };
