@@ -1,36 +1,34 @@
-Solo modifiche di UI/presentazione. Nessuna logica di business.
+Solo modifiche di UI/presentazione.
 
-## 1. Progress bar al 100% → verde success
-`src/components/ui/progress.tsx`: sostituire il fill di completamento da `bg-[hsl(var(--olive))]` a `bg-[hsl(var(--success))]` (token `--success` già presente, verde più saturo e leggibile). Traccia neutra invariata.
+## 1. Design System: nuova sezione "Search & Filtri"
+In `src/pages/DesignSystem.tsx`, aggiungere un nuovo `SubBlock` che mostra i componenti reali usati nella pagina Casting:
+- `CastingFilters` (dropdown stato + input di ricerca con icona + dropdown ordinamento) importato da `src/components/castings/CastingFilters.tsx`, alimentato con state locale nel design system.
+- In alternativa/oltre: la search bar isolata (estratta visivamente dallo stesso componente) come esempio a sé stante.
 
-## 2. Badge stati casting in Semi Bold
-`CastingRow.tsx` è già `font-semibold`. Da aggiornare:
-- `src/components/castings/CastingCard.tsx`: aggiungere `font-semibold` alle etichette di stato.
-- `src/pages/DesignSystem.tsx`: nel mock CastingRow (righe ~819) aggiungere `font-semibold` all'etichetta stato per coerenza visiva.
+Nessuna estrazione di sotto-componenti: si riusa `CastingFilters` così com'è per garantire 1:1 con la pagina reale.
 
-## 3. Sezione pulsanti riorganizzata in `DesignSystem.tsx`
-Sostituire l'attuale blocco "Button · …" con una visualizzazione tabellare/ordinata a griglia che copra tutte le combinazioni:
+## 2. CastingRow: azioni hover come ghost medium
+In `src/components/castings/CastingRow.tsx`:
+- Sostituire i due `Button variant="ghost" size="icon"` (matita + cestino) con `variant="ghost" size="icon-md"` (40×40, coerente col DS).
+- Rimuovere le classi custom di colore: il cestino non deve più essere rosso in hover. Entrambi ereditano il colore neutro standard del ghost (`text-foreground`/`text-muted-foreground` di default, hover `bg-muted`).
+- Aggiornare in parallelo il mock in `DesignSystem.tsx` (CastingRow demo) con gli stessi bottoni.
 
-- **Varianti** (una riga per ciascuna, size = md): `default`, `secondary`, `outline`, `ghost`, `link`, `destructive`, `olive`, `charcoal`, `disabled`.
-- **Sizes** (per variante primaria): `sm 36px`, `md 40px`, `lg 48px` — mostrate affiancate con label altezza.
-- **Con icona a sinistra**: per ciascuna size (sm/md/lg), variante default + secondary.
-- **Con icona a destra**: per ciascuna size, variante default + secondary.
-- **Solo icona (quadrati)**: `icon-sm 36×36`, `icon-md 40×40`, `icon-lg 48×48` in default, outline, ghost.
-- **Stati**: hover (nota testuale), disabled, loading (opzionale se già usato altrove — altrimenti skip).
+## 3. CastingRow: "+ altri N" mancante
+Attualmente la logica `extra > 0` esiste già ma con `shown = confirmed.slice(0, 4)` il "+ altri" appare solo con >4 talent. Verificare che la resa sia corretta e che il testo sia visibile anche quando gli avatar riempiono la colonna. 
 
-Ogni riga con label a sinistra (es. "Default / md / icon left") e componenti sulla stessa riga, sfondo `dc-card`, hairline separatore fra righe per leggibilità.
+Correzione: la colonna "Selezione" ha larghezza fissa `180px`; con 4 avatar 48px sovrapposti (-ml-3) + "+ altri N" il contenuto va in overflow. Ridurre il numero mostrato a **3 avatar** e mostrare "+N" compatto (senza "altri") accanto, in cerchio 48px stile avatar oppure come piccolo badge testuale. Preferisco: mantenere 3 avatar visibili + un 4° "cerchio contatore" (`h-12 w-12 rounded-full bg-muted text-xs`) con "+N" quando confirmed.length > 3. Zero avatar → "—" come oggi.
 
-## 4. CastingRow: avatar Medium (48px)
-`src/components/castings/CastingRow.tsx` righe 80-82: cambiare `h-7 w-7` (28px) in `h-12 w-12` (48px = size medium del design system). Aggiornare anche il negative margin di overlap (`-ml-2` → `-ml-3`) e il fallback text-size (`text-[10px]` → `text-xs`) per proporzione.
-Aggiornare in parallelo il mock in `DesignSystem.tsx` (righe ~834-847) con le stesse classi.
+Aggiornare mock in DesignSystem in parallelo per riflettere il caso "+N".
 
-## 5. Talent tile pagina cliente: riusare il componente reale
-Nella `SubBlock "Talent tile (pagina cliente)"` di `DesignSystem.tsx`:
-- Estrarre `TalentTile` (attualmente locale in `src/pages/shared/SharedRound.tsx`) in un file dedicato `src/pages/shared/TalentTile.tsx` ed esportarlo. `SharedRound.tsx` continua ad usarlo tramite import.
-- Nel design system importare `TalentTile` reale e mostrarlo con 4 righe mock (usando `sharedRoundMock.ts` già esistente) su fondo scuro `#0F0F0F` (rispecchiando il contesto d'uso), in una griglia 2/4 colonne — così l'anteprima è 1:1 con la pagina cliente.
-- Rimuovere l'attuale placeholder inline con `<img>` pravatar.
+## 4. Button: ribilanciamento padding con icona
+In `src/components/ui/button.tsx`, variant `iconPosition`:
+- Attuale: `left: "pl-3 pr-7"`, `right: "pl-7 pr-3"`.
+- Nuovo: aumentare leggermente il padding lato icona e diminuire lato testo. Proposta:
+  - `left: "pl-4 pr-6"` (icona ha più respiro dal bordo, testo più vicino al bordo destro)
+  - `right: "pl-6 pr-4"`
+
+Nota: queste classi sovrascrivono il padding orizzontale delle size (sm/md/lg). Va bene: il ribilanciamento vale per tutte e tre le taglie in modo uniforme. Se il visual in DS mostra sm troppo stretto, si può fine-tunare, ma partiamo con questi valori.
 
 ## Tecnico
-- File modificati: `progress.tsx`, `CastingCard.tsx`, `CastingRow.tsx`, `DesignSystem.tsx`.
-- File nuovo: `src/pages/shared/TalentTile.tsx` (semplice estrazione, stesso markup).
-- Nessuna modifica a schema DB, hook, o logica.
+- File modificati: `src/pages/DesignSystem.tsx`, `src/components/castings/CastingRow.tsx`, `src/components/ui/button.tsx`.
+- Nessun file nuovo. Nessuna modifica a hook, schema o logica.
