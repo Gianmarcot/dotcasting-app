@@ -197,7 +197,7 @@ export const OwnerRoundDetail = () => {
   );
 
   const renderGrid = (rows: typeof filtered) => (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {rows.map((row) => (
         <RoundTalentTile
           key={row.talent.id}
@@ -212,12 +212,13 @@ export const OwnerRoundDetail = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <Button
-        variant="link"
+        variant="ghost"
+        size="sm"
         onClick={() => navigate(`/owner/castings/${castingId}`)}
-        className="-ml-4 h-auto p-0 text-foreground hover:no-underline"
+        className="-ml-2"
       >
-        <ArrowLeft className="mr-2" />
-        <span className="underline underline-offset-4">Torna al casting</span>
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Torna al casting
       </Button>
 
       <div className="flex flex-wrap items-start justify-between gap-4">

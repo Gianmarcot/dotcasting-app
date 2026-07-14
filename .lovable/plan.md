@@ -1,36 +1,27 @@
-## Redesign pagina dettaglio invio (`OwnerRoundDetail`)
+## Modifiche a `src/pages/owner/OwnerRoundDetail.tsx` e `src/components/castings/rounds/ClientPasswordCard.tsx`
 
-Solo modifiche di layout/estetica su `src/pages/owner/OwnerRoundDetail.tsx`. Usa componenti dal Design System (Button variants, Input, Switch, dc-card, TalentTile style dal DS).
+Solo UI, nessuna modifica di logica o dati.
 
-### Header
-- Link "← Torna al casting" come `Button variant="link"` con underline, allineato in alto a sinistra (rimuove lo stile ghost attuale).
-- Titolo `h1` in font-display uppercase (text-3xl, come `OwnerCastingDetail`), senza pill di stato accanto (la pill "Condiviso/Bozza" viene rimossa dall'header — lo stato è già chiaro dalla presenza della password card / azioni).
-- Azioni a destra su stessa riga: due `Button variant="secondary" size="md"` pill:
-  - "Copia Link" (icona `Link`) — visibile solo se `isShared`
-  - "Rigenera" (icona `RotateCcw`) — sempre visibile
-  - "Condividi" (primary md) — solo se non ancora condiviso
-  - "Modifica" (secondary md, icona `Pencil`) — solo se non condiviso
+### 1. Griglia sempre a 3 colonne
+In `OwnerRoundDetail.tsx`, cambiare la griglia da `grid-cols-2 md:grid-cols-3 xl:grid-cols-4` a `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` così le card restano a 3 colonne anche a viewport ampi.
 
-### Toolbar filtri
-- Search full-width `Input` con `rounded-full h-12` + icona search a sinistra, placeholder "Cerca un talent in questo invio".
-- A destra sulla stessa riga: `Switch` "Raggruppa per stato" e contatore "{filtered.length} di {total} risultati" in muted.
+### 2. Password card allineata in alto con le card
+Attualmente il layout wrappa `[grid + toolbar]` in una colonna e la password card in aside a fianco: la toolbar (search + toggle) spinge le card più in basso della password card.
 
-### Layout a due colonne (quando `isShared`)
-- Grid `grid-cols-[1fr_320px] gap-6`:
-  - Colonna sinistra: griglia talent
-  - Colonna destra: `ClientPasswordCard` (già esistente, resa `dc-card` con icona lucchetto in cima, titolo "PASSWORD CLIENTE" in etichetta base, descrizione, input "Nuova password", pulsante bordeaux "Salva" + link "Rimuovi").
-- Quando non condiviso: colonna singola full-width.
+Ristrutturare così quando `isShared`:
+- Container flex/grid `lg:grid-cols-[1fr_340px]` a livello del contenuto principale.
+- La toolbar (search + toggle raggruppa + counter) resta sopra, larghezza piena (span di entrambe le colonne) — usare un layout con `grid` esterno e la toolbar in una riga separata, poi riga sottostante con `[griglia | password card]` entrambe allineate a `items-start` così il top della password card coincide col top della prima card.
+- La password card perde `lg:sticky lg:top-6` (o lo teniamo, opzionale — la teniamo per comodità).
 
-### Griglia talent
-- 4 colonne desktop (`grid-cols-2 md:grid-cols-3 xl:grid-cols-4`), gap 4.
-- Ogni card: immagine `aspect-[3/4] rounded-2xl overflow-hidden`, con overlay in basso semitrasparente bordeaux, nome talent in `font-display uppercase text-white` e sotto la città in regular chiaro.
-- Click apre `TalentPreviewDrawer` (invariato).
-- Usa `VirtualBoardGrid` esistente se compatibile con il nuovo tile, altrimenti nuovo componente `RoundTalentTile` riprendendo lo stile del `TalentTile` del DS ma con overlay nome/città (verrà aggiunto anche a DesignSystem page).
+### 3. Input password come da Design System
+In `ClientPasswordCard.tsx` rimuovere `className="rounded-full h-11"` dall'`Input` così eredita lo stile default DS (stesso stile degli altri input della piattaforma).
 
-### ClientPasswordCard
-- Aggiornare styling interno: `dc-card` con `p-6`, icona `Lock` in alto, titolo etichetta base "PASSWORD CLIENTE", testo descrittivo muted, input rounded-full, riga con `Button` primary "Salva" e link "Rimuovi" (`dc-link-action`).
-
-### Note tecniche
-- Nessuna modifica di logica (hook, RPC, share, regen, wizard rimangono invariati).
-- Rimozione della barra progress standalone durante rigenerazione (mantenuta la logica ma renderizzata compatta sopra la griglia).
-- File toccati: `src/pages/owner/OwnerRoundDetail.tsx`, `src/components/castings/rounds/ClientPasswordCard.tsx`, nuovo `src/components/castings/rounds/RoundTalentTile.tsx`, aggiunta esempio a `src/pages/DesignSystem.tsx`.
+### 4. Pulsante Back come in OwnerCastingDetail
+In `OwnerRoundDetail.tsx` sostituire l'attuale link "Torna al casting" con:
+```tsx
+<Button variant="ghost" size="sm" onClick={() => navigate(`/owner/castings/${castingId}`)} className="-ml-2">
+  <ArrowLeft className="h-4 w-4 mr-1" />
+  Torna al casting
+</Button>
+```
+identico per stile/paddings a quello di `OwnerCastingDetail.tsx`.
