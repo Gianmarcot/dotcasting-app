@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, MapPin, Calendar, Euro, Edit } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, ChevronDown, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useCastingRoles } from "@/hooks/useCastingRoles";
@@ -14,7 +14,18 @@ import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
-import { useUpdateCasting, useUpdateCastingStatus } from "@/hooks/useCastings";
+import { useUpdateCasting, useUpdateCastingStatus, useDeleteCasting } from "@/hooks/useCastings";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
@@ -41,6 +52,8 @@ export const OwnerCastingDetail = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Tables<"casting_roles"> | null>(null);
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
 
   const { data: casting, isLoading: castingLoading } = useQuery({
     queryKey: ["casting-detail", castingId],
@@ -59,6 +72,8 @@ export const OwnerCastingDetail = () => {
   const { data: roles = [], isLoading: rolesLoading } = useCastingRoles(castingId);
   const updateCasting = useUpdateCasting();
   const updateStatus = useUpdateCastingStatus();
+  const deleteCasting = useDeleteCasting();
+
 
   const handleStatusChange = async (status: string) => {
     if (!castingId) return;
@@ -181,10 +196,16 @@ export const OwnerCastingDetail = () => {
               isFavorite={Boolean((casting as any).is_favorite)}
               size={22}
             />
-            <h1 className="font-display uppercase text-4xl tracking-wide text-foreground">
+            <h1 className="font-display uppercase text-3xl tracking-wide text-foreground">
               {casting.title}
             </h1>
           </div>
+
+          {casting.description && (
+            <p className="text-sm text-muted-foreground max-w-3xl whitespace-pre-wrap">
+              {casting.description}
+            </p>
+          )}
 
           {/* Metadata row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -193,11 +214,12 @@ export const OwnerCastingDetail = () => {
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
+                    "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
                     statusStyles[currentStatus],
                   )}
                 >
                   {statusLabels[currentStatus]}
+                  <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-40 p-1">
@@ -221,7 +243,7 @@ export const OwnerCastingDetail = () => {
 
             {casting.compensation_amount && (
               <span className="inline-flex items-center gap-1">
-                <Euro className="h-4 w-4" />
+                <Wallet className="h-4 w-4" />
                 {casting.compensation_amount} {casting.currency || "EUR"}
               </span>
             )}
@@ -233,7 +255,7 @@ export const OwnerCastingDetail = () => {
             )}
             {formatDates() && (
               <span className="inline-flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
                 {formatDates()}
               </span>
             )}
@@ -241,7 +263,7 @@ export const OwnerCastingDetail = () => {
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Button variant="ghost" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
+          <Button variant="secondary" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
             <Edit className="h-4 w-4" />
             Modifica
           </Button>
@@ -251,6 +273,9 @@ export const OwnerCastingDetail = () => {
           </Button>
         </div>
       </div>
+
+      <div className="border-t border-border" />
+
 
       {/* RUOLI */}
       <div className="space-y-4">
@@ -279,6 +304,52 @@ export const OwnerCastingDetail = () => {
           />
         )}
       </div>
+
+      <div className="pt-4">
+        <button
+          type="button"
+          onClick={() => setConfirmDeleteOpen(true)}
+          className="inline-flex items-center gap-2 text-sm text-[hsl(var(--destructive))] underline underline-offset-4 hover:opacity-80 transition-opacity"
+        >
+          <Trash2 className="h-4 w-4" />
+          Elimina casting
+        </button>
+      </div>
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display uppercase tracking-widest">
+              Eliminare il casting?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Il casting "{casting.title}" e tutti i ruoli/invii associati verranno eliminati.
+              Operazione irreversibile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-[hsl(var(--destructive))] hover:opacity-90 text-white"
+              disabled={deleteCasting.isPending}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!castingId) return;
+                try {
+                  await deleteCasting.mutateAsync(castingId);
+                  toast({ title: "Casting eliminato" });
+                  navigate("/owner/castings");
+                } catch (err: any) {
+                  toast({ title: "Errore", description: err?.message, variant: "destructive" });
+                }
+              }}
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <AddRoleDialog
         open={roleDialogOpen}

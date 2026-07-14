@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { Link as LinkIcon, Trash2, ChevronRight, Share2 } from "lucide-react";
+import { Link as LinkIcon, Trash2, ChevronRight, Share2, Folder, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
@@ -49,10 +49,12 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isShared = round.status === "shared";
+  const hasClientSelection = preview?.hasClientSelection ?? false;
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
   const shown = items.slice(0, 3);
   const extra = Math.max(0, total - shown.length);
+
 
   const open = () => navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
   const stop = (e: React.MouseEvent) => e.stopPropagation();
@@ -93,24 +95,31 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
         className="group grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
       >
         {/* Round label + date */}
-        <div className="min-w-0">
-          <div className="font-medium text-foreground truncate">{round.label}</div>
-          <div className="text-xs text-muted-foreground">{shortDate}</div>
+        <div className="min-w-0 flex items-center gap-3">
+          <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
+          <div className="min-w-0">
+            <div className="font-medium text-foreground truncate">{round.label}</div>
+            <div className="text-xs text-muted-foreground">{shortDate}</div>
+          </div>
         </div>
 
         {/* Status */}
-        <div>
-          <Badge
-            className={cn(
-              "font-semibold",
-              isShared
-                ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]"
-                : "bg-muted text-muted-foreground",
-            )}
-          >
-            {isShared ? "Condiviso" : "Bozza"}
-          </Badge>
+        <div className="flex items-center gap-2 text-sm">
+          {isShared && hasClientSelection ? (
+            <>
+              <CheckCheck className="h-4 w-4 text-[hsl(var(--success))]" />
+              <span className="text-foreground">Selezionati</span>
+            </>
+          ) : isShared ? (
+            <>
+              <CheckCheck className="h-4 w-4 text-muted-foreground" />
+              <span className="text-foreground">Condiviso</span>
+            </>
+          ) : (
+            <span className="text-muted-foreground">Non condiviso</span>
+          )}
         </div>
+
 
         {/* Selezione — avatar stack */}
         <div className="flex items-center">

@@ -33,12 +33,19 @@ export const RoleRoundsCompartment = ({
   const total = role.role_talents_count ?? 0;
   const openRole = () => navigate(`/owner/castings/${castingId}/${role.id}`);
 
-  const specs = [
-    role.gender,
-    role.age_min && role.age_max ? `${role.age_min}-${role.age_max} anni` : null,
-    role.budget ? `€${role.budget}` : null,
-    role.location,
-  ].filter(Boolean);
+  const genderLabel = (() => {
+    const g = (role.gender ?? "").toLowerCase();
+    if (g === "male" || g === "m" || g === "maschio") return "Maschio";
+    if (g === "female" || g === "f" || g === "femmina") return "Femmina";
+    if (!g) return null;
+    if (g === "other" || g === "altro") return "Altro";
+    return role.gender;
+  })();
+
+  const ageLabel =
+    role.age_min && role.age_max ? `${role.age_min} – ${role.age_max} anni` : null;
+
+  const subtitle = [genderLabel, ageLabel].filter(Boolean).join(" • ");
 
   const sortedRounds = [...rounds].sort(
     (a, b) => +new Date(a.created_at) - +new Date(b.created_at),
@@ -63,8 +70,8 @@ export const RoleRoundsCompartment = ({
               {confirmedCount}/{total} approvati
             </Badge>
           </div>
-          {specs.length > 0 && (
-            <p className="text-sm text-muted-foreground">{specs.join(" · ")}</p>
+          {subtitle && (
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}
         </div>
 
@@ -73,6 +80,9 @@ export const RoleRoundsCompartment = ({
           <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </div>
+
+      <div className="border-t border-border/60" />
+
 
       {/* Tabella rounds */}
       <div>
@@ -98,7 +108,7 @@ export const RoleRoundsCompartment = ({
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex items-center justify-center gap-2 text-muted-foreground"
+          className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-[#1a1a1a] transition-colors flex items-center justify-center gap-2 text-muted-foreground"
         >
           <Plus className="h-4 w-4" />
           <span className="text-sm">
