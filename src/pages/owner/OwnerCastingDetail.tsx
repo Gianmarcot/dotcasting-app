@@ -216,35 +216,16 @@ export const OwnerCastingDetail = () => {
 
           {/* Metadata row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
-                    statusStyles[currentStatus],
-                  )}
-                >
-                  {statusLabels[currentStatus]}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-40 p-1">
-                {(["draft", "active", "closed"] as const).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => handleStatusChange(s)}
-                    className={cn(
-                      "w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors",
-                      currentStatus === s && "font-medium",
-                    )}
-                  >
-                    {statusLabels[s]}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
+            <Select value={currentStatus} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-40 rounded-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">{statusLabels.draft}</SelectItem>
+                <SelectItem value="active">{statusLabels.active}</SelectItem>
+                <SelectItem value="closed">{statusLabels.closed}</SelectItem>
+              </SelectContent>
+            </Select>
 
             {casting.company && <span>{casting.company.name}</span>}
 
