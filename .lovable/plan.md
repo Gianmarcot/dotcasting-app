@@ -1,87 +1,87 @@
-# Audit generazione PDF invii — bug e fix
+## Obiettivo
 
-## Cosa ho verificato
+Rifare il modale di dettaglio talent nella pagina cliente (`/round/:token` — `SharedRound.tsx`) passando dal pannello scuro attuale a un modale ampio chiaro, con galleria a sinistra + scheda a destra + navigazione tra talent in alto. Nessun cambio di dati o logica: solo layout e tema.
 
-Ho tracciato il flusso completo: wizard di creazione invio → `fetchRoundTalents` / `mapToTalent` → `resolveCard` → `TalentCardPDF` (renderer PDF) → RPC `get_shared_round` → drawer talent in `SharedRound.tsx`.
+## Ambito
 
-## Bug e discrepanze trovate
+- File toccato: `src/pages/shared/SharedRound.tsx` (solo il sotto-componente `TalentDetailSheet` e il suo trigger).
+- Nessuna modifica a hook, RPC, generazione PDF, contatore selezione o barra "Prosegui" (che restano fuori dal modale, come oggi).
+- Uso di componenti DS: `Dialog`, `Button` (bordeaux come `primary`), `ScrollArea`, `Avatar` per gli avatar dei talent nel selettore.
 
-### 1. Categorie foto: la feature non esiste (punto 1)
-Il wizard `RoundWizardDialog` **non ha alcun selettore di categorie foto**. Ha solo un dropdown "3 / 6 / tutte le foto" (`preset.photoCount`).
+## Struttura nuovo modale
 
-Sia `mapToTalent` (in `fetchRoundTalents.ts`) sia la RPC `get_shared_round` filtrano hardcoded a `category === 'main_photos'`. Quindi: solo le "Foto principali" finiscono sia nel drawer sia nel PDF. Nessuna delle altre 4 categorie foto (polaroids, mani, piedi, lavori) è mai selezionabile o mostrata.
-
-→ Se questa deve essere una feature, va aggiunta esplicitamente (nuovo `preset.photoCategories: string[]`, UI di selezione nello step 2 del wizard, propagazione a `mapToTalent` e alla RPC).
-
-### 2. Drawer cliente ≠ PDF sullo stesso invio (punti 2, 3, 10)
-- Drawer (`SharedRound → TalentDetailSheet`): mostra **tutte** le `main_photos` del talent nell'ordine `sort_order`.
-- PDF (`resolveCard`): usa `photos[0]` e `photos[1]` come cover, poi `photos.slice(2)` limitate da `preset.photoCount`.
-
-Con `photoCount = 3` e 8 foto in DB: il drawer mostra 8 immagini, il PDF ne mostra 5 (2 cover + 3 gallery). Ordine coerente, ma **set diverso**.
-
-→ Fix: normalizzare la sorgente. Opzioni:
-- (a) drawer rispetta anche lui `preset.photoCount` (esporre il numero dalla RPC),
-- (b) PDF include tutte le foto (rimuovere il limit di default) e il dropdown "3/6/tutte" viene mantenuto ma si applica coerentemente a entrambi.
-Preferisco (a): meno rischio di rompere PDF già condivisi.
-
-### 3. Griglia PDF non è 3-col fissa (punto 4) — BUG CONFERMATO
-In `src/lib/casting/TalentCardPDF.tsx`, le pagine galleria fanno:
-```tsx
-{photos.map((src) => <View style={s.col}><Image ... /></View>)}
-```
-`s.col` ha `flex: 1`. Con `chunk(limited, 3)` l'ultima pagina può avere 1 o 2 foto: quelle immagini si espandono a metà/piena pagina, non restano nella cella 1/3.
-
-→ Fix: nel `.map` della galleria, paddare l'array a lunghezza 3 e renderizzare `<View style={s.col} />` vuoto per gli slot mancanti.
-
-### 4. Aspect ratio disallineato tra drawer / PDF / web card (punto 5) — BUG CONFERMATO
-- Drawer condiviso: `aspect-[3/4]` (0.75, verticale alto).
-- `TalentCardWeb` (preview interno wizard): `lg:aspect-[2/3]` (0.67).
-- PDF: pagina 842×472, colonna ≈278pt di larghezza, altezza cella ≈454pt → ratio ≈ **3:5** (0.61, molto più stretta).
-
-Le foto usano `objectFit: cover` ovunque, quindi vengono **croppate in modo diverso** in ciascuna vista.
-
-→ Fix: allineare tutti e tre a uno stesso ratio (proposta: 2:3, comune nell'industria). Nel PDF significa cambiare formato pagina o l'altezza cella; nel drawer sostituire `aspect-[3/4]` con `aspect-[2/3]`.
-
-### 5. Rigenerazione non automatica alla modifica foto (punti 8, 9)
-`useUpdateRound` rigenera i PDF solo se: (a) preset cambiato, (b) talent aggiunti. Se il talent modifica il proprio profilo/foto **dopo** che l'invio è già stato condiviso, il PDF resta con dati vecchi finché l'utente non clicca manualmente "Rigenera" su `OwnerRoundDetail`.
-
-→ Fix minimo: banner/warning su `OwnerRoundDetail` quando esiste almeno un talent la cui `profiles.updated_at` o `talent_media.updated_at` è successiva a `casting_round_talents.generated_at`, con CTA "Rigenera".
-→ Fix completo (opzionale): trigger DB che marca il round come "stale" quando cambia una foto/profilo di un talent incluso.
-
-## Non-bug (verifiche OK)
-
-- **Punto 6 (mescolamento gallerie)**: ogni PDF è per singolo talent (`castings/{castingId}/rounds/{roundId}/{slug-nome}.pdf`). Nessun mix possibile.
-- **Punto 7 (categorie vuote)**: `chunk([], 3)` → `[]`, nessuna pagina generata. Nessun layout rotto.
-- **Punto 8 (dati cover)**: al momento della rigenerazione i dati sono freschi (fetch DB live). Il problema è quando non si rigenera (vedi #5).
-
-## Piano di fix proposto (ordine consigliato)
-
-1. **PDF grid fixed 3-col** (bug #3): patch `TalentCardPDF.tsx` per paddare la galleria a multipli di 3 con celle vuote.
-2. **Aspect ratio uniforme 2:3** (bug #4): drawer `SharedRound`, `TalentCardWeb`, cella PDF.
-3. **Set foto coerente drawer/PDF** (bug #2): la RPC `get_shared_round` restituisce `photo_count` dal preset e il drawer applica lo slice; oppure il drawer riflette esattamente la logica `resolveCard`.
-4. **Warning "PDF non aggiornato"** su `OwnerRoundDetail` (bug #5): confronto `updated_at` vs `generated_at` con badge + CTA rigenera.
-5. **[Feature opzionale]** Selezione categorie foto nel wizard: da confermare se serve davvero o se "solo main_photos" è per design.
-
-## Dettagli tecnici
-
-**Bug #3 fix esempio** (`TalentCardPDF.tsx`):
-```tsx
-{card.galleryPages.map((photos, i) => {
-  const padded = [...photos, ...Array(3 - photos.length).fill(null)].slice(0, 3);
-  return (
-    <Page key={i} size={PAGE} style={s.page}>
-      {padded.map((src, j) => (
-        <View key={j} style={s.col}>
-          {src && <Image src={src} style={s.cover} />}
-        </View>
-      ))}
-    </Page>
-  );
-})}
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  [Avatar+Nome] [Avatar+Nome] [•Avatar+Nome•] …  [⬇] [✕]     │  header sticky
+├───────────────────────────────────────┬──────────────────────┤
+│                                       │  NOME TALENT (H1)    │
+│         IMMAGINE PRINCIPALE           │  ─────────────────   │
+│              (aspect 2:3)             │  GENERALE            │
+│                                       │  Età · Genere · Città│
+│                                       │                      │
+│                                       │  ASPETTO             │
+├───────────────────────────────────────┤  Altezza · Peso …    │
+│  [thumb][thumb][thumb][thumb][thumb]  │                      │
+│         filmstrip scrollabile         │  MISURE              │
+│                                       │  Maglia · Pantaloni …│
+├───────────────────────────────────────┴──────────────────────┤
+│           [ Seleziona talent / Deseleziona ]  (bordeaux)     │  footer sticky
+└──────────────────────────────────────────────────────────────┘
 ```
 
-**Bug #2 fix**: aggiungere `photo_count` al payload di `get_shared_round` (jsonb builder RPC) e in `SharedRound.tsx` fare `photos.slice(0, photoCount ?? photos.length)`.
+### Header (sticky, sfondo crema)
 
-## Domanda per confermare lo scope
+- Selettore talent: strip orizzontale scrollabile con pill `[Avatar 24px + Nome]` per ogni talent del round; quello attivo con bordo bordeaux + testo bordeaux, gli altri neutri.
+- A destra restano solo le due icone attuali: **Download PDF** e **Chiudi** — stesso comportamento, restilizzate su tema chiaro (hover `bg-muted`).
 
-Ti va bene procedere con i **fix 1–4** (bug puri, no cambio di funzionalità)? Il punto 5 (selezione categorie foto) è una **nuova feature**: dimmi se lo vuoi in questo giro o se lo trattiamo separatamente.
+### Colonna sinistra — Galleria (~60% larghezza, `lg:col-span-3` su 5)
+
+- Contenitore con **scroll indipendente** (`overflow-y-auto`).
+- **Immagine hero** in alto: aspect `2/3`, `rounded-2xl`, `object-cover`, click → apre lightbox esistente.
+- **Filmstrip** sotto: riga orizzontale scrollabile di miniature (aspect `2/3`, larghezza fissa ~72px, `rounded-lg`); click su una miniatura la promuove a hero (stato locale `activeIndex`).
+- Se le foto sono ≤ 1: nessuna filmstrip.
+- Placeholder `ImageOff` se il talent non ha foto.
+- Il set foto rispetta `photoCountFromRound` come oggi.
+
+### Colonna destra — Scheda info (~40%, `lg:col-span-2`)
+
+- **Scroll indipendente** (`overflow-y-auto`, `overscroll-contain` per non propagare alla galleria).
+- Header locale: `NOME TALENT` in `font-tenor uppercase` grande, sottotitolo con status pill (Confermato/Scartato) se presente.
+- Sezioni invariate (contenuti già mappati in `buildTalent`):
+  - **GENERALE**: Età, Genere, Città
+  - **ASPETTO**: Altezza, Peso, Colore occhi, Colore capelli, Lunghezza capelli, Tipo capelli, Segni particolari
+  - **MISURE**: Taglia maglia, Taglia pantaloni, Taglia giacca, Scarpe, Petto, Vita
+- Titoli sezione (`DetailSection`) restilizzati: `font-tenor uppercase tracking-widest text-xs text-primary`
+- `DetailRow`: label `text-muted-foreground` `uppercase text-[10px]`, value `text-foreground text-sm`.
+
+### Footer (sticky, sfondo crema, bordo top)
+
+- Bottone **Seleziona talent** / **Deseleziona** a piena larghezza (o allineato a destra), `variant="default"` bordeaux, `size="lg"`; disabilitato se `!selectable`. Stessa funzione `onToggle` di oggi.
+- La barra flottante esterna "X di Y selezionati / Prosegui" resta come oggi, sotto il modale — non viene toccata.
+
+## Tema chiaro (design tokens)
+
+- Superficie modale: `bg-background` (crema/bianco) su overlay scuro standard del Dialog DS.
+- Testo: `text-foreground`, secondari `text-muted-foreground`.
+- Accenti (titoli sezione, pill talent attivo, bottoni primari, download icon hover): `text-primary` / `bg-primary` bordeaux.
+- Bordi/hairline: `border-border`.
+- Rimossi tutti i colori hardcoded (`#0F0F0F`, `#F5F0E8`, `bg-white/10`, ecc.) dal componente modale.
+
+## Comportamento nuovi elementi
+
+1. **State locale**: `activeIndex` (foto attiva) reset a `0` ogni volta che cambia `row.role_talent_id`.
+2. **Navigazione talent**: click su una pill → il parent passa `detailsId` diverso; il modale resta aperto, il contenuto si aggiorna, `activeIndex` reset.
+3. **Scroll isolato**: la galleria (sinistra) e la scheda (destra) hanno ciascuna `overflow-y-auto` + `overscroll-contain`; il body del modale non scrolla.
+4. **Responsive**: sotto `lg` il layout collassa a colonna singola (galleria sopra, scheda sotto), stessa logica ma senza sticky laterale.
+
+## Dettagli tecnici implementativi
+
+- `TalentDetailSheet` riceve nuovi prop: `talents: RpcTalentRow[]`, `onSelectTalent: (id: string) => void`, `selectedSet: Set<string>` (per marcare visivamente le pill già selezionate).
+- Il parent (`SharedRound`) passa l'array completo `talents` e sostituisce `onToggle` con `() => toggle(row.role_talent_id)` calcolato al volo.
+- Riuso di `MediaLightbox`/lightbox esistente per l'hero click.
+- `DialogContent`: `max-w-6xl w-[95vw] max-h-[90vh] p-0 rounded-3xl overflow-hidden grid grid-rows-[auto_1fr_auto] lg:grid-cols-[3fr_2fr]` (header e footer span colonne).
+
+## Fuori scope
+
+- Nessun cambio a PDF, RPC, generazione, mock, `TalentTile`, header pagina, floating bar di conferma.
+- Nessuna nuova query o campo aggiuntivo: si usa quanto già ritornato da `get_shared_round`.
