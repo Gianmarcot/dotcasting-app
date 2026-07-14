@@ -1086,6 +1086,13 @@ const BlocksSection = () => (
         </div>
       </div>
     </SubBlock>
+
+    <SubBlock
+      title="Talent board card + drawer (database talenti)"
+      source="src/components/talents/TalentBoardCard.tsx · TalentPreviewDrawer.tsx"
+    >
+      <TalentDatabaseDemo />
+    </SubBlock>
   </Section>
 );
 
