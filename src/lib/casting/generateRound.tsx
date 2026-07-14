@@ -89,10 +89,12 @@ export async function generateRoundPdfs(opts: {
   for (let i = 0; i < items.length; i++) {
     const { roleTalentId, talent } = items[i];
 
-    // Pre-check di ogni foto: sostituisce l'URL con uno raggiungibile
-    // (transform o originale), scarta quelle non raggiungibili.
+    // Pre-scarica ogni foto come data URL: react-pdf non farà più
+    // network durante il render, quindi ogni foto visibile nel drawer
+    // finisce sicuramente anche nel PDF. Le url irraggiungibili vengono
+    // scartate (cella vuota) invece di generare buchi neri.
     const resolvedPhotos = (
-      await Promise.all(talent.photos.map((u) => resolvePhotoUrl(u)))
+      await Promise.all(talent.photos.map((u) => fetchPhotoAsDataUrl(u)))
     ).filter((u): u is string => Boolean(u));
     const talentSafe: Talent = { ...talent, photos: resolvedPhotos };
 
