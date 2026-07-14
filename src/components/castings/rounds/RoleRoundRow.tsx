@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { Link as LinkIcon, Trash2, ChevronRight, Share2 } from "lucide-react";
+import { Link as LinkIcon, Trash2, ChevronRight, Share2, Folder, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
