@@ -13,11 +13,15 @@ export interface RoundTalentRow {
   // counts
   photosCount: number;
   videosCount: number;
+  /** true se il profilo o i media sono stati modificati dopo la generazione PDF */
+  isStale: boolean;
 }
 
 export interface RoundDetail {
   round: CastingRound;
   talents: RoundTalentRow[];
+  /** true se almeno un talent ha PDF obsoleto */
+  hasStale: boolean;
 }
 
 export const useRoundDetail = (roundId: string | undefined) =>
@@ -43,11 +47,13 @@ export const useRoundDetail = (roundId: string | undefined) =>
               city, country, gender, birth_date, profile_photo_url,
               talent_categories, bio, nationality, ethnicity,
               gender_identity, representation_type, has_vat_number,
+              updated_at,
               talent_attributes(
                 height, weight, hair_color, hair_length, eye_color,
-                skills, languages, chest, hips, shirt_size, shoe_size
+                skills, languages, chest, hips, shirt_size, shoe_size,
+                updated_at
               ),
-              talent_media(id, media_type)
+              talent_media(id, media_type, updated_at, created_at)
             )
           )
         `)
@@ -58,9 +64,23 @@ export const useRoundDetail = (roundId: string | undefined) =>
         .filter((r) => r.role_talent?.profile)
         .map((r) => {
           const p = r.role_talent.profile;
-          const media = (p.talent_media ?? []) as { media_type: string }[];
+          const media = (p.talent_media ?? []) as { media_type: string; updated_at?: string | null; created_at?: string | null }[];
           const photos = media.filter((m) => m.media_type === "photo").length;
           const videos = media.filter((m) => m.media_type === "video").length;
+
+          // Rilevamento stale: max(updated_at profilo, attributes, media) > generated_at
+          const timestamps: (string | null | undefined)[] = [
+            p.updated_at,
+            p.talent_attributes?.[0]?.updated_at,
+            ...media.map((m) => m.updated_at ?? m.created_at),
+          ];
+          const latestChange = timestamps
+            .filter((t): t is string => !!t)
+            .map((t) => new Date(t).getTime())
+            .reduce((a, b) => Math.max(a, b), 0);
+          const generatedAtMs = r.generated_at ? new Date(r.generated_at).getTime() : 0;
+          const isStale = !!r.pdf_path && generatedAtMs > 0 && latestChange > generatedAtMs;
+
           const talent: TalentWithAttributes = {
             id: p.id,
             user_id: p.user_id,
@@ -90,12 +110,14 @@ export const useRoundDetail = (roundId: string | undefined) =>
             talent,
             photosCount: photos,
             videosCount: videos,
+            isStale,
           };
         });
 
       return {
         round: round as unknown as CastingRound,
         talents,
+        hasStale: talents.some((t) => t.isStale),
       };
     },
   });
