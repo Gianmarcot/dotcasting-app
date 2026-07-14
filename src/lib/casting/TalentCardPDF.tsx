@@ -67,21 +67,21 @@ const s = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
     justifyContent: "space-between",
+    overflow: "hidden",
   },
   name: {
     fontFamily: DISPLAY,
-    fontSize: 19,
     textAlign: "left",
     textTransform: "uppercase",
-    lineHeight: 1.25,
+    lineHeight: 1.2,
   },
   rule: { borderBottomWidth: 0.5, borderBottomColor: HAIRLINE, marginVertical: 14 },
 
   cols: { flexDirection: "row", gap: 16 },
   fieldCol: { flex: 1 },
   row: { flexDirection: "row", flexWrap: "wrap", marginBottom: 5 },
-  label: { fontFamily: SANS, fontSize: 6.5, fontWeight: 700 },
-  value: { fontFamily: SANS, fontSize: 6.5, color: "#F4F0EC" },
+  label: { fontFamily: SANS, fontWeight: 700 },
+  value: { fontFamily: SANS, color: "#F4F0EC" },
 
   contact: { fontFamily: SANS, fontSize: 6.5, marginTop: 4 },
 
@@ -98,6 +98,10 @@ const s = StyleSheet.create({
   logoGlyph: { fontFamily: DISPLAY, fontSize: 11 },
   footerText: { fontFamily: SANS, fontSize: 8 },
 });
+
+// Font-size adattivi per evitare overflow del pannello
+const getNameSize = (name: string) => (name.length > 22 ? 15 : name.length > 16 ? 17 : 19);
+const getRowsFontSize = (rowsTotal: number) => (rowsTotal > 18 ? 5.5 : rowsTotal > 14 ? 6 : 6.5);
 
 const FieldRow = ({ row }: { row: ResolvedRow }) => (
   <View style={s.row}>
