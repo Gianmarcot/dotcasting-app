@@ -140,20 +140,12 @@ function TalentDetailSheet({
 }: TalentDetailSheetProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const stripRef = useRef<HTMLDivElement | null>(null);
-  const slotRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const activeAvatarRef = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
 
   // Reset active photo whenever the talent changes
   useEffect(() => {
     setActiveIndex(0);
-  }, [row?.role_talent_id]);
-
-  // Center active pill on change
-  useEffect(() => {
-    if (!row) return;
-    const el = slotRefs.current.get(row.role_talent_id);
-    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [row?.role_talent_id]);
 
   const currentIdx = row ? talents.findIndex((t) => t.role_talent_id === row.role_talent_id) : -1;
@@ -164,6 +156,22 @@ function TalentDetailSheet({
     if (currentIdx >= 0 && currentIdx < talents.length - 1)
       onSelectTalent(talents[currentIdx + 1].role_talent_id);
   };
+
+  // Center active mini-avatar in the strip
+  useEffect(() => {
+    activeAvatarRef.current?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [row?.role_talent_id]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNextTalent();
+      else if (e.key === "ArrowLeft") goPrevTalent();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [open, currentIdx, talents.length]);
 
   const onTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -196,99 +204,70 @@ function TalentDetailSheet({
   const photos = photoCount == null ? allPhotos : allPhotos.slice(0, 2 + Math.max(0, photoCount));
   const heroPhoto = photos[Math.min(activeIndex, Math.max(photos.length - 1, 0))] ?? null;
 
-  const scaleForOffset = (off: number) => {
-    const abs = Math.abs(off);
-    if (abs === 0) return 1;
-    if (abs === 1) return 0.85;
-    if (abs === 2) return 0.7;
-    if (abs === 3) return 0.55;
-    return 0.5;
-  };
+  const activeName = getTalentDisplayName(row);
+  const activeAvatar = getTalentAvatarUrl(row);
+  const showStrip = talents.length > 1;
+  const atStart = currentIdx <= 0;
+  const atEnd = currentIdx >= talents.length - 1;
 
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent
-          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-visible gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
+          className={cn(
+            "max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border",
+            "grid",
+            showStrip
+              ? "grid-rows-[auto_auto_1fr]"
+              : "grid-rows-[auto_1fr]"
+          )}
         >
-          {/* External nav arrows */}
-          <button
-            type="button"
-            onClick={goPrevTalent}
-            disabled={currentIdx <= 0}
-            aria-label="Talent precedente"
-            className="hidden md:flex absolute left-0 md:-left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button
-            type="button"
-            onClick={goNextTalent}
-            disabled={currentIdx >= talents.length - 1}
-            aria-label="Talent successivo"
-            className="hidden md:flex absolute right-0 md:-right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-
-          <div className="rounded-3xl overflow-hidden grid grid-rows-[auto_1fr] min-h-0 h-full">
-          {/* ---------- Header: talent switcher + actions ---------- */}
+          {/* ---------- Header ---------- */}
           <DialogHeader className="flex-row items-center gap-3 px-4 md:px-6 py-3 border-b border-border space-y-0 shrink-0 bg-background">
-            <div
-              ref={stripRef}
-              className="flex-1 min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
-              style={{
-                maskImage:
-                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
-                WebkitMaskImage:
-                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
-              }}
-              onTouchStart={onTouchStart}
-              onTouchEnd={onTouchEnd}
-            >
-              <div className="flex items-center gap-2 w-max px-[40%] py-2">
-                {talents.map((t, i) => {
-                  const isActive = t.role_talent_id === row.role_talent_id;
-                  const isSelected = selectedSet.has(t.role_talent_id);
-                  const name = getTalentDisplayName(t);
-                  const avatarUrl = getTalentAvatarUrl(t);
-                  const scale = scaleForOffset(currentIdx >= 0 ? i - currentIdx : 0);
-                  return (
-                    <button
-                      key={t.role_talent_id}
-                      ref={(el) => {
-                        if (el) slotRefs.current.set(t.role_talent_id, el);
-                        else slotRefs.current.delete(t.role_talent_id);
-                      }}
-                      type="button"
-                      onClick={() => onSelectTalent(t.role_talent_id)}
-                      style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
-                      className={cn(
-                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all duration-300 shrink-0",
-                        isActive
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
-                      )}
-                    >
-                      <Avatar className={cn("shrink-0", isActive ? "h-9 w-9" : "h-7 w-7")}>
-                        <AvatarImage src={avatarUrl} alt={name} />
-                        <AvatarFallback className="text-[10px]">
-                          {name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className={cn("font-medium whitespace-nowrap max-w-[160px] truncate", isActive ? "text-sm" : "text-xs")}>
-                        {name}
-                      </span>
-                      {isSelected && (
-                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground shrink-0">
-                          <Check className="h-2.5 w-2.5" strokeWidth={3} />
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+            {/* Nav cluster */}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={goPrevTalent}
+                disabled={atStart}
+                aria-label="Talent precedente"
+                className="inline-flex items-center justify-center h-9 w-9 rounded-full hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="font-tenor text-[13px] tabular-nums text-muted-foreground min-w-[3rem] text-center select-none">
+                {currentIdx + 1} / {talents.length}
+              </span>
+              <button
+                type="button"
+                onClick={goNextTalent}
+                disabled={atEnd}
+                aria-label="Talent successivo"
+                className="inline-flex items-center justify-center h-9 w-9 rounded-full hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Active talent identity (center) */}
+            <div className="flex-1 min-w-0 flex justify-center">
+              <div className="inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-primary bg-primary/10 text-primary max-w-full">
+                <Avatar className="shrink-0 h-8 w-8">
+                  <AvatarImage src={activeAvatar} alt={activeName} />
+                  <AvatarFallback className="text-[10px]">
+                    {activeName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-medium text-sm truncate">{activeName}</span>
+                {selected && (
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground shrink-0">
+                    <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                  </span>
+                )}
               </div>
             </div>
+
+            {/* Actions */}
             <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="outline"
@@ -298,13 +277,13 @@ function TalentDetailSheet({
                 className="rounded-full gap-2"
               >
                 {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-                Scarica PDF
+                <span className="hidden sm:inline">Scarica PDF</span>
               </Button>
               <button
                 type="button"
                 onClick={onClose}
                 aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-foreground hover:bg-muted h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-foreground hover:bg-muted h-9 w-9 rounded-full transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -312,38 +291,91 @@ function TalentDetailSheet({
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
 
+          {/* ---------- Talent strip (mini avatars) ---------- */}
+          {showStrip && (
+            <div className="relative border-b border-border bg-background shrink-0">
+              <div
+                className="overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+                onTouchStart={onTouchStart}
+                onTouchEnd={onTouchEnd}
+              >
+                <div className="flex items-center gap-2 px-6 py-2.5 w-max mx-auto snap-x snap-mandatory">
+                  {talents.map((t) => {
+                    const isActive = t.role_talent_id === row.role_talent_id;
+                    const isSelected = selectedSet.has(t.role_talent_id);
+                    const name = getTalentDisplayName(t);
+                    const avatarUrl = getTalentAvatarUrl(t);
+                    return (
+                      <button
+                        key={t.role_talent_id}
+                        ref={isActive ? activeAvatarRef : undefined}
+                        type="button"
+                        onClick={() => onSelectTalent(t.role_talent_id)}
+                        title={name}
+                        aria-label={name}
+                        aria-current={isActive ? "true" : undefined}
+                        className="relative shrink-0 snap-center rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <Avatar
+                          className={cn(
+                            "h-8 w-8 transition-all",
+                            isActive
+                              ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                              : "opacity-70 hover:opacity-100"
+                          )}
+                        >
+                          <AvatarImage src={avatarUrl} alt={name} />
+                          <AvatarFallback className="text-[10px]">
+                            {name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        {isSelected && (
+                          <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center w-3.5 h-3.5 rounded-full bg-primary text-primary-foreground ring-2 ring-background">
+                            <Check className="h-2 w-2" strokeWidth={3} />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {/* edge fades (overlay, do not block clicks) */}
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+            </div>
+          )}
 
           {/* ---------- Body: gallery + info ---------- */}
           <div className="min-h-0 grid grid-cols-1 lg:grid-cols-5">
             {/* Left: gallery */}
             <div
-              className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border"
+              className="lg:col-span-3 min-h-0 bg-muted/30 border-b lg:border-b-0 lg:border-r border-border grid grid-rows-[1fr_auto]"
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >
-              <div className="p-4 md:p-6 space-y-4">
+              <div className="min-h-0 p-4 md:p-6 flex items-center justify-center">
                 {heroPhoto ? (
                   <button
                     type="button"
                     onClick={() => setLightbox(heroPhoto)}
-                    className="w-full aspect-[2/3] max-h-[65vh] mx-auto block overflow-hidden bg-muted rounded-2xl group"
-                    style={{ maxWidth: "min(100%, calc(65vh * 2/3))" }}
+                    className="h-full max-h-full max-w-full flex items-center justify-center group"
                   >
                     <img
                       src={heroPhoto}
                       alt={talent.nome}
-                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      className="max-h-full max-w-full object-contain rounded-2xl group-hover:scale-[1.01] transition-transform duration-500"
                     />
                   </button>
                 ) : (
-                  <div className="w-full aspect-[2/3] max-h-[65vh] mx-auto flex items-center justify-center bg-muted rounded-2xl text-muted-foreground"
-                       style={{ maxWidth: "min(100%, calc(65vh * 2/3))" }}>
+                  <div className="h-full aspect-[2/3] max-h-full flex items-center justify-center bg-muted rounded-2xl text-muted-foreground">
                     <ImageOff className="h-10 w-10" />
                   </div>
                 )}
+              </div>
 
-                {photos.length > 1 && (
-                  <div className="overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              {photos.length > 1 && (
+                <div className="p-3 md:px-6 md:pb-4 shrink-0">
+                  <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                     <div className="flex gap-2 w-max mx-auto px-1">
                       {photos.map((p, i) => (
                         <button
@@ -351,7 +383,7 @@ function TalentDetailSheet({
                           type="button"
                           onClick={() => setActiveIndex(i)}
                           className={cn(
-                            "shrink-0 w-[64px] aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all",
+                            "shrink-0 w-[56px] aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all",
                             i === activeIndex
                               ? "ring-2 ring-primary ring-offset-2 ring-offset-background opacity-100"
                               : "opacity-60 hover:opacity-100"
@@ -362,64 +394,65 @@ function TalentDetailSheet({
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
-            {/* Right: info card (independent scroll) */}
-            <div className="lg:col-span-2 min-h-0 overflow-y-auto overscroll-contain flex flex-col">
-              <div className="p-6 md:p-8 space-y-7 flex-1">
-                <div>
-                  <h2 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground leading-tight">
-                    {talent.nome}
-                  </h2>
+            {/* Right: info card */}
+            <div className="lg:col-span-2 min-h-0 grid grid-rows-[1fr_auto]">
+              <div className="min-h-0 overflow-y-auto overscroll-contain">
+                <div className="p-6 md:p-8 space-y-7">
+                  <div>
+                    <h2 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground leading-tight break-words">
+                      {talent.nome}
+                    </h2>
+                  </div>
+
+                  <DetailSection title="Generale">
+                    <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
+                    <DetailRow label="Genere" value={talent.genere} />
+                    <DetailRow label="Città" value={talent.citta} />
+                    <DetailRow label="Nazionalità" value={talent.nazionalita} />
+                    <DetailRow label="Etnia" value={talent.etnia} />
+                    <DetailRow label="Città di lavoro" value={talent.citta_lavoro?.join(", ") ?? null} />
+                  </DetailSection>
+
+                  <DetailSection title="Aspetto">
+                    <DetailRow label="Altezza" value={talent.altezza_cm ? `${talent.altezza_cm} cm` : null} />
+                    <DetailRow label="Peso" value={talent.peso_kg ? `${talent.peso_kg} kg` : null} />
+                    <DetailRow label="Occhi" value={talent.occhi} />
+                    <DetailRow label="Capelli" value={talent.capelli} />
+                    <DetailRow label="Lunghezza capelli" value={talent.capelli_lunghezza} />
+                    <DetailRow label="Tipo capelli" value={talent.capelli_tipo} />
+                    <DetailRow label="Segni particolari" value={talent.segni_particolari?.join(", ") ?? null} />
+                  </DetailSection>
+
+                  <DetailSection title="Misure">
+                    <DetailRow label="Taglia maglia" value={talent.taglia_maglia} />
+                    <DetailRow label="Taglia pantaloni" value={talent.taglia_pantaloni} />
+                    <DetailRow label="Taglia giacca" value={talent.taglia_giacca} />
+                    <DetailRow label="Scarpe" value={talent.numero_scarpe} />
+                    <DetailRow label="Collo" value={talent.collo_cm ? `${talent.collo_cm} cm` : null} />
+                    <DetailRow label="Petto" value={talent.petto_cm ? `${talent.petto_cm} cm` : null} />
+                    <DetailRow label="Vita" value={talent.vita_cm ? `${talent.vita_cm} cm` : null} />
+                    <DetailRow label="Fianchi" value={talent.fianchi_cm ? `${talent.fianchi_cm} cm` : null} />
+                    <DetailRow
+                      label="Spalle"
+                      value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null}
+                    />
+                  </DetailSection>
+
+                  <DetailSection title="Lingue & abilità">
+                    <DetailRow label="Lingue" value={talent.lingue?.join(", ") ?? null} />
+                    <DetailRow label="Abilità" value={talent.abilita?.join(", ") ?? null} />
+                    <DetailRow label="Patenti" value={talent.patenti?.join(", ") ?? null} />
+                    <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
+                  </DetailSection>
                 </div>
-
-
-                <DetailSection title="Generale">
-                  <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
-                  <DetailRow label="Genere" value={talent.genere} />
-                  <DetailRow label="Città" value={talent.citta} />
-                  <DetailRow label="Nazionalità" value={talent.nazionalita} />
-                  <DetailRow label="Etnia" value={talent.etnia} />
-                  <DetailRow label="Città di lavoro" value={talent.citta_lavoro?.join(", ") ?? null} />
-                </DetailSection>
-
-                <DetailSection title="Aspetto">
-                  <DetailRow label="Altezza" value={talent.altezza_cm ? `${talent.altezza_cm} cm` : null} />
-                  <DetailRow label="Peso" value={talent.peso_kg ? `${talent.peso_kg} kg` : null} />
-                  <DetailRow label="Occhi" value={talent.occhi} />
-                  <DetailRow label="Capelli" value={talent.capelli} />
-                  <DetailRow label="Lunghezza capelli" value={talent.capelli_lunghezza} />
-                  <DetailRow label="Tipo capelli" value={talent.capelli_tipo} />
-                  <DetailRow label="Segni particolari" value={talent.segni_particolari?.join(", ") ?? null} />
-                </DetailSection>
-
-                <DetailSection title="Misure">
-                  <DetailRow label="Taglia maglia" value={talent.taglia_maglia} />
-                  <DetailRow label="Taglia pantaloni" value={talent.taglia_pantaloni} />
-                  <DetailRow label="Taglia giacca" value={talent.taglia_giacca} />
-                  <DetailRow label="Scarpe" value={talent.numero_scarpe} />
-                  <DetailRow label="Collo" value={talent.collo_cm ? `${talent.collo_cm} cm` : null} />
-                  <DetailRow label="Petto" value={talent.petto_cm ? `${talent.petto_cm} cm` : null} />
-                  <DetailRow label="Vita" value={talent.vita_cm ? `${talent.vita_cm} cm` : null} />
-                  <DetailRow label="Fianchi" value={talent.fianchi_cm ? `${talent.fianchi_cm} cm` : null} />
-                  <DetailRow
-                    label="Spalle"
-                    value={talent.larghezza_spalle_cm ? `${talent.larghezza_spalle_cm} cm` : null}
-                  />
-                </DetailSection>
-
-                <DetailSection title="Lingue & abilità">
-                  <DetailRow label="Lingue" value={talent.lingue?.join(", ") ?? null} />
-                  <DetailRow label="Abilità" value={talent.abilita?.join(", ") ?? null} />
-                  <DetailRow label="Patenti" value={talent.patenti?.join(", ") ?? null} />
-                  <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
-                </DetailSection>
               </div>
 
               {selectable && (
-                <div className="sticky bottom-0 shrink-0 bg-background border-t border-border px-6 py-4">
+                <div className="shrink-0 bg-background border-t border-border px-6 py-4">
                   <Button
                     onClick={onToggle}
                     size="lg"
@@ -439,9 +472,10 @@ function TalentDetailSheet({
               )}
             </div>
           </div>
-          </div>
         </DialogContent>
       </Dialog>
+
+
 
 
       {lightbox && (
