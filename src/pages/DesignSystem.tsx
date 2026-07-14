@@ -866,9 +866,12 @@ const BlocksSection = () => (
             status: "Archiviato",
             dot: "bg-muted-foreground/60",
             text: "text-muted-foreground",
-            confirmed: 4,
+            confirmed: 7,
           },
-        ].map((c) => (
+        ].map((c) => {
+          const shown = Math.min(c.confirmed, 3);
+          const extra = Math.max(0, c.confirmed - shown);
+          return (
           <div
             key={c.title}
             className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-3 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
@@ -877,49 +880,48 @@ const BlocksSection = () => (
             <span className="truncate">{c.title}</span>
             <div className="flex items-center">
               {c.confirmed === 0 ? (
-                <span className="text-xs text-muted-foreground">
-                  Nessuna selezione
-                </span>
+                <span className="text-sm text-muted-foreground/70">—</span>
               ) : (
-                <>
-                  {Array.from({ length: Math.min(c.confirmed, 4) }).map(
-                    (_, i) => (
-                      <Avatar
-                        key={i}
-                        size="md"
-                        className={cn(
-                          "ring-2 ring-background",
-                          i > 0 && "-ml-3",
-                        )}
-                      >
-                        <AvatarImage
-                          src={`https://i.pravatar.cc/96?img=${i + 10}`}
-                        />
-                        <AvatarFallback>?</AvatarFallback>
-                      </Avatar>
-                    ),
+                <div className="flex items-center">
+                  {Array.from({ length: shown }).map((_, i) => (
+                    <Avatar
+                      key={i}
+                      size="md"
+                      className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
+                    >
+                      <AvatarImage src={`https://i.pravatar.cc/96?img=${i + 10}`} />
+                      <AvatarFallback>?</AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {extra > 0 && (
+                    <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-background bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
+                      +{extra}
+                    </div>
                   )}
-                  {c.confirmed > 4 && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      + altri {c.confirmed - 4}
-                    </span>
-                  )}
-                </>
+                </div>
               )}
             </div>
             <StatusDot color={c.dot} text={c.text} label={c.status} />
             <div className="flex items-center justify-end gap-1">
-              <button className="p-1.5 rounded-full opacity-0 group-hover:opacity-100 text-primary hover:bg-muted transition">
+              <Button variant="ghost" size="icon-md" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <Pencil className="h-4 w-4" />
-              </button>
-              <button className="p-1.5 rounded-full opacity-0 group-hover:opacity-100 text-destructive hover:bg-muted transition">
+              </Button>
+              <Button variant="ghost" size="icon-md" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </Button>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
+    </SubBlock>
+
+    <SubBlock
+      title="Search & Filtri (pagina Casting)"
+      source="src/components/castings/CastingFilters.tsx"
+    >
+      <CastingFiltersDemo />
     </SubBlock>
 
     <SubBlock
