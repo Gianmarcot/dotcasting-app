@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Clock, Wallet, Pencil, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -244,7 +244,7 @@ export const OwnerCastingDetail = () => {
 
         <div className="flex gap-2 shrink-0">
           <Button variant="secondary" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
-            <Edit className="h-4 w-4" />
+            <Pencil />
             Modifica
           </Button>
           <Button size="md" iconPosition="left" onClick={() => setRoleDialogOpen(true)}>
@@ -259,7 +259,7 @@ export const OwnerCastingDetail = () => {
 
       {/* RUOLI */}
       <div className="space-y-4">
-        <h2 className="text-sm font-display uppercase tracking-wider text-foreground">
+        <h2 className="text-base font-display uppercase tracking-wider text-foreground">
           Ruoli
         </h2>
 
