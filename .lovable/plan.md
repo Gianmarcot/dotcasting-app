@@ -1,75 +1,86 @@
 ## Obiettivo
-Ridisegnare la sidebar admin globale e la pagina "Casting" secondo lo screenshot allegato: layout più pulito, filtri semplificati, tabella con header di colonna e azioni rapide in hover.
+Creare una pagina pubblica `/design-system` (dev-only, non linkata dalla nav) che raccoglie in un'unica vista tutti gli elementi del sistema UI dotCasting, per rivedere e iterare rapidamente sullo stile centrale (index.css / componenti condivisi).
 
-## 1. Sidebar (`src/components/layout/OwnerSidebar.tsx`)
+## Rotta
+- Nuova route pubblica `/design-system` in `src/App.tsx`, montata FUORI da `ProtectedRoute` e da `OwnerLayout` (nessuna sidebar admin, nessun redirect auth).
+- Nessun link in `OwnerSidebar` / `TalentSidebar`: si raggiunge solo via URL.
 
-**Logo/Header**
-- Rimuovere il badge pillola rossa "Admin".
-- Aggiungere label testuale `ADMIN` accanto al logo (Tenor Sans, tracking wide, colore `text-white/70`).
+## Layout della pagina
+File nuovo: `src/pages/DesignSystem.tsx`.
 
-**Nav principale**
-- Invariata: Dashboard, Database Talenti, Casting, Centro Messaggi, CRM Aziende.
+Struttura a sidebar interna sticky (indice sezioni) + contenuto scrollabile. Sfondo cream standard, `max-w-7xl mx-auto`, sezioni separate da `<section id="...">` per anchor link.
 
-**Sezione Preferiti**
-- Header "PREFERITI" (uppercase, tracking, muted), niente chevron collassabile — sempre aperta.
-- Stella ambra piena (`text-amber-400`, non bordeaux) accanto a ciascun titolo di casting.
-- Link finale "Visualizza tutti" con `ChevronRight` allineato a destra, che punta a `/owner/castings?favorites=1`.
-- Stato vuoto: "Nessun preferito" muted.
+```text
+┌──────────────┬────────────────────────────────────┐
+│ Indice       │ 1. Tokens                          │
+│ - Tokens     │ 2. Typography                      │
+│ - Typography │ 3. Primitive shadcn                │
+│ - Primitive  │ 4. Pattern dotCasting              │
+│ - Pattern    │ 5. Blocchi complessi               │
+│ - Blocchi    │                                    │
+└──────────────┴────────────────────────────────────┘
+```
 
-**Footer utente**
-- Sostituire l'iniziale email con un `<Avatar>` che usa `profile.profile_photo_url` (fallback iniziali).
-- Nome completo su più righe: `first_name` + `last_name` su due righe (uppercase, Tenor Sans) — leggere da `useProfile()`.
-- Notifiche / Impostazioni / Logout invariati sotto.
+Ogni sottosezione ha: titolo Tenor Sans uppercase, breve caption con il nome del token/componente e il file sorgente da editare (es. `src/index.css`, `src/components/ui/button.tsx`), poi la preview.
 
-## 2. Header pagina Casting (`src/pages/owner/OwnerCastings.tsx`)
-- Rimuovere il sottotitolo "Gestisci i casting della piattaforma".
-- Titolo `CASTING` (già uppercase via `it.backoffice.castings`).
-- Bottone "+ Nuovo casting" (pill bordeaux) allineato a destra.
+## Contenuti
 
-## 3. Filtri (`src/components/castings/CastingFilters.tsx`)
-Riscrittura del componente:
-- Sostituire i `Tabs` (Tutti/Bozza/Attivo/Chiuso) con un unico `Select` "Tutti / Bozza / Attivo / Archiviato".
-- Campo di ricerca al centro, placeholder `Cerca per parola chiave`, pill arrotondata piena larghezza.
-- Nuovo `Select` di ordinamento allineato a destra: "Più recenti" (default), "Cliente", "Stato".
-- Le nuove prop `sort` / `onSortChange` vanno propagate dall'`OwnerCastings` e passate a `useCastings` per ordinare la query (`order()` sul campo scelto).
+### 1. Token
+Letti dalle CSS variables di `src/index.css` (renderizzati come swatch + label + valore HSL/hex risolto a runtime via `getComputedStyle`).
 
-## 4. Tabella (`OwnerCastings.tsx` + `CastingRow.tsx`)
+- **Colori semantici**: background, foreground, card, primary/foreground, secondary, muted, accent, destructive, border, input, ring, success, warning, info, olive, charcoal — swatch quadrato `rounded-2xl` + nome token + valore.
+- **Colori sidebar admin**: sidebar-background/foreground/primary/accent/border/ring.
+- **Radius**: `--radius` e derivati (`sm`, `md`, `lg`) con box campione.
+- **Shadow**: elenco delle shadow custom (se presenti come var) + `shadow-sm/md/lg/xl` Tailwind.
+- **Spacing scale**: barre orizzontali per `p-1 … p-16`.
 
-**Contenitore**
-- Rimuovere il wrapping `rounded-2xl border bg-white` per la tabella; le righe poggiano sullo sfondo cream della pagina, separate da un hairline `border-b border-border/40`.
-- Aggiungere una riga header con etichette: (colonna stella vuota) · `Titolo` · `Selezione` · `Stato` · (azioni vuote).
+### 2. Typography
+- Font stack: Tenor Sans (display) e DM Sans (body) — mostra pangram in ogni peso.
+- Scala titoli: h1..h6 con classi effettive usate nel progetto (`text-2xl`, `text-5xl`, ecc.) applicando `font-display uppercase` dove è la regola del progetto.
+- Body: `text-sm`, `text-base`, `text-lg` con DM Sans regular/medium.
+- Utility: `.dc-link-action` esempio.
 
-**Riga (`CastingRow.tsx`)**
-- Stella: usare colore ambra (`text-amber-400` fill quando attiva, `text-muted-foreground` contorno quando no). Aggiornare `FavoriteCastingStar` per accettare una variante `amber`.
-- Colonna Titolo: solo il titolo del casting, senza company/date/location.
-- Colonna Selezione: stack di avatar sovrapposti dei talent selezionati (fino a 4) + testo `+ altri N`.
-  - Serve un nuovo hook o join per recuperare gli avatar dei talent con `role_talents.company_status = 'confirmed'` per casting.
-  - Estendere `useCastings` per includere `selected_talents:role_talents(profile:profiles(profile_photo_url))` filtrato per `company_status = 'confirmed'` limite 5.
-- Colonna Stato: pallino + label dello stesso colore.
-  - Bozza → ambra (`text-amber-600`)
-  - Attivo → verde (`text-[#729128]`)
-  - Archiviato → grigio (rinominare "Chiuso" in "Archiviato" in `src/lib/i18n.ts` → `it.casting.closed = "Archiviato"`).
+### 3. Primitive shadcn
+Griglia responsive; ogni card mostra tutte le variant/stati principali.
 
-**Azioni riga**
-- Rimuovere completamente il `DropdownMenu` a tre puntini.
-- In hover riga: sfondo `bg-muted/60` (già presente), + rivelare due icon-button:
-  - Matita bordeaux (tooltip "Modifica rapida") → apre il `CastingFormDialog` già esistente.
-  - Cestino (tooltip "Elimina") → apre `DeleteCastingDialog`.
-- Chevron `>` a destra sempre visibile → naviga a `/owner/castings/:id`.
-- Le azioni di cambio stato (Pubblica/Chiudi/Riapri/Torna a bozza) non sono più raggiungibili dalla lista.
+- Button: variant `default | secondary | outline | ghost | link | destructive` × size `sm | default | lg | icon`, + stato disabled + pill (`rounded-full`).
+- Input, Textarea, Select, Checkbox, Radio, Switch, Slider — normali + disabled.
+- Badge: `default | secondary | outline | destructive`.
+- Avatar: singolo, con fallback, stack sovrapposto (pattern usato in CastingRow).
+- Progress: 0%, 40%, 100% (verifica il fix contrasto già applicato).
+- Tabs, Tooltip, Popover, Dialog (con trigger), Dropdown Menu, Toast (trigger button).
+- Skeleton, Separator, Accordion.
+- Table (mini esempio).
 
-## 5. Cambio stato spostato in OwnerCastingDetail
-- Nella pagina di dettaglio (`src/pages/owner/OwnerCastingDetail.tsx`), verificare la presenza di controlli per cambiare stato. Se mancano, aggiungere accanto al titolo un piccolo `Select` o un gruppo di bottoni (Pubblica / Torna a bozza / Archivia / Riapri) che chiamano `useUpdateCastingStatus`.
+### 4. Pattern dotCasting
+Componenti/classi custom del progetto.
 
-## 6. Copy / i18n
-- `src/lib/i18n.ts`: cambiare `it.casting.closed` da "Chiuso" a "Archiviato" (verificare che non rompa altre pagine — se necessario introdurre chiave separata `archived`).
+- `.dc-card` — card vuota + card con contenuto.
+- Badge stati casting: Bozza (ambra), Attivo (verde `#729128`), Archiviato (grigio) — con pallino + label, così come usati in `CastingRow`.
+- Badge stati talent (charcoal / success / warning / destructive) usando i token `success/warning/olive/charcoal`.
+- `FavoriteCastingStar` in variante ambra (attiva/inattiva).
+- Link azione `.dc-link-action`.
+- Anteprima sidebar admin: un mock statico di 240px larghezza che mostra logo+ADMIN, nav item attivo/inattivo, sezione Preferiti, footer utente (senza dati reali — dati hardcoded per la preview).
+- Anteprima mobile bottom nav owner/talent (mock statico).
+
+### 5. Blocchi complessi
+Renderizzati con dati mock già presenti in `src/dev/mockTalent.ts` e `src/pages/shared/sharedRoundMock.ts`, oppure oggetti letterali locali.
+
+- `TalentBoardCard` (importato) con `mockTalent`.
+- `ActionableStatCard` in due stati: neutro (value 0, fondo chiaro) e "attenzione" (value > 0, fondo olive).
+- `CastingRow` con casting mock (titolo, avatar stack, stato) — passare `onEdit`/`onDelete` come `() => {}`.
+- `TriageTalentCard` mock.
+- Tile talent della pagina cliente (`TalentTile` di `SharedRound`) se estraibile facilmente; altrimenti screenshot statico linkato — decisione in build: se il tile è definito inline in `SharedRound.tsx`, ricreare qui un piccolo `<div>` equivalente per evitare import complessi.
+
+## Note tecniche
+- Nessuna modifica ai componenti esistenti: la pagina è puramente consumer.
+- Per swatch dei token, un piccolo helper `useTokenValue(name)` che legge `getComputedStyle(document.documentElement).getPropertyValue('--' + name)` in `useEffect`.
+- Wrappare i blocchi complessi che dipendono da React Query in un `QueryClientProvider` — già presente a livello di `App`, quindi ok.
+- I blocchi che richiedono dati Supabase reali (es. `useProfile` nella sidebar admin) NON vanno importati: usare la versione mock/statica descritta sopra.
+- Aggiungere `<title>Design System · dotCasting</title>` via `document.title` in un `useEffect`.
 
 ## Fuori scopo
-- Nessuna modifica alla pagina pubblica del round.
-- Nessuna modifica alla sidebar talent.
-- Nessuna modifica allo schema DB.
-
-## Dettagli tecnici
-- Colore stella ambra: `text-amber-400` (Tailwind). Non aggiungere token custom, è un colore semantico "preferito" isolato.
-- Stack avatar: usare `Avatar` di shadcn con `-ml-2` per overlap e `ring-2 ring-background`.
-- Ordinamento: mappare "cliente" → `.order('company(name)')` (usare `foreignTable`); "stato" → `.order('status')`.
+- Nessun playground/editor live di token.
+- Nessuna persistenza.
+- Nessuna modifica ai componenti UI o a `index.css`.
+- Nessuna voce di menu nella sidebar admin/talent.
