@@ -12,6 +12,7 @@ import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 import { MOCK_SHARED_ROUND } from "./sharedRoundMock";
+import { TalentTile } from "./TalentTile";
 
 const logo = logoWhite;
 const PREVIEW_TOKEN = "preview";
