@@ -1,18 +1,41 @@
-## Modifiche al pulsante secondario e token border
+## Aggiornamenti pagina dettaglio casting
 
-### 1. Aggiornare il token `--border` in `src/index.css`
-- Cambiare il valore HSL di `--border` (light mode) per corrispondere a `#C7C7C7` (≈ `0 0% 78%`).
-- Valutare se applicare anche in dark mode o mantenere il valore attuale (proposta: mantenere dark mode invariato per non rompere il contrasto sulle superfici scure — da confermare).
+Solo UI/presentazione. Nessun cambio di schema.
 
-### 2. Aggiornare la variante `secondary` in `src/components/ui/button.tsx`
-- Background: `bg-white/30` (bianco con opacità 30%) al posto dell'attuale `bg-secondary`.
-- Border: aggiungere `border border-border` per usare il nuovo token `#C7C7C7`.
-- Testo: mantenere `text-secondary-foreground`.
-- Hover: adattare (es. `hover:bg-white/50`) per mantenere feedback visibile.
+### 1. `src/pages/owner/OwnerCastingDetail.tsx` — header
 
-### 3. Verifica
-- Controllare la pagina `/design-system` sezione Buttons per vedere tutte le varianti (sm/md/lg, con icona sx/dx, icon-only) col nuovo stile.
-- Verificare che gli altri usi di `variant="secondary"` nella piattaforma (es. "Dettagli ruolo" in `RoleRoundsCompartment`, CTA empty state Casting) rimangano leggibili sui fondi cream/beige.
+- Titolo: da `text-4xl` a `text-3xl` (H1), stellina preferiti resta a sinistra.
+- Nuovo paragrafo con `casting.description` (se presente) sotto il titolo, `text-muted-foreground max-w-3xl`, prima della riga metadati.
+- Riga metadati:
+  - Pill stato: mantenere il Popover funzionante ma aggiungere `ChevronDown` come indicatore a destra dell'etichetta.
+  - Range date: sostituire `Calendar` con `Clock`.
+  - Budget: sostituire `Euro` con `Wallet`.
+  - Aggiungere `<hr />` (border-border) subito sotto la riga metadati.
+- Pulsante "Modifica": passare da `variant="ghost"` a `variant="secondary"` (DS).
+- In fondo alla pagina, sotto la sezione Ruoli, aggiungere link testuale rosso "Elimina casting" con icona `Trash2` (usa `useDeleteCasting`, con `AlertDialog` di conferma, redirect a `/owner/castings`).
 
-### Nota
-La modifica al token `--border` è globale: influenza tutti i bordi che usano `border-border` (card, input, separatori). Il nuovo `#C7C7C7` è leggermente più scuro/neutro dell'attuale — confermi di voler propagare a tutta la UI, o preferisci un token dedicato solo al pulsante secondario?
+### 2. `src/components/castings/rounds/RoleRoundsCompartment.tsx` — header ruolo
+
+- Sottotitolo: costruire stringa estesa "{Gender} • {min} – {max} anni", rimuovere location e budget.
+  - Mappa gender: `male → Maschio`, `female → Femmina`, `other → Altro` (fallback: valore raw).
+- Aggiungere linea divisoria (`<div class="border-t border-border/60" />`) fra header ruolo e tabella invii.
+- Cambiare hover del box tratteggiato "+ Aggiungi invio": `hover:border-[#1a1a1a]` (rimuovere `hover:border-primary/40`).
+
+### 3. `src/components/castings/rounds/RoleRoundRow.tsx` — riga invio
+
+- Aggiungere icona `Folder` (`h-5 w-5 text-muted-foreground shrink-0`) prima del label del round.
+- Colonna Stato: sostituire `Badge` colorata con testo + icona `CheckCheck`:
+  - `shared` + `hasClientSelection` (almeno un `role_talents.company_status === "confirmed"` nel round): testo "Selezionati" + `CheckCheck` verde (`text-[hsl(var(--success))]`).
+  - `shared` senza selezione cliente: testo "Condiviso" + `CheckCheck` grigio (`text-muted-foreground`).
+  - Non condiviso: solo testo "Non condiviso" `text-muted-foreground`, nessuna icona.
+- Per sapere se il cliente ha selezionato, estendere `useRoundPreviewPhotos` (o passare un prop `hasClientSelection`) — dettaglio tecnico sotto.
+
+### Dettagli tecnici
+
+- Verificare la struttura del prop `preview` in `useRoundPreviewPhotos`: se non contiene già l'info di conferma cliente, aggiungere un campo `hasClientSelection: boolean` calcolato dalla presenza di almeno un `role_talents.company_status = 'confirmed'` associato al round (via `casting_round_talents` / vista già in uso).
+- Nessuna migration richiesta: `castings.description`, `role_talents.company_status`, `casting_rounds.status` esistono già.
+- Riutilizzare `useDeleteCasting` esistente per il link "Elimina casting".
+
+### Fuori scope
+
+- Nessuna modifica al Design System in questa iterazione (il pattern `RoleRoundRow` nel DS resterà con l'estetica corrente finché non confermi di volerlo aggiornare in parallelo).
