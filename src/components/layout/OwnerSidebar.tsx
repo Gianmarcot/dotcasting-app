@@ -161,7 +161,7 @@ const FavoritesSection = () => {
     <div className="mt-6">
       <div className="border-t border-white/10 mx-2 mb-3" />
       <div className="px-4 mb-2">
-        <span className="text-xs uppercase tracking-wider text-white/40">Preferiti</span>
+        <span className="text-sm font-medium text-white/40">Preferiti</span>
       </div>
 
       <ul className="space-y-0.5">
@@ -195,7 +195,7 @@ const FavoritesSection = () => {
           <li>
             <Link
               to={allHref}
-              className="flex items-center justify-between gap-2 px-4 py-1.5 text-xs uppercase tracking-wider text-white/50 hover:text-white transition-colors"
+              className="flex items-center justify-between gap-2 px-4 py-1.5 text-sm font-medium text-white/50 hover:text-white transition-colors"
             >
               <span>Visualizza tutti</span>
               <ChevronRight className="h-3.5 w-3.5" />
