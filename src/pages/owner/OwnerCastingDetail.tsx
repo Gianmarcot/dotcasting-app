@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Clock, Wallet, Pencil, Trash2 } from "lucide-react";
 import {
   Select,
   SelectContent,
