@@ -857,7 +857,7 @@ const BlocksSection = () => (
       source="src/components/castings/CastingRow.tsx"
     >
       <div>
-        <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-xs uppercase tracking-wider text-muted-foreground border-b border-border/60">
+        <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
           <span />
           <span>Titolo</span>
           <span>Selezione</span>
