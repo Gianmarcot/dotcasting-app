@@ -111,7 +111,7 @@ const DetailSection = ({ title, children }: { title: string; children: React.Rea
   if (!hasContent) return null;
   return (
     <section className="space-y-3">
-      <h3 className="font-tenor uppercase tracking-widest text-xs text-primary">{title}</h3>
+      <h3 className="font-tenor uppercase tracking-widest text-xs text-[#1A1A1A]">{title}</h3>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </section>
   );
