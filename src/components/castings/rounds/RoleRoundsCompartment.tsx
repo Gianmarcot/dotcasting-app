@@ -57,7 +57,7 @@ export const RoleRoundsCompartment = ({
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="font-display uppercase text-2xl text-foreground tracking-wide">
+            <h3 className="text-sm font-display uppercase tracking-wider text-foreground">
               {role.name}
             </h3>
             <Badge
@@ -75,27 +75,14 @@ export const RoleRoundsCompartment = ({
           )}
         </div>
 
-        <Button variant="secondary" size="md" onClick={openRole}>
+        <Button variant="secondary" size="md" iconPosition="right" onClick={openRole}>
           Dettagli ruolo
-          <ChevronRight className="h-4 w-4 ml-1" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
-      <div className="border-t border-border/60" />
-
-
       {/* Tabella rounds */}
       <div>
-        {sortedRounds.length > 0 && (
-          <div className="grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
-            <span>Round</span>
-            <span>Stato</span>
-            <span>Selezione</span>
-            <span>Talent</span>
-            <span />
-          </div>
-        )}
-
         {sortedRounds.map((r) => (
           <RoleRoundRow
             key={r.id}
