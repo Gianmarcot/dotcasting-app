@@ -1,87 +1,65 @@
 ## Obiettivo
 
-Rifare il modale di dettaglio talent nella pagina cliente (`/round/:token` — `SharedRound.tsx`) passando dal pannello scuro attuale a un modale ampio chiaro, con galleria a sinistra + scheda a destra + navigazione tra talent in alto. Nessun cambio di dati o logica: solo layout e tema.
+Rifinire il modale di dettaglio talent nella pagina cliente (`/round/:token` — `SharedRound.tsx`, sotto-componente `TalentDetailSheet`) con miglioramenti a swiper header, azioni e stili. Nessun cambio a dati, RPC o logica di selezione.
 
 ## Ambito
 
-- File toccato: `src/pages/shared/SharedRound.tsx` (solo il sotto-componente `TalentDetailSheet` e il suo trigger).
-- Nessuna modifica a hook, RPC, generazione PDF, contatore selezione o barra "Prosegui" (che restano fuori dal modale, come oggi).
-- Uso di componenti DS: `Dialog`, `Button` (bordeaux come `primary`), `ScrollArea`, `Avatar` per gli avatar dei talent nel selettore.
+- File toccato: `src/pages/shared/SharedRound.tsx` (solo `TalentDetailSheet`).
+- Nessuna modifica a hook, RPC, generazione PDF, barra "Prosegui" esterna.
 
-## Struttura nuovo modale
+## Modifiche
 
-```text
-┌──────────────────────────────────────────────────────────────┐
-│  [Avatar+Nome] [Avatar+Nome] [•Avatar+Nome•] …  [⬇] [✕]     │  header sticky
-├───────────────────────────────────────┬──────────────────────┤
-│                                       │  NOME TALENT (H1)    │
-│         IMMAGINE PRINCIPALE           │  ─────────────────   │
-│              (aspect 2:3)             │  GENERALE            │
-│                                       │  Età · Genere · Città│
-│                                       │                      │
-│                                       │  ASPETTO             │
-├───────────────────────────────────────┤  Altezza · Peso …    │
-│  [thumb][thumb][thumb][thumb][thumb]  │                      │
-│         filmstrip scrollabile         │  MISURE              │
-│                                       │  Maglia · Pantaloni …│
-├───────────────────────────────────────┴──────────────────────┤
-│           [ Seleziona talent / Deseleziona ]  (bordeaux)     │  footer sticky
-└──────────────────────────────────────────────────────────────┘
-```
+### 1. Header talent → swiper con focus centrale
 
-### Header (sticky, sfondo crema)
+- La strip talent nell'header diventa un carosello centrato:
+  - Il talent attivo è ingrandito (avatar 44px, pill più grande, testo visibile).
+  - Gli adiacenti si riducono progressivamente in scala (~0.85, 0.7, 0.55) man mano che si allontanano dal centro.
+  - Su cambio talent (`row.role_talent_id`), lo slot attivo viene scrollato al centro con `scrollIntoView({ behavior: "smooth", inline: "center" })`.
+  - Scrollbar nascosta (già presente).
+- Dissolvenza laterale: contenitore con maschera CSS (`mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent)`) così gli avatar oltre il 2°/3° elemento per lato sfumano verso i bordi senza taglio netto.
 
-- Selettore talent: strip orizzontale scrollabile con pill `[Avatar 24px + Nome]` per ogni talent del round; quello attivo con bordo bordeaux + testo bordeaux, gli altri neutri.
-- A destra restano solo le due icone attuali: **Download PDF** e **Chiudi** — stesso comportamento, restilizzate su tema chiaro (hover `bg-muted`).
+### 2. Frecce di navigazione ai lati del modale
 
-### Colonna sinistra — Galleria (~60% larghezza, `lg:col-span-3` su 5)
+- Due bottoni tondi (48px) `absolute` ancorati ai lati esterni del `DialogContent`, centrati verticalmente (`top-1/2 -translate-y-1/2`), leggermente sporgenti (`-left-6` / `-right-6` con fallback interno su mobile).
+- `ChevronLeft` / `ChevronRight` da lucide, sfondo `bg-background` con `shadow-md border border-border`.
+- Click → `onSelectTalent` sul talent precedente/successivo nell'array `talents` (wrap-around o disabilitati agli estremi — scelta: disabilitati agli estremi, coerente con lo swiper).
+- Supporto swipe: handler `onTouchStart`/`onTouchEnd` sulla galleria sinistra e sulla strip header con soglia 40px per prev/next talent (delta orizzontale).
 
-- Contenitore con **scroll indipendente** (`overflow-y-auto`).
-- **Immagine hero** in alto: aspect `2/3`, `rounded-2xl`, `object-cover`, click → apre lightbox esistente.
-- **Filmstrip** sotto: riga orizzontale scrollabile di miniature (aspect `2/3`, larghezza fissa ~72px, `rounded-lg`); click su una miniatura la promuove a hero (stato locale `activeIndex`).
-- Se le foto sono ≤ 1: nessuna filmstrip.
-- Placeholder `ImageOff` se il talent non ha foto.
-- Il set foto rispetta `photoCountFromRound` come oggi.
+### 3. Titoli sezione: rosso → #1a1a1a
 
-### Colonna destra — Scheda info (~40%, `lg:col-span-2`)
+- `DetailSection` title: sostituire `text-primary` con classe/token dark (`text-[#1A1A1A]` oppure `text-foreground` se il token corrisponde al charcoal DS). Manteniamo `font-tenor uppercase tracking-widest text-xs`.
 
-- **Scroll indipendente** (`overflow-y-auto`, `overscroll-contain` per non propagare alla galleria).
-- Header locale: `NOME TALENT` in `font-tenor uppercase` grande, sottotitolo con status pill (Confermato/Scartato) se presente.
-- Sezioni invariate (contenuti già mappati in `buildTalent`):
-  - **GENERALE**: Età, Genere, Città
-  - **ASPETTO**: Altezza, Peso, Colore occhi, Colore capelli, Lunghezza capelli, Tipo capelli, Segni particolari
-  - **MISURE**: Taglia maglia, Taglia pantaloni, Taglia giacca, Scarpe, Petto, Vita
-- Titoli sezione (`DetailSection`) restilizzati: `font-tenor uppercase tracking-widest text-xs text-primary`
-- `DetailRow`: label `text-muted-foreground` `uppercase text-[10px]`, value `text-foreground text-sm`.
+### 4. Rimozione badge "Confermato" sotto il nome
 
-### Footer (sticky, sfondo crema, bordo top)
+- Nel blocco header info a destra, eliminare il render di `<StatusPill status={row.company_status} />` sotto `h2` (righe ~293-295). Il nome resta come unico elemento del blocco.
 
-- Bottone **Seleziona talent** / **Deseleziona** a piena larghezza (o allineato a destra), `variant="default"` bordeaux, `size="lg"`; disabilitato se `!selectable`. Stessa funzione `onToggle` di oggi.
-- La barra flottante esterna "X di Y selezionati / Prosegui" resta come oggi, sotto il modale — non viene toccata.
+### 5. Unico pulsante selezione nel footer
 
-## Tema chiaro (design tokens)
+- Verifica: attualmente esiste già un solo bottone nel footer sticky del pannello destro (righe 340-357) più un check indicatore sulle pill dello swiper (rimane come indicatore visivo, non è un pulsante duplicato). Nessun altro controllo di selezione vicino al nome — confermato assente.
+- Rifinire il footer button:
+  - Non selezionato: `variant="default"` (bordeaux pieno), testo "Seleziona talent".
+  - Selezionato: `variant="outline"` con `Check` + testo "Selezionato · Rimuovi".
+- Il check sulle pill dello swiper resta come indicatore passivo (non è "controllo di selezione"): mantiene visibilità dello stato multi-talent.
 
-- Superficie modale: `bg-background` (crema/bianco) su overlay scuro standard del Dialog DS.
-- Testo: `text-foreground`, secondari `text-muted-foreground`.
-- Accenti (titoli sezione, pill talent attivo, bottoni primari, download icon hover): `text-primary` / `bg-primary` bordeaux.
-- Bordi/hairline: `border-border`.
-- Rimossi tutti i colori hardcoded (`#0F0F0F`, `#F5F0E8`, `bg-white/10`, ecc.) dal componente modale.
+### 6. Download PDF come pill outline nell'header
 
-## Comportamento nuovi elementi
+- Sostituire il bottone icona-only (righe 216-224) con:
+  ```
+  <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={dl.mutate} disabled={!row.pdf_path || dl.isPending}>
+    {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+    Scarica PDF
+  </Button>
+  ```
+- Posizionato prima dell'icona di chiusura (che resta icon-only). Visivamente secondario rispetto al CTA bordeaux pieno del footer.
 
-1. **State locale**: `activeIndex` (foto attiva) reset a `0` ogni volta che cambia `row.role_talent_id`.
-2. **Navigazione talent**: click su una pill → il parent passa `detailsId` diverso; il modale resta aperto, il contenuto si aggiorna, `activeIndex` reset.
-3. **Scroll isolato**: la galleria (sinistra) e la scheda (destra) hanno ciascuna `overflow-y-auto` + `overscroll-contain`; il body del modale non scrolla.
-4. **Responsive**: sotto `lg` il layout collassa a colonna singola (galleria sopra, scheda sotto), stessa logica ma senza sticky laterale.
+## Dettagli tecnici
 
-## Dettagli tecnici implementativi
-
-- `TalentDetailSheet` riceve nuovi prop: `talents: RpcTalentRow[]`, `onSelectTalent: (id: string) => void`, `selectedSet: Set<string>` (per marcare visivamente le pill già selezionate).
-- Il parent (`SharedRound`) passa l'array completo `talents` e sostituisce `onToggle` con `() => toggle(row.role_talent_id)` calcolato al volo.
-- Riuso di `MediaLightbox`/lightbox esistente per l'hero click.
-- `DialogContent`: `max-w-6xl w-[95vw] max-h-[90vh] p-0 rounded-3xl overflow-hidden grid grid-rows-[auto_1fr_auto] lg:grid-cols-[3fr_2fr]` (header e footer span colonne).
+- Nuovi ref: `stripRef` (container swiper) + `Map<string, HTMLElement>` per gli slot pill; `useEffect` su `row.role_talent_id` per centrare.
+- Scala pill: calcolata dall'indice relativo (`Math.abs(i - activeIndex)`) con lookup `[1, 0.85, 0.7, 0.55]` (default 0.5) applicato via `style={{ transform: 'scale(x)' }}` + `transition-transform`.
+- Frecce: `disabled` quando `activeIndex === 0` / `talents.length - 1`.
+- Swipe: `useRef` per `touchStartX`; handler unificato sui due grandi container.
 
 ## Fuori scope
 
-- Nessun cambio a PDF, RPC, generazione, mock, `TalentTile`, header pagina, floating bar di conferma.
-- Nessuna nuova query o campo aggiuntivo: si usa quanto già ritornato da `get_shared_round`.
+- Nessun cambio a RPC, PDF, mock, layout a due colonne, filmstrip immagini, floating bar esterna "X di Y · Prosegui".
+- Nessun cambio a `StatusPill` (rimane usato altrove nella griglia).
