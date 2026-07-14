@@ -894,8 +894,12 @@ const BlocksSection = () => (
             key={c.title}
             className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-3 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
           >
-            <Star className="h-4 w-4 text-amber-400" fill="currentColor" />
-            <span className="truncate">{c.title}</span>
+            <span className="inline-flex items-center justify-center rounded-full p-1.5 text-amber-400">
+              <Star size={16} fill="currentColor" strokeWidth={2} />
+            </span>
+            <div className="min-w-0">
+              <span className="text-foreground font-medium truncate block">{c.title}</span>
+            </div>
             <div className="flex items-center">
               {c.confirmed === 0 ? (
                 <span className="text-sm text-muted-foreground/70">—</span>
