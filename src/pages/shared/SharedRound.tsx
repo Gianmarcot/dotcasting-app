@@ -6,6 +6,7 @@ import { mapToTalent } from "@/lib/casting/fetchRoundTalents";
 import { RoundPreset } from "@/lib/casting/roundPreset";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 import { MOCK_SHARED_ROUND } from "./sharedRoundMock";
 import { TalentTile } from "./TalentTile";
+import { cn } from "@/lib/utils";
 
 const logo = logoWhite;
 const PREVIEW_TOKEN = "preview";
@@ -89,14 +91,17 @@ interface TalentDetailSheetProps {
   selected: boolean;
   onToggle: () => void;
   photoCountFromRound: number | null;
+  talents: RpcTalentRow[];
+  selectedSet: Set<string>;
+  onSelectTalent: (id: string) => void;
 }
 
 const DetailRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => {
   if (value === null || value === undefined || value === "") return null;
   return (
     <div>
-      <p className="text-[10px] uppercase tracking-widest opacity-40 mb-0.5">{label}</p>
-      <p className="text-sm text-[#F5F0E8]">{value}</p>
+      <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">{label}</p>
+      <p className="text-sm text-foreground">{value}</p>
     </div>
   );
 };
@@ -106,14 +111,40 @@ const DetailSection = ({ title, children }: { title: string; children: React.Rea
   if (!hasContent) return null;
   return (
     <section className="space-y-3">
-      <h3 className="font-tenor uppercase tracking-widest text-xs text-[#E88599]">{title}</h3>
+      <h3 className="font-tenor uppercase tracking-widest text-xs text-primary">{title}</h3>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </section>
   );
 };
 
-function TalentDetailSheet({ row, open, onClose, token, selectable, selected, onToggle, photoCountFromRound }: TalentDetailSheetProps) {
+const getTalentDisplayName = (row: RpcTalentRow): string => {
+  const p = row.profile as Record<string, unknown>;
+  const stage = (p.stage_name as string | null) ?? "";
+  if (stage.trim()) return stage;
+  const first = ((p.first_name as string | null) ?? "").trim();
+  const last = ((p.last_name as string | null) ?? "").trim();
+  return `${first} ${last}`.trim() || "Talent";
+};
+
+const getTalentAvatarUrl = (row: RpcTalentRow): string | undefined => {
+  const p = row.profile as Record<string, unknown>;
+  const explicit = p.profile_photo_url as string | null | undefined;
+  if (explicit) return explicit;
+  const first = row.media?.find((m) => m.media_type === "photo");
+  return first?.url;
+};
+
+function TalentDetailSheet({
+  row, open, onClose, token, selectable, selected, onToggle, photoCountFromRound,
+  talents, selectedSet, onSelectTalent,
+}: TalentDetailSheetProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Reset active photo whenever the talent changes
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [row?.role_talent_id]);
 
   const dl = useMutation({
     mutationFn: async () => {
@@ -130,23 +161,56 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
 
   if (!row) return null;
   const talent = buildTalent(row);
-  // Allinea il set di foto mostrato al drawer con quello incluso nel PDF:
-  // PDF usa photos[0..1] come cover + photos.slice(2, 2+photoCount).
-  // Quindi il totale nel PDF è (2 + photoCount) foto. Applichiamo lo stesso
-  // slice qui così cliente vede lo stesso set del PDF scaricabile.
   const photoCount = photoCountFromRound ?? null;
   const allPhotos = talent.photos ?? [];
   const photos = photoCount == null ? allPhotos : allPhotos.slice(0, 2 + Math.max(0, photoCount));
+  const heroPhoto = photos[Math.min(activeIndex, Math.max(photos.length - 1, 0))] ?? null;
 
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] p-0 bg-[#0F0F0F] text-[#F5F0E8] rounded-3xl overflow-hidden flex flex-col gap-0 border border-white/10">
-          <DialogHeader className="sticky top-0 z-10 bg-[#0F0F0F]/95 backdrop-blur-md px-6 py-5 border-b border-white/10 flex-row items-center justify-between space-y-0 shrink-0">
-            <div className="flex-1 min-w-0 text-left">
-              <DialogTitle className="font-tenor uppercase tracking-widest text-xl text-[#F5F0E8] truncate text-left">
-                {talent.nome}
-              </DialogTitle>
+        <DialogContent
+          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
+        >
+          {/* ---------- Header: talent switcher + actions ---------- */}
+          <DialogHeader className="flex-row items-center gap-3 px-4 md:px-6 py-3 border-b border-border space-y-0 shrink-0 bg-background">
+            <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              <div className="flex items-center gap-2 w-max">
+                {talents.map((t) => {
+                  const isActive = t.role_talent_id === row.role_talent_id;
+                  const isSelected = selectedSet.has(t.role_talent_id);
+                  const name = getTalentDisplayName(t);
+                  const avatarUrl = getTalentAvatarUrl(t);
+                  return (
+                    <button
+                      key={t.role_talent_id}
+                      type="button"
+                      onClick={() => onSelectTalent(t.role_talent_id)}
+                      className={cn(
+                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-colors shrink-0",
+                        isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
+                      )}
+                    >
+                      <Avatar className="h-7 w-7 shrink-0">
+                        <AvatarImage src={avatarUrl} alt={name} />
+                        <AvatarFallback className="text-[10px]">
+                          {name.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs font-medium whitespace-nowrap max-w-[140px] truncate">
+                        {name}
+                      </span>
+                      {isSelected && (
+                        <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary text-primary-foreground shrink-0">
+                          <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <button
@@ -154,7 +218,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 title="Scarica PDF"
                 onClick={() => dl.mutate()}
                 disabled={!row.pdf_path || dl.isPending}
-                className="inline-flex items-center justify-center text-[#E88599] hover:bg-[#A30A2B]/20 disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-primary hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
               >
                 {dl.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
               </button>
@@ -162,40 +226,75 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                 type="button"
                 onClick={onClose}
                 aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-[#F5F0E8] hover:bg-white/10 h-10 w-10 rounded-full transition-colors"
+                className="inline-flex items-center justify-center text-foreground hover:bg-muted h-10 w-10 rounded-full transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
+            <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-8">
-              {photos.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {photos.map((p, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setLightbox(p)}
-                      className="aspect-[2/3] overflow-hidden bg-[#1A1A1A] rounded-2xl group"
-                    >
-                      <img
-                        src={p}
-                        alt={`${talent.nome} ${i + 1}`}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
-                      />
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <div className="aspect-[2/3] flex items-center justify-center bg-[#1A1A1A] rounded-2xl text-white/30">
-                  <ImageOff className="h-8 w-8" />
-                </div>
-              )}
+          {/* ---------- Body: gallery + info ---------- */}
+          <div className="min-h-0 grid grid-cols-1 lg:grid-cols-5">
+            {/* Left: gallery */}
+            <div className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border">
+              <div className="p-4 md:p-6 space-y-4">
+                {heroPhoto ? (
+                  <button
+                    type="button"
+                    onClick={() => setLightbox(heroPhoto)}
+                    className="w-full aspect-[2/3] max-h-[65vh] mx-auto block overflow-hidden bg-muted rounded-2xl group"
+                    style={{ maxWidth: "min(100%, calc(65vh * 2/3))" }}
+                  >
+                    <img
+                      src={heroPhoto}
+                      alt={talent.nome}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                    />
+                  </button>
+                ) : (
+                  <div className="w-full aspect-[2/3] max-h-[65vh] mx-auto flex items-center justify-center bg-muted rounded-2xl text-muted-foreground"
+                       style={{ maxWidth: "min(100%, calc(65vh * 2/3))" }}>
+                    <ImageOff className="h-10 w-10" />
+                  </div>
+                )}
 
-              <div className="bg-[#1A1A1A] rounded-3xl shadow-sm p-6 space-y-7">
+                {photos.length > 1 && (
+                  <div className="overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                    <div className="flex gap-2 w-max mx-auto px-1">
+                      {photos.map((p, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setActiveIndex(i)}
+                          className={cn(
+                            "shrink-0 w-[64px] aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all",
+                            i === activeIndex
+                              ? "ring-2 ring-primary ring-offset-2 ring-offset-background opacity-100"
+                              : "opacity-60 hover:opacity-100"
+                          )}
+                        >
+                          <img src={p} alt={`${talent.nome} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Right: info card (independent scroll) */}
+            <div className="lg:col-span-2 min-h-0 overflow-y-auto overscroll-contain flex flex-col">
+              <div className="p-6 md:p-8 space-y-7 flex-1">
+                <div className="space-y-2">
+                  <h2 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground leading-tight">
+                    {talent.nome}
+                  </h2>
+                  {row.company_status && row.company_status !== "none" && (
+                    <StatusPill status={row.company_status} />
+                  )}
+                </div>
+
                 <DetailSection title="Generale">
                   <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
                   <DetailRow label="Genere" value={talent.genere} />
@@ -237,30 +336,28 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
                 </DetailSection>
               </div>
+
+              {selectable && (
+                <div className="sticky bottom-0 shrink-0 bg-background border-t border-border px-6 py-4">
+                  <Button
+                    onClick={onToggle}
+                    size="lg"
+                    variant={selected ? "outline" : "default"}
+                    className="w-full rounded-full"
+                  >
+                    {selected ? (
+                      "Rimuovi selezione"
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4" />
+                        Seleziona talent
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-
-          {selectable && (
-            <div className="shrink-0 bg-[#0F0F0F]/95 backdrop-blur-md border-t border-white/10 px-6 py-4">
-              <Button
-                onClick={onToggle}
-                className={`w-full rounded-full font-bold uppercase tracking-widest text-xs h-12 ${
-                  selected
-                    ? "bg-transparent border border-[#A30A2B] text-[#E88599] hover:bg-[#A30A2B]/10"
-                    : "bg-[#A30A2B] hover:bg-[#850822] text-white"
-                }`}
-              >
-                {selected ? (
-                  "Rimuovi selezione"
-                ) : (
-                  <>
-                    <Check className="h-4 w-4 mr-2" />
-                    Seleziona talent
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
 
@@ -503,6 +600,9 @@ export default function SharedRound() {
         selected={detailsRow ? selected.has(detailsRow.role_talent_id) : false}
         onToggle={() => detailsRow && toggle(detailsRow.role_talent_id)}
         photoCountFromRound={round.field_preset?.photoCount ?? null}
+        talents={talents}
+        selectedSet={selected}
+        onSelectTalent={setDetailsId}
       />
 
       <Dialog
