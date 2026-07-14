@@ -151,7 +151,7 @@ export const OwnerCastings = () => {
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <p>Nessun casting trovato</p>
-          <Button variant="link" onClick={handleCreate}>
+          <Button variant="secondary" size="md" onClick={handleCreate} className="mt-4">
             Crea il tuo primo casting
           </Button>
         </div>
