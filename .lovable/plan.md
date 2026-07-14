@@ -1,39 +1,36 @@
-## Modifiche componenti UI + Design System
+Solo modifiche di UI/presentazione. Nessuna logica di business.
 
-### 1. Slider (`src/components/ui/slider.tsx`)
-- Cambiare la traccia da `bg-secondary` (verde oliva) a `bg-muted` (neutro chiaro), coerente con Progress bar.
-- Mantenere il riempimento `bg-primary` (bordeaux) per contrasto migliore.
+## 1. Progress bar al 100% → verde success
+`src/components/ui/progress.tsx`: sostituire il fill di completamento da `bg-[hsl(var(--olive))]` a `bg-[hsl(var(--success))]` (token `--success` già presente, verde più saturo e leggibile). Traccia neutra invariata.
 
-### 2. Avatar — tre misure standard (`src/components/ui/avatar.tsx` + `src/index.css`)
-- Introdurre size variants: `sm` = 32px, `md` = 48px (default), `lg` = 64px.
-- Aggiornare `.dc-avatar-sm/md/lg` in `index.css` di conseguenza (attualmente md=40, lg=48).
-- Nessun refactor dei consumer: le classi esplicite `h-* w-*` esistenti restano valide.
+## 2. Badge stati casting in Semi Bold
+`CastingRow.tsx` è già `font-semibold`. Da aggiornare:
+- `src/components/castings/CastingCard.tsx`: aggiungere `font-semibold` alle etichette di stato.
+- `src/pages/DesignSystem.tsx`: nel mock CastingRow (righe ~819) aggiungere `font-semibold` all'etichetta stato per coerenza visiva.
 
-### 3. Tooltip fix
-- Verificare `src/components/ui/tooltip.tsx` e wrapping `TooltipProvider` nella Design System page. Se manca il provider al livello app (`App.tsx`), aggiungerlo, oppure garantire che ogni uso in DesignSystem sia wrappato correttamente. Sistemare il delay/z-index se necessario.
+## 3. Sezione pulsanti riorganizzata in `DesignSystem.tsx`
+Sostituire l'attuale blocco "Button · …" con una visualizzazione tabellare/ordinata a griglia che copra tutte le combinazioni:
 
-### 4. Badge stati casting — semi-bold
-- Nel componente/utility che rende i badge di stato casting (probabilmente `Badge` in `src/components/ui/badge.tsx` o wrapper stato), impostare `font-semibold` (600).
-- Applicare solo agli status badges (Bozza/Attivo/Archiviato), non a tutti i badge globalmente — a meno che l'utente confermi. Piano: applicarli allo status badge dedicato per non alterare altri contesti.
+- **Varianti** (una riga per ciascuna, size = md): `default`, `secondary`, `outline`, `ghost`, `link`, `destructive`, `olive`, `charcoal`, `disabled`.
+- **Sizes** (per variante primaria): `sm 36px`, `md 40px`, `lg 48px` — mostrate affiancate con label altezza.
+- **Con icona a sinistra**: per ciascuna size (sm/md/lg), variante default + secondary.
+- **Con icona a destra**: per ciascuna size, variante default + secondary.
+- **Solo icona (quadrati)**: `icon-sm 36×36`, `icon-md 40×40`, `icon-lg 48×48` in default, outline, ghost.
+- **Stati**: hover (nota testuale), disabled, loading (opzionale se già usato altrove — altrimenti skip).
 
-### 5. Pulsanti — nuove size (`src/components/ui/button.tsx` + `.dc-btn-*` in `index.css`)
-- `sm` → h-9 (36px)
-- `md` (default) → h-10 (40px)
-- `lg` → h-12 (48px)
-- Rimuovere `xl` o rimappare `lg`→48px come richiesto.
+Ogni riga con label a sinistra (es. "Default / md / icon left") e componenti sulla stessa riga, sfondo `dc-card`, hairline separatore fra righe per leggibilità.
 
-### 6. Sezione pulsanti Design System + varianti icona
-- Aggiungere varianti Button con `iconLeft` e `iconRight` (nuove prop opzionali o esempi con `<Icon />` interno).
-- Padding asimmetrico quando c'è icona a sinistra: `pl-3 pr-7` (~12/28px), a destra viceversa. Applicare via classi condizionali nel `Button` in base a props `iconLeft`/`iconRight`, oppure documentare le classi utility da usare.
-- Riorganizzare la sezione "Button" in DesignSystem in sottogruppi: **Varianti**, **Size (sm/md/lg)**, **Con icona (sinistra/destra/solo)**.
+## 4. CastingRow: avatar Medium (48px)
+`src/components/castings/CastingRow.tsx` righe 80-82: cambiare `h-7 w-7` (28px) in `h-12 w-12` (48px = size medium del design system). Aggiornare anche il negative margin di overlap (`-ml-2` → `-ml-3`) e il fallback text-size (`text-[10px]` → `text-xs`) per proporzione.
+Aggiornare in parallelo il mock in `DesignSystem.tsx` (righe ~834-847) con le stesse classi.
 
-### 7. Pulsante solo-icona
-- Size `icon` deve avere `h` = `w` (quadrato). Definire tre misure coerenti con le size: `icon-sm` 36×36, `icon-md` 40×40, `icon-lg` 48×48. Aggiornare `.dc-btn-icon` e le varianti.
+## 5. Talent tile pagina cliente: riusare il componente reale
+Nella `SubBlock "Talent tile (pagina cliente)"` di `DesignSystem.tsx`:
+- Estrarre `TalentTile` (attualmente locale in `src/pages/shared/SharedRound.tsx`) in un file dedicato `src/pages/shared/TalentTile.tsx` ed esportarlo. `SharedRound.tsx` continua ad usarlo tramite import.
+- Nel design system importare `TalentTile` reale e mostrarlo con 4 righe mock (usando `sharedRoundMock.ts` già esistente) su fondo scuro `#0F0F0F` (rispecchiando il contesto d'uso), in una griglia 2/4 colonne — così l'anteprima è 1:1 con la pagina cliente.
+- Rimuovere l'attuale placeholder inline con `<img>` pravatar.
 
-### Note tecniche
-- File toccati: `src/components/ui/{slider,avatar,button,badge}.tsx`, `src/index.css` (classi `.dc-btn-*`, `.dc-avatar-*`), `src/pages/DesignSystem.tsx`, `src/App.tsx` (TooltipProvider globale se mancante).
-- Nessuna modifica a schema DB o business logic.
-- Nessun consumer downstream refactor: le size esistenti restano compatibili (default = md = 40px).
-
-### Domanda aperta
-Per il punto 4 ("badge stati casting"): applico `font-semibold` **solo** al badge di stato casting, o a tutti i `Badge` del design system?
+## Tecnico
+- File modificati: `progress.tsx`, `CastingCard.tsx`, `CastingRow.tsx`, `DesignSystem.tsx`.
+- File nuovo: `src/pages/shared/TalentTile.tsx` (semplice estrazione, stesso markup).
+- Nessuna modifica a schema DB, hook, o logica.

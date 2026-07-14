@@ -79,12 +79,13 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
               {shown.map((t, i) => (
                 <Avatar
                   key={t.profile?.id ?? i}
-                  className={cn("h-7 w-7 ring-2 ring-background", i > 0 && "-ml-2")}
+                  size="md"
+                  className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
                 >
                   {t.profile?.profile_photo_url ? (
                     <AvatarImage src={t.profile.profile_photo_url} alt="" />
                   ) : null}
-                  <AvatarFallback className="text-[10px] bg-muted">
+                  <AvatarFallback className="text-xs bg-muted">
                     {getInitials(t.profile?.first_name, t.profile?.last_name)}
                   </AvatarFallback>
                 </Avatar>

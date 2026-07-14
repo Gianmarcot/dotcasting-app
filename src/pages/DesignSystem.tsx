@@ -74,6 +74,8 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { TalentTile } from "@/pages/shared/TalentTile";
+import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
 
 // ---------- Token helpers ----------
 const useComputedVar = (name: string) => {
@@ -315,57 +317,108 @@ const PrimitivesSection = () => (
     title="Primitive shadcn"
     caption="src/components/ui/*"
   >
-    <SubBlock title="Button · Varianti" source="src/components/ui/button.tsx">
-      <div className="flex flex-wrap gap-3">
-        <Button>Default</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="outline">Outline</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="link">Link</Button>
-        <Button variant="destructive">Destructive</Button>
-        <Button variant="olive">Olive</Button>
-        <Button variant="charcoal">Charcoal</Button>
-        <Button disabled>Disabled</Button>
-      </div>
+    <SubBlock title="Button · Matrice completa" source="src/components/ui/button.tsx">
+      {(() => {
+        const variants: Array<{ v: "default" | "secondary" | "outline" | "ghost" | "link" | "destructive" | "olive" | "charcoal"; label: string }> = [
+          { v: "default", label: "Default" },
+          { v: "secondary", label: "Secondary" },
+          { v: "outline", label: "Outline" },
+          { v: "ghost", label: "Ghost" },
+          { v: "link", label: "Link" },
+          { v: "destructive", label: "Destructive" },
+          { v: "olive", label: "Olive" },
+          { v: "charcoal", label: "Charcoal" },
+        ];
+        const sizes: Array<{ s: "sm" | "md" | "lg"; label: string }> = [
+          { s: "sm", label: "sm · 36" },
+          { s: "md", label: "md · 40" },
+          { s: "lg", label: "lg · 48" },
+        ];
+        const iconSizes: Array<{ s: "icon-sm" | "icon-md" | "icon-lg"; label: string }> = [
+          { s: "icon-sm", label: "icon-sm · 36" },
+          { s: "icon-md", label: "icon-md · 40" },
+          { s: "icon-lg", label: "icon-lg · 48" },
+        ];
+        const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
+          <div className="grid grid-cols-[160px_1fr] items-center gap-6 py-3 border-b border-border/40 last:border-b-0">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground font-mono">{label}</span>
+            <div className="flex flex-wrap items-center gap-3">{children}</div>
+          </div>
+        );
+        return (
+          <div className="space-y-8">
+            <div>
+              <h4 className="font-tenor uppercase tracking-widest text-xs text-muted-foreground mb-2">Varianti (size md)</h4>
+              <div className="dc-card p-4">
+                {variants.map((v) => (
+                  <Row key={v.v} label={v.label}>
+                    <Button variant={v.v}>Label</Button>
+                    <Button variant={v.v} iconPosition="left"><Pencil /> Con icona</Button>
+                    <Button variant={v.v} iconPosition="right">Con icona <ChevronRight /></Button>
+                    <Button variant={v.v} disabled>Disabled</Button>
+                  </Row>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-tenor uppercase tracking-widest text-xs text-muted-foreground mb-2">Sizes testo</h4>
+              <div className="dc-card p-4">
+                {sizes.map((s) => (
+                  <Row key={s.s} label={s.label}>
+                    <Button size={s.s}>Default</Button>
+                    <Button size={s.s} variant="secondary">Secondary</Button>
+                    <Button size={s.s} variant="outline">Outline</Button>
+                  </Row>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-tenor uppercase tracking-widest text-xs text-muted-foreground mb-2">Icona a sinistra</h4>
+              <div className="dc-card p-4">
+                {sizes.map((s) => (
+                  <Row key={s.s} label={s.label}>
+                    <Button size={s.s} iconPosition="left"><Pencil /> Modifica</Button>
+                    <Button size={s.s} variant="secondary" iconPosition="left"><Bell /> Notifiche</Button>
+                    <Button size={s.s} variant="outline" iconPosition="left"><Trash2 /> Elimina</Button>
+                  </Row>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-tenor uppercase tracking-widest text-xs text-muted-foreground mb-2">Icona a destra</h4>
+              <div className="dc-card p-4">
+                {sizes.map((s) => (
+                  <Row key={s.s} label={s.label}>
+                    <Button size={s.s} iconPosition="right">Prosegui <ChevronRight /></Button>
+                    <Button size={s.s} variant="secondary" iconPosition="right">Apri <ChevronRight /></Button>
+                    <Button size={s.s} variant="outline" iconPosition="right">Dettagli <ChevronRight /></Button>
+                  </Row>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-tenor uppercase tracking-widest text-xs text-muted-foreground mb-2">Solo icona (quadrati)</h4>
+              <div className="dc-card p-4">
+                {iconSizes.map((s) => (
+                  <Row key={s.s} label={s.label}>
+                    <Button size={s.s} aria-label="Modifica"><Pencil /></Button>
+                    <Button size={s.s} variant="secondary" aria-label="Elimina"><Trash2 /></Button>
+                    <Button size={s.s} variant="outline" aria-label="Notifiche"><Bell /></Button>
+                    <Button size={s.s} variant="ghost" aria-label="Preferito"><Star /></Button>
+                    <Button size={s.s} variant="destructive" aria-label="Elimina"><Trash2 /></Button>
+                  </Row>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </SubBlock>
 
-    <SubBlock title="Button · Size (36 · 40 · 48)">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button size="sm">Small · 36px</Button>
-        <Button size="md">Medium · 40px</Button>
-        <Button size="lg">Large · 48px</Button>
-      </div>
-    </SubBlock>
-
-    <SubBlock title="Button · Con icona (sinistra / destra / solo)">
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <Button iconPosition="left">
-            <Pencil /> Icona a sinistra
-          </Button>
-          <Button iconPosition="right" variant="secondary">
-            Icona a destra <ChevronRight />
-          </Button>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <Button size="icon-sm" aria-label="Modifica">
-            <Pencil />
-          </Button>
-          <Button size="icon-md" aria-label="Modifica">
-            <Pencil />
-          </Button>
-          <Button size="icon-lg" aria-label="Modifica">
-            <Pencil />
-          </Button>
-          <Button size="icon-md" variant="outline" aria-label="Elimina">
-            <Trash2 />
-          </Button>
-          <Button size="icon-md" variant="ghost" aria-label="Notifiche">
-            <Bell />
-          </Button>
-        </div>
-      </div>
-    </SubBlock>
 
     <SubBlock title="Form controls" source="input, textarea, select, checkbox, radio, switch, slider">
       <div className="grid gap-6 md:grid-cols-2">
@@ -619,7 +672,7 @@ const StatusDot = ({
 }) => (
   <div className="inline-flex items-center gap-2">
     <span className={cn("h-2 w-2 rounded-full", color)} />
-    <span className={cn("text-sm", text)}>{label}</span>
+    <span className={cn("text-sm font-semibold", text)}>{label}</span>
   </div>
 );
 
@@ -833,13 +886,14 @@ const BlocksSection = () => (
                     (_, i) => (
                       <Avatar
                         key={i}
+                        size="md"
                         className={cn(
-                          "h-7 w-7 ring-2 ring-background",
-                          i > 0 && "-ml-2",
+                          "ring-2 ring-background",
+                          i > 0 && "-ml-3",
                         )}
                       >
                         <AvatarImage
-                          src={`https://i.pravatar.cc/56?img=${i + 10}`}
+                          src={`https://i.pravatar.cc/96?img=${i + 10}`}
                         />
                         <AvatarFallback>?</AvatarFallback>
                       </Avatar>
@@ -868,41 +922,29 @@ const BlocksSection = () => (
       </div>
     </SubBlock>
 
-    <SubBlock title="Talent tile (pagina cliente)">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[10, 12, 22, 31].map((i, idx) => (
-          <div
-            key={i}
-            className={cn(
-              "p-3 rounded-3xl transition cursor-pointer",
-              idx === 1 ? "bg-primary/10 ring-2 ring-primary" : "bg-white",
-            )}
-          >
-            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden">
-              <img
-                src={`https://i.pravatar.cc/300?img=${i}`}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-2 left-2 h-6 w-6 rounded-full bg-white flex items-center justify-center">
-                {idx === 1 && <Check className="h-4 w-4 text-primary" />}
-              </div>
-            </div>
-            <div className="mt-3 flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-medium truncate text-sm">Talent {i}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  176 cm · Milano
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </div>
-          </div>
-        ))}
+    <SubBlock
+      title="Talent tile (pagina cliente)"
+      source="src/pages/shared/TalentTile.tsx"
+    >
+      <div className="bg-[#0F0F0F] rounded-3xl p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {MOCK_SHARED_ROUND.talents.slice(0, 4).map((row, idx) => (
+            <TalentTile
+              key={row.role_talent_id}
+              row={row as any}
+              selectable
+              selected={idx === 1}
+              showStatus={false}
+              onToggle={() => {}}
+              onOpenDetails={() => {}}
+            />
+          ))}
+        </div>
       </div>
     </SubBlock>
   </Section>
 );
+
 
 // ---------- Page ----------
 const sections = [
