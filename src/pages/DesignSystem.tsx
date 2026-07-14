@@ -315,24 +315,53 @@ const PrimitivesSection = () => (
     title="Primitive shadcn"
     caption="src/components/ui/*"
   >
-    <SubBlock title="Button" source="src/components/ui/button.tsx">
+    <SubBlock title="Button · Varianti" source="src/components/ui/button.tsx">
+      <div className="flex flex-wrap gap-3">
+        <Button>Default</Button>
+        <Button variant="secondary">Secondary</Button>
+        <Button variant="outline">Outline</Button>
+        <Button variant="ghost">Ghost</Button>
+        <Button variant="link">Link</Button>
+        <Button variant="destructive">Destructive</Button>
+        <Button variant="olive">Olive</Button>
+        <Button variant="charcoal">Charcoal</Button>
+        <Button disabled>Disabled</Button>
+      </div>
+    </SubBlock>
+
+    <SubBlock title="Button · Size (36 · 40 · 48)">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button size="sm">Small · 36px</Button>
+        <Button size="md">Medium · 40px</Button>
+        <Button size="lg">Large · 48px</Button>
+      </div>
+    </SubBlock>
+
+    <SubBlock title="Button · Con icona (sinistra / destra / solo)">
       <div className="space-y-4">
-        <div className="flex flex-wrap gap-3">
-          <Button>Default</Button>
-          <Button variant="secondary">Secondary</Button>
-          <Button variant="outline">Outline</Button>
-          <Button variant="ghost">Ghost</Button>
-          <Button variant="link">Link</Button>
-          <Button variant="destructive">Destructive</Button>
-          <Button disabled>Disabled</Button>
-          <Button className="rounded-full">Pill</Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button iconPosition="left">
+            <Pencil /> Icona a sinistra
+          </Button>
+          <Button iconPosition="right" variant="secondary">
+            Icona a destra <ChevronRight />
+          </Button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <Button size="sm">Small</Button>
-          <Button>Default</Button>
-          <Button size="lg">Large</Button>
-          <Button size="icon">
-            <Pencil className="h-4 w-4" />
+          <Button size="icon-sm" aria-label="Modifica">
+            <Pencil />
+          </Button>
+          <Button size="icon-md" aria-label="Modifica">
+            <Pencil />
+          </Button>
+          <Button size="icon-lg" aria-label="Modifica">
+            <Pencil />
+          </Button>
+          <Button size="icon-md" variant="outline" aria-label="Elimina">
+            <Trash2 />
+          </Button>
+          <Button size="icon-md" variant="ghost" aria-label="Notifiche">
+            <Bell />
           </Button>
         </div>
       </div>
@@ -397,20 +426,35 @@ const PrimitivesSection = () => (
       </div>
     </SubBlock>
 
-    <SubBlock title="Avatar">
-      <div className="flex items-center gap-6">
-        <Avatar>
-          <AvatarImage src="https://i.pravatar.cc/64?img=12" />
-          <AvatarFallback>GA</AvatarFallback>
-        </Avatar>
-        <Avatar>
-          <AvatarFallback>MB</AvatarFallback>
-        </Avatar>
-        <div className="flex">
+    <SubBlock title="Avatar · Sizes (32 · 48 · 64)">
+      <div className="flex items-end gap-6">
+        <div className="flex flex-col items-center gap-2">
+          <Avatar size="sm">
+            <AvatarImage src="https://i.pravatar.cc/64?img=12" />
+            <AvatarFallback>SM</AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground">sm · 32px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Avatar size="md">
+            <AvatarImage src="https://i.pravatar.cc/96?img=22" />
+            <AvatarFallback>MD</AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground">md · 48px</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <Avatar size="lg">
+            <AvatarImage src="https://i.pravatar.cc/128?img=31" />
+            <AvatarFallback>LG</AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-muted-foreground">lg · 64px</span>
+        </div>
+        <div className="flex ml-6">
           {[15, 22, 31, 44].map((i, idx) => (
             <Avatar
               key={i}
-              className={cn("h-8 w-8 ring-2 ring-background", idx > 0 && "-ml-2")}
+              size="sm"
+              className={cn("ring-2 ring-background", idx > 0 && "-ml-2")}
             >
               <AvatarImage src={`https://i.pravatar.cc/64?img=${i}`} />
               <AvatarFallback>?</AvatarFallback>
