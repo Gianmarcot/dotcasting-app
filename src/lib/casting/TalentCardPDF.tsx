@@ -182,4 +182,6 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
       );
     })}
   </Document>
-);
+  );
+};
+
