@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
+import { Download, Loader2, Check, ImageOff, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 import { MOCK_SHARED_ROUND } from "./sharedRoundMock";
@@ -111,7 +111,7 @@ const DetailSection = ({ title, children }: { title: string; children: React.Rea
   if (!hasContent) return null;
   return (
     <section className="space-y-3">
-      <h3 className="font-tenor uppercase tracking-widest text-xs text-primary">{title}</h3>
+      <h3 className="font-tenor uppercase tracking-widest text-xs text-[#1A1A1A]">{title}</h3>
       <div className="grid grid-cols-2 gap-x-6 gap-y-4">{children}</div>
     </section>
   );
@@ -140,11 +140,41 @@ function TalentDetailSheet({
 }: TalentDetailSheetProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const stripRef = useRef<HTMLDivElement | null>(null);
+  const slotRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const touchStartX = useRef<number | null>(null);
 
   // Reset active photo whenever the talent changes
   useEffect(() => {
     setActiveIndex(0);
   }, [row?.role_talent_id]);
+
+  // Center active pill on change
+  useEffect(() => {
+    if (!row) return;
+    const el = slotRefs.current.get(row.role_talent_id);
+    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [row?.role_talent_id]);
+
+  const currentIdx = row ? talents.findIndex((t) => t.role_talent_id === row.role_talent_id) : -1;
+  const goPrevTalent = () => {
+    if (currentIdx > 0) onSelectTalent(talents[currentIdx - 1].role_talent_id);
+  };
+  const goNextTalent = () => {
+    if (currentIdx >= 0 && currentIdx < talents.length - 1)
+      onSelectTalent(talents[currentIdx + 1].role_talent_id);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 40) return;
+    dx > 0 ? goPrevTalent() : goNextTalent();
+  };
 
   const dl = useMutation({
     mutationFn: async () => {
@@ -166,40 +196,87 @@ function TalentDetailSheet({
   const photos = photoCount == null ? allPhotos : allPhotos.slice(0, 2 + Math.max(0, photoCount));
   const heroPhoto = photos[Math.min(activeIndex, Math.max(photos.length - 1, 0))] ?? null;
 
+  const scaleForOffset = (off: number) => {
+    const abs = Math.abs(off);
+    if (abs === 0) return 1;
+    if (abs === 1) return 0.85;
+    if (abs === 2) return 0.7;
+    if (abs === 3) return 0.55;
+    return 0.5;
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent
-          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
+          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-visible gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
         >
+          {/* External nav arrows */}
+          <button
+            type="button"
+            onClick={goPrevTalent}
+            disabled={currentIdx <= 0}
+            aria-label="Talent precedente"
+            className="hidden md:flex absolute left-0 md:-left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={goNextTalent}
+            disabled={currentIdx >= talents.length - 1}
+            aria-label="Talent successivo"
+            className="hidden md:flex absolute right-0 md:-right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <div className="rounded-3xl overflow-hidden grid grid-rows-[auto_1fr] min-h-0 h-full">
           {/* ---------- Header: talent switcher + actions ---------- */}
           <DialogHeader className="flex-row items-center gap-3 px-4 md:px-6 py-3 border-b border-border space-y-0 shrink-0 bg-background">
-            <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-              <div className="flex items-center gap-2 w-max">
-                {talents.map((t) => {
+            <div
+              ref={stripRef}
+              className="flex-1 min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+              style={{
+                maskImage:
+                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
+              }}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
+              <div className="flex items-center gap-2 w-max px-[40%] py-2">
+                {talents.map((t, i) => {
                   const isActive = t.role_talent_id === row.role_talent_id;
                   const isSelected = selectedSet.has(t.role_talent_id);
                   const name = getTalentDisplayName(t);
                   const avatarUrl = getTalentAvatarUrl(t);
+                  const scale = scaleForOffset(currentIdx >= 0 ? i - currentIdx : 0);
                   return (
                     <button
                       key={t.role_talent_id}
+                      ref={(el) => {
+                        if (el) slotRefs.current.set(t.role_talent_id, el);
+                        else slotRefs.current.delete(t.role_talent_id);
+                      }}
                       type="button"
                       onClick={() => onSelectTalent(t.role_talent_id)}
+                      style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
                       className={cn(
-                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-colors shrink-0",
+                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all duration-300 shrink-0",
                         isActive
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
                       )}
                     >
-                      <Avatar className="h-7 w-7 shrink-0">
+                      <Avatar className={cn("shrink-0", isActive ? "h-9 w-9" : "h-7 w-7")}>
                         <AvatarImage src={avatarUrl} alt={name} />
                         <AvatarFallback className="text-[10px]">
                           {name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs font-medium whitespace-nowrap max-w-[140px] truncate">
+                      <span className={cn("font-medium whitespace-nowrap max-w-[160px] truncate", isActive ? "text-sm" : "text-xs")}>
                         {name}
                       </span>
                       {isSelected && (
@@ -212,16 +289,17 @@ function TalentDetailSheet({
                 })}
               </div>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                title="Scarica PDF"
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => dl.mutate()}
                 disabled={!row.pdf_path || dl.isPending}
-                className="inline-flex items-center justify-center text-primary hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
+                className="rounded-full gap-2"
               >
-                {dl.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
-              </button>
+                {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Scarica PDF
+              </Button>
               <button
                 type="button"
                 onClick={onClose}
@@ -234,10 +312,15 @@ function TalentDetailSheet({
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
 
+
           {/* ---------- Body: gallery + info ---------- */}
           <div className="min-h-0 grid grid-cols-1 lg:grid-cols-5">
             {/* Left: gallery */}
-            <div className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border">
+            <div
+              className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
               <div className="p-4 md:p-6 space-y-4">
                 {heroPhoto ? (
                   <button
@@ -286,14 +369,12 @@ function TalentDetailSheet({
             {/* Right: info card (independent scroll) */}
             <div className="lg:col-span-2 min-h-0 overflow-y-auto overscroll-contain flex flex-col">
               <div className="p-6 md:p-8 space-y-7 flex-1">
-                <div className="space-y-2">
+                <div>
                   <h2 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground leading-tight">
                     {talent.nome}
                   </h2>
-                  {row.company_status && row.company_status !== "none" && (
-                    <StatusPill status={row.company_status} />
-                  )}
                 </div>
+
 
                 <DetailSection title="Generale">
                   <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
@@ -346,20 +427,22 @@ function TalentDetailSheet({
                     className="w-full rounded-full"
                   >
                     {selected ? (
-                      "Rimuovi selezione"
-                    ) : (
                       <>
                         <Check className="h-4 w-4" />
-                        Seleziona talent
+                        Selezionato · Rimuovi
                       </>
+                    ) : (
+                      "Seleziona talent"
                     )}
                   </Button>
                 </div>
               )}
             </div>
           </div>
+          </div>
         </DialogContent>
       </Dialog>
+
 
       {lightbox && (
         <div
