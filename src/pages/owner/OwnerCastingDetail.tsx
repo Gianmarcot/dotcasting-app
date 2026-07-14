@@ -5,7 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, ChevronDown, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useCastingRoles } from "@/hooks/useCastingRoles";
@@ -30,14 +37,6 @@ import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-
-const statusStyles: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]",
-  closed: "bg-[hsl(var(--destructive))]/10 text-[hsl(var(--destructive))]",
-};
 
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
@@ -209,35 +208,16 @@ export const OwnerCastingDetail = () => {
 
           {/* Metadata row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
-                    statusStyles[currentStatus],
-                  )}
-                >
-                  {statusLabels[currentStatus]}
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-40 p-1">
-                {(["draft", "active", "closed"] as const).map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => handleStatusChange(s)}
-                    className={cn(
-                      "w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors",
-                      currentStatus === s && "font-medium",
-                    )}
-                  >
-                    {statusLabels[s]}
-                  </button>
-                ))}
-              </PopoverContent>
-            </Popover>
+            <Select value={currentStatus} onValueChange={handleStatusChange}>
+              <SelectTrigger className="w-40 rounded-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="draft">{statusLabels.draft}</SelectItem>
+                <SelectItem value="active">{statusLabels.active}</SelectItem>
+                <SelectItem value="closed">{statusLabels.closed}</SelectItem>
+              </SelectContent>
+            </Select>
 
             {casting.company && <span>{casting.company.name}</span>}
 
@@ -279,7 +259,7 @@ export const OwnerCastingDetail = () => {
 
       {/* RUOLI */}
       <div className="space-y-4">
-        <h2 className="font-display uppercase tracking-widest text-sm text-muted-foreground">
+        <h2 className="text-sm font-display uppercase tracking-wider text-foreground">
           Ruoli
         </h2>
 
@@ -306,14 +286,16 @@ export const OwnerCastingDetail = () => {
       </div>
 
       <div className="pt-4">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="lg"
+          iconPosition="left"
           onClick={() => setConfirmDeleteOpen(true)}
-          className="inline-flex items-center gap-2 text-sm text-[hsl(var(--destructive))] underline underline-offset-4 hover:opacity-80 transition-opacity"
+          className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10"
         >
           <Trash2 className="h-4 w-4" />
           Elimina casting
-        </button>
+        </Button>
       </div>
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>

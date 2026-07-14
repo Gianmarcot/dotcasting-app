@@ -92,13 +92,27 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
         tabIndex={0}
         onClick={open}
         onKeyDown={(e) => e.key === "Enter" && open()}
-        className="group grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+        className="group grid grid-cols-[1fr_160px_1fr_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
       >
         {/* Round label + date */}
         <div className="min-w-0 flex items-center gap-3">
           <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
           <div className="min-w-0">
-            <div className="font-medium text-foreground truncate">{round.label}</div>
+            <div className="text-foreground truncate">
+              {(() => {
+                const sep = round.label.match(/\s[-–]\s/);
+                if (!sep) return <span>{round.label}</span>;
+                const idx = round.label.indexOf(sep[0]);
+                const first = round.label.slice(0, idx);
+                const rest = round.label.slice(idx);
+                return (
+                  <>
+                    <span className="font-semibold">{first}</span>
+                    <span className="font-normal">{rest}</span>
+                  </>
+                );
+              })()}
+            </div>
             <div className="text-xs text-muted-foreground">{shortDate}</div>
           </div>
         </div>
@@ -107,12 +121,12 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
         <div className="flex items-center gap-2 text-sm">
           {isShared && hasClientSelection ? (
             <>
-              <CheckCheck className="h-4 w-4 text-[hsl(var(--success))]" />
+              <CheckCheck className="h-5 w-5 text-[hsl(var(--success))]" />
               <span className="text-foreground">Selezionati</span>
             </>
           ) : isShared ? (
             <>
-              <CheckCheck className="h-4 w-4 text-muted-foreground" />
+              <CheckCheck className="h-5 w-5 text-[#C7C7C7]" />
               <span className="text-foreground">Condiviso</span>
             </>
           ) : (
@@ -148,10 +162,7 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
           )}
         </div>
 
-        {/* Conteggio */}
-        <div className="text-sm text-muted-foreground">
-          {total === 0 ? "nessun talent" : `${total} talent`}
-        </div>
+
 
         {/* Azioni */}
         <div className="flex items-center justify-end gap-1">
