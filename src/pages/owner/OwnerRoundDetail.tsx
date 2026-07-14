@@ -284,7 +284,7 @@ export const OwnerRoundDetail = () => {
 
       <div className="space-y-5">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="relative flex-1 min-w-[240px]">
+          <div className="relative flex-1 min-w-[240px] max-w-[30rem]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Cerca un talent in questo invio"
