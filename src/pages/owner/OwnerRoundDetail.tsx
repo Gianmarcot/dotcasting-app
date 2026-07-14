@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw,
-  Pencil, FileText, Loader2,
+  Pencil, FileText, Loader2, AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -271,6 +271,24 @@ export const OwnerRoundDetail = () => {
           )}
         </div>
       </div>
+
+      {data.hasStale && !regenProgress && (
+        <div className="flex items-start gap-3 rounded-2xl border border-[#C88500]/30 bg-[#C88500]/10 px-4 py-3 text-sm text-[#7A5200]">
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-medium">
+              Alcuni talent hanno modificato profilo o foto dopo la generazione dei PDF.
+            </p>
+            <p className="text-xs opacity-80 mt-0.5">
+              I PDF condivisi con il cliente sono ancora sulla versione precedente. Rigenera per aggiornarli.
+            </p>
+          </div>
+          <Button size="sm" variant="secondary" onClick={() => setRegenOpen(true)} disabled={regen.isPending}>
+            <RotateCcw className="h-4 w-4" />
+            Rigenera ora
+          </Button>
+        </div>
+      )}
 
       {regenProgress && (
         <div className="space-y-1">

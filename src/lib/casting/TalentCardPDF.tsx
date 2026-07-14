@@ -27,7 +27,11 @@ const DISPLAY = "TenorSans";
 const SANS = "DMSans";
 
 // --- Formato pagina ---------------------------------------------
-const PAGE: [number, number] = [842, 472];
+// Cella colonna calcolata per aspect ratio 2:3 (allineato a drawer e web card).
+// Larghezza colonna esterna = (842 - 2*PAGE_PAD_X) / 3 ≈ 277.7pt
+// Larghezza interna = 277.7 - 2*COL_PAD_X ≈ 268.7pt
+// Altezza interna 2:3 = 268.7 * 1.5 ≈ 403pt → altezza pagina ≈ 403 + 2*COL_PAD_Y = 421pt
+const PAGE: [number, number] = [842, 421];
 const INK = "#1a1a1a";
 const PAGE_BG = "#FFFFFF"; // sfondo pagina e cornice
 const CREAM = "#F4F0EC"; // testo e dettagli sul pannello scuro
@@ -150,15 +154,20 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
       <View style={s.col}>{card.coverPhotos[1] && <Image src={card.coverPhotos[1]} style={s.cover} />}</View>
     </Page>
 
-    {/* ---------- Pagine galleria: stesso scheletro, 3 foto ---------- */}
-    {card.galleryPages.map((photos, i) => (
-      <Page key={i} size={PAGE} style={s.page}>
-        {photos.map((src) => (
-          <View key={src} style={s.col}>
-            <Image src={src} style={s.cover} />
-          </View>
-        ))}
-      </Page>
-    ))}
+    {/* ---------- Pagine galleria: sempre 3 celle, anche se le foto sono 1 o 2 ---------- */}
+    {card.galleryPages.map((photos, i) => {
+      // Pad a 3 slot per mantenere la griglia fissa: le celle vuote restano
+      // invisibili (nessuna Image) e occupano comunque 1/3 di larghezza.
+      const slots: (string | null)[] = [photos[0] ?? null, photos[1] ?? null, photos[2] ?? null];
+      return (
+        <Page key={i} size={PAGE} style={s.page}>
+          {slots.map((src, j) => (
+            <View key={j} style={s.col}>
+              {src && <Image src={src} style={s.cover} />}
+            </View>
+          ))}
+        </Page>
+      );
+    })}
   </Document>
 );

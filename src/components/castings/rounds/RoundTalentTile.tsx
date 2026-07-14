@@ -21,7 +21,7 @@ export const RoundTalentTile = ({ talent, photo, onClick }: Props) => {
     <button
       type="button"
       onClick={onClick}
-      className="group relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className="group relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-muted text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
     >
       {photo?.url ? (
         <img
