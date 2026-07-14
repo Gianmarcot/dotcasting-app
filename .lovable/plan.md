@@ -1,34 +1,24 @@
-Solo modifiche di UI/presentazione.
+Verifica parità visiva tra tabella reale (`OwnerCastings.tsx` + `CastingRow.tsx`) e mock nel Design System. La struttura griglia, gli header, i colori stato e le azioni ghost coincidono già; restano piccole discordanze di rendering.
 
-## 1. Design System: nuova sezione "Search & Filtri"
-In `src/pages/DesignSystem.tsx`, aggiungere un nuovo `SubBlock` che mostra i componenti reali usati nella pagina Casting:
-- `CastingFilters` (dropdown stato + input di ricerca con icona + dropdown ordinamento) importato da `src/components/castings/CastingFilters.tsx`, alimentato con state locale nel design system.
-- In alternativa/oltre: la search bar isolata (estratta visivamente dallo stesso componente) come esempio a sé stante.
+## Differenze rilevate
 
-Nessuna estrazione di sotto-componenti: si riusa `CastingFilters` così com'è per garantire 1:1 con la pagina reale.
+1. **Stella preferito**: la riga reale usa `FavoriteCastingStar` (bottone `p-1.5` con hitbox) mentre il mock DS mostra una `<Star>` grafica statica. Il bottone reale sposta la stella per via del padding.
+2. **Titolo**: nella riga reale il titolo è dentro `<div className="min-w-0">` con `font-medium`; nel mock DS è un semplice `span` con `truncate`. Peso e comportamento di troncamento diversi.
+3. **Header colonne**: identici (Titolo/Selezione/Stato) → nessuna modifica.
+4. **Layout griglia** (`grid-cols-[32px_1fr_180px_140px_120px]`): identico → nessuna modifica.
+5. **Azioni & chevron**: già allineati (ghost `icon-md`) dopo l'ultimo intervento.
+6. **Contatore "+N"**: già allineato (3 avatar + cerchio) dopo l'ultimo intervento.
 
-## 2. CastingRow: azioni hover come ghost medium
-In `src/components/castings/CastingRow.tsx`:
-- Sostituire i due `Button variant="ghost" size="icon"` (matita + cestino) con `variant="ghost" size="icon-md"` (40×40, coerente col DS).
-- Rimuovere le classi custom di colore: il cestino non deve più essere rosso in hover. Entrambi ereditano il colore neutro standard del ghost (`text-foreground`/`text-muted-foreground` di default, hover `bg-muted`).
-- Aggiornare in parallelo il mock in `DesignSystem.tsx` (CastingRow demo) con gli stessi bottoni.
+## Modifiche
 
-## 3. CastingRow: "+ altri N" mancante
-Attualmente la logica `extra > 0` esiste già ma con `shown = confirmed.slice(0, 4)` il "+ altri" appare solo con >4 talent. Verificare che la resa sia corretta e che il testo sia visibile anche quando gli avatar riempiono la colonna. 
+Solo presentazione, in `src/pages/DesignSystem.tsx` (mock CastingRow):
 
-Correzione: la colonna "Selezione" ha larghezza fissa `180px`; con 4 avatar 48px sovrapposti (-ml-3) + "+ altri N" il contenuto va in overflow. Ridurre il numero mostrato a **3 avatar** e mostrare "+N" compatto (senza "altri") accanto, in cerchio 48px stile avatar oppure come piccolo badge testuale. Preferisco: mantenere 3 avatar visibili + un 4° "cerchio contatore" (`h-12 w-12 rounded-full bg-muted text-xs`) con "+N" quando confirmed.length > 3. Zero avatar → "—" come oggi.
+- Sostituire lo `<Star>` inline con `FavoriteCastingStar` in modalità visiva (passare un `castingId=""` non funziona perché il componente esegue la mutation). Soluzione: mostrare comunque un `<Star>` ma con lo stesso wrapper `p-1.5 rounded-full text-amber-400` così l'ingombro corrisponde 1:1 al componente reale (evitando side-effect di rete nel DS).
+- Aggiornare il titolo del mock a `<div className="min-w-0"><span className="text-foreground font-medium truncate block">{c.title}</span></div>` per uguagliare peso e troncamento.
+- Aggiungere `shrink-0` al `ChevronRight` del mock.
 
-Aggiornare mock in DesignSystem in parallelo per riflettere il caso "+N".
-
-## 4. Button: ribilanciamento padding con icona
-In `src/components/ui/button.tsx`, variant `iconPosition`:
-- Attuale: `left: "pl-3 pr-7"`, `right: "pl-7 pr-3"`.
-- Nuovo: aumentare leggermente il padding lato icona e diminuire lato testo. Proposta:
-  - `left: "pl-4 pr-6"` (icona ha più respiro dal bordo, testo più vicino al bordo destro)
-  - `right: "pl-6 pr-4"`
-
-Nota: queste classi sovrascrivono il padding orizzontale delle size (sm/md/lg). Va bene: il ribilanciamento vale per tutte e tre le taglie in modo uniforme. Se il visual in DS mostra sm troppo stretto, si può fine-tunare, ma partiamo con questi valori.
+Nessuna modifica alla pagina reale (`OwnerCastings.tsx`/`CastingRow.tsx`): sono già la fonte di verità e coincidono col DS dopo questi ritocchi al mock.
 
 ## Tecnico
-- File modificati: `src/pages/DesignSystem.tsx`, `src/components/castings/CastingRow.tsx`, `src/components/ui/button.tsx`.
-- Nessun file nuovo. Nessuna modifica a hook, schema o logica.
+- File modificati: `src/pages/DesignSystem.tsx`.
+- Nessun file nuovo. Nessuna modifica a hook, logica o schema.
