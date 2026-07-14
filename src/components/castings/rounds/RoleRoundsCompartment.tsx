@@ -57,7 +57,7 @@ export const RoleRoundsCompartment = ({
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <div className="flex items-center gap-3 flex-wrap">
-            <h3 className="text-base font-display uppercase tracking-wider text-foreground">
+            <h3 className="text-2xl font-display uppercase tracking-wider text-foreground">
               {role.name}
             </h3>
             <Badge
