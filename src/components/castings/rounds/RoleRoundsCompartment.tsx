@@ -1,22 +1,13 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, MoreVertical, Edit, Trash2, ExternalLink, ChevronRight } from "lucide-react";
+import { Plus, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { CastingRole } from "@/hooks/useCastingRoles";
-import { useDeleteCastingRole } from "@/hooks/useCastingRoles";
 import type { CastingRound } from "@/hooks/useCastingRounds";
 import { useRoundPreviewPhotos } from "@/hooks/useRoundPreviewPhotos";
-import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
-import { RoundFolderCard } from "./RoundFolderCard";
+import { RoleRoundRow } from "./RoleRoundRow";
 import { RoundWizardDialog } from "./RoundWizardDialog";
 
 interface Props {
@@ -32,11 +23,9 @@ export const RoleRoundsCompartment = ({
   castingId,
   rounds,
   confirmedCount,
-  onEditRole,
 }: Props) => {
   const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
-  const deleteMutation = useDeleteCastingRole();
 
   const roundIds = useMemo(() => rounds.map((r) => r.id), [rounds]);
   const { data: previews } = useRoundPreviewPhotos(roundIds);
@@ -51,41 +40,27 @@ export const RoleRoundsCompartment = ({
     role.location,
   ].filter(Boolean);
 
-  const handleDelete = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await deleteMutation.mutateAsync({ id: role.id, castingId });
-      toast({ title: "Ruolo eliminato" });
-    } catch {
-      toast({ title: "Errore", variant: "destructive" });
-    }
-  };
-
-  const stop = (e: React.MouseEvent) => e.stopPropagation();
+  const sortedRounds = [...rounds].sort(
+    (a, b) => +new Date(a.created_at) - +new Date(b.created_at),
+  );
 
   return (
-    <div className="dc-card p-5 space-y-4">
-      {/* Header ruolo (cliccabile) */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={openRole}
-        onKeyDown={(e) => e.key === "Enter" && openRole()}
-        className="flex flex-col md:flex-row md:items-center gap-3 md:gap-4 cursor-pointer group"
-      >
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-medium text-foreground group-hover:text-primary transition-colors">
+    <div className="dc-card p-6 space-y-5">
+      {/* Header ruolo */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+        <div className="min-w-0 space-y-1">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h3 className="font-display uppercase text-2xl text-foreground tracking-wide">
               {role.name}
             </h3>
             <Badge
               className={
                 confirmedCount > 0
-                  ? "bg-[#729128]/15 text-[#729128]"
-                  : "bg-[#333333]/10 text-[#333333]"
+                  ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] font-semibold"
+                  : "bg-muted text-muted-foreground font-semibold"
               }
             >
-              Confermati {confirmedCount}/{total}
+              {confirmedCount}/{total} approvati
             </Badge>
           </div>
           {specs.length > 0 && (
@@ -93,65 +68,44 @@ export const RoleRoundsCompartment = ({
           )}
         </div>
 
-        <div className="flex items-center gap-2" onClick={stop}>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={stop}>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={stop}>
-              <DropdownMenuItem onClick={openRole}>
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Apri dettaglio
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEditRole(role)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Modifica ruolo
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Elimina
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button size="sm" variant="outline" onClick={openRole}>
-            Vai alla selezione
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
+        <Button variant="secondary" size="md" onClick={openRole}>
+          Dettagli ruolo
+          <ChevronRight className="h-4 w-4 ml-1" />
+        </Button>
       </div>
 
-      {/* Griglia invii — 2 colonne, altezze uniformi */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-fr">
-        {[...rounds]
-          .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at))
-          .map((r) => (
-            <RoundFolderCard
-              key={r.id}
-              round={r}
-              castingId={castingId}
-              preview={previews?.get(r.id)}
-            />
-          ))}
+      {/* Tabella rounds */}
+      <div>
+        {sortedRounds.length > 0 && (
+          <div className="grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
+            <span>Round</span>
+            <span>Stato</span>
+            <span>Selezione</span>
+            <span>Talent</span>
+            <span />
+          </div>
+        )}
+
+        {sortedRounds.map((r) => (
+          <RoleRoundRow
+            key={r.id}
+            round={r}
+            castingId={castingId}
+            preview={previews?.get(r.id)}
+          />
+        ))}
+
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="h-full min-h-44 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground"
+          className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex items-center justify-center gap-2 text-muted-foreground"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
           <span className="text-sm">
-            {rounds.length === 0 ? "Crea il primo invio" : "Aggiungi invio"}
+            {sortedRounds.length === 0 ? "Crea il primo invio" : "Aggiungi invio"}
           </span>
         </button>
       </div>
-
-
 
       <RoundWizardDialog
         open={createOpen}
