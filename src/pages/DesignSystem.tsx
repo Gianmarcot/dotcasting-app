@@ -892,7 +892,7 @@ const BlocksSection = () => (
           return (
           <div
             key={c.title}
-            className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-3 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+            className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
           >
             <span className="inline-flex items-center justify-center rounded-full p-1.5 text-amber-400">
               <Star size={16} fill="currentColor" strokeWidth={2} />
