@@ -670,7 +670,7 @@ const StatusDot = ({
 }) => (
   <div className="inline-flex items-center gap-2">
     <span className={cn("h-2 w-2 rounded-full", color)} />
-    <span className={cn("text-sm", text)}>{label}</span>
+    <span className={cn("text-sm font-semibold", text)}>{label}</span>
   </div>
 );
 
