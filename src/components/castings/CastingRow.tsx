@@ -39,7 +39,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
   const status = statusStyles[casting.status || "draft"] ?? statusStyles.draft;
 
   const confirmed = casting.confirmed_talents ?? [];
-  const shown = confirmed.slice(0, 4);
+  const shown = confirmed.slice(0, 3);
   const extra = Math.max(0, confirmed.length - shown.length);
 
   const open = () => navigate(`/owner/castings/${casting.id}`);
