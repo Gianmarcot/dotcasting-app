@@ -21,6 +21,7 @@ import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
 import logoWhite from "@/assets/logo-white.png";
+import avatarPlaceholder from "@/assets/avatar-placeholder.jpg";
 
 const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
