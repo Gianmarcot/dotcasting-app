@@ -316,7 +316,11 @@ function TalentDetailSheet({
           {/* ---------- Body: gallery + info ---------- */}
           <div className="min-h-0 grid grid-cols-1 lg:grid-cols-5">
             {/* Left: gallery */}
-            <div className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border">
+            <div
+              className="lg:col-span-3 min-h-0 overflow-y-auto overscroll-contain bg-muted/30 border-b lg:border-b-0 lg:border-r border-border"
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
               <div className="p-4 md:p-6 space-y-4">
                 {heroPhoto ? (
                   <button
