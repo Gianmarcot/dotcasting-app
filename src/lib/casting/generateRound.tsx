@@ -72,11 +72,21 @@ export async function generateRoundPdfs(opts: {
 
   for (let i = 0; i < items.length; i++) {
     const { roleTalentId, talent } = items[i];
-    const card = resolveCard(talent, preset, branding);
+
+    // Pre-check di ogni foto: sostituisce l'URL con uno raggiungibile
+    // (transform o originale), scarta quelle non raggiungibili.
+    const resolvedPhotos = (
+      await Promise.all(talent.photos.map((u) => resolvePhotoUrl(u)))
+    ).filter((u): u is string => Boolean(u));
+    const talentSafe: Talent = { ...talent, photos: resolvedPhotos };
+
+    const card = resolveCard(talentSafe, preset, branding);
 
     const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
 
-    const path = `castings/${castingId}/rounds/${roundId}/${slug(talent.nome)}.pdf`;
+    // Path stabile e univoco: roleTalentId (uuid) — evita collisioni
+    // quando due talent condividono lo stesso nome o hanno nome vuoto.
+    const path = `castings/${castingId}/rounds/${roundId}/${roleTalentId}.pdf`;
     const { error } = await supabase.storage
       .from("casting-pdfs")
       .upload(path, blob, { contentType: "application/pdf", upsert: true });
