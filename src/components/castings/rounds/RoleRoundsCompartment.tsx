@@ -108,7 +108,7 @@ export const RoleRoundsCompartment = ({
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
-          className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex items-center justify-center gap-2 text-muted-foreground"
+          className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-[#1a1a1a] transition-colors flex items-center justify-center gap-2 text-muted-foreground"
         >
           <Plus className="h-4 w-4" />
           <span className="text-sm">
