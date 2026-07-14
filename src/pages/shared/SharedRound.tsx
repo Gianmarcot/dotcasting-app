@@ -174,7 +174,7 @@ function TalentDetailSheet({
         >
           {/* ---------- Header: talent switcher + actions ---------- */}
           <DialogHeader className="flex-row items-center gap-3 px-4 md:px-6 py-3 border-b border-border space-y-0 shrink-0 bg-background">
-            <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+            <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               <div className="flex items-center gap-2 w-max">
                 {talents.map((t) => {
                   const isActive = t.role_talent_id === row.role_talent_id;
@@ -260,7 +260,7 @@ function TalentDetailSheet({
                 )}
 
                 {photos.length > 1 && (
-                  <div className="overflow-x-auto scrollbar-hide">
+                  <div className="overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                     <div className="flex gap-2 w-max mx-auto px-1">
                       {photos.map((p, i) => (
                         <button
