@@ -658,6 +658,31 @@ const PrimitivesSection = () => (
       </div>
     </SubBlock>
 
+    <SubBlock title="Icone · Sizes (16 · 20 · 24 · 32)" source="lucide-react">
+      <div className="space-y-6">
+        <div className="flex items-end gap-8">
+          {[
+            { size: 16, label: "sm · 16px", note: "button sm/md, inline" },
+            { size: 20, label: "md · 20px", note: "button lg, header" },
+            { size: 24, label: "lg · 24px", note: "sidebar, sezioni" },
+            { size: 32, label: "xl · 32px", note: "empty state, hero" },
+          ].map((it) => (
+            <div key={it.size} className="flex flex-col items-center gap-2">
+              <div className="h-12 flex items-center justify-center text-foreground">
+                <Bell size={it.size} strokeWidth={1.75} />
+              </div>
+              <span className="text-xs text-muted-foreground">{it.label}</span>
+              <span className="text-[10px] text-muted-foreground/70">{it.note}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Nei pulsanti: <code>sm/md → 16px</code>, <code>lg → 20px</code>. Le icone ereditano
+          il colore corrente (<code>currentColor</code>); non impostare colori espliciti.
+        </p>
+      </div>
+    </SubBlock>
+
     <SubBlock title="Progress" source="Fondo neutro, primary di default, olive a 100%">
       <div className="space-y-4 max-w-md">
         <div>
