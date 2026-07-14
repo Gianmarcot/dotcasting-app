@@ -90,7 +90,7 @@ export const OwnerSidebar = () => {
       <div className="dc-sidebar-footer">
         <div className="dc-sidebar-admin-divider" />
         <div className="dc-sidebar-admin-user">
-          <Avatar className="h-9 w-9">
+          <Avatar size="lg">
             {profile?.profile_photo_url ? (
               <AvatarImage src={profile.profile_photo_url} alt="" />
             ) : null}
