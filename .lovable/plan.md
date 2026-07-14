@@ -1,24 +1,31 @@
-Verifica parità visiva tra tabella reale (`OwnerCastings.tsx` + `CastingRow.tsx`) e mock nel Design System. La struttura griglia, gli header, i colori stato e le azioni ghost coincidono già; restano piccole discordanze di rendering.
+## Obiettivo
 
-## Differenze rilevate
+Due modifiche puramente presentazionali sulla pagina Casting.
 
-1. **Stella preferito**: la riga reale usa `FavoriteCastingStar` (bottone `p-1.5` con hitbox) mentre il mock DS mostra una `<Star>` grafica statica. Il bottone reale sposta la stella per via del padding.
-2. **Titolo**: nella riga reale il titolo è dentro `<div className="min-w-0">` con `font-medium`; nel mock DS è un semplice `span` con `truncate`. Peso e comportamento di troncamento diversi.
-3. **Header colonne**: identici (Titolo/Selezione/Stato) → nessuna modifica.
-4. **Layout griglia** (`grid-cols-[32px_1fr_180px_140px_120px]`): identico → nessuna modifica.
-5. **Azioni & chevron**: già allineati (ghost `icon-md`) dopo l'ultimo intervento.
-6. **Contatore "+N"**: già allineato (3 avatar + cerchio) dopo l'ultimo intervento.
+## 1. Conteggio "Selezione" = tutti i talent (non solo confermati)
 
-## Modifiche
+Oggi in `useCastings.ts` gli avatar mostrati in `CastingRow` derivano da `role_talents` filtrati con `company_status = "confirmed"`. Il numero totale (`+N`) riflette quindi solo i confermati.
 
-Solo presentazione, in `src/pages/DesignSystem.tsx` (mock CastingRow):
+Modifica in `src/hooks/useCastings.ts`:
+- Rimuovere il filtro `.eq("company_status", "confirmed")` nella query su `role_talents`.
+- Il risultato: `confirmed_talents` conterrà tutti i talent associati ai ruoli del casting, indipendentemente dallo stato di approvazione.
+- Nessuna modifica a `CastingRow.tsx`: continuerà a mostrare i primi 3 avatar + `+N` sul totale generale.
 
-- Sostituire lo `<Star>` inline con `FavoriteCastingStar` in modalità visiva (passare un `castingId=""` non funziona perché il componente esegue la mutation). Soluzione: mostrare comunque un `<Star>` ma con lo stesso wrapper `p-1.5 rounded-full text-amber-400` così l'ingombro corrisponde 1:1 al componente reale (evitando side-effect di rete nel DS).
-- Aggiornare il titolo del mock a `<div className="min-w-0"><span className="text-foreground font-medium truncate block">{c.title}</span></div>` per uguagliare peso e troncamento.
-- Aggiungere `shrink-0` al `ChevronRight` del mock.
+Nota: il campo resta chiamato `confirmed_talents` nel tipo per non toccare altri consumatori; se necessario lo rinominiamo in un secondo passaggio.
 
-Nessuna modifica alla pagina reale (`OwnerCastings.tsx`/`CastingRow.tsx`): sono già la fonte di verità e coincidono col DS dopo questi ritocchi al mock.
+## 2. Pulsanti pagina Casting → varianti DS
 
-## Tecnico
-- File modificati: `src/pages/DesignSystem.tsx`.
-- Nessun file nuovo. Nessuna modifica a hook, logica o schema.
+In `src/pages/owner/OwnerCastings.tsx` due bottoni non usano le varianti canoniche del Design System:
+
+- **"Crea casting"** (header): oggi `<Button className="rounded-full">` con `<Plus className="mr-2">`.
+  → sostituire con la variante DS: `<Button size="md" iconPosition="left">` (il `rounded-full` è già nel variant `default`, quindi si rimuove la className custom; l'icona a sinistra usa il padding asimmetrico previsto dal DS `pl-4 pr-6`).
+
+- **"Crea il tuo primo casting"** (empty state): oggi `variant="link"`.
+  → sostituire con `<Button variant="secondary" size="md">` coerente con gli altri CTA secondari del DS.
+
+Nessun'altra modifica a layout, filtri, tabella o CastingRow (i pulsanti azione hover erano già stati normalizzati a `ghost / icon-md`).
+
+## File toccati
+
+- `src/hooks/useCastings.ts` — rimuovere filtro `company_status`.
+- `src/pages/owner/OwnerCastings.tsx` — sostituire i due Button con varianti DS.

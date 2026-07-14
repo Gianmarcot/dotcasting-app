@@ -108,7 +108,7 @@ export const OwnerCastings = () => {
         <h1 className="text-2xl text-foreground">
           {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
         </h1>
-        <Button onClick={handleCreate} className="rounded-full">
+        <Button onClick={handleCreate} size="md" iconPosition="left">
           <Plus className="h-4 w-4 mr-2" />
           {it.backoffice.createCasting}
         </Button>
@@ -151,7 +151,7 @@ export const OwnerCastings = () => {
       ) : (
         <div className="text-center py-12 text-muted-foreground">
           <p>Nessun casting trovato</p>
-          <Button variant="link" onClick={handleCreate}>
+          <Button variant="secondary" size="md" onClick={handleCreate} className="mt-4">
             Crea il tuo primo casting
           </Button>
         </div>
