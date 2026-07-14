@@ -138,8 +138,8 @@ function TalentDetailSheet({
   row, open, onClose, token, selectable, selected, onToggle, photoCountFromRound,
   talents, selectedSet, onSelectTalent,
 }: TalentDetailSheetProps) {
-  const [lightbox, setLightbox] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
   const activeAvatarRef = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
 
