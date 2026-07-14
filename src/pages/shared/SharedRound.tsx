@@ -369,14 +369,12 @@ function TalentDetailSheet({
             {/* Right: info card (independent scroll) */}
             <div className="lg:col-span-2 min-h-0 overflow-y-auto overscroll-contain flex flex-col">
               <div className="p-6 md:p-8 space-y-7 flex-1">
-                <div className="space-y-2">
+                <div>
                   <h2 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground leading-tight">
                     {talent.nome}
                   </h2>
-                  {row.company_status && row.company_status !== "none" && (
-                    <StatusPill status={row.company_status} />
-                  )}
                 </div>
+
 
                 <DetailSection title="Generale">
                   <DetailRow label="Età" value={talent.eta ? `${talent.eta} anni` : null} />
