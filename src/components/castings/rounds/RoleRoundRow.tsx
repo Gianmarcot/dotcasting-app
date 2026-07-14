@@ -49,10 +49,12 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isShared = round.status === "shared";
+  const hasClientSelection = preview?.hasClientSelection ?? false;
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
   const shown = items.slice(0, 3);
   const extra = Math.max(0, total - shown.length);
+
 
   const open = () => navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
   const stop = (e: React.MouseEvent) => e.stopPropagation();
