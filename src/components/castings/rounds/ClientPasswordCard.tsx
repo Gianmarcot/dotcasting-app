@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Lock, LockOpen } from "lucide-react";
+import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export const ClientPasswordCard = ({ castingId }: Props) => {
-  const { data: hasPassword, isLoading } = useCastingClientPasswordStatus(castingId);
+  const { data: hasPassword } = useCastingClientPasswordStatus(castingId);
   const setPwd = useSetCastingClientPassword();
   const [value, setValue] = useState("");
 
@@ -48,55 +48,50 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
   };
 
   return (
-    <div className="dc-card p-4 sm:p-5 space-y-3">
-      <div className="flex items-center gap-2">
-        {hasPassword ? (
-          <Lock className="h-4 w-4 text-[#729128]" />
-        ) : (
-          <LockOpen className="h-4 w-4 text-muted-foreground" />
-        )}
-        <h3 className="text-sm font-medium">Password cliente</h3>
-        {!isLoading && (
-          <span className="text-xs text-muted-foreground">
-            {hasPassword ? "Impostata" : "Nessuna password"}
-          </span>
-        )}
+    <div className="dc-card p-6 space-y-4">
+      <Lock className="h-5 w-5 text-foreground" />
+      <div className="space-y-2">
+        <h3 className="text-base font-display uppercase tracking-wider text-foreground">
+          Password cliente
+        </h3>
+        <p className="text-sm text-muted-foreground leading-relaxed">
+          Comunica la password al cliente insieme al link. Senza password il
+          cliente vede ma non può confermare i talent.
+        </p>
       </div>
-      <p className="text-xs text-muted-foreground">
-        Comunica la password al cliente insieme al link. Senza password il cliente
-        vede ma non può confermare i talent.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-2">
-        <div className="flex-1 space-y-1">
-          <Label htmlFor="client-pwd" className="sr-only">
-            Password cliente
-          </Label>
-          <Input
-            id="client-pwd"
-            type="password"
-            placeholder={hasPassword ? "Nuova password" : "Imposta password"}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={save} disabled={setPwd.isPending || !value}>
-            {setPwd.isPending ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : null}
-            Salva
-          </Button>
-          {hasPassword && (
-            <Button
-              variant="outline"
-              onClick={remove}
-              disabled={setPwd.isPending}
-            >
-              Rimuovi
-            </Button>
-          )}
-        </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="client-pwd" className="sr-only">
+          Password cliente
+        </Label>
+        <Input
+          id="client-pwd"
+          type="password"
+          placeholder={hasPassword ? "Nuova password" : "Imposta password"}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          autoComplete="new-password"
+          className="rounded-full h-11"
+        />
+      </div>
+
+      <div className="flex items-center gap-4">
+        <Button onClick={save} disabled={setPwd.isPending || !value} size="md">
+          {setPwd.isPending ? (
+            <Loader2 className="animate-spin" />
+          ) : null}
+          Salva
+        </Button>
+        {hasPassword && (
+          <button
+            type="button"
+            onClick={remove}
+            disabled={setPwd.isPending}
+            className="dc-link-action text-sm"
+          >
+            Rimuovi
+          </button>
+        )}
       </div>
     </div>
   );

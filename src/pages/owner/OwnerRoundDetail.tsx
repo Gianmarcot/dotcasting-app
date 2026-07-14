@@ -1,9 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw, Edit, FileText, Loader2 } from "lucide-react";
+import {
+  ArrowLeft, Search, Share2, Link as LinkIcon, RotateCcw,
+  Pencil, FileText, Loader2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -20,12 +22,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useRoundDetail } from "@/hooks/useRoundDetail";
 import { useShareRound } from "@/hooks/useShareRound";
 import { useRegenerateRound } from "@/hooks/useRegenerateRound";
-import { VirtualBoardGrid } from "@/components/talents/VirtualBoardGrid";
+import { useTalentsMainPhotos } from "@/hooks/useTalentsMainPhotos";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialog";
 import { ClientPasswordCard } from "@/components/castings/rounds/ClientPasswordCard";
+import { RoundTalentTile } from "@/components/castings/rounds/RoundTalentTile";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
-import type { MaterialIndicators } from "@/components/talents/TalentBoardCard";
 import { COMPANY_STATUS_OPTIONS } from "@/hooks/useRoleTalents";
 
 const buildName = (t: TalentWithAttributes) =>
@@ -54,7 +56,6 @@ export const OwnerRoundDetail = () => {
   const round = data?.round;
   const isShared = round?.status === "shared";
 
-  // Fetch role name for the wizard header
   useEffect(() => {
     if (!round?.casting_role_id) return;
     let cancelled = false;
@@ -78,19 +79,6 @@ export const OwnerRoundDetail = () => {
     );
   }, [data, search]);
 
-  const materialBy = useMemo(() => {
-    const m = new Map<string, MaterialIndicators>();
-    if (!data) return m;
-    for (const row of data.talents) {
-      m.set(row.talent.id, {
-        photos: row.photosCount,
-        videos: row.videosCount,
-        hasPdf: !!row.pdfPath,
-      });
-    }
-    return m;
-  }, [data]);
-
   const grouped = useMemo(() => {
     if (!groupByStatus) return null;
     const map = new Map<string, typeof filtered>();
@@ -102,6 +90,12 @@ export const OwnerRoundDetail = () => {
     }
     return Array.from(map.entries());
   }, [filtered, groupByStatus]);
+
+  const talentIds = useMemo(
+    () => (data?.talents ?? []).map((r) => r.talent.id),
+    [data]
+  );
+  const { data: photosMap } = useTalentsMainPhotos(talentIds);
 
   const openTalent = (t: TalentWithAttributes) => {
     setSelected(t);
@@ -189,9 +183,9 @@ export const OwnerRoundDetail = () => {
       <div className="space-y-4">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-12 w-full" />
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-[10px]">
-          {Array.from({ length: 10 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[2/3] w-full" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[3/4] w-full rounded-2xl" />
           ))}
         </div>
       </div>
@@ -202,80 +196,74 @@ export const OwnerRoundDetail = () => {
     data.talents.map((t) => [t.roleTalentId, t.pdfPath])
   );
 
+  const renderGrid = (rows: typeof filtered) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+      {rows.map((row) => (
+        <RoundTalentTile
+          key={row.talent.id}
+          talent={row.talent}
+          photo={photosMap?.get(row.talent.id)?.[0]}
+          onClick={() => openTalent(row.talent)}
+        />
+      ))}
+    </div>
+  );
+
   return (
-    <div className="space-y-5 animate-fade-up">
+    <div className="space-y-6 animate-fade-up">
       <Button
-        variant="ghost"
-        size="sm"
+        variant="link"
         onClick={() => navigate(`/owner/castings/${castingId}`)}
-        className="-ml-2"
+        className="-ml-4 h-auto p-0 text-foreground hover:no-underline"
       >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Torna al casting
+        <ArrowLeft className="mr-2" />
+        <span className="underline underline-offset-4">Torna al casting</span>
       </Button>
 
-      <div className="flex flex-wrap items-center gap-3 justify-between">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="text-2xl text-foreground truncate">{round.label}</h1>
-          <Badge
-            variant="secondary"
-            className={
-              isShared
-                ? "bg-[#729128]/15 text-[#729128]"
-                : "bg-[#333333]/10 text-[#333333]"
-            }
-          >
-            {isShared ? "Condiviso" : "Bozza"}
-          </Badge>
-        </div>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <h1 className="font-display uppercase text-3xl tracking-wide text-foreground">
+          {round.label}
+        </h1>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {isShared ? (
             <>
-              <Button variant="outline" size="sm" onClick={copyLink}>
-                <LinkIcon className="h-4 w-4 mr-2" />
-                Copia link
+              <Button variant="secondary" size="md" onClick={copyLink}>
+                <LinkIcon />
+                Copia Link
               </Button>
               <Button
-                variant="outline"
-                size="sm"
+                variant="secondary"
+                size="md"
                 onClick={() => setRegenOpen(true)}
                 disabled={regen.isPending}
               >
-                {regen.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                )}
+                {regen.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
                 Rigenera
               </Button>
             </>
           ) : (
             <>
               <Button
-                variant="outline"
-                size="sm"
+                variant="secondary"
+                size="md"
                 onClick={() => setEditOpen(true)}
                 disabled={regen.isPending}
               >
-                <Edit className="h-4 w-4 mr-2" />
+                <Pencil />
                 Modifica
               </Button>
               <Button
-                variant="outline"
-                size="sm"
+                variant="secondary"
+                size="md"
                 onClick={() => setRegenOpen(true)}
                 disabled={regen.isPending || data.talents.length === 0}
               >
-                {regen.isPending ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                )}
+                {regen.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
                 Rigenera PDF
               </Button>
-              <Button size="sm" onClick={doShare} disabled={share.isPending}>
-                <Share2 className="h-4 w-4 mr-2" />
+              <Button size="md" onClick={doShare} disabled={share.isPending}>
+                <Share2 />
                 Condividi
               </Button>
             </>
@@ -293,66 +281,62 @@ export const OwnerRoundDetail = () => {
         </div>
       )}
 
-      {isShared && round.casting_id && (
-        <ClientPasswordCard castingId={round.casting_id} />
-      )}
+      <div className={isShared ? "grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6" : ""}>
+        <div className="space-y-5 min-w-0">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[240px]">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Cerca un talent in questo invio"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-11 h-12 rounded-full"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                id="group-status"
+                checked={groupByStatus}
+                onCheckedChange={setGroupByStatus}
+              />
+              <Label htmlFor="group-status" className="text-sm cursor-pointer">
+                Raggruppa per stato
+              </Label>
+            </div>
+            <span className="text-sm text-muted-foreground">
+              {filtered.length} di {data.talents.length} risultati
+            </span>
+          </div>
 
-
-
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cerca talent in questo invio..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+          {filtered.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground text-sm">
+              Nessun talent corrisponde
+            </div>
+          ) : grouped ? (
+            <div className="space-y-8">
+              {grouped.map(([statusKey, rows]) => {
+                const meta = COMPANY_STATUS_OPTIONS.find((o) => o.value === statusKey);
+                return (
+                  <div key={statusKey} className="space-y-3">
+                    <h3 className="text-sm font-display uppercase tracking-wider text-muted-foreground">
+                      {meta?.label ?? "Senza stato"} ({rows.length})
+                    </h3>
+                    {renderGrid(rows)}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            renderGrid(filtered)
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Switch
-            id="group-status"
-            checked={groupByStatus}
-            onCheckedChange={setGroupByStatus}
-          />
-          <Label htmlFor="group-status" className="text-sm cursor-pointer">
-            Raggruppa per stato
-          </Label>
-        </div>
-        <span className="text-sm text-muted-foreground">
-          {filtered.length} di {data.talents.length}
-        </span>
+
+        {isShared && round.casting_id && (
+          <aside className="lg:sticky lg:top-6 self-start">
+            <ClientPasswordCard castingId={round.casting_id} />
+          </aside>
+        )}
       </div>
-
-      {filtered.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground text-sm">
-          Nessun talent corrisponde
-        </div>
-      ) : grouped ? (
-        <div className="space-y-6">
-          {grouped.map(([statusKey, rows]) => {
-            const meta = COMPANY_STATUS_OPTIONS.find((o) => o.value === statusKey);
-            return (
-              <div key={statusKey} className="space-y-2">
-                <h3 className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {meta?.label ?? "Senza stato"} ({rows.length})
-                </h3>
-                <VirtualBoardGrid
-                  talents={rows.map((r) => r.talent)}
-                  materialBy={materialBy}
-                  onSelectTalent={openTalent}
-                />
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <VirtualBoardGrid
-          talents={filtered.map((r) => r.talent)}
-          materialBy={materialBy}
-          onSelectTalent={openTalent}
-        />
-      )}
 
       <TalentPreviewDrawer
         talent={selected}
@@ -414,7 +398,7 @@ export const OwnerRoundDetail = () => {
             <div className="flex gap-2">
               <Input readOnly value={shareUrl ?? ""} onFocus={(e) => e.currentTarget.select()} />
               <Button onClick={copyShareUrl}>
-                <LinkIcon className="h-4 w-4 mr-2" />
+                <LinkIcon />
                 Copia
               </Button>
             </div>
