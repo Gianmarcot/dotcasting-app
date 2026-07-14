@@ -78,6 +78,9 @@ import { TalentTile } from "@/pages/shared/TalentTile";
 import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
 import { CastingFilters } from "@/components/castings/CastingFilters";
 import type { CastingSort } from "@/hooks/useCastings";
+import { TalentBoardCard } from "@/components/talents/TalentBoardCard";
+import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
+import type { TalentWithAttributes } from "@/hooks/useTalents";
 
 const CastingFiltersDemo = () => {
   const [status, setStatus] = useState("all");
@@ -94,6 +97,123 @@ const CastingFiltersDemo = () => {
     />
   );
 };
+
+const MOCK_DB_TALENTS: Array<{
+  talent: TalentWithAttributes;
+  photos: { url: string; thumbnail_url: string | null }[];
+  materials: { photos: number; videos: number; hasPdf: boolean };
+}> = [
+  {
+    talent: {
+      id: "ds-t1", user_id: "ds-u1",
+      first_name: "Giulia", last_name: "Rossi", stage_name: null,
+      city: "Milano", country: "Italia", gender: "female",
+      birth_date: "1996-04-12", profile_photo_url: null,
+      talent_categories: ["Modella", "Attrice"], bio: null,
+      nationality: "Italiana", ethnicity: "Caucasica",
+      gender_identity: null, representation_type: null, has_vat_number: true,
+      attributes: {
+        height: 176, weight: 58, hair_color: "Castano", hair_length: "Lunghi",
+        eye_color: "Verdi", skills: ["Danza", "Equitazione"], languages: ["Italiano", "Inglese"],
+        chest: 86, hips: 92, shirt_size: "S", shoe_size: "38",
+      },
+    },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=900&q=80", thumbnail_url: null },
+      { url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=900&q=80", thumbnail_url: null },
+    ],
+    materials: { photos: 12, videos: 2, hasPdf: true },
+  },
+  {
+    talent: {
+      id: "ds-t2", user_id: "ds-u2",
+      first_name: "Marco", last_name: "Bianchi", stage_name: null,
+      city: "Roma", country: "Italia", gender: "male",
+      birth_date: "1990-11-03", profile_photo_url: null,
+      talent_categories: ["Attore"], bio: null,
+      nationality: "Italiana", ethnicity: "Caucasica",
+      gender_identity: null, representation_type: null, has_vat_number: false,
+      attributes: {
+        height: 184, weight: 78, hair_color: "Nero", hair_length: "Corti",
+        eye_color: "Marroni", skills: ["Recitazione"], languages: ["Italiano"],
+        chest: 100, hips: 95, shirt_size: "L", shoe_size: "44",
+      },
+    },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=900&q=80", thumbnail_url: null },
+    ],
+    materials: { photos: 6, videos: 0, hasPdf: false },
+  },
+  {
+    talent: {
+      id: "ds-t3", user_id: "ds-u3",
+      first_name: "Sara", last_name: "Verdi", stage_name: null,
+      city: "Torino", country: "Italia", gender: "female",
+      birth_date: "1999-07-21", profile_photo_url: null,
+      talent_categories: ["Modella"], bio: null,
+      nationality: "Italiana", ethnicity: "Caucasica",
+      gender_identity: null, representation_type: null, has_vat_number: false,
+      attributes: {
+        height: 170, weight: 55, hair_color: "Biondo", hair_length: "Medi",
+        eye_color: "Azzurri", skills: [], languages: ["Italiano", "Francese"],
+        chest: 84, hips: 90, shirt_size: "S", shoe_size: "37",
+      },
+    },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=900&q=80", thumbnail_url: null },
+    ],
+    materials: { photos: 9, videos: 1, hasPdf: true },
+  },
+  {
+    talent: {
+      id: "ds-t4", user_id: "ds-u4",
+      first_name: "Luca", last_name: "Neri", stage_name: null,
+      city: "Napoli", country: "Italia", gender: "male",
+      birth_date: "1988-02-08", profile_photo_url: null,
+      talent_categories: ["Attore", "Presentatore"], bio: null,
+      nationality: "Italiana", ethnicity: "Caucasica",
+      gender_identity: null, representation_type: null, has_vat_number: true,
+      attributes: {
+        height: 179, weight: 75, hair_color: "Castano", hair_length: "Corti",
+        eye_color: "Marroni", skills: ["Canto"], languages: ["Italiano", "Inglese", "Spagnolo"],
+        chest: 98, hips: 94, shirt_size: "M", shoe_size: "43",
+      },
+    },
+    photos: [
+      { url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=80", thumbnail_url: null },
+    ],
+    materials: { photos: 4, videos: 0, hasPdf: false },
+  },
+];
+
+const TalentDatabaseDemo = () => {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const active = MOCK_DB_TALENTS.find((t) => t.talent.id === openId) ?? null;
+  return (
+    <>
+      <div className="bg-[#1A1A1A] rounded-3xl p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {MOCK_DB_TALENTS.map((entry) => (
+            <TalentBoardCard
+              key={entry.talent.id}
+              talent={entry.talent}
+              photos={entry.photos as any}
+              materialIndicators={entry.materials}
+              onClick={() => setOpenId(entry.talent.id)}
+            />
+          ))}
+        </div>
+      </div>
+      <TalentPreviewDrawer
+        talent={active?.talent ?? null}
+        open={!!active}
+        onOpenChange={(o) => !o && setOpenId(null)}
+      />
+    </>
+  );
+};
+
+
 
 // ---------- Token helpers ----------
 const useComputedVar = (name: string) => {
@@ -965,6 +1085,13 @@ const BlocksSection = () => (
           ))}
         </div>
       </div>
+    </SubBlock>
+
+    <SubBlock
+      title="Talent board card + drawer (database talenti)"
+      source="src/components/talents/TalentBoardCard.tsx · TalentPreviewDrawer.tsx"
+    >
+      <TalentDatabaseDemo />
     </SubBlock>
   </Section>
 );
