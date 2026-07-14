@@ -88,6 +88,7 @@ interface TalentDetailSheetProps {
   selectable: boolean;
   selected: boolean;
   onToggle: () => void;
+  photoCountFromRound: number | null;
 }
 
 const DetailRow = ({ label, value }: { label: string; value: string | number | null | undefined }) => {
@@ -111,7 +112,7 @@ const DetailSection = ({ title, children }: { title: string; children: React.Rea
   );
 };
 
-function TalentDetailSheet({ row, open, onClose, token, selectable, selected, onToggle }: TalentDetailSheetProps) {
+function TalentDetailSheet({ row, open, onClose, token, selectable, selected, onToggle, photoCountFromRound }: TalentDetailSheetProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
 
   const dl = useMutation({
