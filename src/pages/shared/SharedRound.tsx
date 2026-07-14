@@ -347,24 +347,23 @@ function TalentDetailSheet({
               onTouchEnd={onTouchEnd}
             >
               <div className="min-h-0 p-4 md:p-6 flex items-center justify-center">
-                {heroPhoto ? (
-                  <button
-                    type="button"
-                    onClick={() => setLightbox(heroPhoto)}
-                    className="h-full max-h-full max-w-full flex items-center justify-center group"
-                  >
-                    <img
-                      src={heroPhoto}
-                      alt={talent.nome}
-                      className="max-h-full max-w-full object-contain rounded-2xl group-hover:scale-[1.01] transition-transform duration-500"
-                    />
-                  </button>
-                ) : (
-                  <div className="h-full aspect-[2/3] max-h-full flex items-center justify-center bg-muted rounded-2xl text-muted-foreground">
-                    <ImageOff className="h-10 w-10" />
+                <div className="h-full max-h-full flex items-center justify-center">
+                  <div className="h-full aspect-[5/7] max-h-full overflow-hidden rounded-2xl bg-muted">
+                    {heroPhoto ? (
+                      <img
+                        src={heroPhoto}
+                        alt={talent.nome}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <ImageOff className="h-10 w-10" />
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
+
 
               {photos.length > 1 && (
                 <div className="p-3 md:px-6 md:pb-4 shrink-0">
