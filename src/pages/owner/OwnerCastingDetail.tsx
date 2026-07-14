@@ -72,6 +72,8 @@ export const OwnerCastingDetail = () => {
   const { data: roles = [], isLoading: rolesLoading } = useCastingRoles(castingId);
   const updateCasting = useUpdateCasting();
   const updateStatus = useUpdateCastingStatus();
+  const deleteCasting = useDeleteCasting();
+
 
   const handleStatusChange = async (status: string) => {
     if (!castingId) return;
