@@ -294,14 +294,16 @@ export const OwnerCastingDetail = () => {
       </div>
 
       <div className="pt-4">
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          size="lg"
+          iconPosition="left"
           onClick={() => setConfirmDeleteOpen(true)}
-          className="inline-flex items-center gap-2 text-sm text-[hsl(var(--destructive))] underline underline-offset-4 hover:opacity-80 transition-opacity"
+          className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10"
         >
           <Trash2 className="h-4 w-4" />
           Elimina casting
-        </button>
+        </Button>
       </div>
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
