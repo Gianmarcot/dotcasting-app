@@ -140,11 +140,41 @@ function TalentDetailSheet({
 }: TalentDetailSheetProps) {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const stripRef = useRef<HTMLDivElement | null>(null);
+  const slotRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const touchStartX = useRef<number | null>(null);
 
   // Reset active photo whenever the talent changes
   useEffect(() => {
     setActiveIndex(0);
   }, [row?.role_talent_id]);
+
+  // Center active pill on change
+  useEffect(() => {
+    if (!row) return;
+    const el = slotRefs.current.get(row.role_talent_id);
+    el?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+  }, [row?.role_talent_id]);
+
+  const currentIdx = row ? talents.findIndex((t) => t.role_talent_id === row.role_talent_id) : -1;
+  const goPrevTalent = () => {
+    if (currentIdx > 0) onSelectTalent(talents[currentIdx - 1].role_talent_id);
+  };
+  const goNextTalent = () => {
+    if (currentIdx >= 0 && currentIdx < talents.length - 1)
+      onSelectTalent(talents[currentIdx + 1].role_talent_id);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 40) return;
+    dx > 0 ? goPrevTalent() : goNextTalent();
+  };
 
   const dl = useMutation({
     mutationFn: async () => {
@@ -165,6 +195,15 @@ function TalentDetailSheet({
   const allPhotos = talent.photos ?? [];
   const photos = photoCount == null ? allPhotos : allPhotos.slice(0, 2 + Math.max(0, photoCount));
   const heroPhoto = photos[Math.min(activeIndex, Math.max(photos.length - 1, 0))] ?? null;
+
+  const scaleForOffset = (off: number) => {
+    const abs = Math.abs(off);
+    if (abs === 0) return 1;
+    if (abs === 1) return 0.85;
+    if (abs === 2) return 0.7;
+    if (abs === 3) return 0.55;
+    return 0.5;
+  };
 
   return (
     <>
