@@ -78,6 +78,9 @@ import { TalentTile } from "@/pages/shared/TalentTile";
 import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
 import { CastingFilters } from "@/components/castings/CastingFilters";
 import type { CastingSort } from "@/hooks/useCastings";
+import { TalentBoardCard } from "@/components/talents/TalentBoardCard";
+import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
+import type { TalentWithAttributes } from "@/hooks/useTalents";
 
 const CastingFiltersDemo = () => {
   const [status, setStatus] = useState("all");
