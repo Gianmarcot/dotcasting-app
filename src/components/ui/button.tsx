@@ -35,8 +35,8 @@ const buttonVariants = cva(
       },
       iconPosition: {
         none: "",
-        left: "pl-3 pr-7",
-        right: "pl-7 pr-3",
+        left: "pl-4 pr-6",
+        right: "pl-6 pr-4",
       },
     },
     defaultVariants: {
