@@ -81,7 +81,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
               <h3 className="text-foreground text-lg font-medium">
                 {casting.title}
               </h3>
-              <Badge className={statusColors[casting.status || "draft"]}>
+              <Badge className={cn("font-semibold", statusColors[casting.status || "draft"])}>
                 {it.casting[casting.status as keyof typeof it.casting] || casting.status}
               </Badge>
             </div>
