@@ -600,6 +600,9 @@ export default function SharedRound() {
         selected={detailsRow ? selected.has(detailsRow.role_talent_id) : false}
         onToggle={() => detailsRow && toggle(detailsRow.role_talent_id)}
         photoCountFromRound={round.field_preset?.photoCount ?? null}
+        talents={talents}
+        selectedSet={selected}
+        onSelectTalent={setDetailsId}
       />
 
       <Dialog
