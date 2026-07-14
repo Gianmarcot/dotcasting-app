@@ -138,8 +138,8 @@ function TalentDetailSheet({
   row, open, onClose, token, selectable, selected, onToggle, photoCountFromRound,
   talents, selectedSet, onSelectTalent,
 }: TalentDetailSheetProps) {
-  const [lightbox, setLightbox] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
   const activeAvatarRef = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
 
@@ -279,15 +279,8 @@ function TalentDetailSheet({
                 {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 <span className="hidden sm:inline">Scarica PDF</span>
               </Button>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-foreground hover:bg-muted h-9 w-9 rounded-full transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
+
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
 
@@ -354,24 +347,23 @@ function TalentDetailSheet({
               onTouchEnd={onTouchEnd}
             >
               <div className="min-h-0 p-4 md:p-6 flex items-center justify-center">
-                {heroPhoto ? (
-                  <button
-                    type="button"
-                    onClick={() => setLightbox(heroPhoto)}
-                    className="h-full max-h-full max-w-full flex items-center justify-center group"
-                  >
-                    <img
-                      src={heroPhoto}
-                      alt={talent.nome}
-                      className="max-h-full max-w-full object-contain rounded-2xl group-hover:scale-[1.01] transition-transform duration-500"
-                    />
-                  </button>
-                ) : (
-                  <div className="h-full aspect-[2/3] max-h-full flex items-center justify-center bg-muted rounded-2xl text-muted-foreground">
-                    <ImageOff className="h-10 w-10" />
+                <div className="h-full max-h-full flex items-center justify-center">
+                  <div className="h-full aspect-[5/7] max-h-full overflow-hidden rounded-2xl bg-muted">
+                    {heroPhoto ? (
+                      <img
+                        src={heroPhoto}
+                        alt={talent.nome}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <ImageOff className="h-10 w-10" />
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
+
 
               {photos.length > 1 && (
                 <div className="p-3 md:px-6 md:pb-4 shrink-0">
@@ -383,7 +375,7 @@ function TalentDetailSheet({
                           type="button"
                           onClick={() => setActiveIndex(i)}
                           className={cn(
-                            "shrink-0 w-[56px] aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all",
+                            "shrink-0 w-[56px] aspect-[5/7] overflow-hidden rounded-lg bg-muted transition-all",
                             i === activeIndex
                               ? "ring-2 ring-primary ring-offset-2 ring-offset-background opacity-100"
                               : "opacity-60 hover:opacity-100"
@@ -477,28 +469,6 @@ function TalentDetailSheet({
 
 
 
-
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="Chiudi"
-            className="absolute top-4 right-4 text-white/80 hover:text-white h-10 w-10 rounded-full flex items-center justify-center bg-white/10"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <img
-            src={lightbox}
-            alt=""
-            className="max-h-full max-w-full object-contain rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
     </>
   );
 }
