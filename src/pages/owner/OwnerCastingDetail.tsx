@@ -37,14 +37,6 @@ import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-
-const statusStyles: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground",
-  active: "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]",
-  closed: "bg-[hsl(var(--destructive))]/10 text-[hsl(var(--destructive))]",
-};
 
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
