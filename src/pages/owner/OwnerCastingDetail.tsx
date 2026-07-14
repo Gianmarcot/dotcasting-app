@@ -305,6 +305,52 @@ export const OwnerCastingDetail = () => {
         )}
       </div>
 
+      <div className="pt-4">
+        <button
+          type="button"
+          onClick={() => setConfirmDeleteOpen(true)}
+          className="inline-flex items-center gap-2 text-sm text-[hsl(var(--destructive))] underline underline-offset-4 hover:opacity-80 transition-opacity"
+        >
+          <Trash2 className="h-4 w-4" />
+          Elimina casting
+        </button>
+      </div>
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent className="rounded-3xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-display uppercase tracking-widest">
+              Eliminare il casting?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Il casting "{casting.title}" e tutti i ruoli/invii associati verranno eliminati.
+              Operazione irreversibile.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-full">Annulla</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-[hsl(var(--destructive))] hover:opacity-90 text-white"
+              disabled={deleteCasting.isPending}
+              onClick={async (e) => {
+                e.preventDefault();
+                if (!castingId) return;
+                try {
+                  await deleteCasting.mutateAsync(castingId);
+                  toast({ title: "Casting eliminato" });
+                  navigate("/owner/castings");
+                } catch (err: any) {
+                  toast({ title: "Errore", description: err?.message, variant: "destructive" });
+                }
+              }}
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+
       <AddRoleDialog
         open={roleDialogOpen}
         onOpenChange={handleCloseRoleDialog}
