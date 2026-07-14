@@ -1060,6 +1060,117 @@ const BlocksSection = () => (
     </SubBlock>
 
     <SubBlock
+      title="Casting role row (rounds table)"
+      source="src/components/castings/rounds/RoleRoundRow.tsx"
+    >
+      <div className="dc-card p-6 space-y-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h3 className="font-display uppercase text-2xl text-foreground tracking-wide">
+                Modella 25-30
+              </h3>
+              <Badge className="bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] font-semibold">
+                2/4 approvati
+              </Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">Femmina · 25-30 anni · €1.500 · Milano</p>
+          </div>
+          <Button variant="secondary" size="md">
+            Dettagli ruolo
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+
+        <div>
+          <div className="grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
+            <span>Round</span>
+            <span>Stato</span>
+            <span>Selezione</span>
+            <span>Talent</span>
+            <span />
+          </div>
+
+          {[
+            { label: "1° invio", date: "12 mar 2026", shared: true, count: 6 },
+            { label: "2° invio", date: "18 mar 2026", shared: true, count: 4 },
+            { label: "3° invio", date: "25 mar 2026", shared: false, count: 0 },
+          ].map((r) => {
+            const shown = Math.min(r.count, 3);
+            const extra = Math.max(0, r.count - shown);
+            return (
+              <div
+                key={r.label}
+                className="group grid grid-cols-[1fr_140px_1fr_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="font-medium text-foreground truncate">{r.label}</div>
+                  <div className="text-xs text-muted-foreground">{r.date}</div>
+                </div>
+                <div>
+                  <Badge
+                    className={cn(
+                      "font-semibold",
+                      r.shared
+                        ? "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {r.shared ? "Condiviso" : "Bozza"}
+                  </Badge>
+                </div>
+                <div className="flex items-center">
+                  {r.count === 0 ? (
+                    <span className="text-sm text-muted-foreground/70">—</span>
+                  ) : (
+                    <div className="flex items-center">
+                      {Array.from({ length: shown }).map((_, i) => (
+                        <Avatar
+                          key={i}
+                          size="md"
+                          className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
+                        >
+                          <AvatarImage src={`https://i.pravatar.cc/96?img=${i + 20}`} />
+                          <AvatarFallback>?</AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {extra > 0 && (
+                        <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-background bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
+                          +{extra}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {r.count === 0 ? "nessun talent" : `${r.count} talent`}
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon-md">
+                      <ChevronRight className="h-4 w-4 rotate-45" />
+                    </Button>
+                    <Button variant="ghost" size="icon-md">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                </div>
+              </div>
+            );
+          })}
+
+          <button
+            type="button"
+            className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex items-center justify-center gap-2 text-muted-foreground text-sm"
+          >
+            + Aggiungi invio
+          </button>
+        </div>
+      </div>
+    </SubBlock>
+
+    <SubBlock
       title="Search & Filtri (pagina Casting)"
       source="src/components/castings/CastingFilters.tsx"
     >
