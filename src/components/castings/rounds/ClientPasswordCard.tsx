@@ -71,7 +71,7 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoComplete="new-password"
-          className="rounded-full h-11"
+          
         />
       </div>
 

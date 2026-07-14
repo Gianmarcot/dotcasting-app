@@ -197,7 +197,7 @@ export const OwnerRoundDetail = () => {
   );
 
   const renderGrid = (rows: typeof filtered) => (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {rows.map((row) => (
         <RoundTalentTile
           key={row.talent.id}
@@ -212,12 +212,13 @@ export const OwnerRoundDetail = () => {
   return (
     <div className="space-y-6 animate-fade-up">
       <Button
-        variant="link"
+        variant="ghost"
+        size="sm"
         onClick={() => navigate(`/owner/castings/${castingId}`)}
-        className="-ml-4 h-auto p-0 text-foreground hover:no-underline"
+        className="-ml-2"
       >
-        <ArrowLeft className="mr-2" />
-        <span className="underline underline-offset-4">Torna al casting</span>
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Torna al casting
       </Button>
 
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -281,61 +282,63 @@ export const OwnerRoundDetail = () => {
         </div>
       )}
 
-      <div className={isShared ? "grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6" : ""}>
-        <div className="space-y-5 min-w-0">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative flex-1 min-w-[240px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cerca un talent in questo invio"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-11 h-12 rounded-full"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                id="group-status"
-                checked={groupByStatus}
-                onCheckedChange={setGroupByStatus}
-              />
-              <Label htmlFor="group-status" className="text-sm cursor-pointer">
-                Raggruppa per stato
-              </Label>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {filtered.length} di {data.talents.length} risultati
-            </span>
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[240px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Cerca un talent in questo invio"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-11 h-12 rounded-full"
+            />
           </div>
-
-          {filtered.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground text-sm">
-              Nessun talent corrisponde
-            </div>
-          ) : grouped ? (
-            <div className="space-y-8">
-              {grouped.map(([statusKey, rows]) => {
-                const meta = COMPANY_STATUS_OPTIONS.find((o) => o.value === statusKey);
-                return (
-                  <div key={statusKey} className="space-y-3">
-                    <h3 className="text-sm font-display uppercase tracking-wider text-muted-foreground">
-                      {meta?.label ?? "Senza stato"} ({rows.length})
-                    </h3>
-                    {renderGrid(rows)}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            renderGrid(filtered)
-          )}
+          <div className="flex items-center gap-3">
+            <Switch
+              id="group-status"
+              checked={groupByStatus}
+              onCheckedChange={setGroupByStatus}
+            />
+            <Label htmlFor="group-status" className="text-sm cursor-pointer">
+              Raggruppa per stato
+            </Label>
+          </div>
+          <span className="text-sm text-muted-foreground">
+            {filtered.length} di {data.talents.length} risultati
+          </span>
         </div>
 
-        {isShared && round.casting_id && (
-          <aside className="lg:sticky lg:top-6 self-start">
-            <ClientPasswordCard castingId={round.casting_id} />
-          </aside>
-        )}
+        <div className={isShared ? "grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start" : ""}>
+          <div className="min-w-0">
+            {filtered.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground text-sm">
+                Nessun talent corrisponde
+              </div>
+            ) : grouped ? (
+              <div className="space-y-8">
+                {grouped.map(([statusKey, rows]) => {
+                  const meta = COMPANY_STATUS_OPTIONS.find((o) => o.value === statusKey);
+                  return (
+                    <div key={statusKey} className="space-y-3">
+                      <h3 className="text-sm font-display uppercase tracking-wider text-muted-foreground">
+                        {meta?.label ?? "Senza stato"} ({rows.length})
+                      </h3>
+                      {renderGrid(rows)}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              renderGrid(filtered)
+            )}
+          </div>
+
+          {isShared && round.casting_id && (
+            <aside className="lg:sticky lg:top-6 self-start">
+              <ClientPasswordCard castingId={round.casting_id} />
+            </aside>
+          )}
+        </div>
       </div>
 
       <TalentPreviewDrawer
