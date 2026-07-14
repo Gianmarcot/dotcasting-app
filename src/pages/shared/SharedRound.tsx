@@ -209,36 +209,74 @@ function TalentDetailSheet({
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent
-          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
+          className="max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-visible gap-0 border-border grid grid-rows-[auto_1fr] lg:grid-rows-[auto_1fr]"
         >
+          {/* External nav arrows */}
+          <button
+            type="button"
+            onClick={goPrevTalent}
+            disabled={currentIdx <= 0}
+            aria-label="Talent precedente"
+            className="hidden md:flex absolute left-0 md:-left-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={goNextTalent}
+            disabled={currentIdx >= talents.length - 1}
+            aria-label="Talent successivo"
+            className="hidden md:flex absolute right-0 md:-right-6 top-1/2 -translate-y-1/2 z-20 h-12 w-12 items-center justify-center rounded-full bg-background border border-border shadow-md hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+
+          <div className="rounded-3xl overflow-hidden grid grid-rows-[auto_1fr] min-h-0 h-full">
           {/* ---------- Header: talent switcher + actions ---------- */}
           <DialogHeader className="flex-row items-center gap-3 px-4 md:px-6 py-3 border-b border-border space-y-0 shrink-0 bg-background">
-            <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-hide::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-              <div className="flex items-center gap-2 w-max">
-                {talents.map((t) => {
+            <div
+              ref={stripRef}
+              className="flex-1 min-w-0 overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]"
+              style={{
+                maskImage:
+                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent 0, black 15%, black 85%, transparent 100%)",
+              }}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+            >
+              <div className="flex items-center gap-2 w-max px-[40%] py-2">
+                {talents.map((t, i) => {
                   const isActive = t.role_talent_id === row.role_talent_id;
                   const isSelected = selectedSet.has(t.role_talent_id);
                   const name = getTalentDisplayName(t);
                   const avatarUrl = getTalentAvatarUrl(t);
+                  const scale = scaleForOffset(currentIdx >= 0 ? i - currentIdx : 0);
                   return (
                     <button
                       key={t.role_talent_id}
+                      ref={(el) => {
+                        if (el) slotRefs.current.set(t.role_talent_id, el);
+                        else slotRefs.current.delete(t.role_talent_id);
+                      }}
                       type="button"
                       onClick={() => onSelectTalent(t.role_talent_id)}
+                      style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
                       className={cn(
-                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-colors shrink-0",
+                        "inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all duration-300 shrink-0",
                         isActive
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted"
                       )}
                     >
-                      <Avatar className="h-7 w-7 shrink-0">
+                      <Avatar className={cn("shrink-0", isActive ? "h-9 w-9" : "h-7 w-7")}>
                         <AvatarImage src={avatarUrl} alt={name} />
                         <AvatarFallback className="text-[10px]">
                           {name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs font-medium whitespace-nowrap max-w-[140px] truncate">
+                      <span className={cn("font-medium whitespace-nowrap max-w-[160px] truncate", isActive ? "text-sm" : "text-xs")}>
                         {name}
                       </span>
                       {isSelected && (
@@ -251,16 +289,17 @@ function TalentDetailSheet({
                 })}
               </div>
             </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                title="Scarica PDF"
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => dl.mutate()}
                 disabled={!row.pdf_path || dl.isPending}
-                className="inline-flex items-center justify-center text-primary hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed h-10 w-10 rounded-full transition-colors"
+                className="rounded-full gap-2"
               >
-                {dl.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Download className="h-5 w-5" />}
-              </button>
+                {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                Scarica PDF
+              </Button>
               <button
                 type="button"
                 onClick={onClose}
@@ -272,6 +311,7 @@ function TalentDetailSheet({
             </div>
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
+
 
           {/* ---------- Body: gallery + info ---------- */}
           <div className="min-h-0 grid grid-cols-1 lg:grid-cols-5">
