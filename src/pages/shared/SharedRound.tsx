@@ -129,7 +129,13 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
 
   if (!row) return null;
   const talent = buildTalent(row);
-  const photos = talent.photos ?? [];
+  // Allinea il set di foto mostrato al drawer con quello incluso nel PDF:
+  // PDF usa photos[0..1] come cover + photos.slice(2, 2+photoCount).
+  // Quindi il totale nel PDF è (2 + photoCount) foto. Applichiamo lo stesso
+  // slice qui così cliente vede lo stesso set del PDF scaricabile.
+  const photoCount = photoCountFromRound ?? null;
+  const allPhotos = talent.photos ?? [];
+  const photos = photoCount == null ? allPhotos : allPhotos.slice(0, 2 + Math.max(0, photoCount));
 
   return (
     <>
@@ -171,7 +177,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                       key={i}
                       type="button"
                       onClick={() => setLightbox(p)}
-                      className="aspect-[3/4] overflow-hidden bg-[#1A1A1A] rounded-2xl group"
+                      className="aspect-[2/3] overflow-hidden bg-[#1A1A1A] rounded-2xl group"
                     >
                       <img
                         src={p}
@@ -183,7 +189,7 @@ function TalentDetailSheet({ row, open, onClose, token, selectable, selected, on
                   ))}
                 </div>
               ) : (
-                <div className="aspect-[3/4] flex items-center justify-center bg-[#1A1A1A] rounded-2xl text-white/30">
+                <div className="aspect-[2/3] flex items-center justify-center bg-[#1A1A1A] rounded-2xl text-white/30">
                   <ImageOff className="h-8 w-8" />
                 </div>
               )}
