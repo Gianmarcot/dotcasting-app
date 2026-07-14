@@ -288,7 +288,7 @@ export const OwnerCastingDetail = () => {
       <div className="pt-4">
         <Button
           variant="ghost"
-          size="lg"
+          size="md"
           iconPosition="left"
           onClick={() => setConfirmDeleteOpen(true)}
           className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10"
