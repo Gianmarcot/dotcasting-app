@@ -103,14 +103,21 @@ const s = StyleSheet.create({
 const getNameSize = (name: string) => (name.length > 22 ? 15 : name.length > 16 ? 17 : 19);
 const getRowsFontSize = (rowsTotal: number) => (rowsTotal > 18 ? 5.5 : rowsTotal > 14 ? 6 : 6.5);
 
-const FieldRow = ({ row }: { row: ResolvedRow }) => (
+const FieldRow = ({ row, fontSize }: { row: ResolvedRow; fontSize: number }) => (
   <View style={s.row}>
-    <Text style={s.label}>{row.label}: </Text>
-    <Text style={s.value}>{row.value}</Text>
+    <Text style={[s.label, { fontSize }]}>{row.label}: </Text>
+    <Text style={[s.value, { fontSize }]}>{row.value}</Text>
   </View>
 );
 
-export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
+export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
+  const nameSize = getNameSize(card.nome ?? "");
+  const rowsTotal = card.columns[0].length + card.columns[1].length;
+  const rowFont = getRowsFontSize(rowsTotal);
+  // Massimo 2 contatti per non spingere il footer fuori pagina.
+  const contactsClamped = card.contacts.slice(0, 2);
+
+  return (
   <Document title={card.nome}>
     {/* ---------- Pagina 1: foto | scheda | foto ---------- */}
     <Page size={PAGE} style={s.page}>
@@ -121,27 +128,28 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
         <View style={s.panel}>
           {/* container superiore: nome + dati */}
           <View>
-            <Text style={s.name}>{card.nome}</Text>
+            <Text style={[s.name, { fontSize: nameSize }]}>{card.nome}</Text>
             <View style={s.rule} />
             <View style={s.cols}>
               <View style={s.fieldCol}>
                 {card.columns[0].map((r) => (
-                  <FieldRow key={r.label} row={r} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
                 ))}
               </View>
               <View style={s.fieldCol}>
                 {card.columns[1].map((r) => (
-                  <FieldRow key={r.label} row={r} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
                 ))}
               </View>
             </View>
             <View style={s.rule} />
-            {card.contacts.map((r) => (
+            {contactsClamped.map((r) => (
               <Text key={r.label} style={s.contact}>
                 ✉ {r.value}
               </Text>
             ))}
           </View>
+
 
           {/* footer in basso */}
           <View style={s.footer}>
