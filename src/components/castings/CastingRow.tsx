@@ -112,8 +112,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
+                  size="icon-md"
                   onClick={(e) => {
                     e.stopPropagation();
                     onEdit(casting);
@@ -128,8 +127,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                  size="icon-md"
                   onClick={(e) => {
                     e.stopPropagation();
                     onDelete(casting);
