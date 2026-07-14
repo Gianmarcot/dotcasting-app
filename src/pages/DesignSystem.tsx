@@ -920,41 +920,29 @@ const BlocksSection = () => (
       </div>
     </SubBlock>
 
-    <SubBlock title="Talent tile (pagina cliente)">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[10, 12, 22, 31].map((i, idx) => (
-          <div
-            key={i}
-            className={cn(
-              "p-3 rounded-3xl transition cursor-pointer",
-              idx === 1 ? "bg-primary/10 ring-2 ring-primary" : "bg-white",
-            )}
-          >
-            <div className="relative aspect-[2/3] rounded-2xl overflow-hidden">
-              <img
-                src={`https://i.pravatar.cc/300?img=${i}`}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-2 left-2 h-6 w-6 rounded-full bg-white flex items-center justify-center">
-                {idx === 1 && <Check className="h-4 w-4 text-primary" />}
-              </div>
-            </div>
-            <div className="mt-3 flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-medium truncate text-sm">Talent {i}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  176 cm · Milano
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </div>
-          </div>
-        ))}
+    <SubBlock
+      title="Talent tile (pagina cliente)"
+      source="src/pages/shared/TalentTile.tsx"
+    >
+      <div className="bg-[#0F0F0F] rounded-3xl p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {MOCK_SHARED_ROUND.talents.slice(0, 4).map((row, idx) => (
+            <TalentTile
+              key={row.role_talent_id}
+              row={row as any}
+              selectable
+              selected={idx === 1}
+              showStatus={false}
+              onToggle={() => {}}
+              onOpenDetails={() => {}}
+            />
+          ))}
+        </div>
       </div>
     </SubBlock>
   </Section>
 );
+
 
 // ---------- Page ----------
 const sections = [
