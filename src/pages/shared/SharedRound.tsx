@@ -279,15 +279,8 @@ function TalentDetailSheet({
                 {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 <span className="hidden sm:inline">Scarica PDF</span>
               </Button>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label="Chiudi"
-                className="inline-flex items-center justify-center text-foreground hover:bg-muted h-9 w-9 rounded-full transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
             </div>
+
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
           </DialogHeader>
 
