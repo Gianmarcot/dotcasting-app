@@ -216,7 +216,7 @@ function TalentDetailSheet({
         <DialogContent
           className={cn(
             "max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border",
-            "grid",
+            "grid [&>.dc-dialog-close]:hidden",
             showStrip
               ? "grid-rows-[auto_auto_1fr]"
               : "grid-rows-[auto_1fr]"
