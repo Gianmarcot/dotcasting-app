@@ -101,11 +101,11 @@ export const OwnerSidebar = () => {
           <div className="flex-1 min-w-0 leading-tight">
             {firstName || lastName ? (
               <>
-                <p className="text-sm font-medium text-white truncate">{firstName}</p>
-                <p className="text-sm font-medium text-white truncate">{lastName}</p>
+                <p className="font-display uppercase font-normal text-[15px] text-white truncate">{firstName}</p>
+                <p className="font-display uppercase font-normal text-[15px] text-white truncate">{lastName}</p>
               </>
             ) : (
-              <p className="text-sm font-medium text-white truncate">
+              <p className="font-display uppercase font-normal text-[15px] text-white truncate">
                 {user?.email?.split("@")[0] || "Admin"}
               </p>
             )}
