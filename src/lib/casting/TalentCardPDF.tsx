@@ -67,21 +67,21 @@ const s = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 24,
     justifyContent: "space-between",
+    overflow: "hidden",
   },
   name: {
     fontFamily: DISPLAY,
-    fontSize: 19,
     textAlign: "left",
     textTransform: "uppercase",
-    lineHeight: 1.25,
+    lineHeight: 1.2,
   },
   rule: { borderBottomWidth: 0.5, borderBottomColor: HAIRLINE, marginVertical: 14 },
 
   cols: { flexDirection: "row", gap: 16 },
   fieldCol: { flex: 1 },
   row: { flexDirection: "row", flexWrap: "wrap", marginBottom: 5 },
-  label: { fontFamily: SANS, fontSize: 6.5, fontWeight: 700 },
-  value: { fontFamily: SANS, fontSize: 6.5, color: "#F4F0EC" },
+  label: { fontFamily: SANS, fontWeight: 700 },
+  value: { fontFamily: SANS, color: "#F4F0EC" },
 
   contact: { fontFamily: SANS, fontSize: 6.5, marginTop: 4 },
 
@@ -99,14 +99,25 @@ const s = StyleSheet.create({
   footerText: { fontFamily: SANS, fontSize: 8 },
 });
 
-const FieldRow = ({ row }: { row: ResolvedRow }) => (
+// Font-size adattivi per evitare overflow del pannello
+const getNameSize = (name: string) => (name.length > 22 ? 15 : name.length > 16 ? 17 : 19);
+const getRowsFontSize = (rowsTotal: number) => (rowsTotal > 18 ? 5.5 : rowsTotal > 14 ? 6 : 6.5);
+
+const FieldRow = ({ row, fontSize }: { row: ResolvedRow; fontSize: number }) => (
   <View style={s.row}>
-    <Text style={s.label}>{row.label}: </Text>
-    <Text style={s.value}>{row.value}</Text>
+    <Text style={[s.label, { fontSize }]}>{row.label}: </Text>
+    <Text style={[s.value, { fontSize }]}>{row.value}</Text>
   </View>
 );
 
-export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
+export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
+  const nameSize = getNameSize(card.nome ?? "");
+  const rowsTotal = card.columns[0].length + card.columns[1].length;
+  const rowFont = getRowsFontSize(rowsTotal);
+  // Massimo 2 contatti per non spingere il footer fuori pagina.
+  const contactsClamped = card.contacts.slice(0, 2);
+
+  return (
   <Document title={card.nome}>
     {/* ---------- Pagina 1: foto | scheda | foto ---------- */}
     <Page size={PAGE} style={s.page}>
@@ -117,27 +128,28 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
         <View style={s.panel}>
           {/* container superiore: nome + dati */}
           <View>
-            <Text style={s.name}>{card.nome}</Text>
+            <Text style={[s.name, { fontSize: nameSize }]}>{card.nome}</Text>
             <View style={s.rule} />
             <View style={s.cols}>
               <View style={s.fieldCol}>
                 {card.columns[0].map((r) => (
-                  <FieldRow key={r.label} row={r} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
                 ))}
               </View>
               <View style={s.fieldCol}>
                 {card.columns[1].map((r) => (
-                  <FieldRow key={r.label} row={r} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
                 ))}
               </View>
             </View>
             <View style={s.rule} />
-            {card.contacts.map((r) => (
+            {contactsClamped.map((r) => (
               <Text key={r.label} style={s.contact}>
                 ✉ {r.value}
               </Text>
             ))}
           </View>
+
 
           {/* footer in basso */}
           <View style={s.footer}>
@@ -170,4 +182,6 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => (
       );
     })}
   </Document>
-);
+  );
+};
+

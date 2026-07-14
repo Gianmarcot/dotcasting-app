@@ -18,11 +18,35 @@ if (!(globalThis as { Buffer?: unknown }).Buffer) {
   (globalThis as { Buffer?: unknown }).Buffer = Buffer;
 }
 
-const slug = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-   .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
 export interface RoundResult { roleTalentId: string; path: string }
+
+/**
+ * Verifica che l'URL restituisca un'immagine valida. Se l'endpoint di
+ * trasformazione fallisce (rate limit, timeout, source troppo grande),
+ * prova l'URL originale. Restituisce null se nessuno è raggiungibile:
+ * meglio omettere una foto che avere una griglia con buchi neri.
+ */
+async function resolvePhotoUrl(url: string, timeoutMs = 15000): Promise<string | null> {
+  const candidates = [url];
+  if (url.includes("/storage/v1/render/image/public/")) {
+    candidates.push(url.replace("/storage/v1/render/image/public/", "/storage/v1/object/public/").split("?")[0]);
+  }
+  for (const candidate of candidates) {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      const res = await fetch(candidate, { method: "GET", signal: controller.signal });
+      clearTimeout(timer);
+      if (res.ok) {
+        const ct = res.headers.get("content-type") ?? "";
+        if (ct.startsWith("image/")) return candidate;
+      }
+    } catch {
+      // try next
+    }
+  }
+  return null;
+}
 
 /**
  * Genera un PDF per ogni talent del round e lo carica su Storage.
@@ -48,11 +72,21 @@ export async function generateRoundPdfs(opts: {
 
   for (let i = 0; i < items.length; i++) {
     const { roleTalentId, talent } = items[i];
-    const card = resolveCard(talent, preset, branding);
+
+    // Pre-check di ogni foto: sostituisce l'URL con uno raggiungibile
+    // (transform o originale), scarta quelle non raggiungibili.
+    const resolvedPhotos = (
+      await Promise.all(talent.photos.map((u) => resolvePhotoUrl(u)))
+    ).filter((u): u is string => Boolean(u));
+    const talentSafe: Talent = { ...talent, photos: resolvedPhotos };
+
+    const card = resolveCard(talentSafe, preset, branding);
 
     const blob = await pdf(<TalentCardPDF card={card} />).toBlob();
 
-    const path = `castings/${castingId}/rounds/${roundId}/${slug(talent.nome)}.pdf`;
+    // Path stabile e univoco: roleTalentId (uuid) — evita collisioni
+    // quando due talent condividono lo stesso nome o hanno nome vuoto.
+    const path = `castings/${castingId}/rounds/${roundId}/${roleTalentId}.pdf`;
     const { error } = await supabase.storage
       .from("casting-pdfs")
       .upload(path, blob, { contentType: "application/pdf", upsert: true });
