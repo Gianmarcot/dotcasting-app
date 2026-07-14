@@ -76,6 +76,24 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { TalentTile } from "@/pages/shared/TalentTile";
 import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
+import { CastingFilters } from "@/components/castings/CastingFilters";
+import type { CastingSort } from "@/hooks/useCastings";
+
+const CastingFiltersDemo = () => {
+  const [status, setStatus] = useState("all");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<CastingSort>("recent");
+  return (
+    <CastingFilters
+      status={status}
+      search={search}
+      sort={sort}
+      onStatusChange={setStatus}
+      onSearchChange={setSearch}
+      onSortChange={setSort}
+    />
+  );
+};
 
 // ---------- Token helpers ----------
 const useComputedVar = (name: string) => {
