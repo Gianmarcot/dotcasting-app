@@ -931,7 +931,7 @@ const BlocksSection = () => (
               <Button variant="ghost" size="icon-md" className="opacity-0 group-hover:opacity-100 transition-opacity">
                 <Trash2 className="h-4 w-4" />
               </Button>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
             </div>
           </div>
           );
