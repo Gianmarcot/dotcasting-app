@@ -375,7 +375,7 @@ function TalentDetailSheet({
                           type="button"
                           onClick={() => setActiveIndex(i)}
                           className={cn(
-                            "shrink-0 w-[56px] aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all",
+                            "shrink-0 w-[56px] aspect-[5/7] overflow-hidden rounded-lg bg-muted transition-all",
                             i === activeIndex
                               ? "ring-2 ring-primary ring-offset-2 ring-offset-background opacity-100"
                               : "opacity-60 hover:opacity-100"
