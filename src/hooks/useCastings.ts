@@ -70,8 +70,7 @@ export const useCastings = (filters?: CastingFilters) => {
         const { data: rts } = await supabase
           .from("role_talents")
           .select("casting_role_id, profile:profiles!role_talents_profile_id_fkey(id, first_name, last_name, profile_photo_url)")
-          .in("casting_role_id", roleIds)
-          .eq("company_status", "confirmed");
+          .in("casting_role_id", roleIds);
 
         const byCasting = new Map<string, ConfirmedTalentThumb[]>();
         (rts ?? []).forEach((rt: any) => {
