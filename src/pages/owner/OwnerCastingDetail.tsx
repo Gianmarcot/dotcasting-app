@@ -243,12 +243,12 @@ export const OwnerCastingDetail = () => {
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Button variant="secondary" size="lg" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
+          <Button variant="secondary" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
             <Pencil />
             Modifica
           </Button>
-          <Button size="lg" iconPosition="left" onClick={() => setRoleDialogOpen(true)}>
-            <Plus />
+          <Button size="md" iconPosition="left" onClick={() => setRoleDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
             Nuovo ruolo
           </Button>
         </div>

@@ -75,9 +75,9 @@ export const RoleRoundsCompartment = ({
           )}
         </div>
 
-        <Button variant="secondary" size="lg" iconPosition="right" onClick={openRole}>
+        <Button variant="secondary" size="md" iconPosition="right" onClick={openRole}>
           Dettagli ruolo
-          <ChevronRight />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
