@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowLeft, Plus, MapPin, Calendar, Euro, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
@@ -20,12 +19,13 @@ import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
-const statusColors: Record<string, string> = {
-  draft: "bg-[#333333]/10 text-[#333333]",
-  active: "bg-[#729128]/15 text-[#729128]",
-  closed: "bg-[#A30A2B]/15 text-[#A30A2B]",
+const statusStyles: Record<string, string> = {
+  draft: "bg-muted text-muted-foreground",
+  active: "bg-[hsl(var(--success))]/15 text-[hsl(var(--success))]",
+  closed: "bg-[hsl(var(--destructive))]/10 text-[hsl(var(--destructive))]",
 };
 
 const statusLabels: Record<string, string> = {
@@ -34,22 +34,13 @@ const statusLabels: Record<string, string> = {
   closed: "Archiviato",
 };
 
-function getAge(birthDate: string | null): number | null {
-  if (!birthDate) return null;
-  const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
-
 export const OwnerCastingDetail = () => {
   const { castingId } = useParams<{ castingId: string }>();
   const navigate = useNavigate();
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Tables<"casting_roles"> | null>(null);
+  const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
 
   const { data: casting, isLoading: castingLoading } = useQuery({
     queryKey: ["casting-detail", castingId],
@@ -71,6 +62,7 @@ export const OwnerCastingDetail = () => {
 
   const handleStatusChange = async (status: string) => {
     if (!castingId) return;
+    setStatusPopoverOpen(false);
     try {
       await updateStatus.mutateAsync({ id: castingId, status });
       toast({ title: "Stato aggiornato" });
@@ -79,7 +71,6 @@ export const OwnerCastingDetail = () => {
     }
   };
 
-  // Fetch all role talents across all roles for confirmed section
   const roleIds = roles.map((r) => r.id);
   const { data: allRoleTalents = [] } = useQuery({
     queryKey: ["all-role-talents", castingId, roleIds],
@@ -99,20 +90,12 @@ export const OwnerCastingDetail = () => {
     },
   });
 
-  // Count confirmed per role
   const confirmedByRole: Record<string, number> = {};
   for (const rt of allRoleTalents) {
     if ((rt as any).company_status === "confirmed") {
       confirmedByRole[rt.casting_role_id] = (confirmedByRole[rt.casting_role_id] || 0) + 1;
     }
   }
-
-  // Aggregate confirmed talents for the bottom section
-  const confirmedTalents = allRoleTalents.filter((rt) => (rt as any).company_status === "confirmed");
-  const confirmedWithRole = confirmedTalents.map((rt) => ({
-    ...rt,
-    roleName: roles.find((r) => r.id === rt.casting_role_id)?.name || "—",
-  }));
 
   const handleEditRole = (role: Tables<"casting_roles">) => {
     setEditingRole(role);
@@ -179,81 +162,101 @@ export const OwnerCastingDetail = () => {
     return start || end;
   };
 
+  const currentStatus = casting.status || "draft";
+
   return (
-    <div className="space-y-6 animate-fade-up">
-      {/* Back + Header */}
-      <div>
-        <Button variant="ghost" size="sm" onClick={() => navigate("/owner/castings")} className="mb-4 -ml-2">
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Tutti i casting
-        </Button>
+    <div className="space-y-8 animate-fade-up">
+      {/* Breadcrumb */}
+      <Button variant="ghost" size="sm" onClick={() => navigate("/owner/castings")} className="-ml-2">
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Tutti i casting
+      </Button>
 
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <FavoriteCastingStar
-                castingId={casting.id}
-                isFavorite={Boolean((casting as any).is_favorite)}
-                size={22}
-              />
-              <h1 className="text-2xl text-foreground">{casting.title}</h1>
-              <Badge className={statusColors[casting.status || "draft"]}>
-                {statusLabels[casting.status || "draft"]}
-              </Badge>
-              <Select value={casting.status || "draft"} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-8 w-40 rounded-full">
-                  <SelectValue placeholder="Stato" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Bozza</SelectItem>
-                  <SelectItem value="active">Attivo</SelectItem>
-                  <SelectItem value="closed">Archiviato</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {casting.company && (
-              <p className="text-muted-foreground">{casting.company.name}</p>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+        <div className="min-w-0 space-y-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <FavoriteCastingStar
+              castingId={casting.id}
+              isFavorite={Boolean((casting as any).is_favorite)}
+              size={22}
+            />
+            <h1 className="font-display uppercase text-4xl tracking-wide text-foreground">
+              {casting.title}
+            </h1>
+          </div>
+
+          {/* Metadata row */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            <Popover open={statusPopoverOpen} onOpenChange={setStatusPopoverOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
+                    statusStyles[currentStatus],
+                  )}
+                >
+                  {statusLabels[currentStatus]}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-40 p-1">
+                {(["draft", "active", "closed"] as const).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleStatusChange(s)}
+                    className={cn(
+                      "w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors",
+                      currentStatus === s && "font-medium",
+                    )}
+                  >
+                    {statusLabels[s]}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+
+            {casting.company && <span>{casting.company.name}</span>}
+
+            {casting.compensation_amount && (
+              <span className="inline-flex items-center gap-1">
+                <Euro className="h-4 w-4" />
+                {casting.compensation_amount} {casting.currency || "EUR"}
+              </span>
             )}
-            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              {casting.locations && casting.locations.length > 0 && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  {casting.locations.join(", ")}
-                </span>
-              )}
-              {formatDates() && (
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {formatDates()}
-                </span>
-              )}
-              {casting.compensation_amount && (
-                <span className="flex items-center gap-1">
-                  <Euro className="h-4 w-4" />
-                  {casting.compensation_amount} {casting.currency || "EUR"}
-                </span>
-              )}
-            </div>
+            {casting.locations && casting.locations.length > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {casting.locations.join(", ")}
+              </span>
+            )}
+            {formatDates() && (
+              <span className="inline-flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                {formatDates()}
+              </span>
+            )}
           </div>
+        </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setEditDialogOpen(true)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Modifica
-            </Button>
-            <Button onClick={() => setRoleDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuovo ruolo
-            </Button>
-          </div>
+        <div className="flex gap-2 shrink-0">
+          <Button variant="ghost" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
+            <Edit className="h-4 w-4" />
+            Modifica
+          </Button>
+          <Button size="md" iconPosition="left" onClick={() => setRoleDialogOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Nuovo ruolo
+          </Button>
         </div>
       </div>
 
-      {/* Ruoli e invii */}
+      {/* RUOLI */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-medium">Ruoli e invii ({roles.length})</h2>
-        </div>
+        <h2 className="font-display uppercase tracking-widest text-sm text-muted-foreground">
+          Ruoli
+        </h2>
 
         {rolesLoading ? (
           <div className="space-y-3">
@@ -263,28 +266,19 @@ export const OwnerCastingDetail = () => {
         ) : roles.length === 0 ? (
           <div className="dc-card p-10 text-center text-muted-foreground">
             <p>Nessun ruolo definito</p>
-            <Button variant="link" onClick={() => setRoleDialogOpen(true)}>
+            <Button variant="secondary" size="md" className="mt-4" onClick={() => setRoleDialogOpen(true)}>
               Crea il primo ruolo
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            <RoundsByRoleBlock
-              castingId={castingId!}
-              roles={roles}
-              confirmedByRole={confirmedByRole}
-              onEditRole={handleEditRole}
-            />
-            <Button variant="outline" onClick={() => setRoleDialogOpen(true)} className="w-full">
-              <Plus className="h-4 w-4 mr-2" />
-              Aggiungi ruolo
-            </Button>
-          </div>
+          <RoundsByRoleBlock
+            castingId={castingId!}
+            roles={roles}
+            confirmedByRole={confirmedByRole}
+            onEditRole={handleEditRole}
+          />
         )}
       </div>
-
-
-
 
       <AddRoleDialog
         open={roleDialogOpen}
