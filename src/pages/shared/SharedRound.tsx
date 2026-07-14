@@ -427,20 +427,22 @@ function TalentDetailSheet({
                     className="w-full rounded-full"
                   >
                     {selected ? (
-                      "Rimuovi selezione"
-                    ) : (
                       <>
                         <Check className="h-4 w-4" />
-                        Seleziona talent
+                        Selezionato · Rimuovi
                       </>
+                    ) : (
+                      "Seleziona talent"
                     )}
                   </Button>
                 </div>
               )}
             </div>
           </div>
+          </div>
         </DialogContent>
       </Dialog>
+
 
       {lightbox && (
         <div
