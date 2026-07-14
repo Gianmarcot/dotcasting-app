@@ -181,10 +181,16 @@ export const OwnerCastingDetail = () => {
               isFavorite={Boolean((casting as any).is_favorite)}
               size={22}
             />
-            <h1 className="font-display uppercase text-4xl tracking-wide text-foreground">
+            <h1 className="font-display uppercase text-3xl tracking-wide text-foreground">
               {casting.title}
             </h1>
           </div>
+
+          {casting.description && (
+            <p className="text-sm text-muted-foreground max-w-3xl whitespace-pre-wrap">
+              {casting.description}
+            </p>
+          )}
 
           {/* Metadata row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -193,11 +199,12 @@ export const OwnerCastingDetail = () => {
                 <button
                   type="button"
                   className={cn(
-                    "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
+                    "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold transition-opacity hover:opacity-80",
                     statusStyles[currentStatus],
                   )}
                 >
                   {statusLabels[currentStatus]}
+                  <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="start" className="w-40 p-1">
@@ -221,7 +228,7 @@ export const OwnerCastingDetail = () => {
 
             {casting.compensation_amount && (
               <span className="inline-flex items-center gap-1">
-                <Euro className="h-4 w-4" />
+                <Wallet className="h-4 w-4" />
                 {casting.compensation_amount} {casting.currency || "EUR"}
               </span>
             )}
@@ -233,7 +240,7 @@ export const OwnerCastingDetail = () => {
             )}
             {formatDates() && (
               <span className="inline-flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
+                <Clock className="h-4 w-4" />
                 {formatDates()}
               </span>
             )}
@@ -241,7 +248,7 @@ export const OwnerCastingDetail = () => {
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Button variant="ghost" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
+          <Button variant="secondary" size="md" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
             <Edit className="h-4 w-4" />
             Modifica
           </Button>
@@ -251,6 +258,9 @@ export const OwnerCastingDetail = () => {
           </Button>
         </div>
       </div>
+
+      <div className="border-t border-border" />
+
 
       {/* RUOLI */}
       <div className="space-y-4">
