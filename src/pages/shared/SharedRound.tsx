@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Loader2, Check, ImageOff, Maximize2, X } from "lucide-react";
+import { Download, Loader2, Check, ImageOff, Maximize2, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
 import { MOCK_SHARED_ROUND } from "./sharedRoundMock";
