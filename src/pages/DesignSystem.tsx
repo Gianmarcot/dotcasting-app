@@ -884,13 +884,14 @@ const BlocksSection = () => (
                     (_, i) => (
                       <Avatar
                         key={i}
+                        size="md"
                         className={cn(
-                          "h-7 w-7 ring-2 ring-background",
-                          i > 0 && "-ml-2",
+                          "ring-2 ring-background",
+                          i > 0 && "-ml-3",
                         )}
                       >
                         <AvatarImage
-                          src={`https://i.pravatar.cc/56?img=${i + 10}`}
+                          src={`https://i.pravatar.cc/96?img=${i + 10}`}
                         />
                         <AvatarFallback>?</AvatarFallback>
                       </Avatar>
