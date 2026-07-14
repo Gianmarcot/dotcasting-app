@@ -5,7 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, ChevronDown, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, MapPin, Clock, Wallet, Edit, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { useCastingRoles } from "@/hooks/useCastingRoles";
