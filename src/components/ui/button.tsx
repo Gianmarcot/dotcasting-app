@@ -22,11 +22,11 @@ const buttonVariants = cva(
       size: {
         // Text button heights: sm 36 · md 40 · lg 48
         sm: "h-9 px-4 text-sm",
-        md: "h-10 px-6 text-sm",
+        md: "h-10 px-6 text-sm [&_svg]:size-5",
         lg: "h-12 px-8 text-base [&_svg]:size-5",
         // Icon-only (square)
         "icon-sm": "h-9 w-9 p-0",
-        "icon-md": "h-10 w-10 p-0",
+        "icon-md": "h-10 w-10 p-0 [&_svg]:size-5",
         "icon-lg": "h-12 w-12 p-0 [&_svg]:size-5",
         // Aliases (backwards compat)
         default: "h-10 px-6 text-sm",
