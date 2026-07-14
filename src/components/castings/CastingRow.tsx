@@ -75,24 +75,24 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
           <span className="text-sm text-muted-foreground/70">—</span>
         ) : (
           <div className="flex items-center">
-            <div className="flex">
-              {shown.map((t, i) => (
-                <Avatar
-                  key={t.profile?.id ?? i}
-                  size="md"
-                  className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
-                >
-                  {t.profile?.profile_photo_url ? (
-                    <AvatarImage src={t.profile.profile_photo_url} alt="" />
-                  ) : null}
-                  <AvatarFallback className="text-xs bg-muted">
-                    {getInitials(t.profile?.first_name, t.profile?.last_name)}
-                  </AvatarFallback>
-                </Avatar>
-              ))}
-            </div>
+            {shown.map((t, i) => (
+              <Avatar
+                key={t.profile?.id ?? i}
+                size="md"
+                className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
+              >
+                {t.profile?.profile_photo_url ? (
+                  <AvatarImage src={t.profile.profile_photo_url} alt="" />
+                ) : null}
+                <AvatarFallback className="text-xs bg-muted">
+                  {getInitials(t.profile?.first_name, t.profile?.last_name)}
+                </AvatarFallback>
+              </Avatar>
+            ))}
             {extra > 0 && (
-              <span className="ml-2 text-xs text-muted-foreground">+ altri {extra}</span>
+              <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-background bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
+                +{extra}
+              </div>
             )}
           </div>
         )}
