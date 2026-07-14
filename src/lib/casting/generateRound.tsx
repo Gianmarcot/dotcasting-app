@@ -21,15 +21,18 @@ if (!(globalThis as { Buffer?: unknown }).Buffer) {
 export interface RoundResult { roleTalentId: string; path: string }
 
 /**
- * Verifica che l'URL restituisca un'immagine valida. Se l'endpoint di
- * trasformazione fallisce (rate limit, timeout, source troppo grande),
- * prova l'URL originale. Restituisce null se nessuno è raggiungibile:
- * meglio omettere una foto che avere una griglia con buchi neri.
+ * Scarica un'immagine e la restituisce come data URL base64. Così
+ * @react-pdf/renderer non fa network durante il render: se qui la foto
+ * arriva, nel PDF ci sarà. Prova prima l'URL fornito (tipicamente la
+ * variante trasformata), poi cade sull'originale non trasformato.
+ * Ritorna null solo se entrambi i tentativi falliscono davvero.
  */
-async function resolvePhotoUrl(url: string, timeoutMs = 15000): Promise<string | null> {
+async function fetchPhotoAsDataUrl(url: string, timeoutMs = 20000): Promise<string | null> {
   const candidates = [url];
   if (url.includes("/storage/v1/render/image/public/")) {
-    candidates.push(url.replace("/storage/v1/render/image/public/", "/storage/v1/object/public/").split("?")[0]);
+    candidates.push(
+      url.replace("/storage/v1/render/image/public/", "/storage/v1/object/public/").split("?")[0]
+    );
   }
   for (const candidate of candidates) {
     try {
@@ -37,12 +40,25 @@ async function resolvePhotoUrl(url: string, timeoutMs = 15000): Promise<string |
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(candidate, { method: "GET", signal: controller.signal });
       clearTimeout(timer);
-      if (res.ok) {
-        const ct = res.headers.get("content-type") ?? "";
-        if (ct.startsWith("image/")) return candidate;
-      }
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      // Normalizza MIME non standard (es. image/jpg) per evitare che
+      // react-pdf rifiuti il data URL.
+      const rawType = (blob.type || res.headers.get("content-type") || "").toLowerCase();
+      const mime =
+        rawType === "image/jpg" ? "image/jpeg" :
+        rawType.startsWith("image/") ? rawType :
+        "image/jpeg";
+      const normalized = blob.type === mime ? blob : new Blob([blob], { type: mime });
+      const dataUrl: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(normalized);
+      });
+      if (dataUrl.startsWith("data:image/")) return dataUrl;
     } catch {
-      // try next
+      // prova il candidato successivo
     }
   }
   return null;
@@ -73,10 +89,12 @@ export async function generateRoundPdfs(opts: {
   for (let i = 0; i < items.length; i++) {
     const { roleTalentId, talent } = items[i];
 
-    // Pre-check di ogni foto: sostituisce l'URL con uno raggiungibile
-    // (transform o originale), scarta quelle non raggiungibili.
+    // Pre-scarica ogni foto come data URL: react-pdf non farà più
+    // network durante il render, quindi ogni foto visibile nel drawer
+    // finisce sicuramente anche nel PDF. Le url irraggiungibili vengono
+    // scartate (cella vuota) invece di generare buchi neri.
     const resolvedPhotos = (
-      await Promise.all(talent.photos.map((u) => resolvePhotoUrl(u)))
+      await Promise.all(talent.photos.map((u) => fetchPhotoAsDataUrl(u)))
     ).filter((u): u is string => Boolean(u));
     const talentSafe: Talent = { ...talent, photos: resolvedPhotos };
 

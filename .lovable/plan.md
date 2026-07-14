@@ -1,48 +1,38 @@
-
 ## Problema
-Alcuni PDF degli invii risultano "sfasati" o senza immagini anche dopo la rigenerazione. Tre cause distinte, tutte lato client di generazione (`src/lib/casting/generateRound.tsx` + `TalentCardPDF.tsx` + `fetchRoundTalents.ts`).
 
-## Cause individuate
+Nel drawer di dettaglio talent vengono mostrate tutte le foto (fino a `2 + photoCount`, o tutte se il preset non ha limite), ma nel PDF alcune di queste stesse foto non compaiono. Due cause distinte, entrambe da risolvere:
 
-**1. Collisione dei path in Storage**  
-Il file viene salvato come `castings/{castingId}/rounds/{roundId}/{slug(nome)}.pdf`. Se due talent hanno lo stesso `stage_name`/nome (o uno ha `nome` vuoto → slug `""`), il secondo upload sovrascrive il primo con `upsert:true`. Risultato: due `role_talents` puntano allo stesso `pdf_path`, il cliente vede lo stesso PDF su due card diverse o un PDF "sfasato" (dati di un altro talent).
+1. **Rendering fallito silenziosamente.** `resolvePhotoUrl` verifica solo che l'URL risponda, poi lascia scaricare l'immagine a `@react-pdf/renderer`. Se il secondo fetch (fatto da react-pdf con il suo path Buffer) fallisce per timeout/rate-limit/redirect/MIME non standard, la cella resta vuota senza errori.
 
-**2. Immagini mancanti nel PDF**  
-`@react-pdf/renderer` fa `fetchImage` in fase di render. Le foto passano per l'endpoint `/storage/v1/render/image/public/…?width=1500&resize=contain` che può fallire (rate limit, source troppo grande, timeout). react-pdf in quel caso non alza errore visibile: produce un PDF senza quelle immagini. Non c'è alcun pre-fetch né fallback all'URL originale.
+2. **Cap silenzioso lato PDF.** `resolveCard` limita le pagine galleria a `preset.photoCount` foto _oltre_ le 2 di copertina. Se il drawer mostra tutte le foto (perché il preset non impone un cap o perché il talent ne ha più del cap), il PDF ne omette una parte.
 
-**3. Overflow del pannello centrale**  
-La pagina è di altezza fissa (421pt). Se il talent ha `nome` molto lungo (Tenor Sans 19pt va a capo) + molte righe misure + più contatti, il blocco superiore cresce oltre lo spazio disponibile e "spinge" il footer fuori, oppure il contenuto viene tagliato. Non ci sono clamp sulle righe visibili né limiti sul wrap del nome.
+## Soluzione
 
-## Interventi (solo generazione PDF, nessuna modifica UI)
+Modifiche circoscritte a due file, nessuna modifica alla UI del drawer, al template PDF, allo schema DB.
 
-### A. Path per PDF stabile e univoco
-`src/lib/casting/generateRound.tsx`: sostituire lo slug del nome con `roleTalentId` (uuid, sempre univoco):
-```
-castings/{castingId}/rounds/{roundId}/{roleTalentId}.pdf
-```
-Aggiungere migrazione light: la prossima rigenerazione riscrive i `pdf_path` in DB → nessun cleanup richiesto, i vecchi file restano orfani ma non sono più referenziati.
+### 1) `src/lib/casting/generateRound.tsx` — pre-download come data URL
 
-### B. Immagini affidabili
-`src/lib/casting/fetchRoundTalents.ts` + `generateRound.tsx`:
-- Prima della `pdf(...).toBlob()`, pre-fetchare in parallelo tutte le foto del talent con `fetch(url)`; per ogni URL fallito, provare il fallback all'URL originale (senza transform). Sostituire nell'array `photos` solo gli URL confermati raggiungibili.
-- Se un'immagine fallisce anche l'originale, escluderla dall'elenco (meglio meno foto che una griglia con buchi).
-- Aggiungere `timeout` (es. 15s) per evitare hang.
+Sostituire `resolvePhotoUrl` con `fetchPhotoAsDataUrl(url)`:
+- prova prima l'URL trasformato, poi l'originale (stesso fallback attuale);
+- scarica il blob e lo converte in `data:<mime>;base64,...` con `FileReader`;
+- normalizza `image/jpg` → `image/jpeg`;
+- timeout 20s per candidato; ritorna `null` solo se entrambi falliscono davvero.
 
-### C. Layout robusto in `TalentCardPDF.tsx`
-- Nome: limitare a max 2 righe (`maxLines: 2` via `Text` + fontSize dinamico se supera N caratteri) per non spingere il footer.
-- Contatti: limitare a 2 righe (email + telefono), troncare eventuali extra.
-- Rows misure: se le righe visibili superano una soglia (es. 18 totali su 2 colonne), ridurre `fontSize` da 6.5 a 6 automaticamente.
-- Aggiungere `overflow: "hidden"` al `panel` così un edge case non "sfonda" mai la pagina.
+Nel loop `generateRoundPdfs`, mappare `talent.photos` con la nuova funzione, filtrare i `null`, e passare i data URL a `resolveCard`. Così react-pdf non fa più network durante il rendering: se la foto è nel drawer, sarà nel PDF.
 
-### D. QA
-- Rigenerare l'invio di test con talent reali (`Corrie`) + mock, verificare:
-  - file salvati con nome uuid,
-  - pdf sempre con immagini corrispondenti al talent,
-  - nessun overflow (screenshot pdf con pdfjs come in `CardPreview`).
+### 2) `src/lib/casting/roundPreset.ts` — allineare il cap del PDF a quello del drawer
 
-## File toccati
-- `src/lib/casting/generateRound.tsx` — path uuid + pre-check foto
-- `src/lib/casting/fetchRoundTalents.ts` — helper `resolvePhotoUrl(url)` con fallback
-- `src/lib/casting/TalentCardPDF.tsx` — clamp nome/contatti, overflow hidden, fontSize adattivo
+Il drawer usa `2 + photoCount` come cap totale (cover incluse). Il PDF invece usa `photoCount` come cap _solo sulla galleria_, oltre alle 2 cover: totali diversi quando il talent ha molte foto.
 
-Nessuna modifica a schema DB, a `SharedRound.tsx`, o alla UI del wizard/round detail.
+Cambiare `resolveCard` in modo che `photoCount` (quando definito) rappresenti il **totale** di foto (cover + gallery), coerente col drawer:
+- `coverPhotos` = prime 2 (invariato);
+- `gallery` = `talent.photos.slice(2, photoCount ?? Infinity)`;
+- se `photoCount == null` → nessun cap, come oggi nel drawer.
+
+Aggiornare il commento del campo `photoCount` in `RoundPreset` per riflettere il nuovo significato (totale foto, non solo galleria). Verificare che l'unico consumer sia `resolveCard` — nessun altro codice attualmente moltiplica/somma su `photoCount`.
+
+## Verifica
+
+- Rigenerare un invio esistente e controllare che ogni foto visibile nel drawer sia presente nel PDF (numero e ordine).
+- Talent con foto irraggiungibile lato Storage: la cella resta vuota (nessun "buco nero"), le altre foto restano visibili, generazione non si interrompe.
+- Test con talent che ha più foto del `photoCount`: drawer e PDF ora mostrano lo stesso numero di foto.
