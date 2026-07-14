@@ -52,6 +52,8 @@ export const OwnerCastingDetail = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Tables<"casting_roles"> | null>(null);
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
 
   const { data: casting, isLoading: castingLoading } = useQuery({
     queryKey: ["casting-detail", castingId],
