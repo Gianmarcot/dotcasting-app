@@ -216,7 +216,7 @@ function TalentDetailSheet({
         <DialogContent
           className={cn(
             "max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border",
-            "grid",
+            "grid [&>.dc-dialog-close]:hidden",
             showStrip
               ? "grid-rows-[auto_auto_1fr]"
               : "grid-rows-[auto_1fr]"
@@ -279,6 +279,14 @@ function TalentDetailSheet({
                 {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
                 <span className="hidden sm:inline">Scarica PDF</span>
               </Button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Chiudi"
+                className="inline-flex items-center justify-center h-9 w-9 rounded-full hover:bg-muted transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
             <DialogTitle className="sr-only">{talent.nome}</DialogTitle>
@@ -346,39 +354,39 @@ function TalentDetailSheet({
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
             >
-              <div className="min-h-0 p-4 md:p-6 flex items-center justify-center">
-                <div className="h-full max-h-full flex items-center justify-center">
-                  <div className="h-full aspect-[5/7] max-h-full overflow-hidden rounded-2xl bg-muted">
-                    {heroPhoto ? (
-                      <img
-                        src={heroPhoto}
-                        alt={talent.nome}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        <ImageOff className="h-10 w-10" />
-                      </div>
-                    )}
-                  </div>
+              <div className="min-h-0 min-w-0 p-4 md:p-6 flex items-center justify-center overflow-hidden">
+                <div className="relative h-full max-h-full max-w-full aspect-[5/7] overflow-hidden rounded-2xl bg-muted shadow-sm" style={{ width: "auto" }}>
+                  {heroPhoto ? (
+                    <img
+                      src={heroPhoto}
+                      alt={talent.nome}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                      <ImageOff className="h-10 w-10" />
+                    </div>
+                  )}
                 </div>
               </div>
 
 
               {photos.length > 1 && (
-                <div className="p-3 md:px-6 md:pb-4 shrink-0">
+                <div className="px-4 md:px-6 pb-4 pt-2 shrink-0 border-t border-border/60 bg-background/60">
                   <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-                    <div className="flex gap-2 w-max mx-auto px-1">
+                    <div className="flex gap-2 w-max mx-auto px-1 py-1">
                       {photos.map((p, i) => (
                         <button
                           key={i}
                           type="button"
                           onClick={() => setActiveIndex(i)}
+                          aria-label={`Foto ${i + 1}`}
+                          aria-current={i === activeIndex ? "true" : undefined}
                           className={cn(
-                            "shrink-0 w-[56px] aspect-[5/7] overflow-hidden rounded-lg bg-muted transition-all",
+                            "shrink-0 w-[52px] aspect-[5/7] overflow-hidden rounded-md bg-muted transition-all",
                             i === activeIndex
                               ? "ring-2 ring-primary ring-offset-2 ring-offset-background opacity-100"
-                              : "opacity-60 hover:opacity-100"
+                              : "opacity-55 hover:opacity-100"
                           )}
                         >
                           <img src={p} alt={`${talent.nome} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
