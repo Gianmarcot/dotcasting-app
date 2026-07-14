@@ -14,7 +14,18 @@ import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import type { Tables } from "@/integrations/supabase/types";
 import type { CastingWithRelations } from "@/hooks/useCastings";
-import { useUpdateCasting, useUpdateCastingStatus } from "@/hooks/useCastings";
+import { useUpdateCasting, useUpdateCastingStatus, useDeleteCasting } from "@/hooks/useCastings";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
