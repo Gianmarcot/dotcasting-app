@@ -469,28 +469,6 @@ function TalentDetailSheet({
 
 
 
-
-      {lightbox && (
-        <div
-          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setLightbox(null)}
-        >
-          <button
-            type="button"
-            onClick={() => setLightbox(null)}
-            aria-label="Chiudi"
-            className="absolute top-4 right-4 text-white/80 hover:text-white h-10 w-10 rounded-full flex items-center justify-center bg-white/10"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          <img
-            src={lightbox}
-            alt=""
-            className="max-h-full max-w-full object-contain rounded-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-      )}
     </>
   );
 }
