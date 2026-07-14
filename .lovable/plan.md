@@ -1,65 +1,57 @@
-## Obiettivo
+## Contesto
 
-Rifinire il modale di dettaglio talent nella pagina cliente (`/round/:token` — `SharedRound.tsx`, sotto-componente `TalentDetailSheet`) con miglioramenti a swiper header, azioni e stili. Nessun cambio a dati, RPC o logica di selezione.
+Nel drawer `TalentDetailSheet` di `src/pages/shared/SharedRound.tsx` ci sono due problemi:
 
-## Ambito
+- **Overflow**: lo swiper header usa `transform: scale()` su pill di larghezza variabile con `px-[40%]` hack e `mask-image`; le pill scalate escono dal box, l'attivo può traboccare a destra sopra le action, e le frecce a `-left-6 / -right-6` cadono fuori dal contenuto arrotondato. La colonna gallery ha un `max-h-[65vh]` con `maxWidth` calcolato inline che, su viewport lunghi, esce dal container. Il footer sticky con "Seleziona talent" si sovrappone al contenuto quando la colonna info è corta.
+- **Usabilità switcher**: pill di taglia diversa a seconda del nome + scala progressiva rendono il tap target instabile, la mask taglia gli avatar ma resta un residuo scrollabile, e non è chiaro dove sto nella lista.
 
-- File toccato: `src/pages/shared/SharedRound.tsx` (solo `TalentDetailSheet`).
-- Nessuna modifica a hook, RPC, generazione PDF, barra "Prosegui" esterna.
+Ambito: solo presentazione, file `src/pages/shared/SharedRound.tsx`, sotto-componente `TalentDetailSheet`. Nessuna modifica a dati, RPC, PDF.
 
-## Modifiche
+## Nuovo layout
 
-### 1. Header talent → swiper con focus centrale
+### 1. Header ridisegnato (sostituisce lo swiper scala-variabile)
 
-- La strip talent nell'header diventa un carosello centrato:
-  - Il talent attivo è ingrandito (avatar 44px, pill più grande, testo visibile).
-  - Gli adiacenti si riducono progressivamente in scala (~0.85, 0.7, 0.55) man mano che si allontanano dal centro.
-  - Su cambio talent (`row.role_talent_id`), lo slot attivo viene scrollato al centro con `scrollIntoView({ behavior: "smooth", inline: "center" })`.
-  - Scrollbar nascosta (già presente).
-- Dissolvenza laterale: contenitore con maschera CSS (`mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent)`) così gli avatar oltre il 2°/3° elemento per lato sfumano verso i bordi senza taglio netto.
+Riga singola, altezza fissa, tre zone chiare:
 
-### 2. Frecce di navigazione ai lati del modale
+```text
+[← 3 / 8 →]   [•  Nome talent attivo  (✓)]   [Scarica PDF] [×]
+```
 
-- Due bottoni tondi (48px) `absolute` ancorati ai lati esterni del `DialogContent`, centrati verticalmente (`top-1/2 -translate-y-1/2`), leggermente sporgenti (`-left-6` / `-right-6` con fallback interno su mobile).
-- `ChevronLeft` / `ChevronRight` da lucide, sfondo `bg-background` con `shadow-md border border-border`.
-- Click → `onSelectTalent` sul talent precedente/successivo nell'array `talents` (wrap-around o disabilitati agli estremi — scelta: disabilitati agli estremi, coerente con lo swiper).
-- Supporto swipe: handler `onTouchStart`/`onTouchEnd` sulla galleria sinistra e sulla strip header con soglia 40px per prev/next talent (delta orizzontale).
+- **Cluster navigazione a sinistra**: pulsante prev icona, contatore `currentIdx+1 / talents.length` in font tenor 13px, pulsante next icona. Sostituisce le frecce esterne `-left-6/-right-6` (rimosse: creavano overflow e non sono scopribili). Disabilitati agli estremi.
+- **Identità talent al centro**: singola pill grande con avatar + nome + eventuale check di selezione. Un solo elemento, sempre della stessa forma, `truncate` sul nome con `max-w` proporzionale allo spazio residuo. Niente scala progressiva, niente lista adiacenti nell'header.
+- **Azioni a destra**: "Scarica PDF" (outline pill) + `×` chiudi. Invariato funzionalmente.
+- **Rotellina talent (nuovo, opzionale)**: sotto l'header, una seconda riga sottile con mini-avatar tutti alla stessa scala (32px), scroll orizzontale nativo con snap (`snap-x snap-mandatory`), avatar attivo con ring bordeaux e auto-centrato via `scrollIntoView`. Nessuna trasformazione di scala, nessuna mask (i bordi sfumano solo con un gradient overlay `absolute` di 24px sinistra/destra sopra la riga, che non taglia il tap target). Ogni avatar mostra tooltip con nome; il check di selezione appare come pastiglia in alto a destra sull'avatar. Questa riga è opzionale: se `talents.length <= 1` non viene renderizzata.
 
-### 3. Titoli sezione: rosso → #1a1a1a
+Risultato: l'header ha altezza prevedibile, non trabocca mai, e la navigazione è raggiungibile sia da tastiera/click (prev/next contatore) sia da lista compatta (rotellina avatar).
 
-- `DetailSection` title: sostituire `text-primary` con classe/token dark (`text-[#1A1A1A]` oppure `text-foreground` se il token corrisponde al charcoal DS). Manteniamo `font-tenor uppercase tracking-widest text-xs`.
+### 2. Tastiera
 
-### 4. Rimozione badge "Confermato" sotto il nome
+- `ArrowLeft` / `ArrowRight` → talent prev/next (già presente lo swipe touch, resta).
+- `Escape` → chiudi (già gestito dal Dialog).
 
-- Nel blocco header info a destra, eliminare il render di `<StatusPill status={row.company_status} />` sotto `h2` (righe ~293-295). Il nome resta come unico elemento del blocco.
+### 3. Colonna gallery
 
-### 5. Unico pulsante selezione nel footer
+- Rimuovere `maxWidth: "min(100%, calc(65vh * 2/3))"` inline e `max-h-[65vh]`. Sostituire con contenitore `flex items-center justify-center` che ospita l'immagine con `max-h-full max-w-full object-contain` all'interno di un wrapper `aspect-[2/3]` ma vincolato dal `min-h-0` del grid parent. In pratica: la gallery riempie l'altezza disponibile della riga, l'immagine si adatta senza mai eccedere. Nessuna barra orizzontale di overflow.
+- Filmstrip miniature: mantenuto sotto, `overflow-x-auto` con classi corrette (`[&::-webkit-scrollbar]:hidden`, era scritto `[scrollbar-hide::-webkit-scrollbar]:hidden` che è invalido).
 
-- Verifica: attualmente esiste già un solo bottone nel footer sticky del pannello destro (righe 340-357) più un check indicatore sulle pill dello swiper (rimane come indicatore visivo, non è un pulsante duplicato). Nessun altro controllo di selezione vicino al nome — confermato assente.
-- Rifinire il footer button:
-  - Non selezionato: `variant="default"` (bordeaux pieno), testo "Seleziona talent".
-  - Selezionato: `variant="outline"` con `Check` + testo "Selezionato · Rimuovi".
-- Il check sulle pill dello swiper resta come indicatore passivo (non è "controllo di selezione"): mantiene visibilità dello stato multi-talent.
+### 4. Colonna info + footer
 
-### 6. Download PDF come pill outline nell'header
+- Rendere la colonna destra un `grid-rows-[1fr_auto]`:
+  - Riga 1: contenuto scrollabile (`overflow-y-auto overscroll-contain`).
+  - Riga 2: footer "Seleziona talent" — non più `sticky`, semplicemente ultima riga del grid con `border-t`. Elimina la sovrapposizione e il glitch quando il contenuto è corto.
+- Footer sempre presente quando `selectable`, larghezza piena, pill bordeaux o outline (invariato).
 
-- Sostituire il bottone icona-only (righe 216-224) con:
-  ```
-  <Button variant="outline" size="sm" className="rounded-full gap-2" onClick={dl.mutate} disabled={!row.pdf_path || dl.isPending}>
-    {dl.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-    Scarica PDF
-  </Button>
-  ```
-- Posizionato prima dell'icona di chiusura (che resta icon-only). Visivamente secondario rispetto al CTA bordeaux pieno del footer.
+### 5. DialogContent
 
-## Dettagli tecnici
+- Rimuovere `overflow-visible` (serviva solo per le frecce esterne, ora rimosse) e tornare a `overflow-hidden`, così `rounded-3xl` si applica correttamente senza wrapper interno di clipping.
+- Grid contenitore diventa `grid-rows-[auto_auto_1fr]` (header + rotellina avatar + body) su desktop; su mobile la rotellina resta visibile ma la gallery/info stackano come già oggi.
 
-- Nuovi ref: `stripRef` (container swiper) + `Map<string, HTMLElement>` per gli slot pill; `useEffect` su `row.role_talent_id` per centrare.
-- Scala pill: calcolata dall'indice relativo (`Math.abs(i - activeIndex)`) con lookup `[1, 0.85, 0.7, 0.55]` (default 0.5) applicato via `style={{ transform: 'scale(x)' }}` + `transition-transform`.
-- Frecce: `disabled` quando `activeIndex === 0` / `talents.length - 1`.
-- Swipe: `useRef` per `touchStartX`; handler unificato sui due grandi container.
+### 6. Pulizia stile
+
+- `text-primary` residui su titoli sezione già portati a `text-[#1A1A1A]` in un giro precedente: verifica che non ne rimanga.
+- Rimuovere `useRef` di `slotRefs` legati al vecchio switcher; il nuovo scroll-into-view usa un singolo `ref` sull'avatar attivo.
 
 ## Fuori scope
 
-- Nessun cambio a RPC, PDF, mock, layout a due colonne, filmstrip immagini, floating bar esterna "X di Y · Prosegui".
-- Nessun cambio a `StatusPill` (rimane usato altrove nella griglia).
+- Nessuna modifica a `SharedRound` fuori dal drawer, alla RPC, alla generazione PDF, ai dati o al design system globale.
+- Nessun cambio al layout a due colonne o alle sezioni dati.
