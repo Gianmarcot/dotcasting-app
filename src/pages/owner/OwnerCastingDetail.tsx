@@ -259,7 +259,7 @@ export const OwnerCastingDetail = () => {
 
       {/* RUOLI */}
       <div className="space-y-4">
-        <h2 className="text-sm font-display uppercase tracking-wider text-foreground">
+        <h2 className="text-base font-display uppercase tracking-wider text-foreground">
           Ruoli
         </h2>
 
