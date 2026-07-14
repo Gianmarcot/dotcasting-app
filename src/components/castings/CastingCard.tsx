@@ -13,6 +13,7 @@ import { MoreVertical, Calendar, MapPin, Euro, Edit, Trash2, Play, Pause, Rotate
 import { it } from "@/lib/i18n";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
@@ -81,7 +82,7 @@ export const CastingCard = ({ casting, onEdit, onDelete, onStatusChange }: Casti
               <h3 className="text-foreground text-lg font-medium">
                 {casting.title}
               </h3>
-              <Badge className={statusColors[casting.status || "draft"]}>
+              <Badge className={cn("font-semibold", statusColors[casting.status || "draft"])}>
                 {it.casting[casting.status as keyof typeof it.casting] || casting.status}
               </Badge>
             </div>

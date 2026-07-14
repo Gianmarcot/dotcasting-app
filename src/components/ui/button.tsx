@@ -9,27 +9,40 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-full h-10 px-6 py-2",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm h-10 px-4 py-2",
-        outline: "border border-input bg-card hover:bg-muted hover:text-foreground rounded-full h-10 px-6 py-2",
-        secondary: "border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full h-10 px-6 py-2",
-        ghost: "hover:bg-muted hover:text-foreground rounded-full h-10 px-4 py-2",
-        link: "text-primary underline-offset-4 hover:underline h-10 px-4 py-2",
-        olive: "bg-olive text-olive-foreground hover:bg-olive/90 shadow-sm h-10 px-4 py-2",
-        charcoal: "bg-charcoal text-charcoal-foreground hover:bg-charcoal/90 shadow-sm h-10 px-4 py-2",
-        castingAction: "bg-primary text-primary-foreground hover:bg-primary/90 rounded-full shadow-sm px-6 h-10 py-2",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-full",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm rounded-full",
+        outline: "border border-input bg-card hover:bg-muted hover:text-foreground rounded-full",
+        secondary: "border border-foreground bg-transparent text-foreground hover:bg-muted rounded-full",
+        ghost: "hover:bg-muted hover:text-foreground rounded-full",
+        link: "text-primary underline-offset-4 hover:underline",
+        olive: "bg-olive text-olive-foreground hover:bg-olive/90 shadow-sm rounded-full",
+        charcoal: "bg-charcoal text-charcoal-foreground hover:bg-charcoal/90 shadow-sm rounded-full",
+        castingAction: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm rounded-full",
       },
       size: {
-        default: "",
-        sm: "dc-btn-sm",
-        lg: "dc-btn-lg",
-        xl: "dc-btn-xl",
-        icon: "dc-btn-icon",
+        // Text button heights: sm 36 · md 40 · lg 48
+        sm: "h-9 px-4 text-sm",
+        md: "h-10 px-6 text-sm",
+        lg: "h-12 px-8 text-base",
+        // Icon-only (square)
+        "icon-sm": "h-9 w-9 p-0",
+        "icon-md": "h-10 w-10 p-0",
+        "icon-lg": "h-12 w-12 p-0",
+        // Aliases (backwards compat)
+        default: "h-10 px-6 text-sm",
+        xl: "h-12 px-10 text-base",
+        icon: "h-10 w-10 p-0",
+      },
+      iconPosition: {
+        none: "",
+        left: "pl-3 pr-7",
+        right: "pl-7 pr-3",
       },
     },
     defaultVariants: {
       variant: "default",
-      size: "default",
+      size: "md",
+      iconPosition: "none",
     },
   },
 );
@@ -41,9 +54,9 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, iconPosition, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />;
+    return <Comp className={cn(buttonVariants({ variant, size, iconPosition, className }))} ref={ref} {...props} />;
   },
 );
 Button.displayName = "Button";
