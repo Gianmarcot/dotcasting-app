@@ -386,6 +386,7 @@ function TalentDetailSheet({
   );
 }
 
+export default function SharedRound() {
   const { token } = useParams<{ token: string }>();
   const qc = useQueryClient();
 
