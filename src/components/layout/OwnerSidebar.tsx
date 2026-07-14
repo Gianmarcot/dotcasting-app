@@ -21,7 +21,6 @@ import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
 import logoWhite from "@/assets/logo-white.png";
-import avatarPlaceholder from "@/assets/avatar-placeholder.jpg";
 
 const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
@@ -92,10 +91,9 @@ export const OwnerSidebar = () => {
         <div className="dc-sidebar-admin-divider" />
         <div className="dc-sidebar-admin-user">
           <Avatar className="h-9 w-9">
-            <AvatarImage
-              src={profile?.profile_photo_url || avatarPlaceholder}
-              alt=""
-            />
+            {profile?.profile_photo_url ? (
+              <AvatarImage src={profile.profile_photo_url} alt="" />
+            ) : null}
             <AvatarFallback className="dc-avatar-fallback-primary">
               {displayInitials}
             </AvatarFallback>
