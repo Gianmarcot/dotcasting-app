@@ -133,6 +133,7 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
   const nameSize = getNameSize(card.nome ?? "");
   const rowsTotal = card.columns[0].length + card.columns[1].length;
   const rowFont = getRowsFontSize(rowsTotal);
+  const rowMb = getRowMarginBottom(rowsTotal);
   // Massimo 2 contatti per non spingere il footer fuori pagina.
   const contactsClamped = card.contacts.slice(0, 2);
 
