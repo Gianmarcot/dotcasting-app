@@ -250,12 +250,16 @@ export const RoundWizardDialog = (props: Props) => {
         const items = await fetchRoundTalents(Array.from(selected));
         setProgress({ done: 0, total: items.length });
         const localErrors: string[] = [];
+        const localPhotoWarnings: { talentName: string; expected: number; included: number }[] = [];
         for (let i = 0; i < items.length; i++) {
           try {
-            await generateRoundPdfs({
+            const out = await generateRoundPdfs({
               castingId, roundId: round.id, items: [items[i]], preset,
               onProgress: () => {},
             });
+            out.photoWarnings.forEach((w) =>
+              localPhotoWarnings.push({ talentName: w.talentName, expected: w.expected, included: w.included })
+            );
           } catch (e: any) {
             localErrors.push(`${items[i].talent.nome}: ${e?.message ?? "errore"}`);
           }
@@ -266,6 +270,13 @@ export const RoundWizardDialog = (props: Props) => {
         qc.invalidateQueries({ queryKey: ["rounds-by-role", castingId] });
         if (localErrors.length === 0) {
           toast({ title: "Invio creato", description: `${items.length} comp card generate` });
+          if (localPhotoWarnings.length > 0) {
+            toast({
+              title: "Alcune foto non incluse nei PDF",
+              description: `${localPhotoWarnings.length} talent con foto mancanti: ${localPhotoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
+              variant: "destructive",
+            });
+          }
           onOpenChange(false);
           navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
         } else {
@@ -300,6 +311,13 @@ export const RoundWizardDialog = (props: Props) => {
             title: "Invio aggiornato",
             description: `${res.added} aggiunti · ${res.removed} rimossi`,
           });
+          if (res.photoWarnings.length > 0) {
+            toast({
+              title: "Alcune foto non incluse nei PDF",
+              description: `${res.photoWarnings.length} talent con foto mancanti: ${res.photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
+              variant: "destructive",
+            });
+          }
           onOpenChange(false);
         } else {
           toast({
@@ -308,7 +326,6 @@ export const RoundWizardDialog = (props: Props) => {
             variant: "destructive",
           });
         }
-      }
     } catch (err: any) {
       toast({ title: "Errore", description: err?.message ?? "Operazione fallita", variant: "destructive" });
     } finally {
