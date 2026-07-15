@@ -169,7 +169,6 @@ export const RoleTalentRow = ({
                 <Button
                   variant="ghost"
                   size="icon-md"
-                  className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))]"
                   onClick={() => onRemove(rt)}
                 >
                   <Trash2 className="h-4 w-4" />
