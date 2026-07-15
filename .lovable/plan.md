@@ -1,21 +1,14 @@
-## Riorganizzazione toolbar pagina Casting
+## Altezza 48px + icone 20px per input e select
 
-Modifica solo di layout in `src/components/castings/CastingFilters.tsx` (e, se serve, `OwnerCastings.tsx` per passare il conteggio).
+### 1. Altezza 48px (globale via DS)
+In `src/index.css`:
+- `.dc-input`: `h-10` → `h-12` (48px)
+- `.dc-select-trigger`: `h-10` → `h-12` (48px)
 
-### Nuovo layout (una sola riga, responsive)
+### 2. Icone a 20px dentro Input e Select
+- `src/components/ui/select.tsx`: chevron trigger `h-4 w-4` → `h-5 w-5` (20px).
+- `src/components/castings/CastingFilters.tsx`: icona `Search` nella search bar `h-4 w-4` → `h-5 w-5`.
+- Ricognizione via `rg` di eventuali altre search bar / input con icone leading (`h-4 w-4 text-muted-foreground` dentro `relative`) per allineare tutte a 20px, senza toccare icone dentro button, badge o altri contesti.
 
-```text
-[ Stato ▾ ] [ 🔍 Cerca casting............... ]        [ 12 casting ]  [ Ordina per ▾ ]
-└──────────── sinistra ────────────────────┘        └──────────── destra ────────────┘
-```
-
-- **Sinistra**: dropdown Stato + search bar (max-width **450px**, `flex-1` fino a quel limite).
-- **Destra**: testo conteggio casting (es. "12 casting") + dropdown ordinamento.
-- Contenitore: `flex items-center justify-between gap-4`, wrap su mobile.
-
-### Dettagli
-
-- Il conteggio arriva da `OwnerCastings.tsx` (già ha la lista filtrata) come prop `count: number` a `CastingFilters`.
-- Testo conteggio: stile muted, es. `text-sm text-muted-foreground`, singolare/plurale ("1 casting" / "N casting").
-- Search bar: `max-w-[450px] w-full`.
-- Nessun cambio a logica di filtro/ordinamento/hook.
+### Fuori scope
+Nessuna modifica a radius, padding, tipografia, textarea o icone dentro altri componenti (button, badge, list row, ecc.).

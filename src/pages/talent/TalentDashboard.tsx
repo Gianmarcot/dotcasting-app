@@ -353,7 +353,7 @@ export const TalentDashboard = () => {
           <div className="space-y-4">
             <h2 className="text-sm uppercase tracking-wider text-muted-foreground">{it.dashboard.castingsForYou}</h2>
             <div className="relative max-w-lg">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder={it.dashboard.searchPlaceholder}
                 className="pl-11 bg-card border-0 h-12"
