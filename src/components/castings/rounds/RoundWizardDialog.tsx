@@ -326,6 +326,7 @@ export const RoundWizardDialog = (props: Props) => {
             variant: "destructive",
           });
         }
+      }
     } catch (err: any) {
       toast({ title: "Errore", description: err?.message ?? "Operazione fallita", variant: "destructive" });
     } finally {
