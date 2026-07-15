@@ -153,12 +153,12 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
             <View style={s.cols}>
               <View style={s.fieldCol}>
                 {card.columns[0].map((r) => (
-                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} marginBottom={rowMb} />
                 ))}
               </View>
               <View style={s.fieldCol}>
                 {card.columns[1].map((r) => (
-                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} marginBottom={rowMb} />
                 ))}
               </View>
             </View>
