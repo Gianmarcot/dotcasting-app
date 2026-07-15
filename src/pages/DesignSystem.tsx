@@ -344,13 +344,8 @@ const TokensSection = () => {
         </div>
       </SubBlock>
 
-      <SubBlock title="Sidebar admin" source="--sidebar-*">
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-          {sidebar.map((t) => (
-            <ColorSwatch key={t} token={t} />
-          ))}
-        </div>
-      </SubBlock>
+
+
 
       <SubBlock title="Border radius" source="--radius">
         <div className="flex flex-wrap gap-4">
