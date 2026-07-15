@@ -83,7 +83,7 @@ export const RoleTalentRow = ({
       className="group grid grid-cols-[80px_1fr_160px_160px_140px] items-center gap-4 px-4 py-4 border-b border-border/40 last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors"
     >
       {/* Portrait photo */}
-      <div className="w-20 aspect-[2/3] rounded-xl overflow-hidden bg-muted shrink-0">
+      <div className="w-20 aspect-[2/3] rounded-md overflow-hidden bg-muted shrink-0">
         {rt.profile?.profile_photo_url ? (
           <img
             src={rt.profile.profile_photo_url}
@@ -169,7 +169,6 @@ export const RoleTalentRow = ({
                 <Button
                   variant="ghost"
                   size="icon-md"
-                  className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))]"
                   onClick={() => onRemove(rt)}
                 >
                   <Trash2 className="h-4 w-4" />
