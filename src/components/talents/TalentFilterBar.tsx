@@ -325,11 +325,11 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
 
       {/* Reset */}
       {hasAny && (
-        <button onClick={clearAll} className="text-xs text-primary hover:underline ml-1">
+        <button onClick={clearAll} className="text-sm text-primary hover:underline ml-1">
           Reset
         </button>
       )}
-      </div>
     </div>
   );
 };
+
