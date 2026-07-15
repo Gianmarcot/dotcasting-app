@@ -22,6 +22,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
+import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
+import { useRef } from "react";
+
 import {
   DndContext,
   closestCenter,
@@ -70,8 +73,53 @@ export const OwnerSidebar = () => {
     user?.email?.charAt(0).toUpperCase() ||
     "A";
 
+  const { width, setWidth, resetWidth, min, max } = useOwnerSidebarWidth();
+  const dragState = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    dragState.current = { startX: e.clientX, startWidth: width };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const s = dragState.current;
+    if (!s) return;
+    setWidth(s.startWidth + (e.clientX - s.startX));
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current) return;
+    dragState.current = null;
+    try {
+      (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+
   return (
-    <aside className="dc-sidebar-admin">
+    <aside className="dc-sidebar-admin" style={{ width: `${width}px` }}>
+      {/* Resize handle */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Ridimensiona sidebar"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={width}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onDoubleClick={resetWidth}
+        className="absolute top-0 right-0 z-50 hidden md:block h-full w-2 cursor-col-resize touch-none select-none after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-white/10 hover:after:bg-white/40 after:transition-colors"
+      />
+
+
       {/* Logo */}
       <div className="dc-sidebar-header">
         <Link to="/owner" className="flex items-center gap-3">
