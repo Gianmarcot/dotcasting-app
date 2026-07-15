@@ -120,8 +120,9 @@ export const OwnerSidebar = () => {
       >
         <span
           aria-hidden
-          className="block h-10 w-[3px] rounded-full bg-white/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-active:opacity-100"
+          className="block h-16 w-1 rounded-full bg-white/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-active:opacity-100"
         />
+
       </div>
 
 
