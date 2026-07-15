@@ -73,7 +73,6 @@ export const OwnerSidebar = () => {
     user?.email?.charAt(0).toUpperCase() ||
     "A";
 
-  return (
   const { width, setWidth, resetWidth, min, max } = useOwnerSidebarWidth();
   const dragState = useRef<{ startX: number; startWidth: number } | null>(null);
 
@@ -104,6 +103,22 @@ export const OwnerSidebar = () => {
 
   return (
     <aside className="dc-sidebar-admin" style={{ width: `${width}px` }}>
+      {/* Resize handle */}
+      <div
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Ridimensiona sidebar"
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={width}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onDoubleClick={resetWidth}
+        className="absolute top-0 right-0 z-50 hidden md:block h-full w-2 cursor-col-resize touch-none select-none after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-white/10 hover:after:bg-white/40 after:transition-colors"
+      />
+
 
       {/* Logo */}
       <div className="dc-sidebar-header">
