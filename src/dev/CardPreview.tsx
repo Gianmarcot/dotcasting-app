@@ -1,5 +1,7 @@
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { Buffer } from "buffer";
+import "core-js/modules/es.map.get-or-insert-computed.js";
+import "core-js/modules/es.weak-map.get-or-insert-computed.js";
 import { pdf } from "@react-pdf/renderer";
 import * as pdfjsLib from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
@@ -84,7 +86,7 @@ export default function CardPreview() {
         });
 
         const arrayBuffer = await blob.arrayBuffer();
-        const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const doc = await pdfjsLib.getDocument({ data: arrayBuffer, disableWorker: true }).promise;
         const rendered: string[] = [];
         for (let i = 1; i <= doc.numPages; i++) {
           const page = await doc.getPage(i);
