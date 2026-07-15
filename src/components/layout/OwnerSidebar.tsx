@@ -74,7 +74,37 @@ export const OwnerSidebar = () => {
     "A";
 
   return (
-    <aside className="dc-sidebar-admin">
+  const { width, setWidth, resetWidth, min, max } = useOwnerSidebarWidth();
+  const dragState = useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    dragState.current = { startX: e.clientX, startWidth: width };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const s = dragState.current;
+    if (!s) return;
+    setWidth(s.startWidth + (e.clientX - s.startX));
+  };
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current) return;
+    dragState.current = null;
+    try {
+      (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+
+  return (
+    <aside className="dc-sidebar-admin" style={{ width: `${width}px` }}>
+
       {/* Logo */}
       <div className="dc-sidebar-header">
         <Link to="/owner" className="flex items-center gap-3">
