@@ -45,6 +45,16 @@ export const useCastings = (filters?: CastingFilters) => {
         query = query.order("name", { referencedTable: "companies", ascending: true, nullsFirst: false });
       } else if (sort === "status") {
         query = query.order("status", { ascending: true });
+      } else if (sort === "oldest") {
+        query = query.order("created_at", { ascending: true });
+      } else if (sort === "title_asc") {
+        query = query.order("title", { ascending: true });
+      } else if (sort === "title_desc") {
+        query = query.order("title", { ascending: false });
+      } else if (sort === "start_date") {
+        query = query.order("start_date", { ascending: true, nullsFirst: false });
+      } else if (sort === "end_date") {
+        query = query.order("end_date", { ascending: true, nullsFirst: false });
       } else {
         query = query.order("created_at", { ascending: false });
       }
