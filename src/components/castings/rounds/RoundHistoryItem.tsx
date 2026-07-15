@@ -68,19 +68,30 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
     try {
       const ids = items.map(i => i.role_talent_id);
       const talents = await fetchRoundTalents(ids);
+      const photoWarnings: { talentName: string; expected: number; included: number }[] = [];
       for (let i = 0; i < talents.length; i++) {
         try {
-          await generateRoundPdfs({
+          const out = await generateRoundPdfs({
             castingId, roundId: round.id,
             items: [talents[i]], preset: round.field_preset,
             onProgress: () => {},
           });
+          out.photoWarnings.forEach((w) =>
+            photoWarnings.push({ talentName: w.talentName, expected: w.expected, included: w.included })
+          );
         } catch (e: any) {
           toast({ title: `Errore ${talents[i].talent.nome}`, description: e.message, variant: "destructive" });
         }
         setRegenerating({ done: i + 1, total: talents.length });
       }
       toast({ title: "Round rigenerato" });
+      if (photoWarnings.length > 0) {
+        toast({
+          title: "Alcune foto non incluse nei PDF",
+          description: `${photoWarnings.length} talent con foto mancanti: ${photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
+          variant: "destructive",
+        });
+      }
       qc.invalidateQueries({ queryKey: ["round-detail", round.id] });
     } finally {
       setRegenerating(null);

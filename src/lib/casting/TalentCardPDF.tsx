@@ -99,12 +99,31 @@ const s = StyleSheet.create({
   footerText: { fontFamily: SANS, fontSize: 8 },
 });
 
-// Font-size adattivi per evitare overflow del pannello
-const getNameSize = (name: string) => (name.length > 22 ? 15 : name.length > 16 ? 17 : 19);
-const getRowsFontSize = (rowsTotal: number) => (rowsTotal > 18 ? 5.5 : rowsTotal > 14 ? 6 : 6.5);
+// Font-size adattivi per evitare overflow del pannello.
+// Il pannello ha overflow:"hidden": preferiamo ridurre gradualmente
+// dimensione e spaziatura piuttosto che vedere il testo tagliato.
+const getNameSize = (name: string) => {
+  const n = name.length;
+  if (n > 28) return 13;
+  if (n > 22) return 15;
+  if (n > 16) return 17;
+  return 19;
+};
+const getRowsFontSize = (rowsTotal: number) => {
+  if (rowsTotal > 26) return 4.6;
+  if (rowsTotal > 22) return 5;
+  if (rowsTotal > 18) return 5.5;
+  if (rowsTotal > 14) return 6;
+  return 6.5;
+};
+const getRowMarginBottom = (rowsTotal: number) => {
+  if (rowsTotal > 22) return 2;
+  if (rowsTotal > 18) return 3;
+  return 5;
+};
 
-const FieldRow = ({ row, fontSize }: { row: ResolvedRow; fontSize: number }) => (
-  <View style={s.row}>
+const FieldRow = ({ row, fontSize, marginBottom }: { row: ResolvedRow; fontSize: number; marginBottom: number }) => (
+  <View style={[s.row, { marginBottom }]}>
     <Text style={[s.label, { fontSize }]}>{row.label}: </Text>
     <Text style={[s.value, { fontSize }]}>{row.value}</Text>
   </View>
@@ -114,6 +133,7 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
   const nameSize = getNameSize(card.nome ?? "");
   const rowsTotal = card.columns[0].length + card.columns[1].length;
   const rowFont = getRowsFontSize(rowsTotal);
+  const rowMb = getRowMarginBottom(rowsTotal);
   // Massimo 2 contatti per non spingere il footer fuori pagina.
   const contactsClamped = card.contacts.slice(0, 2);
 
@@ -133,12 +153,12 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
             <View style={s.cols}>
               <View style={s.fieldCol}>
                 {card.columns[0].map((r) => (
-                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} marginBottom={rowMb} />
                 ))}
               </View>
               <View style={s.fieldCol}>
                 {card.columns[1].map((r) => (
-                  <FieldRow key={r.label} row={r} fontSize={rowFont} />
+                  <FieldRow key={r.label} row={r} fontSize={rowFont} marginBottom={rowMb} />
                 ))}
               </View>
             </View>
