@@ -52,11 +52,16 @@ export const CastingFilters = ({
       </div>
 
       <Select value={sort} onValueChange={(v) => onSortChange(v as CastingSort)}>
-        <SelectTrigger className="w-full sm:w-44 rounded-full">
+        <SelectTrigger className="w-full sm:w-52 rounded-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="recent">Più recenti</SelectItem>
+          <SelectItem value="oldest">Meno recenti</SelectItem>
+          <SelectItem value="title_asc">Titolo A→Z</SelectItem>
+          <SelectItem value="title_desc">Titolo Z→A</SelectItem>
+          <SelectItem value="start_date">Data inizio</SelectItem>
+          <SelectItem value="end_date">Data fine</SelectItem>
           <SelectItem value="company">Cliente</SelectItem>
           <SelectItem value="status">Stato</SelectItem>
         </SelectContent>
