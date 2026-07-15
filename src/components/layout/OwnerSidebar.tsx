@@ -229,6 +229,7 @@ const FavoritesSection = () => {
   const { data: favorites = [], isLoading } = useFavoriteCastings();
   const reorder = useReorderFavoriteCastings();
   const [items, setItems] = useState<FavoriteCasting[]>(favorites);
+  const justDraggedRef = useRef(false);
 
   useEffect(() => {
     setItems(favorites);
@@ -242,8 +243,16 @@ const FavoritesSection = () => {
   const allHref = "/owner/castings?favorites=1";
   const displayed = items.slice(0, 8);
 
+  const handleDragStart = () => {
+    justDraggedRef.current = true;
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    // Keep the flag true briefly so the synthetic click after pointerup is suppressed
+    window.setTimeout(() => {
+      justDraggedRef.current = false;
+    }, 250);
     if (!over || active.id === over.id) return;
     const oldIndex = items.findIndex((i) => i.id === active.id);
     const newIndex = items.findIndex((i) => i.id === over.id);
@@ -253,6 +262,13 @@ const FavoritesSection = () => {
     reorder.mutate(next.map((i) => i.id));
   };
 
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (justDraggedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   return (
     <div className="mt-6">
       <div className="border-t border-white/10 mx-2 mb-3" />
@@ -260,13 +276,13 @@ const FavoritesSection = () => {
         <span className="text-sm font-medium text-white/40">Preferiti</span>
       </div>
 
-      <ul className="space-y-0.5 px-2">
+      <ul className="space-y-0.5 px-2" onClickCapture={handleClickCapture}>
         {isLoading ? (
           <li className="px-2 py-2 text-xs text-white/40">Caricamento…</li>
         ) : displayed.length === 0 ? (
           <li className="px-2 py-2 text-xs text-white/40">Nessun preferito</li>
         ) : (
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
             <SortableContext items={displayed.map((c) => c.id)} strategy={verticalListSortingStrategy}>
               {displayed.map((c) => (
                 <SortableFavoriteItem key={c.id} casting={c} />
@@ -274,6 +290,7 @@ const FavoritesSection = () => {
             </SortableContext>
           </DndContext>
         )}
+
 
         {favorites.length > 0 && (
           <li>
