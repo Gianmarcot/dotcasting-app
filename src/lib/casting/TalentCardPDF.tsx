@@ -30,7 +30,9 @@ const SANS = "DMSans";
 // Pagina orizzontale 16:9. Le 3 colonne occupano tutta l'altezza utile
 // della pagina; ogni colonna risulta quindi circa 9:16 in verticale.
 const PAGE_WIDTH = 842;
-const PAGE_HEIGHT = PAGE_WIDTH * (9 / 16);
+// 842 / 474 = 1.776: rapporto 16:9 approssimato con valori interi,
+// più stabile per il motore di layout di @react-pdf/renderer.
+const PAGE_HEIGHT = 474;
 const PAGE: [number, number] = [PAGE_WIDTH, PAGE_HEIGHT];
 const INK = "#1a1a1a";
 const PAGE_BG = "#FFFFFF"; // sfondo pagina e cornice
