@@ -219,7 +219,7 @@ const Sidebar = React.forwardRef<
     );
   }
 
-  const showResizeHandle = state === "expanded" && collapsible !== "none";
+  const showResizeHandle = state === "expanded";
 
   return (
     <div
