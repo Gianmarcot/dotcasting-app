@@ -12,7 +12,15 @@ export type CastingWithRelations = Tables<"castings"> & {
   confirmed_talents?: ConfirmedTalentThumb[];
 };
 
-export type CastingSort = "recent" | "company" | "status";
+export type CastingSort =
+  | "recent"
+  | "oldest"
+  | "title_asc"
+  | "title_desc"
+  | "start_date"
+  | "end_date"
+  | "company"
+  | "status";
 
 export type CastingFilters = {
   status?: string;
