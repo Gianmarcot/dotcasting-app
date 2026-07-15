@@ -101,6 +101,37 @@ const SidebarProvider = React.forwardRef<
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed";
 
+  // Resizable width state (desktop only). Falls back to MIN.
+  const [width, _setWidth] = React.useState<number>(SIDEBAR_WIDTH_MIN);
+
+  React.useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+      if (stored) {
+        const n = parseInt(stored, 10);
+        if (!Number.isNaN(n)) {
+          _setWidth(Math.min(SIDEBAR_WIDTH_MAX, Math.max(SIDEBAR_WIDTH_MIN, n)));
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const setWidth = React.useCallback((w: number) => {
+    const clamped = Math.min(SIDEBAR_WIDTH_MAX, Math.max(SIDEBAR_WIDTH_MIN, Math.round(w)));
+    _setWidth(clamped);
+    try {
+      window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(clamped));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const resetWidth = React.useCallback(() => {
+    setWidth(SIDEBAR_WIDTH_MIN);
+  }, [setWidth]);
+
   const contextValue = React.useMemo<SidebarContext>(
     () => ({
       state,
@@ -110,9 +141,16 @@ const SidebarProvider = React.forwardRef<
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      width,
+      setWidth,
+      resetWidth,
+      widthMin: SIDEBAR_WIDTH_MIN,
+      widthMax: SIDEBAR_WIDTH_MAX,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, width, setWidth, resetWidth],
   );
+
+  const sidebarWidthValue = isMobile ? SIDEBAR_WIDTH : `${width}px`;
 
   return (
     <SidebarContext.Provider value={contextValue}>
@@ -120,7 +158,7 @@ const SidebarProvider = React.forwardRef<
         <div
           style={
             {
-              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width": sidebarWidthValue,
               "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
               ...style,
             } as React.CSSProperties
@@ -136,6 +174,7 @@ const SidebarProvider = React.forwardRef<
   );
 });
 SidebarProvider.displayName = "SidebarProvider";
+
 
 const Sidebar = React.forwardRef<
   HTMLDivElement,
