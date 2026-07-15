@@ -907,57 +907,8 @@ const PatternsSection = () => (
       </a>
     </SubBlock>
 
-    <SubBlock title="Sidebar admin (mock)" source="src/components/layout/OwnerSidebar.tsx">
-      <div className="w-64 rounded-2xl overflow-hidden bg-[#1A1A1A] text-white/90 shadow-md">
-        <div className="p-6 flex items-center gap-3">
-          <div className="h-7 w-7 rounded-full bg-primary" />
-          <span className="text-xs font-display uppercase tracking-widest text-white/60">
-            Admin
-          </span>
-        </div>
-        <nav className="px-4 space-y-1">
-          {[
-            { icon: LayoutDashboard, label: "Dashboard", active: true },
-            { icon: Users, label: "Database talenti" },
-            { icon: Film, label: "Casting" },
-          ].map((it) => (
-            <div
-              key={it.label}
-              className={cn(
-                "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm",
-                it.active
-                  ? "bg-primary text-primary-foreground"
-                  : "text-white/70 hover:bg-white/10",
-              )}
-            >
-              <it.icon className="h-4 w-4" />
-              {it.label}
-            </div>
-          ))}
-        </nav>
-        <div className="mt-6">
-          <div className="border-t border-white/10 mx-2 mb-3" />
-          <div className="px-4 mb-2 text-xs uppercase tracking-wider text-white/40">
-            Preferiti
-          </div>
-          <div className="px-4 py-1.5 flex items-center gap-2 text-sm text-white/70">
-            <Star className="h-3.5 w-3.5 text-amber-400" fill="currentColor" />
-            <span className="truncate">Spot TV Brand di Moda</span>
-          </div>
-        </div>
-        <div className="p-4 mt-6 border-t border-white/10 flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              GA
-            </AvatarFallback>
-          </Avatar>
-          <div className="leading-tight">
-            <p className="text-sm text-white">Giulia</p>
-            <p className="text-sm text-white">Ameglio</p>
-          </div>
-        </div>
-      </div>
-    </SubBlock>
+
+
   </Section>
 );
 
