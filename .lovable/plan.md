@@ -1,38 +1,42 @@
 ## Problema
 
-Nel drawer di dettaglio talent vengono mostrate tutte le foto (fino a `2 + photoCount`, o tutte se il preset non ha limite), ma nel PDF alcune di queste stesse foto non compaiono. Due cause distinte, entrambe da risolvere:
+Nella preview di Corrie (talent reale con 5 foto) il PDF mostra due difetti che non si vedono nel talent mock:
 
-1. **Rendering fallito silenziosamente.** `resolvePhotoUrl` verifica solo che l'URL risponda, poi lascia scaricare l'immagine a `@react-pdf/renderer`. Se il secondo fetch (fatto da react-pdf con il suo path Buffer) fallisce per timeout/rate-limit/redirect/MIME non standard, la cella resta vuota senza errori.
+1. **Padding inferiore assente** nelle pagine galleria: le foto arrivano a filo del bordo pagina.
+2. **Pagine bianche extra** nel documento risultante.
 
-2. **Cap silenzioso lato PDF.** `resolveCard` limita le pagine galleria a `preset.photoCount` foto _oltre_ le 2 di copertina. Se il drawer mostra tutte le foto (perché il preset non impone un cap o perché il talent ne ha più del cap), il PDF ne omette una parte.
+## Causa
+
+In `TalentCardPDF.tsx` lo stile `s.cover` usa `width:"100%", height:"100%"` per l'`<Image />` dentro `s.col` (che ha `paddingVertical: 9`). Nel motore Yoga di `@react-pdf/renderer`:
+
+- `height:"100%"` risolve sull'altezza del padding-box del genitore, non del content-box → l'immagine "invade" il padding inferiore. Nella pagina di copertina il difetto è mascherato dal `View.panel` interno (che ha `flex:1` e forza il layout a rispettare il padding), ma nelle colonne foto pure diventa visibile.
+- Se una foto reale ha un intrinsic ratio molto diverso da 2:3, `objectFit:"cover"` in react-pdf non sempre clampa correttamente e il contenuto può eccedere l'altezza della Page 421pt, provocando auto-paginazione con Page bianche extra. Con le foto mock (ratio già compatibile) non succede; con quelle di Corrie sì.
 
 ## Soluzione
 
-Modifiche circoscritte a due file, nessuna modifica alla UI del drawer, al template PDF, allo schema DB.
+Un solo file toccato: `src/lib/casting/TalentCardPDF.tsx`. Nessuna modifica a preset, dati, generazione, UI drawer.
 
-### 1) `src/lib/casting/generateRound.tsx` — pre-download come data URL
+Sostituisco le dimensioni percentuali dell'immagine con altezza e larghezza numeriche esplicite, derivate dalle costanti già presenti:
 
-Sostituire `resolvePhotoUrl` con `fetchPhotoAsDataUrl(url)`:
-- prova prima l'URL trasformato, poi l'originale (stesso fallback attuale);
-- scarica il blob e lo converte in `data:<mime>;base64,...` con `FileReader`;
-- normalizza `image/jpg` → `image/jpeg`;
-- timeout 20s per candidato; ritorna `null` solo se entrambi falliscono davvero.
+```
+COL_OUTER_WIDTH   = (842 - 2*PAGE_PAD_X) / 3            // ≈ 277.67pt
+PHOTO_INNER_WIDTH  = COL_OUTER_WIDTH - 2*COL_PAD_X       // ≈ 268.67pt
+PHOTO_INNER_HEIGHT = PHOTO_INNER_WIDTH * 1.5             // ≈ 403pt (2:3)
+```
 
-Nel loop `generateRoundPdfs`, mappare `talent.photos` con la nuova funzione, filtrare i `null`, e passare i data URL a `resolveCard`. Così react-pdf non fa più network durante il rendering: se la foto è nel drawer, sarà nel PDF.
+Cambio `s.cover` da `{ width:"100%", height:"100%", objectFit:"cover" }` a `{ width: PHOTO_INNER_WIDTH, height: PHOTO_INNER_HEIGHT, objectFit:"cover" }`. Aggiungo `overflow:"hidden"` a `s.col` come cintura di sicurezza contro eventuali arrotondamenti che spingono l'immagine di frazioni di pt oltre il box.
 
-### 2) `src/lib/casting/roundPreset.ts` — allineare il cap del PDF a quello del drawer
-
-Il drawer usa `2 + photoCount` come cap totale (cover incluse). Il PDF invece usa `photoCount` come cap _solo sulla galleria_, oltre alle 2 cover: totali diversi quando il talent ha molte foto.
-
-Cambiare `resolveCard` in modo che `photoCount` (quando definito) rappresenti il **totale** di foto (cover + gallery), coerente col drawer:
-- `coverPhotos` = prime 2 (invariato);
-- `gallery` = `talent.photos.slice(2, photoCount ?? Infinity)`;
-- se `photoCount == null` → nessun cap, come oggi nel drawer.
-
-Aggiornare il commento del campo `photoCount` in `RoundPreset` per riflettere il nuovo significato (totale foto, non solo galleria). Verificare che l'unico consumer sia `resolveCard` — nessun altro codice attualmente moltiplica/somma su `photoCount`.
+Effetti:
+- L'immagine ha un box fisso che non entra in conflitto col padding del genitore → margine bianco uniforme su tutti e 4 i lati, sia in copertina sia in galleria.
+- Il contenuto della Page non può più eccedere l'altezza di 421pt → niente pagine bianche generate da auto-paginazione.
+- La cover del pannello centrale non è toccata (`s.panel` continua a usare `flex:1`).
 
 ## Verifica
 
-- Rigenerare un invio esistente e controllare che ogni foto visibile nel drawer sia presente nel PDF (numero e ordine).
-- Talent con foto irraggiungibile lato Storage: la cella resta vuota (nessun "buco nero"), le altre foto restano visibili, generazione non si interrompe.
-- Test con talent che ha più foto del `photoCount`: drawer e PDF ora mostrano lo stesso numero di foto.
+1. In `/dev/card-preview`, generare la versione **Corrie (reale)** con preset Completo.
+2. Confermare visivamente:
+   - stessa pagina di copertina di prima, con padding corretto sui 4 lati delle due foto laterali;
+   - pagina galleria unica con 3 foto affiancate, padding bianco identico su tutti e 4 i lati;
+   - nessuna pagina bianca dopo l'ultima galleria.
+3. Provare anche il preset Essenziale (photoCount = 3) e il mock talent per assicurarsi che nulla regredisca.
+4. QA con `pdftoppm -jpeg -r 150` sul PDF scaricato per un controllo pixel-level dei margini.
