@@ -116,8 +116,14 @@ export const OwnerSidebar = () => {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onDoubleClick={resetWidth}
-        className="absolute top-0 right-0 z-50 hidden md:block h-full w-2 cursor-col-resize touch-none select-none after:absolute after:top-0 after:right-0 after:h-full after:w-px after:bg-white/10 hover:after:bg-white/40 after:transition-colors"
-      />
+        className="group absolute top-0 right-0 z-50 hidden md:flex h-full w-2 cursor-col-resize touch-none select-none items-center justify-center"
+      >
+        <span
+          aria-hidden
+          className="block h-10 w-[3px] rounded-full bg-white/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-active:opacity-100"
+        />
+      </div>
+
 
 
       {/* Logo */}
