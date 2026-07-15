@@ -1,49 +1,40 @@
 ## Obiettivo
-Allineare la pagina `/owner/castings/:castingId/:roleId` (dettaglio ruolo con selezione talent) al Design System già usato in `OwnerCastings` e `OwnerCastingDetail`. Solo presentazione, nessun cambio di logica o schema.
+Verificare end-to-end il flusso di invito e accettazione di un nuovo membro team, individuando eventuali bug prima della demo.
 
-## Modifiche
+## Scenari da testare (via Playwright headless sul preview locale)
 
-### 1. Header (in `src/pages/owner/OwnerCastingRoleDetail.tsx`)
-Riprodurre la stessa struttura del casting detail:
-- Back button: `Button variant="ghost" size="sm"` con label "Torna al casting", `-ml-2` (già presente, invariato).
-- Titolo ruolo: `font-display uppercase text-3xl tracking-wide text-foreground` (attualmente `text-2xl` senza display font).
-- Descrizione: `text-sm text-muted-foreground max-w-3xl whitespace-pre-wrap`.
-- Metadata row: sostituire le "pill" custom (`bg-muted rounded-full px-3 py-1`) con la stessa `flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground` del casting detail, usando icone inline (`Users`, `MapPin`, `Wallet`) senza pillole colorate.
-- Skills come pill neutre inline nella stessa riga.
-- CTA a destra: `Button size="md" iconPosition="left"` per "Aggiungi talent", coerente col pulsante "Nuovo ruolo" del casting detail.
+### A. Creazione invito (owner autenticato)
+1. Login come utente owner corrente (sessione già iniettata nel sandbox).
+2. Naviga a `/owner/settings` → sezione "Gestione team".
+3. Click "Invita membro" → inserisce email test unica (es. `test+<timestamp>@dotcasting.dev`) e ruolo `editor`.
+4. Verifica: 
+   - dialog "Invito creato" mostra un link `/accept-invitation?token=...`;
+   - la riga appare in "Inviti in sospeso" con badge ruolo e data scadenza;
+   - copia link funziona (clipboard).
 
-### 2. Nuovo componente `RoleTalentRow`
-Creare `src/components/castings/RoleTalentRow.tsx` prendendo come base `CastingRow.tsx`:
-- Struttura `div role="button"` con `grid grid-cols-[80px_1fr_160px_160px_140px] items-center gap-4 px-4 py-4 border-b border-border/40 last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors group`. Altezza riga leggermente maggiore per accogliere la foto portrait (~112px).
-- **Colonna 1 — Foto portrait**: `div` `w-20 aspect-[2/3] rounded-xl overflow-hidden bg-muted` con `<img className="w-full h-full object-cover" />` per la foto profilo. Fallback: iniziali centrate su `bg-muted text-muted-foreground text-sm font-medium`. Sostituisce l'`Avatar` circolare.
-- **Colonna 2 — Anagrafica**: nome (`font-medium`) + subtitle (`text-sm text-muted-foreground`: età · città · data d'aggiunta).
-- **Colonna 3/4 — Status pill** "Con il talent" / "Con l'azienda": mantenere i `Select` esistenti, spostare i componenti helper (`TalentStatusSelect`, `CompanyStatusSelect`) dentro il nuovo file per riuso.
-- **Colonna 5 — Azioni** allineate a destra, revealed on hover come `CastingRow`:
-  - Send/Resend invito → `Button variant="ghost" size="icon-md"` (rimuovere lo sfondo primary attuale — non è pattern DS per icon actions in riga).
-  - Messaggio → `variant="ghost" size="icon-md"`.
-  - Rimuovi → `variant="ghost" size="icon-md"` con classe destructive.
-  - `ChevronRight` sempre visibile a fine riga.
-- Click sulla riga (fuori dai controlli): apre il profilo talent (`/owner/talents/:profileId`). Celle status/actions usano `e.stopPropagation()`.
+### B. Validazioni edge function `invite-team-member`
+5. Ritentare invito con stessa email → deve revocare il precedente pending e creare uno nuovo (verifico che ci sia una sola riga pending finale).
+6. Invitare email malformata → toast di errore "Email non valida".
+7. Invitare email di un membro già esistente (l'owner stesso) → errore "Esiste già un utente".
 
-### 3. Wrapping list
-In `OwnerCastingRoleDetail.tsx`, sostituire `<Card><CardContent><table>` con:
-```
-<div className="dc-card overflow-hidden p-6">
-  <div className="grid grid-cols-[80px_1fr_160px_160px_140px] gap-4 px-4 pb-3 text-xs uppercase tracking-wider text-muted-foreground">
-    <span></span><span>Talent</span><span>Con il talent</span><span>Con l'azienda</span><span className="text-right">Azioni</span>
-  </div>
-  {talents.map(rt => <RoleTalentRow ... />)}
-</div>
-```
-Stesso padding `p-6` del box casting in `OwnerCastings.tsx`, stessa gestione bordi (nessun divider sopra all'header colonne, nessun bordo inferiore sull'ultima riga).
+### C. Accettazione invito
+8. Apri il link `/accept-invitation?token=...` in contesto anonimo (nuovo context Playwright).
+9. Verifica che `get_invitation_by_token` restituisca stato `pending`, email e ruolo corretti.
+10. Completa il form di signup con password → deve chiamare `accept-team-invitation` e loggare il nuovo utente.
+11. Verifica redirect a dashboard owner e presenza del nuovo user in `list_team_members()`.
 
-### 4. Empty state
-Sostituire il blocco `text-center py-12` con un `dc-card p-10 text-center text-muted-foreground` + `Button variant="secondary" size="md"` — stesso pattern dello stato vuoto dei ruoli in `OwnerCastingDetail`.
+### D. Revoca e rimozione
+12. Da settings, revoca un invito pending → sparisce dalla lista, DB `status=revoked`.
+13. Rimuovi il nuovo membro appena creato → non compare più tra i membri attivi; riprova rimozione dell'ultimo admin → deve fallire con messaggio dedicato.
 
-### 5. Pulizia
-Rimuovere da `OwnerCastingRoleDetail.tsx`: import `Card`, `CardContent`, `Separator`, `Avatar`, `getInitialColor`, palette hardcoded. Rimuovere il fallback `bg-primary` custom sui bottoni invito.
+### E. Log e side-effects
+14. Ispeziona `edge_function_logs` per `invite-team-member` e `accept-team-invitation` durante i test — cerco 4xx/5xx.
+15. Query di controllo: `select email, status, expires_at from team_invitations order by created_at desc limit 5;`.
 
-## Note
-- Nessun cambio a hook, RPC, tipi o RLS.
-- Le opzioni/colori dei due status pill restano quelle definite in `TALENT_STATUS_OPTIONS` / `COMPANY_STATUS_OPTIONS`.
-- Nessuna modifica al `AddTalentToRoleDialog`.
+## Output atteso
+Report sintetico con: passi eseguiti, screenshot chiave (dialog invito + accettazione + lista aggiornata), errori riscontrati e proposte di fix puntuali. Nessuna modifica di codice o schema in questo passaggio: solo test + report; eventuali fix verranno pianificati a valle in base a ciò che emerge.
+
+## Note tecniche
+- Uso Playwright con sessione Supabase già iniettata (`LOVABLE_BROWSER_SUPABASE_*`).
+- Le email di test resteranno nel DB come "revoked" o utenti orfani: se serve, posso aggiungere uno step finale di cleanup (`delete from team_invitations where email like 'test+%dotcasting.dev'` + `auth.admin.deleteUser` per l'utente creato).
+- Nessun invio email reale: il flusso si basa sul link mostrato in dialog.
