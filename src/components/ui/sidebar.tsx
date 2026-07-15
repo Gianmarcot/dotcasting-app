@@ -18,6 +18,9 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+const SIDEBAR_WIDTH_MIN = 256;
+const SIDEBAR_WIDTH_MAX = 384;
+const SIDEBAR_WIDTH_STORAGE_KEY = "dc.sidebar.width";
 
 type SidebarContext = {
   state: "expanded" | "collapsed";
@@ -27,7 +30,13 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  width: number;
+  setWidth: (w: number) => void;
+  resetWidth: () => void;
+  widthMin: number;
+  widthMax: number;
 };
+
 
 const SidebarContext = React.createContext<SidebarContext | null>(null);
 
