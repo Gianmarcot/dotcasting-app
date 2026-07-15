@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -11,6 +12,7 @@ import {
   LogOut,
   Star,
   ChevronRight,
+  GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,9 +20,27 @@ import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
-import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
+import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import logoWhite from "@/assets/logo-white.png";
+
 
 const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
