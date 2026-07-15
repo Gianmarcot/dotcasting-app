@@ -126,7 +126,7 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
         <div className="px-4 pb-4 space-y-3 border-t pt-3">
           <div className="flex justify-end">
             <Button size="sm" variant="outline" onClick={regenerate} disabled={!!regenerating}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${regenerating ? "animate-spin" : ""}`} />
+              <RefreshCw className={`h-4 w-4 ${regenerating ? "animate-spin" : ""}`} />
               Rigenera con dati attuali
             </Button>
           </div>
