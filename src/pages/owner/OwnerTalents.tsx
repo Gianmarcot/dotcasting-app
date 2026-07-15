@@ -185,8 +185,9 @@ export const OwnerTalents = () => {
         </div>
       )}
 
-      {/* Content container */}
-      <div className="dc-card overflow-hidden p-6">
+      {/* Content */}
+      <div>
+
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
