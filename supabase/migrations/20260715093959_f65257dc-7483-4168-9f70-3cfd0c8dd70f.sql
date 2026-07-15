@@ -1,0 +1,1 @@
+ALTER TABLE public.castings ADD COLUMN IF NOT EXISTS favorite_order integer;

@@ -479,6 +479,7 @@ export type Database = {
           currency: string | null
           description: string | null
           end_date: string | null
+          favorite_order: number | null
           id: string
           is_favorite: boolean
           locations: string[] | null
@@ -499,6 +500,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           end_date?: string | null
+          favorite_order?: number | null
           id?: string
           is_favorite?: boolean
           locations?: string[] | null
@@ -519,6 +521,7 @@ export type Database = {
           currency?: string | null
           description?: string | null
           end_date?: string | null
+          favorite_order?: number | null
           id?: string
           is_favorite?: boolean
           locations?: string[] | null

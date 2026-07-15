@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -11,6 +12,7 @@ import {
   LogOut,
   Star,
   ChevronRight,
+  GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -18,9 +20,27 @@ import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
-import { useFavoriteCastings } from "@/hooks/useFavoriteCastings";
+import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import logoWhite from "@/assets/logo-white.png";
+
 
 const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
@@ -151,11 +171,32 @@ export const OwnerSidebar = () => {
 };
 
 const FavoritesSection = () => {
-  const { pathname } = useLocation();
   const { data: favorites = [], isLoading } = useFavoriteCastings();
+  const reorder = useReorderFavoriteCastings();
+  const [items, setItems] = useState<FavoriteCasting[]>(favorites);
+
+  useEffect(() => {
+    setItems(favorites);
+  }, [favorites]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const allHref = "/owner/castings?favorites=1";
-  const displayed = favorites.slice(0, 8);
+  const displayed = items.slice(0, 8);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(items, oldIndex, newIndex);
+    setItems(next);
+    reorder.mutate(next.map((i) => i.id));
+  };
 
   return (
     <div className="mt-6">
@@ -164,38 +205,26 @@ const FavoritesSection = () => {
         <span className="text-sm font-medium text-white/40">Preferiti</span>
       </div>
 
-      <ul className="space-y-0.5">
+      <ul className="space-y-0.5 px-2">
         {isLoading ? (
-          <li className="px-4 py-2 text-xs text-white/40">Caricamento…</li>
+          <li className="px-2 py-2 text-xs text-white/40">Caricamento…</li>
         ) : displayed.length === 0 ? (
-          <li className="px-4 py-2 text-xs text-white/40">Nessun preferito</li>
+          <li className="px-2 py-2 text-xs text-white/40">Nessun preferito</li>
         ) : (
-          displayed.map((c) => {
-            const href = `/owner/castings/${c.id}`;
-            const active = pathname === href || pathname.startsWith(href + "/");
-            return (
-              <li key={c.id}>
-                <Link
-                  to={href}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-1.5 text-sm transition-colors",
-                    active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white",
-                  )}
-                  title={c.title}
-                >
-                  <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" fill="currentColor" />
-                  <span className="truncate">{c.title}</span>
-                </Link>
-              </li>
-            );
-          })
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={displayed.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+              {displayed.map((c) => (
+                <SortableFavoriteItem key={c.id} casting={c} />
+              ))}
+            </SortableContext>
+          </DndContext>
         )}
 
         {favorites.length > 0 && (
           <li>
             <Link
               to={allHref}
-              className="flex items-center justify-between gap-2 px-4 py-1.5 text-sm font-medium text-white/50 hover:text-white transition-colors"
+              className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-md text-sm font-medium text-white/50 hover:text-white transition-colors"
             >
               <span>Visualizza tutti</span>
               <ChevronRight className="h-3.5 w-3.5" />
@@ -206,4 +235,45 @@ const FavoritesSection = () => {
     </div>
   );
 };
+
+const SortableFavoriteItem = ({ casting }: { casting: FavoriteCasting }) => {
+  const { pathname } = useLocation();
+  const href = `/owner/castings/${casting.id}`;
+  const active = pathname === href || pathname.startsWith(href + "/");
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: casting.id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <li ref={setNodeRef} style={style} className={cn("group/fav relative", isDragging && "z-10 opacity-80")}>
+      <Link
+        to={href}
+        className={cn(
+          "flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-md text-sm transition-colors",
+          active ? "bg-white/10 text-white" : "text-white/70 hover:bg-white/10 hover:text-white",
+        )}
+        title={casting.title}
+      >
+        <button
+          type="button"
+          aria-label="Riordina"
+          {...attributes}
+          {...listeners}
+          onClick={(e) => e.preventDefault()}
+          className="shrink-0 -ml-1 mr-0.5 h-4 w-4 flex items-center justify-center text-white/30 opacity-0 group-hover/fav:opacity-100 cursor-grab active:cursor-grabbing transition-opacity"
+        >
+          <GripVertical className="h-3.5 w-3.5" />
+        </button>
+        <Star className="h-3.5 w-3.5 shrink-0 text-amber-400" fill="currentColor" />
+        <span className="truncate">{casting.title}</span>
+      </Link>
+    </li>
+  );
+};
+
 
