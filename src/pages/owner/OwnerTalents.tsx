@@ -9,6 +9,7 @@ import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Select,
@@ -17,11 +18,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, UserPlus, X, LayoutGrid, List } from "lucide-react";
+import { Users, UserPlus, X, LayoutGrid, List, Search } from "lucide-react";
 
 type ViewMode = "board" | "portfolio";
 const VIEW_STORAGE_KEY = "owner-talents-view-mode";
-
 
 // Human-readable labels for filter chips
 const FILTER_LABELS: Record<string, string> = {
@@ -76,7 +76,6 @@ export const OwnerTalents = () => {
   }, [viewMode]);
 
   const handleSelectTalent = (talent: TalentWithAttributes) => {
-    console.log("[OwnerTalents] onSelectTalent", talent.id, talent);
     setSelectedTalent(talent);
     setDialogOpen(true);
   };
@@ -84,7 +83,6 @@ export const OwnerTalents = () => {
   const { data: talents, isLoading } = useTalents(filters);
   const { data: totalCount } = useTalentCount();
 
-  // Active filter chips (exclude search)
   const activeChips = useMemo(() => {
     return Object.entries(filters)
       .filter(([k, v]) => k !== "search" && v !== undefined && v !== "" && v !== null)
@@ -101,126 +99,120 @@ export const OwnerTalents = () => {
     setFilters(next);
   };
 
-  // Sort talents
   const sortedTalents = useMemo(() => {
     if (!talents) return [];
     const arr = [...talents];
     if (sortBy === "name") {
-      arr.sort((a, b) =>
-        (a.first_name || "").localeCompare(b.first_name || "")
-      );
+      arr.sort((a, b) => (a.first_name || "").localeCompare(b.first_name || ""));
     }
-    // "recent" is default from DB order
     return arr;
   }, [talents, sortBy]);
 
+  const count = sortedTalents.length;
+  const countLabel = isLoading
+    ? "Caricamento..."
+    : `${count} ${count === 1 ? "talent" : "talent"} trovat${count === 1 ? "o" : "i"}${
+        totalCount ? ` su ${totalCount}` : ""
+      }`;
+
   return (
-    <div className="animate-fade-up">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl text-foreground">
-            {it.backoffice.talentDatabase}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Cerca e gestisci i talenti registrati
-          </p>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Nuovo Talent
+    <div className="space-y-6 animate-fade-up">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl text-foreground">{it.backoffice.talentDatabase}</h1>
+        <Button size="md" iconPosition="left" onClick={() => setCreateDialogOpen(true)}>
+          <UserPlus className="h-5 w-5 mr-2" />
+          Nuovo talent
         </Button>
       </div>
 
-      {/* Filters bar */}
+      {/* Toolbar: search left, count + sort + view right */}
+      <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+        <div className="relative w-full sm:max-w-[450px] sm:flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Input
+            placeholder="Cerca per nome"
+            value={filters.search || ""}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
+            className="pl-10 rounded-full"
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">{countLabel}</span>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-52 rounded-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Più recenti</SelectItem>
+              <SelectItem value="name">Nome A–Z</SelectItem>
+            </SelectContent>
+          </Select>
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(v) => v && setViewMode(v as ViewMode)}
+            className="gap-1"
+          >
+            <ToggleGroupItem value="board" aria-label="Vista Board" className="h-12 w-12 p-0 rounded-full">
+              <LayoutGrid className="h-5 w-5" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="portfolio" aria-label="Vista Portfolio" className="h-12 w-12 p-0 rounded-full">
+              <List className="h-5 w-5" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      </div>
+
+      {/* Filters row */}
       <TalentFilterBar filters={filters} onFiltersChange={setFilters} />
 
-      <div className="mt-6">
-        <div className="flex-1 min-w-0">
-          {/* Top bar: count + sort + view toggle */}
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-muted-foreground">
-              {isLoading
-                ? "Caricamento..."
-                : `${talents?.length || 0} talent trovati${totalCount ? ` su ${totalCount}` : ""}`}
-            </p>
-            <div className="flex items-center gap-2">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[160px] h-9 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recent">Più recenti</SelectItem>
-                  <SelectItem value="name">Nome A–Z</SelectItem>
-                </SelectContent>
-              </Select>
-              <ToggleGroup
-                type="single"
-                value={viewMode}
-                onValueChange={(v) => v && setViewMode(v as ViewMode)}
-                className="h-9"
-              >
-                <ToggleGroupItem value="board" aria-label="Vista Board" className="h-9 w-9 p-0">
-                  <LayoutGrid className="h-4 w-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="portfolio" aria-label="Vista Portfolio" className="h-9 w-9 p-0">
-                  <List className="h-4 w-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-          </div>
-
-
-          {/* Active filter chips */}
-          {activeChips.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {activeChips.map((chip) => (
-                <Badge
-                  key={chip.key}
-                  variant="secondary"
-                  className="gap-1 pr-1 cursor-pointer"
-                  onClick={() => removeFilter(chip.key)}
-                >
-                  {chip.label}: {chip.value}
-                  <X className="h-3 w-3 ml-1" />
-                </Badge>
-              ))}
-            </div>
-          )}
-
-          {/* Loading state */}
-          {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <Skeleton key={i} className="h-[140px] rounded-lg" />
-              ))}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {!isLoading && sortedTalents.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">
-                Nessun talent trovato
-              </h3>
-              <p className="text-muted-foreground">
-                {activeChips.length > 0 || filters.search
-                  ? "Prova a modificare i filtri di ricerca"
-                  : "I talent appariranno qui dopo aver completato l'onboarding"}
-              </p>
-            </div>
-          )}
-
-          {/* Talent views */}
-          {!isLoading && sortedTalents.length > 0 && (
-            viewMode === "board" ? (
-              <TalentBoardGrid talents={sortedTalents} onSelectTalent={handleSelectTalent} />
-            ) : (
-              <TalentPortfolioList talents={sortedTalents} onSelectTalent={handleSelectTalent} />
-            )
-          )}
-
+      {/* Active filter chips */}
+      {activeChips.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {activeChips.map((chip) => (
+            <Badge
+              key={chip.key}
+              variant="secondary"
+              className="gap-1 pr-1 cursor-pointer"
+              onClick={() => removeFilter(chip.key)}
+            >
+              {chip.label}: {chip.value}
+              <X className="h-4 w-4 ml-1" />
+            </Badge>
+          ))}
         </div>
+      )}
+
+      {/* Content container */}
+      <div className="dc-card overflow-hidden p-6">
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-[140px] rounded-lg" />
+            ))}
+          </div>
+        ) : sortedTalents.length === 0 ? (
+          <div className="text-center py-12">
+            <Users className="h-5 w-5 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">Nessun talent trovato</h3>
+            <p className="text-muted-foreground mb-4">
+              {activeChips.length > 0 || filters.search
+                ? "Prova a modificare i filtri di ricerca"
+                : "I talent appariranno qui dopo aver completato l'onboarding"}
+            </p>
+            {activeChips.length === 0 && !filters.search && (
+              <Button variant="secondary" size="md" onClick={() => setCreateDialogOpen(true)}>
+                Nuovo talent
+              </Button>
+            )}
+          </div>
+        ) : viewMode === "board" ? (
+          <TalentBoardGrid talents={sortedTalents} onSelectTalent={handleSelectTalent} />
+        ) : (
+          <TalentPortfolioList talents={sortedTalents} onSelectTalent={handleSelectTalent} />
+        )}
       </div>
 
       <TalentPreviewDrawer
@@ -229,10 +221,7 @@ export const OwnerTalents = () => {
         onOpenChange={setDialogOpen}
       />
 
-      <CreateTalentDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-      />
+      <CreateTalentDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </div>
   );
 };

@@ -13,7 +13,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Search, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+
 import { TalentFilters } from "@/hooks/useTalents";
 import {
   GENDERS,
@@ -57,14 +58,14 @@ interface FilterGroupProps {
 const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="outline" size="sm" className="h-9 gap-1.5 text-sm font-normal">
+      <Button variant="secondary" size="lg" className="gap-2 font-normal">
         {label}
         {count > 0 && (
           <Badge className="h-5 min-w-[20px] px-1.5 text-[10px] bg-primary text-primary-foreground">
             {count}
           </Badge>
         )}
-        <ChevronDown className="h-3.5 w-3.5 opacity-50" />
+        <ChevronDown className="h-5 w-5 opacity-50" />
       </Button>
     </PopoverTrigger>
     <PopoverContent align="start" className={wide ? "w-[340px] p-4" : "w-[280px] p-4"}>
@@ -74,6 +75,7 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
     </PopoverContent>
   </Popover>
 );
+
 
 export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarProps) => {
   const set = (partial: Partial<TalentFilters>) =>
@@ -98,20 +100,8 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   };
 
   return (
-    <div className="space-y-2">
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-        <Input
-          placeholder="Cerca per nome..."
-          className="pl-10 text-sm h-9"
-          value={filters.search || ""}
-          onChange={(e) => set({ search: e.target.value })}
-        />
-      </div>
+    <div className="flex flex-wrap items-center gap-2">
 
-      {/* Filter buttons */}
-      <div className="flex flex-wrap items-center gap-2">
       {/* Ruolo */}
       <FilterGroup label="Ruolo" count={groupCounts.role}>
         <div>
@@ -335,11 +325,11 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
 
       {/* Reset */}
       {hasAny && (
-        <button onClick={clearAll} className="text-xs text-primary hover:underline ml-1">
+        <button onClick={clearAll} className="text-sm text-primary hover:underline ml-1">
           Reset
         </button>
       )}
-      </div>
     </div>
   );
 };
+
