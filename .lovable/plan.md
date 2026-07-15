@@ -1,21 +1,35 @@
-## Modifiche a `src/pages/owner/OwnerCastings.tsx` e `src/components/castings/CastingRow.tsx`
+## Modifiche a hover liste, radius preferiti e drag & drop preferiti sidebar
 
-Solo presentazione, nessuna logica.
+### 1. Hover più leggero sulle liste nei box
+Ridurre l'opacità del background hover nelle righe di elenco all'interno dei box `.dc-card`:
 
-### 1. Padding del box coerente con i ruoli
-In `OwnerCastings.tsx` (riga 126) cambiare il container della lista:
-- Da: `<div className="dc-card overflow-hidden p-2">`
-- A: `<div className="dc-card overflow-hidden p-6">` (stesso padding di `RoleRoundsCompartment`)
+- `src/components/castings/CastingRow.tsx` (riga 55): `hover:bg-muted/50` → `hover:bg-muted/30`
+- `src/components/castings/rounds/RoleRoundRow.tsx`: `hover:bg-muted/50` → `hover:bg-muted/30`
 
-Adattare anche il padding interno degli stati di loading/empty per allinearsi (rimuovere `p-2` ridondante nel blocco skeleton).
+Solo queste due righe (le liste principali dentro i box). Gli altri hover restano invariati.
 
-### 2. Rimuovere il primo divider
-Nell'header di colonna (riga 136), rimuovere `border-b border-border/60`:
-- Da: `... py-2 text-sm font-medium text-muted-foreground border-b border-border/60`
-- A: `... py-2 text-sm font-medium text-muted-foreground`
+### 2. Border radius `md` sui link della lista Preferiti (sidebar)
+In `src/components/layout/OwnerSidebar.tsx` (FavoritesSection):
 
-### 3. Rimuovere l'ultimo divider
-In `CastingRow.tsx` (riga 55), aggiungere `last:border-b-0` alla className della riga, così l'ultima riga della lista non mostra la linea inferiore:
-- `... border-b border-border/40 last:border-b-0 ...`
+- Aggiungere `rounded-md` alle classi dei `<Link>` delle voci preferite e del link "Visualizza tutti".
+- Rientrare leggermente la lista con `px-2` sull'`<ul>` così i background hover/active arrotondati non toccano i bordi della sidebar (i link mantengono padding orizzontale ridotto: `px-2` invece di `px-4`, allineati visivamente all'header "Preferiti").
 
-Risultato: box con padding `p-6` come il box dei ruoli, nessuna hairline sopra la prima riga né sotto l'ultima; i divider tra le righe restano invariati.
+### 3. Drag & drop dei Preferiti nella sidebar
+Rendere l'ordine dei preferiti riordinabile persistendo la scelta nel backend.
+
+**Backend (Lovable Cloud)**
+- Migration: aggiungere colonna `favorite_order integer` a `public.castings` (default null). Nessuna nuova policy/GRANT necessaria: si sfruttano quelle esistenti su `castings`.
+
+**Hook**
+- `src/hooks/useFavoriteCastings.ts`: cambiare `order` a `favorite_order asc nullsLast, updated_at desc` per usare il nuovo campo con fallback ordinato.
+- Nuovo hook `useReorderFavoriteCastings` (mutation) che riceve la nuova lista di id e fa update batch di `favorite_order` (indice progressivo) usando `supabase.from("castings").update(...).eq("id", ...)` in Promise.all, poi invalida `["favorite-castings"]`.
+
+**UI**
+- In `FavoritesSection` (`OwnerSidebar.tsx`):
+  - Stato locale `items` sincronizzato con `favorites`.
+  - Avvolgere la lista in `DndContext` + `SortableContext` (verticale) di `@dnd-kit/sortable` (già installato).
+  - Estrarre il singolo `<li>` in un componente `SortableFavoriteItem` che usa `useSortable`: applica `transform`/`transition` inline, mostra il cursore `grab`/`grabbing`, e aggiunge un piccolo handle icona (`GripVertical` lucide) visibile in hover a sinistra della stella.
+  - `onDragEnd`: `arrayMove` sugli items e chiama la mutation di reorder.
+  - "Visualizza tutti" resta fuori dal contesto sortable.
+
+Il drag riguarda solo la sezione Preferiti della sidebar; nessuna modifica a comportamento o UI della pagina Casting.
