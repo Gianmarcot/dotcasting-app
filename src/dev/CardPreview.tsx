@@ -86,7 +86,7 @@ export default function CardPreview() {
         });
 
         const arrayBuffer = await blob.arrayBuffer();
-          const doc = await pdfjsLib.getDocument({ data: arrayBuffer, disableWorker: true }).promise;
+          const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const rendered: string[] = [];
         for (let i = 1; i <= doc.numPages; i++) {
           const page = await doc.getPage(i);
