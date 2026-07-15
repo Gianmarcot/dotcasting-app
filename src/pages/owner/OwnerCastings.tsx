@@ -123,39 +123,41 @@ export const OwnerCastings = () => {
         onSortChange={setSort}
       />
 
-      {isLoading ? (
-        <div className="space-y-1">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 w-full" />
-          ))}
-        </div>
-      ) : castings && castings.length > 0 ? (
-        <div>
-          {/* Column header */}
-          <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
-            <span />
-            <span>Titolo</span>
-            <span>Selezione</span>
-            <span>Stato</span>
-            <span />
+      <div className="dc-card overflow-hidden p-2">
+        {isLoading ? (
+          <div className="space-y-1 p-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))}
           </div>
-          {castings.map((casting) => (
-            <CastingRow
-              key={casting.id}
-              casting={casting}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>Nessun casting trovato</p>
-          <Button variant="secondary" size="md" onClick={handleCreate} className="mt-4">
-            Crea il tuo primo casting
-          </Button>
-        </div>
-      )}
+        ) : castings && castings.length > 0 ? (
+          <div>
+            {/* Column header */}
+            <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
+              <span />
+              <span>Titolo</span>
+              <span>Selezione</span>
+              <span>Stato</span>
+              <span />
+            </div>
+            {castings.map((casting) => (
+              <CastingRow
+                key={casting.id}
+                casting={casting}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-muted-foreground">
+            <p>Nessun casting trovato</p>
+            <Button variant="secondary" size="md" onClick={handleCreate} className="mt-4">
+              Crea il tuo primo casting
+            </Button>
+          </div>
+        )}
+      </div>
 
       <CastingFormDialog
         casting={selectedCasting}

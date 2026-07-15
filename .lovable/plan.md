@@ -1,15 +1,12 @@
-## Diagnosi
+## Modifica
 
-Le modifiche a `TalentCardPDF.tsx` (righe 45-68) sono già in file, ma "Ricarica PDF" nel dev tool ricrea solo il PDF a partire dallo stesso modulo caricato in memoria. Se Vite HMR non ha ancora invalidato il dynamic import di `TalentCardPDF`, il render usa la versione vecchia e vedi il layout di prima.
+Nella pagina `/owner/castings` (`src/pages/owner/OwnerCastings.tsx`), wrappare l'intera tabella (header colonne + righe `CastingRow`) in un contenitore bianco con lo stile `.dc-card` (sfondo bianco, `rounded-3xl`, `shadow-sm`), coerente con le altre superfici del design system.
 
-## Azione
+## Dettagli
 
-Nessuna modifica al codice — il fix è già applicato. Devi solo forzare Vite a ricaricare il modulo:
+- Avvolgere il blocco `<div>` che contiene l'header a griglia e il map dei `CastingRow` in un `<div className="dc-card overflow-hidden">`.
+- Rimuovere il `border-b` inferiore dall'ultima riga se necessario per un bordo pulito dentro il box.
+- Filtri (`CastingFilters`) e header pagina restano fuori dal box, sullo sfondo cream come ora.
+- Lo stato vuoto ("Nessun casting trovato") e gli skeleton di caricamento vengono anch'essi inseriti nel box bianco per coerenza.
 
-1. **Hard reload della pagina** `/dev/card-preview` (Cmd/Ctrl + Shift + R su Chrome/Firefox).
-2. Riseleziona **Corrie (reale)** + preset **Completo**.
-3. Attendi la generazione e verifica visivamente:
-   - Padding bianco uniforme sui 4 lati di ogni foto (cover e galleria).
-   - Nessuna pagina bianca dopo l'ultima galleria.
-
-Se dopo l'hard reload il layout è ancora quello vecchio, riportamelo: significa che il fix a `s.cover` non è sufficiente e serve indagare oltre (es. `objectFit:"cover"` in react-pdf con foto dal ratio molto diverso da 2:3, o un secondo path di rendering).
+Nessun cambio di logica, solo presentazione.
