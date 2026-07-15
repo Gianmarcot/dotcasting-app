@@ -123,9 +123,9 @@ export const OwnerCastings = () => {
         onSortChange={setSort}
       />
 
-      <div className="dc-card overflow-hidden p-2">
+      <div className="dc-card overflow-hidden p-6">
         {isLoading ? (
-          <div className="space-y-1 p-2">
+          <div className="space-y-1">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-14 w-full" />
             ))}
@@ -133,7 +133,7 @@ export const OwnerCastings = () => {
         ) : castings && castings.length > 0 ? (
           <div>
             {/* Column header */}
-            <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
+            <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground">
               <span />
               <span>Titolo</span>
               <span>Selezione</span>
