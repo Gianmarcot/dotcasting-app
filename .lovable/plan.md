@@ -1,12 +1,21 @@
-## Modifica
+## Modifiche a `src/pages/owner/OwnerCastings.tsx` e `src/components/castings/CastingRow.tsx`
 
-Nella pagina `/owner/castings` (`src/pages/owner/OwnerCastings.tsx`), wrappare l'intera tabella (header colonne + righe `CastingRow`) in un contenitore bianco con lo stile `.dc-card` (sfondo bianco, `rounded-3xl`, `shadow-sm`), coerente con le altre superfici del design system.
+Solo presentazione, nessuna logica.
 
-## Dettagli
+### 1. Padding del box coerente con i ruoli
+In `OwnerCastings.tsx` (riga 126) cambiare il container della lista:
+- Da: `<div className="dc-card overflow-hidden p-2">`
+- A: `<div className="dc-card overflow-hidden p-6">` (stesso padding di `RoleRoundsCompartment`)
 
-- Avvolgere il blocco `<div>` che contiene l'header a griglia e il map dei `CastingRow` in un `<div className="dc-card overflow-hidden">`.
-- Rimuovere il `border-b` inferiore dall'ultima riga se necessario per un bordo pulito dentro il box.
-- Filtri (`CastingFilters`) e header pagina restano fuori dal box, sullo sfondo cream come ora.
-- Lo stato vuoto ("Nessun casting trovato") e gli skeleton di caricamento vengono anch'essi inseriti nel box bianco per coerenza.
+Adattare anche il padding interno degli stati di loading/empty per allinearsi (rimuovere `p-2` ridondante nel blocco skeleton).
 
-Nessun cambio di logica, solo presentazione.
+### 2. Rimuovere il primo divider
+Nell'header di colonna (riga 136), rimuovere `border-b border-border/60`:
+- Da: `... py-2 text-sm font-medium text-muted-foreground border-b border-border/60`
+- A: `... py-2 text-sm font-medium text-muted-foreground`
+
+### 3. Rimuovere l'ultimo divider
+In `CastingRow.tsx` (riga 55), aggiungere `last:border-b-0` alla className della riga, così l'ultima riga della lista non mostra la linea inferiore:
+- `... border-b border-border/40 last:border-b-0 ...`
+
+Risultato: box con padding `p-6` come il box dei ruoli, nessuna hairline sopra la prima riga né sotto l'ultima; i divider tra le righe restano invariati.

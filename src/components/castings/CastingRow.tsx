@@ -52,7 +52,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
       onKeyDown={(e) => {
         if (e.key === "Enter") open();
       }}
-      className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+      className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 last:border-b-0 hover:bg-muted/50 cursor-pointer transition-colors"
     >
       {/* Star */}
       <FavoriteCastingStar
