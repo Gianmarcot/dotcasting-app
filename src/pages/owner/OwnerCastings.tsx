@@ -118,10 +118,12 @@ export const OwnerCastings = () => {
         status={statusFilter}
         search={searchFilter}
         sort={sort}
+        count={castings?.length ?? 0}
         onStatusChange={setStatusFilter}
         onSearchChange={setSearchFilter}
         onSortChange={setSort}
       />
+
 
       <div className="dc-card overflow-hidden p-6">
         {isLoading ? (
