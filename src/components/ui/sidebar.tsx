@@ -272,6 +272,72 @@ const Sidebar = React.forwardRef<
 });
 Sidebar.displayName = "Sidebar";
 
+const SidebarResizeHandle = ({
+  side,
+  onResizingChange,
+}: {
+  side: "left" | "right";
+  onResizingChange: (v: boolean) => void;
+}) => {
+  const { width, setWidth, resetWidth, widthMin, widthMax } = useSidebar();
+  const dragState = React.useRef<{ startX: number; startWidth: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    dragState.current = { startX: e.clientX, startWidth: width };
+    onResizingChange(true);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const s = dragState.current;
+    if (!s) return;
+    const delta = e.clientX - s.startX;
+    const next = side === "left" ? s.startWidth + delta : s.startWidth - delta;
+    setWidth(next);
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current) return;
+    dragState.current = null;
+    try {
+      (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    onResizingChange(false);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  };
+
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize sidebar"
+      aria-valuemin={widthMin}
+      aria-valuemax={widthMax}
+      aria-valuenow={width}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onDoubleClick={resetWidth}
+      className={cn(
+        "absolute top-0 z-30 hidden h-full w-2 cursor-col-resize touch-none select-none md:block",
+        "after:absolute after:top-0 after:h-full after:w-px after:bg-transparent hover:after:bg-sidebar-accent",
+        "after:transition-colors",
+        side === "left" ? "right-0 after:right-0" : "left-0 after:left-0",
+      )}
+    />
+  );
+};
+SidebarResizeHandle.displayName = "SidebarResizeHandle";
+
+
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
   ({ className, onClick, ...props }, ref) => {
     const { toggleSidebar } = useSidebar();
