@@ -321,14 +321,8 @@ const TokensSection = () => {
     "olive",
     "charcoal",
   ];
-  const sidebar = [
-    "sidebar-background",
-    "sidebar-foreground",
-    "sidebar-primary",
-    "sidebar-accent",
-    "sidebar-border",
-    "sidebar-ring",
-  ];
+
+
 
   return (
     <Section
