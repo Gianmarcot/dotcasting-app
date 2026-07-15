@@ -179,7 +179,7 @@ export const OwnerCastingRoleDetail = () => {
             <span>Talent</span>
             <span>Con il talent</span>
             <span>Con l'azienda</span>
-            <span className="text-right">Azioni</span>
+            <span />
           </div>
           {talents.map((rt) => (
             <RoleTalentRow
