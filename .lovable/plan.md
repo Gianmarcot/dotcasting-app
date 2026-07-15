@@ -1,35 +1,27 @@
-## Modifiche a hover liste, radius preferiti e drag & drop preferiti sidebar
+## Obiettivo
+Rendere la larghezza della sidebar owner ridimensionabile trascinando il bordo destro, entro un range definito. La larghezza attuale (`16rem` = 256px) diventa il **minimo**; il massimo consigliato è **384px** (24rem) per non compromettere il layout dei contenuti.
 
-### 1. Hover più leggero sulle liste nei box
-Ridurre l'opacità del background hover nelle righe di elenco all'interno dei box `.dc-card`:
+## Comportamento
+- **Min**: 256px (attuale, valore di default all'apertura)
+- **Max**: 384px
+- **Handle**: sottile striscia verticale (2–4px) sul bordo destro della sidebar desktop, `cursor-col-resize`, evidenziata in hover con l'accent color.
+- **Drag**: mouse/touch, aggiorna `--sidebar-width` in tempo reale via CSS variable inline sul `SidebarProvider` wrapper.
+- **Persistenza**: valore salvato in `localStorage` (chiave `dc.sidebar.width`) e ripristinato al mount.
+- **Reset**: doppio click sull'handle riporta al minimo (256px).
+- **Mobile**: nessun resize (sheet off-canvas invariato). Nessun impatto sullo stato collapsed/icon.
 
-- `src/components/castings/CastingRow.tsx` (riga 55): `hover:bg-muted/50` → `hover:bg-muted/30`
-- `src/components/castings/rounds/RoleRoundRow.tsx`: `hover:bg-muted/50` → `hover:bg-muted/30`
+## Implementazione tecnica
+1. **`src/components/ui/sidebar.tsx`**
+   - Estendere il `SidebarContext` con `width`, `setWidth`, costanti `SIDEBAR_WIDTH_MIN=256`, `SIDEBAR_WIDTH_MAX=384`.
+   - In `SidebarProvider`: stato locale `width` inizializzato da `localStorage` (fallback 256), scritto nello style come `--sidebar-width: ${width}px`. Persistere on-change (debounced).
+   - Nel componente `Sidebar` desktop (variante `sidebar`, non mobile, non `collapsible=icon` attivo): aggiungere un `<SidebarResizeHandle />` posizionato absolute sul bordo destro del wrapper fisso.
+2. **Nuovo componente interno `SidebarResizeHandle`**
+   - `onPointerDown` → `setPointerCapture`, calcola `startX` e `startWidth`.
+   - `onPointerMove` → `newWidth = clamp(startWidth + (e.clientX - startX), MIN, MAX)` e aggiorna via context.
+   - `onDoubleClick` → reset a MIN.
+   - Nascosto quando `state === "collapsed"` o su mobile.
+3. Nessuna modifica ai consumer (`OwnerSidebar`, `OwnerLayout`): tutto passa attraverso la CSS variable già in uso.
 
-Solo queste due righe (le liste principali dentro i box). Gli altri hover restano invariati.
-
-### 2. Border radius `md` sui link della lista Preferiti (sidebar)
-In `src/components/layout/OwnerSidebar.tsx` (FavoritesSection):
-
-- Aggiungere `rounded-md` alle classi dei `<Link>` delle voci preferite e del link "Visualizza tutti".
-- Rientrare leggermente la lista con `px-2` sull'`<ul>` così i background hover/active arrotondati non toccano i bordi della sidebar (i link mantengono padding orizzontale ridotto: `px-2` invece di `px-4`, allineati visivamente all'header "Preferiti").
-
-### 3. Drag & drop dei Preferiti nella sidebar
-Rendere l'ordine dei preferiti riordinabile persistendo la scelta nel backend.
-
-**Backend (Lovable Cloud)**
-- Migration: aggiungere colonna `favorite_order integer` a `public.castings` (default null). Nessuna nuova policy/GRANT necessaria: si sfruttano quelle esistenti su `castings`.
-
-**Hook**
-- `src/hooks/useFavoriteCastings.ts`: cambiare `order` a `favorite_order asc nullsLast, updated_at desc` per usare il nuovo campo con fallback ordinato.
-- Nuovo hook `useReorderFavoriteCastings` (mutation) che riceve la nuova lista di id e fa update batch di `favorite_order` (indice progressivo) usando `supabase.from("castings").update(...).eq("id", ...)` in Promise.all, poi invalida `["favorite-castings"]`.
-
-**UI**
-- In `FavoritesSection` (`OwnerSidebar.tsx`):
-  - Stato locale `items` sincronizzato con `favorites`.
-  - Avvolgere la lista in `DndContext` + `SortableContext` (verticale) di `@dnd-kit/sortable` (già installato).
-  - Estrarre il singolo `<li>` in un componente `SortableFavoriteItem` che usa `useSortable`: applica `transform`/`transition` inline, mostra il cursore `grab`/`grabbing`, e aggiunge un piccolo handle icona (`GripVertical` lucide) visibile in hover a sinistra della stella.
-  - `onDragEnd`: `arrayMove` sugli items e chiama la mutation di reorder.
-  - "Visualizza tutti" resta fuori dal contesto sortable.
-
-Il drag riguarda solo la sezione Preferiti della sidebar; nessuna modifica a comportamento o UI della pagina Casting.
+## Fuori scope
+- Nessuna modifica a routing, dati, o altri componenti.
+- Nessuna modifica alla sidebar mobile / stato collapsed-icon.
