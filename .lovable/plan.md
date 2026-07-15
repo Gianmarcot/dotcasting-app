@@ -1,27 +1,21 @@
-## Ampliamento ordinamenti pagina Casting
+## Riorganizzazione toolbar pagina Casting
 
-Estendo l'elenco delle opzioni di ordinamento nella pagina `/owner/castings` con: Titolo A→Z, Titolo Z→A, Meno recenti, Data inizio, Data fine. Mantengo le opzioni esistenti (Più recenti, Cliente, Stato).
+Modifica solo di layout in `src/components/castings/CastingFilters.tsx` (e, se serve, `OwnerCastings.tsx` per passare il conteggio).
 
-### Modifiche
+### Nuovo layout (una sola riga, responsive)
 
-**`src/hooks/useCastings.ts`**
-- Estendere il tipo `CastingSort`:
-  ```
-  "recent" | "oldest" | "title_asc" | "title_desc"
-  | "start_date" | "end_date" | "company" | "status"
-  ```
-- Aggiungere i rami nella logica di ordinamento:
-  - `oldest` → `order("created_at", { ascending: true })`
-  - `title_asc` / `title_desc` → `order("title", { ascending: true/false })`
-  - `start_date` → `order("start_date", { ascending: true, nullsFirst: false })`
-  - `end_date` → `order("end_date", { ascending: true, nullsFirst: false })`
+```text
+[ Stato ▾ ] [ 🔍 Cerca casting............... ]        [ 12 casting ]  [ Ordina per ▾ ]
+└──────────── sinistra ────────────────────┘        └──────────── destra ────────────┘
+```
 
-**`src/components/castings/CastingFilters.tsx`**
-- Aggiungere le nuove `SelectItem` nel dropdown ordinamento, raggruppate in ordine logico:
-  1. Più recenti / Meno recenti
-  2. Titolo A→Z / Titolo Z→A
-  3. Data inizio / Data fine
-  4. Cliente / Stato
-- Allargare leggermente il trigger (`sm:w-52`) per contenere le nuove label.
+- **Sinistra**: dropdown Stato + search bar (max-width **450px**, `flex-1` fino a quel limite).
+- **Destra**: testo conteggio casting (es. "12 casting") + dropdown ordinamento.
+- Contenitore: `flex items-center justify-between gap-4`, wrap su mobile.
 
-Nessuna modifica DB, nessuna modifica ai preferiti o alla struttura della tabella.
+### Dettagli
+
+- Il conteggio arriva da `OwnerCastings.tsx` (già ha la lista filtrata) come prop `count: number` a `CastingFilters`.
+- Testo conteggio: stile muted, es. `text-sm text-muted-foreground`, singolare/plurale ("1 casting" / "N casting").
+- Search bar: `max-w-[450px] w-full`.
+- Nessun cambio a logica di filtro/ordinamento/hook.
