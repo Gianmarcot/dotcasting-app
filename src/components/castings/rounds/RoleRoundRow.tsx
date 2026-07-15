@@ -92,7 +92,7 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
         tabIndex={0}
         onClick={open}
         onKeyDown={(e) => e.key === "Enter" && open()}
-        className="group grid grid-cols-[1fr_160px_1fr_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+        className="group grid grid-cols-[1fr_160px_1fr_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/30 cursor-pointer transition-colors"
       >
         {/* Round label + date */}
         <div className="min-w-0 flex items-center gap-3">
