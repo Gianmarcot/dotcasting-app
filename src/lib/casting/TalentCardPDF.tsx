@@ -42,6 +42,14 @@ const PAGE_PAD_X = 4.5;
 const COL_PAD_Y = 9;
 const COL_PAD_X = 4.5;
 
+// Dimensioni foto derivate: numeriche esplicite per evitare che
+// Yoga (in @react-pdf/renderer) risolva height:"100%" sul padding-box
+// del genitore, cosa che farebbe invadere il padding inferiore alle
+// immagini nelle pagine galleria.
+const COL_OUTER_WIDTH = (842 - 2 * PAGE_PAD_X) / 3;
+const PHOTO_INNER_WIDTH = COL_OUTER_WIDTH - 2 * COL_PAD_X;
+const PHOTO_INNER_HEIGHT = PHOTO_INNER_WIDTH * 1.5;
+
 const s = StyleSheet.create({
   // 1. wrapper pagina
   page: {
@@ -55,8 +63,9 @@ const s = StyleSheet.create({
     minWidth: 0,
     paddingVertical: COL_PAD_Y,
     paddingHorizontal: COL_PAD_X,
+    overflow: "hidden",
   },
-  cover: { width: "100%", height: "100%", objectFit: "cover" },
+  cover: { width: PHOTO_INNER_WIDTH, height: PHOTO_INNER_HEIGHT, objectFit: "cover" },
 
   // 3. pannello scuro: blocco dentro la colonna centrale,
   //    circondato dalla cornice bianca
