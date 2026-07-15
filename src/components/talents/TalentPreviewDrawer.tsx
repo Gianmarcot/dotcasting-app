@@ -286,7 +286,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
                 navigate(`/owner/talents/${talent.id}/view`);
               }}
             >
-              <ExternalLink className="h-4 w-4 mr-2" />
+              <ExternalLink className="h-4 w-4" />
               Apri profilo completo
             </Button>
             {extraAction ? (
@@ -296,7 +296,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
               </Button>
             ) : null}
             <Button className="flex-1" onClick={() => setInviteOpen(true)}>
-              <Send className="h-4 w-4 mr-2" />
+              <Send className="h-4 w-4" />
               Aggiungi a un casting
             </Button>
           </div>

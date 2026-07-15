@@ -683,7 +683,7 @@ export const RoundWizardDialog = (props: Props) => {
             </Button>
           ) : (
             <Button onClick={handleSubmit} disabled={isBusy || selected.size === 0}>
-              {isBusy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {isBusy && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === "edit" ? "Salva modifiche" : "Crea invio e genera PDF"}
             </Button>
           )}

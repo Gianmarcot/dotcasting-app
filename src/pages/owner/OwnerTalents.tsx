@@ -121,7 +121,7 @@ export const OwnerTalents = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl text-foreground">{it.backoffice.talentDatabase}</h1>
         <Button size="md" iconPosition="left" onClick={() => setCreateDialogOpen(true)}>
-          <UserPlus className="h-5 w-5 mr-2" />
+          <UserPlus className="h-5 w-5" />
           Nuovo talent
         </Button>
       </div>

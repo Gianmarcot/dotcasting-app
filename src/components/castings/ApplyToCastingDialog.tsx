@@ -147,7 +147,7 @@ export const ApplyToCastingDialog = ({ open, onOpenChange, casting }: ApplyToCas
             onClick={() => applyMutation.mutate()}
             disabled={applyMutation.isPending}
           >
-            {applyMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            {applyMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Invia candidatura
           </Button>
         </DialogFooter>
