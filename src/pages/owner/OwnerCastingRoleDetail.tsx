@@ -174,7 +174,7 @@ export const OwnerCastingRoleDetail = () => {
         </div>
       ) : (
         <div className="dc-card overflow-hidden p-6">
-          <div className="grid grid-cols-[80px_1fr_160px_160px_140px] gap-4 px-4 pb-3 text-xs uppercase tracking-wider text-muted-foreground">
+          <div className="grid grid-cols-[80px_1fr_160px_160px_140px] gap-4 px-4 pb-3 text-xs text-muted-foreground">
             <span />
             <span>Talent</span>
             <span>Con il talent</span>
