@@ -23,7 +23,7 @@ import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";
 import { useProfile } from "@/hooks/useProfile";
 import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
-import { useRef } from "react";
+
 
 import {
   DndContext,
