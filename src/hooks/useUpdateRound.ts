@@ -78,19 +78,21 @@ export const useUpdateRound = () => {
 
       // 5. Generate PDFs
       const errors: string[] = [];
+      const photoWarnings: PhotoWarning[] = [];
       for (let i = 0; i < items.length; i++) {
         try {
-          await generateRoundPdfs({
+          const out = await generateRoundPdfs({
             castingId, roundId, items: [items[i]], preset,
             onProgress: () => {},
           });
+          photoWarnings.push(...out.photoWarnings);
         } catch (e: any) {
           errors.push(`${items[i].talent.nome}: ${e?.message ?? "errore"}`);
         }
         onProgress?.(i + 1, items.length);
       }
 
-      return { added: added.length, removed: removed.length, kept: kept.length, errors };
+      return { added: added.length, removed: removed.length, kept: kept.length, errors, photoWarnings };
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ["round", vars.roundId] });
