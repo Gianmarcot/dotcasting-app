@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { RoundPreset } from "@/lib/casting/roundPreset";
 import { fetchRoundTalents } from "@/lib/casting/fetchRoundTalents";
-import { generateRoundPdfs } from "@/lib/casting/generateRound";
+import { generateRoundPdfs, PhotoWarning } from "@/lib/casting/generateRound";
 
 export interface UpdateRoundInput {
   roundId: string;
