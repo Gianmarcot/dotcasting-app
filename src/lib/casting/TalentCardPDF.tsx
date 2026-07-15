@@ -27,11 +27,13 @@ const DISPLAY = "TenorSans";
 const SANS = "DMSans";
 
 // --- Formato pagina ---------------------------------------------
-// Cella colonna calcolata per aspect ratio 2:3 (allineato a drawer e web card).
-// Larghezza colonna esterna = (842 - 2*PAGE_PAD_X) / 3 ≈ 277.7pt
-// Larghezza interna = 277.7 - 2*COL_PAD_X ≈ 268.7pt
-// Altezza interna 2:3 = 268.7 * 1.5 ≈ 403pt → altezza pagina ≈ 403 + 2*COL_PAD_Y = 421pt
-const PAGE: [number, number] = [842, 421];
+// Pagina orizzontale 16:9. Le 3 colonne occupano tutta l'altezza utile
+// della pagina; ogni colonna risulta quindi circa 9:16 in verticale.
+const PAGE_WIDTH = 842;
+// 842 / 474 = 1.776: rapporto 16:9 approssimato con valori interi,
+// più stabile per il motore di layout di @react-pdf/renderer.
+const PAGE_HEIGHT = 474;
+const PAGE: [number, number] = [PAGE_WIDTH, PAGE_HEIGHT];
 const INK = "#1a1a1a";
 const PAGE_BG = "#FFFFFF"; // sfondo pagina e cornice
 const CREAM = "#F4F0EC"; // testo e dettagli sul pannello scuro
@@ -46,9 +48,9 @@ const COL_PAD_X = 4.5;
 // Yoga (in @react-pdf/renderer) risolva height:"100%" sul padding-box
 // del genitore, cosa che farebbe invadere il padding inferiore alle
 // immagini nelle pagine galleria.
-const COL_OUTER_WIDTH = (842 - 2 * PAGE_PAD_X) / 3;
+const COL_OUTER_WIDTH = (PAGE_WIDTH - 2 * PAGE_PAD_X) / 3;
 const PHOTO_INNER_WIDTH = COL_OUTER_WIDTH - 2 * COL_PAD_X;
-const PHOTO_INNER_HEIGHT = PHOTO_INNER_WIDTH * 1.5;
+const PHOTO_INNER_HEIGHT = PAGE_HEIGHT - 2 * COL_PAD_Y;
 
 const s = StyleSheet.create({
   // 1. wrapper pagina

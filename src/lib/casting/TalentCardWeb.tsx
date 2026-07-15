@@ -5,8 +5,8 @@
 // Layout responsive (mobile-first):
 //   base (mobile e tablet) → 1 colonna, misure in rem;
 //                            panel ad altezza auto, foto 3:4
-//   lg:  (desktop)         → 3 colonne come il PDF, misure in vw;
-//                            colonne 2:3
+//   lg:  (desktop)         → pagina 16:9 a 3 colonne come il PDF;
+//                            ogni colonna ha rapporto 16:27
 //
 // Le size si modificano SOLO nelle costanti qui sotto (stringhe
 // complete: Tailwind non compila classi composte a pezzi).
@@ -53,11 +53,11 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
     {/* ---------- 1. wrapper "pagina": 1 / 2 / 3 colonne ---------- */}
     <div className="grid grid-cols-1 lg:grid-cols-3 px-1.5">
       {/* ---------- 2. colonne con cornice propria (1 col fino a lg) ---------- */}
-      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[2/3]">
+      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[16/27]">
         <CoverPhoto src={card.coverPhotos[0]} alt={card.nome} />
       </div>
 
-      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[2/3]">
+      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[16/27]">
         {/* ---------- 3. pannello scuro dentro la cornice ---------- */}
         <div className={`h-full bg-[#1a1a1a] text-[#F4F0EC] ${PANEL_PAD} flex flex-col justify-between`}>
           {/* container superiore: nome + dati */}
@@ -105,7 +105,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
         </div>
       </div>
 
-      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[2/3]">
+      <div className="px-1.5 py-3 aspect-[2/3] lg:aspect-[16/27]">
         <CoverPhoto src={card.coverPhotos[1]} alt={card.nome} />
       </div>
     </div>
@@ -114,7 +114,7 @@ export const TalentCardWeb = ({ card }: { card: ResolvedCard }) => (
     {card.galleryPages.length > 0 && (
       <div className="grid grid-cols-1 lg:grid-cols-3 px-1.5">
         {card.galleryPages.flat().map((src) => (
-          <div key={src} className="px-1.5 py-3 aspect-[2/3] lg:aspect-[2/3]">
+          <div key={src} className="px-1.5 py-3 aspect-[2/3] lg:aspect-[16/27]">
             <img src={src} alt={card.nome} className="w-full h-full object-cover" />
           </div>
         ))}
