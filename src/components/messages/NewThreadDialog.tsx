@@ -97,7 +97,7 @@ export const NewThreadDialog = ({
           <div className="space-y-2">
             <Label>Cerca un talent</Label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 placeholder="Nome o cognome..."
                 value={search}
