@@ -214,17 +214,11 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2 mt-2">
-            <Checkbox
-              id="ageConfirm"
-              checked={ageConfirmed}
-              onCheckedChange={(checked) => setAgeConfirmed(!!checked)}
-              disabled={!isEditing}
-            />
-            <Label htmlFor="ageConfirm" className="text-sm font-normal text-muted-foreground">
-              Confermo di aver compiuto 18 anni
-            </Label>
-          </div>
+          {!isAdultBirthDate && (formData.birthDay && formData.birthMonth !== "" && formData.birthYear) && (
+            <p className="text-xs text-destructive mt-2">
+              La data di nascita indica un'età inferiore a 18 anni.
+            </p>
+          )}
         </div>
 
         {/* Luogo di nascita */}
