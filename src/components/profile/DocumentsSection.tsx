@@ -277,6 +277,41 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
             </div>
           )}
         </div>
+
+        {/* Documento d'identità */}
+        <div className="space-y-3">
+          <Label>Documento d'identità</Label>
+          {idDocumentPath ? (
+            <div className="flex items-center gap-3">
+              <Button variant="secondary" size="sm" onClick={handleOpenDocument} disabled={isUploadingDoc}>
+                <FileText className="h-4 w-4" />
+                Visualizza documento
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploadingDoc}>
+                {isUploadingDoc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                Sostituisci
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleRemoveDocument} disabled={isUploadingDoc}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploadingDoc}>
+              {isUploadingDoc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              Carica documento
+            </Button>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Carta d'identità o passaporto. Formato JPG, PNG o PDF, massimo 10MB. Il file è privato e visibile solo a te e allo staff dell'agenzia.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={handleDocumentSelected}
+            className="hidden"
+          />
+        </div>
       </CardContent>
     </Card>
   );
