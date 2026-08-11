@@ -168,6 +168,7 @@ export const TalentOnboarding = () => {
           last_name: formData.lastName,
           birth_date: formData.birthDate || null,
           gender: formData.gender || null,
+          gender_identity: formData.genderIdentity || null,
           city: formData.city || null,
           country: formData.country || null,
           talent_categories: selectedCategories,
