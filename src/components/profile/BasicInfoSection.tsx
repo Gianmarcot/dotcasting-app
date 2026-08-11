@@ -147,6 +147,18 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   const years = Array.from({ length: 100 }, (_, i) => String(currentYear - i));
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
 
+  const isAdultBirthDate = (() => {
+    if (!(formData.birthYear && formData.birthMonth !== "" && formData.birthDay)) return true;
+    const bd = new Date(
+      Number(formData.birthYear),
+      Number(formData.birthMonth),
+      Number(formData.birthDay)
+    );
+    const limit = new Date();
+    limit.setFullYear(limit.getFullYear() - 18);
+    return bd <= limit;
+  })();
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
