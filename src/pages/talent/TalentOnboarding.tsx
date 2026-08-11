@@ -106,9 +106,14 @@ export const TalentOnboarding = () => {
       case 1:
         return selectedCategories.length > 0;
       case 2:
-        return formData.firstName.trim() && formData.lastName.trim() && formData.birthDate;
+        return !!(
+          formData.firstName.trim() &&
+          formData.lastName.trim() &&
+          formData.birthDate &&
+          isAdult(formData.birthDate)
+        );
       case 3:
-        return true; // Photo is optional
+        return true; // Avatar is optional
       default:
         return false;
     }
