@@ -231,33 +231,34 @@ export const TalentOnboarding = () => {
             <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Step 1: Category Selection */}
+            {/* Step 1: Role Selection */}
             {currentStep === 1 && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {TALENT_CATEGORIES.map((category) => {
-                  const Icon = category.icon;
-                  const isSelected = selectedCategories.includes(category.id);
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => toggleCategory(category.id)}
-                      className={cn(
-                        "p-4 rounded-lg border-2 text-left transition-all",
-                        isSelected
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-primary/50"
-                      )}
-                    >
-                      <Icon className={cn(
-                        "w-6 h-6 mb-2",
-                        isSelected ? "text-primary" : "text-muted-foreground"
-                      )} />
-                      <p className="font-medium text-sm">{category.label}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{category.description}</p>
-                    </button>
-                  );
-                })}
+              <div className="space-y-6">
+                {TALENT_ROLE_GROUPS.map((group) => (
+                  <div key={group.key} className="space-y-3">
+                    <Label className="text-sm font-medium text-muted-foreground">{group.label}</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {TALENT_ROLES[group.key].map((role) => {
+                        const isSelected = selectedCategories.includes(role);
+                        return (
+                          <button
+                            key={role}
+                            type="button"
+                            onClick={() => toggleCategory(role)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-medium transition-colors border",
+                              isSelected
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-transparent text-foreground border-foreground hover:bg-muted"
+                            )}
+                          >
+                            {role}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -297,23 +298,44 @@ export const TalentOnboarding = () => {
                       value={formData.birthDate}
                       onChange={handleInputChange}
                     />
+                    {formData.birthDate && !isAdult(formData.birthDate) && (
+                      <p className="text-xs text-destructive">
+                        Devi aver compiuto 18 anni per registrarti.
+                      </p>
+                    )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="gender">Genere</Label>
-                    <select
-                      id="gender"
-                      name="gender"
+                  <div className="space-y-3">
+                    <Label>Sesso</Label>
+                    <RadioGroup
                       value={formData.gender}
-                      onChange={handleInputChange}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      onValueChange={(v) => setFormData((prev) => ({ ...prev, gender: v }))}
+                      className="flex gap-6 pt-2"
                     >
-                      <option value="">Seleziona...</option>
-                      <option value="male">Uomo</option>
-                      <option value="female">Donna</option>
-                      <option value="non-binary">Non-binary</option>
-                      <option value="other">Altro</option>
-                    </select>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="M" id="onb-gender-m" />
+                        <Label htmlFor="onb-gender-m" className="font-normal">M</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="F" id="onb-gender-f" />
+                        <Label htmlFor="onb-gender-f" className="font-normal">F</Label>
+                      </div>
+                    </RadioGroup>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Identità di genere</Label>
+                  <Select
+                    value={formData.genderIdentity}
+                    onValueChange={(v) => setFormData((prev) => ({ ...prev, genderIdentity: v }))}
+                  >
+                    <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                    <SelectContent>
+                      {GENDER_IDENTITIES.map((gi) => (
+                        <SelectItem key={gi} value={gi}>{gi}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
