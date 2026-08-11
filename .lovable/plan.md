@@ -1,36 +1,57 @@
-## Allineamento pagina Database Talenti al DS
+# Esportazione mappa form talent in Excel (XLSX)
 
-Solo presentazione: nessuna modifica a hook, filtri, dati o navigazione.
+## Obiettivo
+Generare un file `.xlsx` con la mappatura completa del form di registrazione/profilo talent (tutte le sezioni), pronto per il confronto con la piattaforma di riferimento.
 
-### 1. Header (`OwnerTalents.tsx`)
-- Rimuovere sottotitolo "Cerca e gestisci i talenti registrati" (coerente con Casting).
-- H1 + bottone "Nuovo talent" a destra: `<Button size="md" iconPosition="left">` con `UserPlus` a 20px.
+## Struttura del file
+Un'unica cartella di lavoro `mappa-form-talent.xlsx` con due fogli:
 
-### 2. Toolbar unificata (nuovo layout come pagina Casting)
-Una sola riga, `flex items-center justify-between gap-4`, wrap su mobile.
+### Foglio 1 — "Mappa campi"
+Tabella piatta (una riga per campo) con le 7 colonne richieste:
+1. **Nome campo** — label mostrata all'utente
+2. **Sezione/Gruppo** — sezione del profilo a cui appartiene
+3. **Obbligatorio / Opzionale**
+4. **Componente UI** — testo libero, select, select a cascata, radio, checkbox, upload singolo/multiplo
+5. **Opzioni** — elenco completo per select/radio/checkbox
+6. **Formato valore** — stringa, numero, data, array, booleano, enum
+7. **Dipendenze** — condizioni di comparsa, select a cascata, ecc.
 
-```text
-[ 🔍 Cerca talent (max 450px) ] [ Filtri: Ruolo | Anagrafica | Aspetto | Misure | ... ]        [ N talent trovati ] [ Ordina ▾ ] [ ▦ ▤ ]
-```
+Formattazione: intestazioni in bordo brand, filtri attivi (autofilter), larghezze colonne calibrate, celle con testo avvolto. Campi con anomalie (non persistiti o ridondanti) evidenziati con riempimento giallo nella colonna "Nome campo".
 
-- **Sinistra**: search bar (spostata da `TalentFilterBar` a `OwnerTalents`), stessa dc-input (48px), icona `Search` 20px, `max-w-[450px] w-full`. Accanto, i FilterGroup popover esistenti.
-- **Destra**: conteggio `"{n} talent trovati{ su {totalCount}}"` (`text-sm text-muted-foreground`), poi `Select` ordinamento (`h-12` da DS, `w-52 rounded-full`), poi `ToggleGroup` board/portfolio con item `h-12 w-12` e icone 20px.
+### Foglio 2 — "Anomalie"
+Riepilogo puntuale di:
+- campi presenti nel form ma non salvati/collegati al DB
+- campi duplicati/ridondanti tra step (es. gender `male/female` onboarding vs `M/F` profilo; 7 role label onboarding vs 34 nel profilo)
+- colonne DB esistenti senza UI corrispondente (es. `ethnicity`, `id_document_url`)
+- componenti inutilizzati (es. `AppearanceSection.tsx`)
 
-### 3. `TalentFilterBar.tsx`
-- Rimuovere blocco Search interno (ora vive in OwnerTalents).
-- Bottone `FilterGroup` (Popover trigger): passare a `variant="secondary" size="md"` con `rounded-full`, altezza allineata (48px), gap coerente; chevron 20px; badge counter invariato (pill piccolo).
-- Bottone "Reset" trasformato in link testuale coerente (`text-sm text-primary hover:underline`).
-- Etichette e input interni ai popover restano identici (dc-select-trigger già a 48px dal DS aggiornato).
+## Sezioni coperte (ordine nel foglio)
+1. Registrazione (solo email/password)
+2. Onboarding — step Ruoli / Dati base / Foto profilo
+3. Dati anagrafici
+4. Contatti
+5. Data e luogo di nascita
+6. Residenza e domicilio (jsonb)
+7. Codice fiscale / Documenti (passaporto, P.IVA)
+8. Misure fisiche (`talent_attributes`)
+9. Caratteristiche fisiche (capelli, occhi, etnia, segni particolari)
+10. Competenze e abilità (struttura a categorie)
+11. Lingue
+12. Media (foto profilo, foto principali, polaroid, mani, piedi, lavori, video, documento identità)
 
-### 4. Chip filtri attivi
-- Restano `Badge variant="secondary"` cliccabili con `X` (20px) — spostati subito sotto la toolbar, gap invariato.
+## Fonti dati
+- `src/pages/talent/TalentOnboarding.tsx`
+- `src/components/profile/*` (BasicInfo, ContactInfo, Address, Documents, Measurements, PhysicalFeatures, Abilities, Skills, Languages, MediaGallery, WorkInfo, Travel)
+- `src/lib/profileOptions.ts` (opzioni di select)
+- `src/lib/mediaCategories.ts` (categorie media)
+- `src/hooks/useUpdateProfile.ts`, `useTalentAttributes.ts` (campi persistiti)
+- Schema Supabase `profiles` / `talent_attributes` (colonne, enum, jsonb)
 
-### 5. Contenitore lista/griglia
-- Avvolgere `TalentBoardGrid` / `TalentPortfolioList` / stato vuoto / skeleton dentro un `.dc-card p-6` come nella pagina Casting e Round Detail.
-- Empty state coerente: icona `Users` 20px in bloc centrato, titolo, testo muted, CTA `variant="secondary" size="md"` "Nuovo talent" quando non ci sono filtri attivi.
+## Tecnica di generazione
+- Python + `openpyxl`
+- Conteggio e layout delle colonne calcolati, autofilter attivo, freeze della riga di intestazione
+- Verifica finale: rilettura del file e controllo visivo (nessun testo troncato, formattazione corretta)
+- Output in `/mnt/documents/exports/mappa-form-talent.xlsx`
 
-### 6. Icone
-- Tutte le icone dentro toolbar (search, chevron, UserPlus, X, LayoutGrid, List): 20px (`h-5 w-5`).
-
-### Fuori scope
-- `TalentBoardCard`, `TalentPortfolioList` interna, `TalentPreviewDrawer`, `CreateTalentDialog`, logiche di filtro e ordinamento.
+## Nota
+La mappatura di contenuto deriva dall'analisi già svolta; in questa fase viene solo consolidata e formattata in Excel. Nessuna modifica al codice dell'app.
