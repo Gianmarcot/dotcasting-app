@@ -8,8 +8,12 @@ import { Separator } from "@/components/ui/separator";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useTalentAttributes, useUpdateTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentAttributesByProfileId, useUpdateTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
+import { useProfile } from "@/hooks/useProfile";
+import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useProfileById } from "@/hooks/useProfileById";
+import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
-import { JACKET_SIZES, SHIRT_SIZES, PANTS_SIZES, SHOE_SIZES, HAIR_COLORS, HAIR_TYPES, HAIR_LENGTHS, EYE_COLORS } from "@/lib/profileOptions";
+import { ETHNICITIES, JACKET_SIZES, SHIRT_SIZES, PANTS_SIZES, SHOE_SIZES, HAIR_COLORS, HAIR_TYPES, HAIR_LENGTHS, EYE_COLORS } from "@/lib/profileOptions";
 
 interface MeasurementsSectionProps {
   externalProfileId?: string;
@@ -21,8 +25,19 @@ export const MeasurementsSection = ({ externalProfileId }: MeasurementsSectionPr
   const updateOwnAttributes = useUpdateTalentAttributes();
   const updateExternalAttributes = useUpdateTalentAttributesByProfileId();
   
+  const { data: ownProfile } = useProfile();
+  const { data: externalProfile } = useProfileById(externalProfileId);
+  const updateOwnProfile = useUpdateProfile();
+  const updateExternalProfile = useUpdateProfileById();
+
   const attributes = externalProfileId ? externalAttributes : ownAttributes;
+  const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
+  const [ethnicity, setEthnicity] = useState("");
+
+  useEffect(() => {
+    setEthnicity(profile?.ethnicity || "");
+  }, [profile]);
 
   const [formData, setFormData] = useState({
     height: "",
@@ -94,8 +109,13 @@ export const MeasurementsSection = ({ externalProfileId }: MeasurementsSectionPr
       
       if (externalProfileId) {
         await updateExternalAttributes.mutateAsync({ profileId: externalProfileId, attributes: attrs });
+        await updateExternalProfile.mutateAsync({
+          profileId: externalProfileId,
+          updates: { ethnicity: ethnicity || null },
+        });
       } else {
         await updateOwnAttributes.mutateAsync(attrs);
+        await updateOwnProfile.mutateAsync({ ethnicity: ethnicity || null });
       }
       setIsEditing(false);
       toast.success("Misure aggiornate!");
@@ -124,6 +144,7 @@ export const MeasurementsSection = ({ externalProfileId }: MeasurementsSectionPr
         eyeColor: attributes.eye_color || "",
       });
     }
+    setEthnicity(profile?.ethnicity || "");
     setIsEditing(false);
   };
 
@@ -263,6 +284,15 @@ export const MeasurementsSection = ({ externalProfileId }: MeasurementsSectionPr
                 <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
                 <SelectContent>
                   {HAIR_LENGTHS.map(length => (<SelectItem key={length} value={length}>{length}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Etnia</Label>
+              <Select value={ethnicity} onValueChange={setEthnicity} disabled={!isEditing}>
+                <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                <SelectContent>
+                  {ETHNICITIES.map(e => (<SelectItem key={e} value={e}>{e}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>

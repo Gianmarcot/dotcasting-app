@@ -5,6 +5,8 @@
      "Modello/Modella",
      "Attore/Attrice", 
      "Real people",
+     "Comparse",
+     "Comici",
      "Steward/Promoter",
      "Piedista",
      "Manista",
@@ -20,6 +22,13 @@
    creative: [
      "Truccatore/Truccatrice",
      "Parrucchiere/Parrucchiera",
+     "Nail Specialists",
+     "Stylists",
+     "Prop Stylists",
+     "Food Stylists",
+     "Scenografi",
+     "Art Directors",
+     "Copywriters",
      "Fotografo/Fotografa",
      "Social Media Manager",
      "DOP",
@@ -33,6 +42,8 @@
      "Attrezzista",
      "Fonico",
      "Assistente di produzione",
+     "Accounts",
+     "Project Managers",
      "Operatore/Operatrice",
      "Steadicam",
      "Driver",
@@ -42,6 +53,12 @@
      "Macchinista"
    ]
  };
+
+export const TALENT_ROLE_GROUPS = [
+  { key: "artistic", label: "Artistici" },
+  { key: "creative", label: "Tecnici creativi" },
+  { key: "production", label: "Produzione" },
+] as const;
  
  export const HAIR_COLORS = [
    "Nero",

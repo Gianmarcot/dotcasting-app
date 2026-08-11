@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
@@ -13,7 +12,7 @@ import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
-import { COUNTRIES, MONTHS, GENDER_IDENTITIES, REPRESENTATION_TYPES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
+import { COUNTRIES, MONTHS, GENDER_IDENTITIES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
 
 interface BasicInfoSectionProps {
   externalProfileId?: string;
@@ -27,7 +26,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   
   const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -42,7 +40,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
     birthCity: "",
     gender: "",
     genderIdentity: "",
-    representationType: "",
   });
 
   useEffect(() => {
@@ -61,9 +58,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birthCity: (profile as any).birth_city || "",
         gender: profile.gender || "",
         genderIdentity: (profile as any).gender_identity || "",
-        representationType: profile.representation_type || "",
       });
-      if (bd) setAgeConfirmed(true);
     }
   }, [profile]);
 
@@ -91,7 +86,14 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         const m = String(Number(formData.birthMonth) + 1).padStart(2, "0");
         const d = formData.birthDay.padStart(2, "0");
         birthDate = `${formData.birthYear}-${m}-${d}`;
+        const limit = new Date();
+        limit.setFullYear(limit.getFullYear() - 18);
+        if (new Date(birthDate) > limit) {
+          toast.error("La data di nascita deve indicare almeno 18 anni compiuti");
+          return;
+        }
       }
+
 
       const updates = {
         first_name: formData.firstName,
@@ -104,7 +106,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birth_city: formData.birthCity || null,
         gender: formData.gender || null,
         gender_identity: formData.genderIdentity || null,
-        representation_type: formData.representationType || null,
       };
 
       if (externalProfileId) {
@@ -135,7 +136,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birthCity: (profile as any).birth_city || "",
         gender: profile.gender || "",
         genderIdentity: (profile as any).gender_identity || "",
-        representationType: profile.representation_type || "",
       });
     }
     setIsEditing(false);
@@ -146,6 +146,18 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 100 }, (_, i) => String(currentYear - i));
   const days = Array.from({ length: 31 }, (_, i) => String(i + 1));
+
+  const isAdultBirthDate = (() => {
+    if (!(formData.birthYear && formData.birthMonth !== "" && formData.birthDay)) return true;
+    const bd = new Date(
+      Number(formData.birthYear),
+      Number(formData.birthMonth),
+      Number(formData.birthDay)
+    );
+    const limit = new Date();
+    limit.setFullYear(limit.getFullYear() - 18);
+    return bd <= limit;
+  })();
 
   return (
     <Card>
@@ -214,17 +226,11 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2 mt-2">
-            <Checkbox
-              id="ageConfirm"
-              checked={ageConfirmed}
-              onCheckedChange={(checked) => setAgeConfirmed(!!checked)}
-              disabled={!isEditing}
-            />
-            <Label htmlFor="ageConfirm" className="text-sm font-normal text-muted-foreground">
-              Confermo di aver compiuto 18 anni
-            </Label>
-          </div>
+          {!isAdultBirthDate && (formData.birthDay && formData.birthMonth !== "" && formData.birthYear) && (
+            <p className="text-xs text-destructive mt-2">
+              La data di nascita indica un'età inferiore a 18 anni.
+            </p>
+          )}
         </div>
 
         {/* Luogo di nascita */}
@@ -315,23 +321,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
           </Select>
         </div>
 
-        {/* Rappresentanza */}
-        <div className="space-y-3">
-          <Label>Rappresentanza</Label>
-          <RadioGroup
-            value={formData.representationType}
-            onValueChange={(v) => handleSelect("representationType", v)}
-            disabled={!isEditing}
-            className="flex gap-6"
-          >
-            {REPRESENTATION_TYPES.map((rt) => (
-              <div key={rt.value} className="flex items-center gap-2">
-                <RadioGroupItem value={rt.value} id={`rep-${rt.value}`} />
-                <Label htmlFor={`rep-${rt.value}`} className="font-normal">{rt.label}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
+        {/* La rappresentanza è gestita nella sezione "Ruoli e Talenti" */}
       </CardContent>
     </Card>
   );

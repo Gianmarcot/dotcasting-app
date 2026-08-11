@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
@@ -44,6 +45,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   });
 
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
+  const [sameWhatsapp, setSameWhatsapp] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -56,11 +58,31 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
         websiteUrl: profile.website_url || "",
       });
       setSocialLinks((profile.social_links as SocialLinks) || {});
+      setSameWhatsapp(
+        !!profile.phone_number &&
+          profile.phone_number === profile.whatsapp_number &&
+          (profile.phone_prefix || "+39") === (profile.whatsapp_prefix || "+39")
+      );
     }
   }, [profile]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const next = { ...formData, [e.target.name]: e.target.value };
+    if (sameWhatsapp && e.target.name === "phoneNumber") {
+      next.whatsappNumber = e.target.value;
+    }
+    setFormData(next);
+  };
+
+  const handleSameWhatsappToggle = (checked: boolean) => {
+    setSameWhatsapp(checked);
+    if (checked) {
+      setFormData((prev) => ({
+        ...prev,
+        whatsappPrefix: prev.phonePrefix,
+        whatsappNumber: prev.phoneNumber,
+      }));
+    }
   };
 
   const handleSocialChange = (key: keyof SocialLinks, value: string) => {
@@ -151,7 +173,11 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
           <div className="flex gap-2">
             <Select 
               value={formData.phonePrefix} 
-              onValueChange={(v) => setFormData({...formData, phonePrefix: v})}
+              onValueChange={(v) => setFormData((prev) => ({
+                ...prev,
+                phonePrefix: v,
+                ...(sameWhatsapp ? { whatsappPrefix: v } : {}),
+              }))}
               disabled={!isEditing}
             >
               <SelectTrigger className="w-24">
@@ -178,12 +204,23 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
 
         {/* WhatsApp */}
         <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="sameWhatsapp"
+              checked={sameWhatsapp}
+              onCheckedChange={(checked) => handleSameWhatsappToggle(!!checked)}
+              disabled={!isEditing}
+            />
+            <Label htmlFor="sameWhatsapp" className="font-normal">
+              Uso lo stesso numero anche per WhatsApp
+            </Label>
+          </div>
           <Label>WhatsApp</Label>
           <div className="flex gap-2">
             <Select 
               value={formData.whatsappPrefix} 
               onValueChange={(v) => setFormData({...formData, whatsappPrefix: v})}
-              disabled={!isEditing}
+              disabled={!isEditing || sameWhatsapp}
             >
               <SelectTrigger className="w-24">
                 <SelectValue />
@@ -200,7 +237,7 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
               name="whatsappNumber"
               value={formData.whatsappNumber}
               onChange={handleChange}
-              disabled={!isEditing}
+              disabled={!isEditing || sameWhatsapp}
               placeholder="333 1234567"
               className="flex-1"
             />

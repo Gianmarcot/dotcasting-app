@@ -1,23 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Check, X, Loader2 } from "lucide-react";
+import { Pencil, Check, X, Loader2, Upload, FileText, Trash2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { NATIONALITIES } from "@/lib/profileOptions";
+
+const ID_DOC_BUCKET = "talent-documents";
 
 interface DocumentsSectionProps {
   externalProfileId?: string;
 }
 
 export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) => {
+  const { user } = useAuth();
   const { data: ownProfile } = useProfile();
   const { data: externalProfile } = useProfileById(externalProfileId);
   const updateOwnProfile = useUpdateProfile();
@@ -25,6 +30,81 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
   
   const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const idDocumentPath = (profile as { id_document_url?: string | null } | undefined)?.id_document_url || null;
+
+  const handleOpenDocument = async () => {
+    if (!idDocumentPath) return;
+    const { data, error } = await supabase.storage
+      .from(ID_DOC_BUCKET)
+      .createSignedUrl(idDocumentPath, 60);
+    if (error || !data) {
+      toast.error("Impossibile aprire il documento");
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleDocumentSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    const targetUserId = externalProfileId ? profile?.user_id : user?.id;
+    if (!file || !targetUserId) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Il file non può superare i 10MB");
+      return;
+    }
+
+    setIsUploadingDoc(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "pdf";
+      const path = `${targetUserId}/id-document.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(ID_DOC_BUCKET)
+        .upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+
+      if (externalProfileId) {
+        await updateExternalProfile.mutateAsync({
+          profileId: externalProfileId,
+          updates: { id_document_url: path },
+        });
+      } else {
+        await updateOwnProfile.mutateAsync({ id_document_url: path });
+      }
+      toast.success("Documento d'identità caricato!");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Errore durante il caricamento del documento");
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
+  const handleRemoveDocument = async () => {
+    if (!idDocumentPath) return;
+    setIsUploadingDoc(true);
+    try {
+      await supabase.storage.from(ID_DOC_BUCKET).remove([idDocumentPath]);
+      if (externalProfileId) {
+        await updateExternalProfile.mutateAsync({
+          profileId: externalProfileId,
+          updates: { id_document_url: null },
+        });
+      } else {
+        await updateOwnProfile.mutateAsync({ id_document_url: null });
+      }
+      toast.success("Documento rimosso");
+    } catch (error) {
+      toast.error("Errore durante la rimozione del documento");
+    } finally {
+      setIsUploadingDoc(false);
+    }
+  };
+
 
   const [formData, setFormData] = useState({
     fiscalCode: "",
@@ -196,6 +276,41 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
               />
             </div>
           )}
+        </div>
+
+        {/* Documento d'identità */}
+        <div className="space-y-3">
+          <Label>Documento d'identità</Label>
+          {idDocumentPath ? (
+            <div className="flex items-center gap-3">
+              <Button variant="secondary" size="sm" onClick={handleOpenDocument} disabled={isUploadingDoc}>
+                <FileText className="h-4 w-4" />
+                Visualizza documento
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploadingDoc}>
+                {isUploadingDoc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                Sostituisci
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleRemoveDocument} disabled={isUploadingDoc}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploadingDoc}>
+              {isUploadingDoc ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              Carica documento
+            </Button>
+          )}
+          <p className="text-xs text-muted-foreground">
+            Carta d'identità o passaporto. Formato JPG, PNG o PDF, massimo 10MB. Il file è privato e visibile solo a te e allo staff dell'agenzia.
+          </p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={handleDocumentSelected}
+            className="hidden"
+          />
         </div>
       </CardContent>
     </Card>
