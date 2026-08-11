@@ -54,11 +54,13 @@ export interface ProfileCompletionResult {
    const result = useMemo(() => {
      const checks: CompletionCheck[] = [
        {
-         key: "photo",
-         label: "Foto profilo",
-         anchor: "profile-photo",
+         key: "mainPhoto",
+         label: "Foto principale (obbligatoria)",
+         anchor: "media-gallery",
          weight: 15,
-         isComplete: !!profile?.profile_photo_url,
+         isComplete: !!(media || []).some(
+           (m) => (m as { category?: string }).category === "main_photos"
+         ),
        },
        {
          key: "name",
