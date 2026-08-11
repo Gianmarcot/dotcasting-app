@@ -8,35 +8,29 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { 
   Camera, 
   ChevronRight, 
   ChevronLeft, 
   Check, 
-  User, 
-  Sparkles,
-  Film,
-  Music,
-  Mic2,
-  Shirt,
-  Dumbbell,
-  Users
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.png";
 import { compressImage } from "@/lib/media/compressImage";
+import { TALENT_ROLES, TALENT_ROLE_GROUPS, GENDER_IDENTITIES } from "@/lib/profileOptions";
 
-// Talent category options
-const TALENT_CATEGORIES = [
-  { id: "model", label: "Modello/a", icon: Shirt, description: "Moda, beauty, commercial" },
-  { id: "actor", label: "Attore/Attrice", icon: Film, description: "Cinema, TV, teatro" },
-  { id: "dancer", label: "Ballerino/a", icon: Music, description: "Danza classica, moderna, hip-hop" },
-  { id: "singer", label: "Cantante", icon: Mic2, description: "Voce solista, coro" },
-  { id: "influencer", label: "Influencer", icon: Sparkles, description: "Social media, content creation" },
-  { id: "fitness", label: "Fitness Model", icon: Dumbbell, description: "Sport, fitness, wellness" },
-  { id: "extra", label: "Figurante", icon: Users, description: "Comparse, figurazione speciale" },
-];
+const isAdult = (birthDate: string) => {
+  if (!birthDate) return false;
+  const bd = new Date(birthDate);
+  if (Number.isNaN(bd.getTime())) return false;
+  const limit = new Date();
+  limit.setFullYear(limit.getFullYear() - 18);
+  return bd <= limit;
+};
 
 const STEPS = [
   { id: 1, title: "Seleziona i tuoi ruoli", description: "Che tipo di talento sei?" },
