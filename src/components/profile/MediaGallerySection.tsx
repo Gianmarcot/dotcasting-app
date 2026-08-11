@@ -291,7 +291,7 @@ export const MediaGallerySection = ({
                   {isMain && mainPhotosCount < mainPhotosMin && (
                     <div className="mb-4">
                       <Badge variant="destructive" className="text-xs">
-                        Minimo {mainPhotosMin} foto richieste
+                        Obbligatorie: minimo {mainPhotosMin} foto principali
                       </Badge>
                     </div>
                   )}

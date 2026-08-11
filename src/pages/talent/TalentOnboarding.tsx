@@ -35,7 +35,7 @@ const isAdult = (birthDate: string) => {
 const STEPS = [
   { id: 1, title: "Seleziona i tuoi ruoli", description: "Che tipo di talento sei?" },
   { id: 2, title: "Informazioni base", description: "Raccontaci di te" },
-  { id: 3, title: "Foto profilo", description: "Mostra il tuo volto" },
+  { id: 3, title: "Avatar", description: "Facoltativo: le foto principali si caricano dal profilo" },
 ];
 
 export const TalentOnboarding = () => {
@@ -397,7 +397,7 @@ export const TalentOnboarding = () => {
                 
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">
-                    Carica una foto professionale (opzionale)
+                    Carica il tuo avatar (opzionale)
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Formato: JPG, PNG. Massimo 5MB.
