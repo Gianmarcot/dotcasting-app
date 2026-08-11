@@ -315,23 +315,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
           </Select>
         </div>
 
-        {/* Rappresentanza */}
-        <div className="space-y-3">
-          <Label>Rappresentanza</Label>
-          <RadioGroup
-            value={formData.representationType}
-            onValueChange={(v) => handleSelect("representationType", v)}
-            disabled={!isEditing}
-            className="flex gap-6"
-          >
-            {REPRESENTATION_TYPES.map((rt) => (
-              <div key={rt.value} className="flex items-center gap-2">
-                <RadioGroupItem value={rt.value} id={`rep-${rt.value}`} />
-                <Label htmlFor={`rep-${rt.value}`} className="font-normal">{rt.label}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
+        {/* La rappresentanza è gestita nella sezione "Ruoli e Talenti" */}
       </CardContent>
     </Card>
   );
