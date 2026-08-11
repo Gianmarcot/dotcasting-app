@@ -91,7 +91,14 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         const m = String(Number(formData.birthMonth) + 1).padStart(2, "0");
         const d = formData.birthDay.padStart(2, "0");
         birthDate = `${formData.birthYear}-${m}-${d}`;
+        const limit = new Date();
+        limit.setFullYear(limit.getFullYear() - 18);
+        if (new Date(birthDate) > limit) {
+          toast.error("La data di nascita deve indicare almeno 18 anni compiuti");
+          return;
+        }
       }
+
 
       const updates = {
         first_name: formData.firstName,
