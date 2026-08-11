@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Check, X, Loader2 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
@@ -13,7 +12,7 @@ import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
-import { COUNTRIES, MONTHS, GENDER_IDENTITIES, REPRESENTATION_TYPES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
+import { COUNTRIES, MONTHS, GENDER_IDENTITIES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
 
 interface BasicInfoSectionProps {
   externalProfileId?: string;
@@ -27,7 +26,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
   
   const profile = externalProfileId ? externalProfile : ownProfile;
   const [isEditing, setIsEditing] = useState(false);
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -42,7 +40,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
     birthCity: "",
     gender: "",
     genderIdentity: "",
-    representationType: "",
   });
 
   useEffect(() => {
@@ -61,9 +58,7 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birthCity: (profile as any).birth_city || "",
         gender: profile.gender || "",
         genderIdentity: (profile as any).gender_identity || "",
-        representationType: profile.representation_type || "",
       });
-      if (bd) setAgeConfirmed(true);
     }
   }, [profile]);
 
@@ -111,7 +106,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birth_city: formData.birthCity || null,
         gender: formData.gender || null,
         gender_identity: formData.genderIdentity || null,
-        representation_type: formData.representationType || null,
       };
 
       if (externalProfileId) {
@@ -142,7 +136,6 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         birthCity: (profile as any).birth_city || "",
         gender: profile.gender || "",
         genderIdentity: (profile as any).gender_identity || "",
-        representationType: profile.representation_type || "",
       });
     }
     setIsEditing(false);
