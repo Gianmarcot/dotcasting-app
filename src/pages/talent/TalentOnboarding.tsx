@@ -55,6 +55,7 @@ export const TalentOnboarding = () => {
     lastName: "",
     birthDate: "",
     gender: "",
+    genderIdentity: "",
     city: "",
     country: "Italia",
   });
