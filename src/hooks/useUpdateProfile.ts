@@ -31,6 +31,7 @@ export const useUpdateProfile = () => {
        fiscal_code?: string | null;
        work_cities?: string[] | null;
        id_document_url?: string | null;
+       ethnicity?: string | null;
        has_passport?: boolean;
        passport_expiry?: string | null;
        social_links?: Json | null;
