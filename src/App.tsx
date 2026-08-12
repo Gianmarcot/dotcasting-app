@@ -57,7 +57,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<AuthPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
             <Route path="/round/:token" element={<SharedRound />} />
