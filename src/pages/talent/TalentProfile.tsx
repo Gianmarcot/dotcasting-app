@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
-import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
-import { ProfileSectionNav } from "@/components/profile/ProfileSectionNav";
+import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { BasicInfoSection } from "@/components/profile/BasicInfoSection";
 import { AboutMeSection } from "@/components/profile/AboutMeSection";
 import { MediaGallerySection } from "@/components/profile/MediaGallerySection";
@@ -18,9 +17,11 @@ import { AddressSection } from "@/components/profile/AddressSection";
 import { DocumentsSection } from "@/components/profile/DocumentsSection";
 import { WorkInfoSection } from "@/components/profile/WorkInfoSection";
 import { TravelSection } from "@/components/profile/TravelSection";
+import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
 
 export const TalentProfile = () => {
-  const { isLoading } = useProfile();
+  const { data: profile, isLoading } = useProfile();
+
 
   if (isLoading) {
     return (
@@ -42,73 +43,96 @@ export const TalentProfile = () => {
         </div>
         <Link to="/talent/profile/preview">
           <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Eye className="h-4 w-4" />
+            <Eye className="h-4 w-4 mr-2" />
             Visualizza profilo pubblico
           </Button>
         </Link>
       </div>
 
-      {/* Suggerimenti in cima */}
-      <ProfileCompletionBar />
+      {/* Top row: Photo + Completion */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-1">
+          <ProfilePhotoSection />
+        </div>
+        <div className="lg:col-span-2">
+          <ProfileCompletionBar />
+        </div>
+      </div>
 
-      {/* Side-navigation + sezioni impilate in una sola colonna */}
-      <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6 items-start">
-        <ProfileSectionNav />
-
-        <div className="space-y-6 min-w-0">
-          <div id="basic-info" className="scroll-mt-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Basic Info */}
+          <div id="basic-info">
             <BasicInfoSection />
           </div>
 
-          <div id="about-me" className="scroll-mt-8">
+          {/* About Me */}
+          <div id="about-me">
             <AboutMeSection />
           </div>
 
-          <div id="talent-roles" className="scroll-mt-8">
+          {/* Talent Roles */}
+          <div id="talent-roles">
             <TalentRolesSection />
           </div>
 
-          <div id="media-gallery" className="scroll-mt-8">
+          {/* Media Gallery */}
+          <div id="media-gallery">
             <MediaGallerySection />
           </div>
 
-          <div id="measurements" className="scroll-mt-8">
+          {/* Measurements */}
+          <div id="measurements">
             <MeasurementsSection />
           </div>
 
-          <div id="physical-features" className="scroll-mt-8">
+          {/* Physical Features */}
+          <div id="physical-features">
             <PhysicalFeaturesSection />
           </div>
 
-          <div id="abilities" className="scroll-mt-8">
+          {/* Abilities */}
+          <div id="abilities">
             <AbilitiesSection />
           </div>
 
-          <div id="skills" className="scroll-mt-8">
+          {/* Skills */}
+          <div id="skills">
             <SkillsSection />
           </div>
 
-          <div id="languages" className="scroll-mt-8">
+          {/* Languages */}
+          <div id="languages">
             <LanguagesSection />
           </div>
+        </div>
 
-          <div id="contact-info" className="scroll-mt-8">
+        {/* Right Sidebar */}
+        <div className="space-y-6">
+
+          {/* Contact Info */}
+          <div id="contact-info">
             <ContactInfoSection />
           </div>
 
-          <div id="address" className="scroll-mt-8">
+          {/* Address */}
+          <div id="address">
             <AddressSection />
           </div>
 
-          <div id="documents" className="scroll-mt-8">
+          {/* Documents */}
+          <div id="documents">
             <DocumentsSection />
           </div>
 
-          <div id="work-info" className="scroll-mt-8">
+          {/* Work Info */}
+          <div id="work-info">
             <WorkInfoSection />
           </div>
 
-          <div id="travel" className="scroll-mt-8">
+          {/* Travel */}
+          <div id="travel">
             <TravelSection />
           </div>
         </div>

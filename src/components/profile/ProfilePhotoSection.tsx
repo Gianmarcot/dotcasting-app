@@ -10,15 +10,12 @@ import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import { toast } from "sonner";
 import { compressImage } from "@/lib/media/compressImage";
-import { cn } from "@/lib/utils";
 
 interface ProfilePhotoSectionProps {
   externalProfileId?: string;
-  /** Renders the avatar + upload block without its own Card wrapper (for embedding inside another card). */
-  embedded?: boolean;
 }
 
-export const ProfilePhotoSection = ({ externalProfileId, embedded }: ProfilePhotoSectionProps) => {
+export const ProfilePhotoSection = ({ externalProfileId }: ProfilePhotoSectionProps) => {
   const { user } = useAuth();
   const { data: ownProfile } = useProfile();
   const { data: externalProfile } = useProfileById(externalProfileId);
@@ -81,57 +78,6 @@ export const ProfilePhotoSection = ({ externalProfileId, embedded }: ProfilePhot
   const displayName = profile?.first_name
     ? `${profile.first_name} ${profile.last_name || ""}`.trim()
     : "";
-
-  const avatarBlock = (
-    <>
-      <div className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-4">
-        <div className="relative shrink-0">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={profile?.profile_photo_url || ""} />
-            <AvatarFallback className="text-3xl bg-muted">
-              {avatarInitial}
-            </AvatarFallback>
-          </Avatar>
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="absolute bottom-0 right-0 h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-          </button>
-        </div>
-        <div>
-          {displayName && (
-            <h2 className="text-xl font-bold text-foreground">{displayName}</h2>
-          )}
-          {(profile?.city || profile?.country) && (
-            <p className="text-sm text-muted-foreground">
-              {[profile?.city, profile?.country].filter(Boolean).join(", ")}
-            </p>
-          )}
-        </div>
-      </div>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handlePhotoUpload}
-        className="hidden"
-      />
-    </>
-  );
-
-  if (embedded) {
-    return (
-      <div className={cn("mb-6 border-b pb-6", "flex justify-center sm:justify-start")}>
-        {avatarBlock}
-      </div>
-    );
-  }
 
   return (
     <Card>
