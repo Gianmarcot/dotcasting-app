@@ -7,7 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
-import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import NotFound from "./pages/NotFound";
 import CardPreview from "./dev/CardPreview";
@@ -57,7 +56,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<AuthPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
             <Route path="/round/:token" element={<SharedRound />} />
