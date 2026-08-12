@@ -10,6 +10,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useProfileById } from "@/hooks/useProfileById";
 import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
+import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { toast } from "sonner";
 import { it } from "@/lib/i18n";
 import { COUNTRIES, MONTHS, GENDER_IDENTITIES, ITALIAN_REGIONS, ITALIAN_PROVINCES } from "@/lib/profileOptions";
@@ -179,6 +180,9 @@ export const BasicInfoSection = ({ externalProfileId }: BasicInfoSectionProps) =
         )}
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Avatar + nome, inglobati nella prima sezione */}
+        <ProfilePhotoSection embedded externalProfileId={externalProfileId} />
+
         {/* Nome / Cognome */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
