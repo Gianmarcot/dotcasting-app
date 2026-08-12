@@ -27,12 +27,16 @@ export const ProfileCompletionBar = ({
      localStorage.setItem(STORAGE_KEY, (!newValue).toString());
    };
  
-   const scrollToSection = (anchor: string) => {
-     const element = document.getElementById(anchor);
-     if (element) {
-       element.scrollIntoView({ behavior: "smooth", block: "start" });
-     }
-   };
+  const scrollToSection = (anchor: string) => {
+    if (onSelectSection) {
+      onSelectSection(anchor);
+      return;
+    }
+    const element = document.getElementById(anchor);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
  
   if (isLoading) {
     return (
