@@ -8,8 +8,10 @@
  
  const STORAGE_KEY = "profile-completion-tips-hidden";
  
- export const ProfileCompletionBar = () => {
-   const { percentage, emoji, message, missingSections, isLoading } = useProfileCompletion();
+export const ProfileCompletionBar = ({
+  onSelectSection,
+}: { onSelectSection?: (anchor: string) => void } = {}) => {
+  const { percentage, emoji, message, missingSections, isLoading } = useProfileCompletion();
    const [showTips, setShowTips] = useState(true);
  
    useEffect(() => {
