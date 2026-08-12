@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProfile } from "@/hooks/useProfile";
 import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
@@ -18,10 +19,23 @@ import { DocumentsSection } from "@/components/profile/DocumentsSection";
 import { WorkInfoSection } from "@/components/profile/WorkInfoSection";
 import { TravelSection } from "@/components/profile/TravelSection";
 import { ProfileCompletionBar } from "@/components/profile/ProfileCompletionBar";
+import {
+  ProfileSectionRail,
+  PROFILE_SECTIONS,
+  anchorToSection,
+  type ProfileSectionKey,
+} from "@/components/profile/ProfileSectionRail";
 
 export const TalentProfile = () => {
-  const { data: profile, isLoading } = useProfile();
+  const { isLoading } = useProfile();
+  const [activeSection, setActiveSection] = useState<ProfileSectionKey>("personal");
 
+  const goToSection = (key: ProfileSectionKey) => {
+    setActiveSection(key);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const currentIndex = PROFILE_SECTIONS.findIndex((s) => s.key === activeSection);
 
   if (isLoading) {
     return (
@@ -30,6 +44,51 @@ export const TalentProfile = () => {
       </div>
     );
   }
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case "personal":
+        return <BasicInfoSection />;
+      case "contacts":
+        return (
+          <>
+            <ContactInfoSection />
+            <AddressSection />
+          </>
+        );
+      case "documents":
+        return <DocumentsSection />;
+      case "appearance":
+        return (
+          <>
+            <MeasurementsSection />
+            <PhysicalFeaturesSection />
+          </>
+        );
+      case "bio":
+        return (
+          <>
+            <AboutMeSection />
+            <AbilitiesSection />
+            <SkillsSection />
+            <LanguagesSection />
+          </>
+        );
+      case "work":
+        return (
+          <>
+            <WorkInfoSection />
+            <TravelSection />
+          </>
+        );
+      case "roles":
+        return <TalentRolesSection />;
+      case "media":
+        return <MediaGallerySection />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-up">
@@ -43,7 +102,7 @@ export const TalentProfile = () => {
         </div>
         <Link to="/talent/profile/preview">
           <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="h-4 w-4" />
             Visualizza profilo pubblico
           </Button>
         </Link>
@@ -55,85 +114,41 @@ export const TalentProfile = () => {
           <ProfilePhotoSection />
         </div>
         <div className="lg:col-span-2">
-          <ProfileCompletionBar />
+          <ProfileCompletionBar
+            onSelectSection={(anchor) => {
+              const key = anchorToSection(anchor);
+              if (key) goToSection(key);
+            }}
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info */}
-          <div id="basic-info">
-            <BasicInfoSection />
-          </div>
-
-          {/* About Me */}
-          <div id="about-me">
-            <AboutMeSection />
-          </div>
-
-          {/* Talent Roles */}
-          <div id="talent-roles">
-            <TalentRolesSection />
-          </div>
-
-          {/* Media Gallery */}
-          <div id="media-gallery">
-            <MediaGallerySection />
-          </div>
-
-          {/* Measurements */}
-          <div id="measurements">
-            <MeasurementsSection />
-          </div>
-
-          {/* Physical Features */}
-          <div id="physical-features">
-            <PhysicalFeaturesSection />
-          </div>
-
-          {/* Abilities */}
-          <div id="abilities">
-            <AbilitiesSection />
-          </div>
-
-          {/* Skills */}
-          <div id="skills">
-            <SkillsSection />
-          </div>
-
-          {/* Languages */}
-          <div id="languages">
-            <LanguagesSection />
-          </div>
+      {/* Section navigation + content */}
+      <div className="grid grid-cols-1 lg:grid-cols-10 gap-6 items-start">
+        <div className="lg:col-span-3 lg:sticky lg:top-6">
+          <ProfileSectionRail active={activeSection} onSelect={goToSection} />
         </div>
 
-        {/* Right Sidebar */}
-        <div className="space-y-6">
+        <div className="lg:col-span-7 space-y-6">
+          {renderSection()}
 
-          {/* Contact Info */}
-          <div id="contact-info">
-            <ContactInfoSection />
-          </div>
-
-          {/* Address */}
-          <div id="address">
-            <AddressSection />
-          </div>
-
-          {/* Documents */}
-          <div id="documents">
-            <DocumentsSection />
-          </div>
-
-          {/* Work Info */}
-          <div id="work-info">
-            <WorkInfoSection />
-          </div>
-
-          {/* Travel */}
-          <div id="travel">
-            <TravelSection />
+          {/* Prev / Next */}
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <Button
+              variant="secondary"
+              onClick={() => goToSection(PROFILE_SECTIONS[currentIndex - 1].key)}
+              disabled={currentIndex <= 0}
+            >
+              <ChevronLeft className="h-5 w-5" />
+              Indietro
+            </Button>
+            <Button
+              onClick={() => goToSection(PROFILE_SECTIONS[currentIndex + 1].key)}
+              disabled={currentIndex >= PROFILE_SECTIONS.length - 1}
+            >
+              Avanti
+              <ChevronRight className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </div>

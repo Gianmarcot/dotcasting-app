@@ -8,8 +8,10 @@
  
  const STORAGE_KEY = "profile-completion-tips-hidden";
  
- export const ProfileCompletionBar = () => {
-   const { percentage, emoji, message, missingSections, isLoading } = useProfileCompletion();
+export const ProfileCompletionBar = ({
+  onSelectSection,
+}: { onSelectSection?: (anchor: string) => void } = {}) => {
+  const { percentage, emoji, message, missingSections, isLoading } = useProfileCompletion();
    const [showTips, setShowTips] = useState(true);
  
    useEffect(() => {
@@ -25,12 +27,16 @@
      localStorage.setItem(STORAGE_KEY, (!newValue).toString());
    };
  
-   const scrollToSection = (anchor: string) => {
-     const element = document.getElementById(anchor);
-     if (element) {
-       element.scrollIntoView({ behavior: "smooth", block: "start" });
-     }
-   };
+  const scrollToSection = (anchor: string) => {
+    if (onSelectSection) {
+      onSelectSection(anchor);
+      return;
+    }
+    const element = document.getElementById(anchor);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
  
   if (isLoading) {
     return (
