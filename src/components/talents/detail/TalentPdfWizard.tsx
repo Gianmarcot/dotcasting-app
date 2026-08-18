@@ -26,6 +26,7 @@ import { FIELD_REGISTRY, GROUP_LABELS, type FieldGroup, type Talent } from "@/li
 import { resolveCard, type RoundPreset } from "@/lib/casting/roundPreset";
 import { TalentCardPDF } from "@/lib/casting/TalentCardPDF";
 import { fetchTalentByProfileId } from "@/lib/casting/fetchRoundTalents";
+import { fetchPhotoAsDataUrl } from "@/lib/casting/generateRound";
 import { fetchAppSettings } from "@/hooks/useAppSettings";
 
 if (!(globalThis as { Buffer?: unknown }).Buffer) {
@@ -92,7 +93,19 @@ export const TalentPdfWizard = ({
     setGenerating(true);
     try {
       const branding = await fetchAppSettings().catch(() => null);
-      const ordered = (talent.photos ?? []).filter((u) => photos.includes(u));
+      const selectedUrls = (talent.photos ?? []).filter((u) => photos.includes(u));
+      // react-pdf non accetta URL remoti senza estensione valida:
+      // le foto vanno risolte in data URL (con correzione EXIF) come nei round.
+      const fetched = await Promise.all(selectedUrls.map((u) => fetchPhotoAsDataUrl(u)));
+      const ordered = fetched
+        .map((r) => r.dataUrl)
+        .filter((u): u is string => !!u);
+      if (ordered.length < selectedUrls.length) {
+        toast({
+          title: "Alcune foto non sono state incluse",
+          description: "Il PDF è stato generato con le foto disponibili.",
+        });
+      }
       const preset: RoundPreset = {
         fields,
         // le prime 2 foto sono le cover di pagina 1: il resto è galleria

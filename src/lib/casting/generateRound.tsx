@@ -86,7 +86,7 @@ interface FetchPhotoResult {
  * poi l'originale non trasformato. Ogni candidato viene ritentato una
  * volta in caso di errore di rete transitorio.
  */
-async function fetchPhotoAsDataUrl(url: string, timeoutMs = 20000): Promise<FetchPhotoResult> {
+export async function fetchPhotoAsDataUrl(url: string, timeoutMs = 20000): Promise<FetchPhotoResult> {
   const candidates = [url];
   if (url.includes("/storage/v1/render/image/public/")) {
     candidates.push(
