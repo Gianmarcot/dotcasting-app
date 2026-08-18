@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Plus, Image, Video, Loader2, Upload } from "lucide-react";
+import { Image, Video, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { ImageIcon, Plus, Video, Image, Loader2, Upload } from "lucide-react";
+import { ImageIcon, Video, Image, Loader2, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
