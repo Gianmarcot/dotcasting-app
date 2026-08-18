@@ -1,5 +1,6 @@
 import { forwardRef, useState, type ReactNode } from "react";
 import { Check, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -42,7 +43,7 @@ export const SectionCard = ({
 );
 
 export const SectionDivider = ({ className }: { className?: string }) => (
-  <hr className={cn("border-t border-border", className)} />
+  <hr className={cn("border-t border-divider", className)} />
 );
 
 export const GroupLabel = ({ children }: { children: ReactNode }) => (
@@ -467,24 +468,26 @@ export const ConfirmButton = ({
   onClick: () => void;
   disabled?: boolean;
 }) => (
-  <button
+  <Button
     type="button"
+    variant="secondary"
+    size="icon-lg"
     onClick={onClick}
     disabled={disabled}
     aria-label="Conferma"
-    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground disabled:opacity-50"
   >
     <Check className="h-5 w-5" />
-  </button>
+  </Button>
 );
 
 export const CancelButton = ({ onClick }: { onClick: () => void }) => (
-  <button
+  <Button
     type="button"
+    variant="secondary"
+    size="icon-lg"
     onClick={onClick}
     aria-label="Annulla"
-    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted text-foreground"
   >
     <X className="h-5 w-5" />
-  </button>
+  </Button>
 );
