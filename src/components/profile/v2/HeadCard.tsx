@@ -201,7 +201,7 @@ export const HeadCard = () => {
         </FieldSlot>
 
 
-        <GroupHeading>Luogo di nascita</GroupHeading>
+        <GroupLabel>Luogo di nascita</GroupLabel>
         <FieldGrid cols={4}>
           <GeoFields
             value={birthPlace}
