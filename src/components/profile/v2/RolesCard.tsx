@@ -1,4 +1,4 @@
-import { Tag } from "lucide-react";
+import { PriceTagIcon } from "@/components/profile/v2/sectionIcons";
 import { TALENT_ROLES, TALENT_ROLE_GROUPS } from "@/lib/profileOptions";
 import {
   GroupHeading,

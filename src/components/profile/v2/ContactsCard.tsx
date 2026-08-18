@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail } from "lucide-react";
+import { EnvelopeOpenIcon } from "@/components/profile/v2/sectionIcons";
 import { PHONE_PREFIXES } from "@/lib/profileOptions";
 import {
   FieldGrid,

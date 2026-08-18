@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin } from "lucide-react";
+import { LocationIcon } from "@/components/profile/v2/sectionIcons";
 import type { Json } from "@/integrations/supabase/types";
 import {
   GroupHeading,

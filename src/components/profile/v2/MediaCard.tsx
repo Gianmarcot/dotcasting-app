@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Camera, Clapperboard, Loader2 } from "lucide-react";
+import { CameraIcon } from "@/components/profile/v2/sectionIcons";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";

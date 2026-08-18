@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GraduationCap, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import { EducationIcon } from "@/components/profile/v2/sectionIcons";
 import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
 import { EDUCATION_LEVELS, LANGUAGES, LANGUAGE_LEVELS } from "@/lib/profileOptions";
