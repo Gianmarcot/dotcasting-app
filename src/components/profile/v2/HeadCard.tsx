@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,47 +17,36 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
-import { calcAge, useProfileAutoSave } from "./useProfileAutoSave";
+import { FieldSlot, useProfileForm } from "./ProfileFormContext";
 
 const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 export const HeadCard = () => {
   const { user } = useAuth();
-  const { profile, save } = useProfileAutoSave();
+  const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [stageName, setStageName] = useState("");
-  const [birth, setBirth] = useState({ day: "", month: "", year: "" });
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
-  const [birthPlace, setBirthPlace] = useState<AddressValue>({});
-  const [gender, setGender] = useState("");
-  const [genderIdentity, setGenderIdentity] = useState("");
-  const [representation, setRepresentation] = useState("");
+  const birthDate = str("p", "birth_date");
+  const birth = useMemo(() => {
+    const [y = "", m = "", d = ""] = birthDate.split("-");
+    return { day: d, month: m, year: y };
+  }, [birthDate]);
 
-  useEffect(() => {
-    if (!profile) return;
-    setFirstName(profile.first_name ?? "");
-    setLastName(profile.last_name ?? "");
-    setStageName(profile.stage_name ?? "");
-    if (profile.birth_date) {
-      const [y, m, d] = profile.birth_date.split("-");
-      setBirth({ day: d ?? "", month: m ?? "", year: y ?? "" });
-    }
-    setAgeConfirmed(!!profile.age_confirmed);
-    setBirthPlace({
-      state: profile.birth_country ?? "",
-      region: profile.birth_region ?? "",
-      province: profile.birth_province ?? "",
-      city: profile.birth_city ?? "",
-    });
-    setGender(profile.gender ?? "");
-    setGenderIdentity(profile.gender_identity ?? "");
-    setRepresentation(profile.representation_type ?? "");
-  }, [profile]);
+  const setBirthPart = (part: "day" | "month" | "year", value: string) => {
+    const next = { ...birth, [part]: value };
+    set("p", "birth_date", next.day && next.month && next.year
+      ? `${next.year}-${next.month}-${next.day}`
+      : null);
+  };
+
+  const birthPlace: AddressValue = {
+    state: str("p", "birth_country"),
+    region: str("p", "birth_region"),
+    province: str("p", "birth_province"),
+    city: str("p", "birth_city"),
+  };
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,7 +68,7 @@ export const HeadCard = () => {
       const {
         data: { publicUrl },
       } = supabase.storage.from("avatars").getPublicUrl(path);
-      save({ profile_photo_url: `${publicUrl}?v=${Date.now()}` });
+      saveNow("p", { profile_photo_url: `${publicUrl}?v=${Date.now()}` });
       toast.success("Foto profilo aggiornata!");
     } catch {
       toast.error("Errore durante il caricamento della foto");
@@ -88,31 +77,8 @@ export const HeadCard = () => {
     }
   };
 
-  const commitBirth = (next: { day: string; month: string; year: string }) => {
-    setBirth(next);
-    if (next.day && next.month && next.year) {
-      const value = `${next.year}-${next.month}-${next.day}`;
-      const age = calcAge(value);
-      if (age !== null && age < 18) {
-        toast.error("Devi avere almeno 18 anni per usare la piattaforma");
-        return;
-      }
-      save({ birth_date: value });
-    }
-  };
-
-  const commitBirthPlace = (next: AddressValue) => {
-    setBirthPlace(next);
-    save({
-      birth_country: next.state || null,
-      birth_region: next.region || null,
-      birth_province: next.province || null,
-      birth_city: next.city || null,
-    });
-  };
-
-  const displayName = [profile?.first_name, profile?.last_name].filter(Boolean).join(" ");
-  const location = [profile?.city, profile?.country].filter(Boolean).join(", ");
+  const displayName = [str("p", "first_name"), str("p", "last_name")].filter(Boolean).join(" ");
+  const location = [str("p", "city"), str("p", "country")].filter(Boolean).join(", ");
 
   return (
     <SectionCard>
@@ -122,15 +88,15 @@ export const HeadCard = () => {
           <div className="absolute inset-0 -rotate-6 rounded-2xl bg-field" />
           <div className="absolute inset-0 rotate-3 rounded-2xl bg-field/80" />
           <div className="absolute inset-0 overflow-hidden rounded-2xl bg-muted">
-            {profile?.profile_photo_url ? (
+            {profileRow?.profile_photo_url ? (
               <img
-                src={profile.profile_photo_url}
+                src={profileRow.profile_photo_url}
                 alt={displayName || "Foto profilo"}
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-4xl font-display text-field-label">
-                {(profile?.first_name?.[0] ?? "?").toUpperCase()}
+              <div className="flex h-full w-full items-center justify-center font-display text-4xl text-field-label">
+                {(str("p", "first_name")[0] ?? "?").toUpperCase()}
               </div>
             )}
           </div>
@@ -165,38 +131,35 @@ export const HeadCard = () => {
         <FieldGrid cols={2}>
           <FloatingInput
             label="Nome"
-            value={firstName}
-            onChange={setFirstName}
-            onBlur={() => save({ first_name: firstName || null })}
+            value={str("p", "first_name")}
+            onChange={(v) => set("p", "first_name", v)}
           />
           <FloatingInput
             label="Cognome"
-            value={lastName}
-            onChange={setLastName}
-            onBlur={() => save({ last_name: lastName || null })}
+            value={str("p", "last_name")}
+            onChange={(v) => set("p", "last_name", v)}
           />
         </FieldGrid>
 
         <FloatingInput
           label="Nome d'arte"
-          value={stageName}
-          onChange={setStageName}
-          onBlur={() => save({ stage_name: stageName || null })}
+          value={str("p", "stage_name")}
+          onChange={(v) => set("p", "stage_name", v)}
         />
 
-        <div>
+        <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8 lg:max-w-[calc(190px*3+64px)]">
             <FloatingSelect
               label="Giorno"
               value={birth.day}
-              onValueChange={(v) => commitBirth({ ...birth, day: v })}
+              onValueChange={(v) => setBirthPart("day", v)}
               options={toOptions(DAYS)}
             />
             <FloatingSelect
               label="Mese"
               value={birth.month}
-              onValueChange={(v) => commitBirth({ ...birth, month: v })}
+              onValueChange={(v) => setBirthPart("month", v)}
               options={MONTHS.map((m, i) => ({
                 value: String(i + 1).padStart(2, "0"),
                 label: m,
@@ -205,25 +168,29 @@ export const HeadCard = () => {
             <FloatingSelect
               label="Anno"
               value={birth.year}
-              onValueChange={(v) => commitBirth({ ...birth, year: v })}
+              onValueChange={(v) => setBirthPart("year", v)}
               options={toOptions(YEARS)}
             />
           </div>
-        </div>
+        </FieldSlot>
 
         <ProfileCheckbox
-          checked={ageConfirmed}
-          onCheckedChange={(checked) => {
-            setAgeConfirmed(checked);
-            save({ age_confirmed: checked });
-          }}
+          checked={bool("p", "age_confirmed")}
+          onCheckedChange={(checked) => set("p", "age_confirmed", checked)}
           label="Confermo di aver compiuto 18 anni *"
         />
 
         <FieldGrid cols={4}>
           <GeoFields
             value={birthPlace}
-            onChange={commitBirthPlace}
+            onChange={(next) =>
+              setMany("p", {
+                birth_country: next.state || null,
+                birth_region: next.region || null,
+                birth_province: next.province || null,
+                birth_city: next.city || null,
+              })
+            }
             labels={{ state: "Stato di nascita" }}
           />
         </FieldGrid>
@@ -233,11 +200,8 @@ export const HeadCard = () => {
             <GroupLabel>Sesso</GroupLabel>
             <div className="flex min-h-16 items-center">
               <ProfileRadioGroup
-                value={gender}
-                onValueChange={(v) => {
-                  setGender(v);
-                  save({ gender: v });
-                }}
+                value={str("p", "gender")}
+                onValueChange={(v) => set("p", "gender", v)}
                 options={[
                   { value: "M", label: "M" },
                   { value: "F", label: "F" },
@@ -247,11 +211,8 @@ export const HeadCard = () => {
           </div>
           <FloatingSelect
             label="Identità di genere"
-            value={genderIdentity}
-            onValueChange={(v) => {
-              setGenderIdentity(v);
-              save({ gender_identity: v });
-            }}
+            value={str("p", "gender_identity")}
+            onValueChange={(v) => set("p", "gender_identity", v)}
             options={toOptions(GENDER_IDENTITIES)}
           />
         </FieldGrid>
@@ -261,11 +222,8 @@ export const HeadCard = () => {
         <div>
           <GroupLabel>Rappresentanza</GroupLabel>
           <ProfileRadioGroup
-            value={representation}
-            onValueChange={(v) => {
-              setRepresentation(v);
-              save({ representation_type: v });
-            }}
+            value={str("p", "representation_type")}
+            onValueChange={(v) => set("p", "representation_type", v)}
             options={REPRESENTATION_TYPES}
           />
         </div>
