@@ -2,6 +2,7 @@ import { useState } from "react";
 import { MapPin } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 import {
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -29,7 +30,7 @@ export const AddressCard = () => {
   return (
     <SectionCard icon={<MapPin strokeWidth={1} />} title="Indirizzo">
       <div>
-        <GroupLabel>Residenza</GroupLabel>
+        <GroupHeading>Residenza</GroupHeading>
         <AddressBlock value={residence} onChange={setResidence} />
       </div>
 
@@ -46,7 +47,7 @@ export const AddressCard = () => {
         <>
           <SectionDivider />
           <div>
-            <GroupLabel>Domicilio</GroupLabel>
+            <GroupHeading>Domicilio</GroupHeading>
             <AddressBlock
               value={domicile}
               onChange={(next) => set("p", "domicile_address", next as unknown as Json)}

@@ -5,6 +5,7 @@ import {
   CancelButton,
   ConfirmButton,
   FloatingInput,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -36,7 +37,7 @@ export const WorkTravelCard = () => {
   return (
     <SectionCard icon={<Briefcase strokeWidth={1} />} title="Lavoro e viaggi">
       <div>
-        <GroupLabel>Occupazione principale</GroupLabel>
+        <GroupHeading>Occupazione principale</GroupHeading>
         <FloatingInput
           label="Occupazione principale"
           value={str("p", "main_occupation")}
@@ -59,7 +60,7 @@ export const WorkTravelCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Città di appoggio</GroupLabel>
+        <GroupHeading>Città di appoggio</GroupHeading>
         <div className="flex flex-wrap gap-2">
           {cities.map((city) => (
             <ValueChip
@@ -108,7 +109,7 @@ export const WorkTravelCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Patenti</GroupLabel>
+        <GroupHeading>Patenti</GroupHeading>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-8">
           {DRIVING_LICENSES.map((license) => (
             <ProfileCheckbox

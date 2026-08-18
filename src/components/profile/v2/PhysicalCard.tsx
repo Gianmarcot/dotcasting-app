@@ -14,6 +14,7 @@ import {
   FieldGrid,
   FloatingInput,
   FloatingSelect,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -57,7 +58,7 @@ export const PhysicalCard = () => {
   return (
     <SectionCard icon={<Shirt strokeWidth={1} />} title="Aspetto fisico">
       <div>
-        <GroupLabel>Corporatura</GroupLabel>
+        <GroupHeading>Corporatura</GroupHeading>
         <div className="space-y-4 sm:space-y-8">
           <FieldGrid cols={3}>
             {measureField("height", "Altezza (cm)")}
@@ -80,7 +81,7 @@ export const PhysicalCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Taglie</GroupLabel>
+        <GroupHeading>Taglie</GroupHeading>
         <div className="space-y-4 sm:space-y-8">
           <FieldGrid cols={3}>
             {attrSelect("jacket_size", "Taglia giacca", JACKET_SIZES)}
@@ -98,7 +99,7 @@ export const PhysicalCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Capelli e occhi</GroupLabel>
+        <GroupHeading>Capelli e occhi</GroupHeading>
         <div className="space-y-4 sm:space-y-8">
           <FieldGrid cols={3}>
             {attrSelect("hair_color", "Colore capelli", HAIR_COLORS)}
@@ -120,7 +121,7 @@ export const PhysicalCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Segni particolari</GroupLabel>
+        <GroupHeading>Segni particolari</GroupHeading>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
           {MARKS.map((m) => (
             <ProfileCheckbox

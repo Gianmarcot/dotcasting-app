@@ -9,6 +9,7 @@ import {
   FieldGrid,
   FloatingInput,
   FloatingSelect,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -105,7 +106,7 @@ export const DocumentsCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Dati bancari</GroupLabel>
+        <GroupHeading>Dati bancari</GroupHeading>
         <div className="space-y-4 sm:space-y-8">
           <FieldGrid cols={2}>
             <FloatingInput

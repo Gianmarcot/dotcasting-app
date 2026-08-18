@@ -9,6 +9,7 @@ import {
   FloatingInput,
   FloatingSelect,
   FloatingTextarea,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -67,7 +68,7 @@ export const BioCard = () => {
   return (
     <SectionCard icon={<GraduationCap strokeWidth={1} />} title="Bio, abilità e lingue">
       <div>
-        <GroupLabel>Esperienze</GroupLabel>
+        <GroupHeading>Esperienze</GroupHeading>
         <FloatingTextarea
           label="Raccontaci delle tue esperienze"
           value={str("p", "bio")}
@@ -78,7 +79,7 @@ export const BioCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Ulteriori abilità</GroupLabel>
+        <GroupHeading>Ulteriori abilità</GroupHeading>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
           {ABILITY_ITEMS.map((a) => (
             <ProfileCheckbox
@@ -118,7 +119,7 @@ export const BioCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Titolo di studio</GroupLabel>
+        <GroupHeading>Titolo di studio</GroupHeading>
         <FieldGrid cols={2}>
           <FloatingSelect
             label="Titolo di studio"
@@ -137,7 +138,7 @@ export const BioCard = () => {
       <SectionDivider />
 
       <div>
-        <GroupLabel>Lingue</GroupLabel>
+        <GroupHeading>Lingue</GroupHeading>
         <div className="flex flex-wrap gap-2">
           {Object.entries(levels).map(([language, level]) => (
             <ValueChip

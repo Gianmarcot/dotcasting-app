@@ -1,7 +1,7 @@
 import { Tag } from "lucide-react";
 import { TALENT_ROLES, TALENT_ROLE_GROUPS } from "@/lib/profileOptions";
 import {
-  GroupLabel,
+  GroupHeading,
   RolePill,
   SectionCard,
   SectionDivider,
@@ -22,7 +22,7 @@ export const RolesCard = () => {
       {TALENT_ROLE_GROUPS.map((group, index) => (
         <div key={group.key}>
           {index > 0 && <SectionDivider className="mb-6" />}
-          <GroupLabel>{group.label}</GroupLabel>
+          <GroupHeading>{group.label}</GroupHeading>
           <div className="flex flex-wrap gap-2">
             {TALENT_ROLES[group.key].map((role) => (
               <RolePill
