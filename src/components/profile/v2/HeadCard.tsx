@@ -153,40 +153,43 @@ export const HeadCard = () => {
 
         <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
-          <FieldCluster className="max-w-[420px]">
-            <FloatingSelect
-              label="Giorno"
-              className="flex-1"
-              value={birth.day}
-              onValueChange={(v) => setBirthPart("day", v)}
-              options={toOptions(DAYS)}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
+            <FieldCluster className="w-full max-w-[420px]">
+              <FloatingSelect
+                label="Giorno"
+                className="flex-1"
+                value={birth.day}
+                onValueChange={(v) => setBirthPart("day", v)}
+                options={toOptions(DAYS)}
+              />
+              <FloatingSelect
+                label="Mese"
+                className="flex-1"
+                value={birth.month}
+                onValueChange={(v) => setBirthPart("month", v)}
+                options={MONTHS.map((m, i) => ({
+                  value: String(i + 1).padStart(2, "0"),
+                  label: m,
+                }))}
+              />
+              <FloatingSelect
+                label="Anno"
+                className="flex-1"
+                value={birth.year}
+                onValueChange={(v) => setBirthPart("year", v)}
+                options={toOptions(YEARS)}
+              />
+            </FieldCluster>
+            <ProfileCheckbox
+              checked={isAdult}
+              disabled
+              onCheckedChange={() => {}}
+              label="Confermo di aver compiuto 18 anni"
+              className="shrink-0"
             />
-            <FloatingSelect
-              label="Mese"
-              className="flex-1"
-              value={birth.month}
-              onValueChange={(v) => setBirthPart("month", v)}
-              options={MONTHS.map((m, i) => ({
-                value: String(i + 1).padStart(2, "0"),
-                label: m,
-              }))}
-            />
-            <FloatingSelect
-              label="Anno"
-              className="flex-1"
-              value={birth.year}
-              onValueChange={(v) => setBirthPart("year", v)}
-              options={toOptions(YEARS)}
-            />
-          </FieldCluster>
+          </div>
         </FieldSlot>
 
-
-        <ProfileCheckbox
-          checked={bool("p", "age_confirmed")}
-          onCheckedChange={(checked) => set("p", "age_confirmed", checked)}
-          label="Confermo di aver compiuto 18 anni *"
-        />
 
         <FieldGrid cols={4}>
           <GeoFields
