@@ -1,4 +1,7 @@
+import { useMemo } from "react";
 import { IdCard } from "lucide-react";
+import { fiscalCodeCoherenceWarning, validateFiscalCode } from "@/lib/fiscalCode";
+
 import {
   COUNTRIES,
   NATIONALITIES,
