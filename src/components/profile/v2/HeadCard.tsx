@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { compressImage } from "@/lib/media/compressImage";
 import { GENDER_IDENTITIES, MONTHS, REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
+  FieldCluster,
   FieldGrid,
   FloatingInput,
   FloatingSelect,
