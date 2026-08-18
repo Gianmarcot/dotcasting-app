@@ -106,6 +106,7 @@ export const ImageCropModal = ({
             <img
               ref={imgRef}
               src={imageSrc}
+              crossOrigin="anonymous"
               alt="Crop"
               onLoad={onImageLoad}
               className="max-h-[55vh] w-auto"

@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { compressImage } from "@/lib/media/compressImage";
 import { GENDER_IDENTITIES, MONTHS, REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
   FieldCluster,
@@ -20,16 +16,16 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
+import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
 import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
 const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 export const HeadCard = () => {
-  const { user } = useAuth();
   const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const photoButtonRef = useRef<HTMLButtonElement>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const birthDate = str("p", "birth_date");
   const birth = useMemo(() => {
@@ -61,35 +57,6 @@ export const HeadCard = () => {
     city: str("p", "birth_city"),
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file || !user?.id) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Il file è troppo grande. Massimo 5MB.");
-      return;
-    }
-    setIsUploading(true);
-    try {
-      const compressed = await compressImage(file, "avatar");
-      const ext = compressed.name.split(".").pop();
-      const path = `${user.id}/avatar.${ext}`;
-      const { error } = await supabase.storage
-        .from("avatars")
-        .upload(path, compressed, { upsert: true });
-      if (error) throw error;
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(path);
-      saveNow("p", { profile_photo_url: `${publicUrl}?v=${Date.now()}` });
-      toast.success("Foto profilo aggiornata!");
-    } catch {
-      toast.error("Errore durante il caricamento della foto");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const displayName = [str("p", "first_name"), str("p", "last_name")].filter(Boolean).join(" ");
   const location = [str("p", "city"), str("p", "country")].filter(Boolean).join(", ");
 
@@ -114,26 +81,23 @@ export const HeadCard = () => {
             )}
           </div>
           <Button
+            ref={photoButtonRef}
             type="button"
             size="lg"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
+            onClick={() => setGalleryOpen(true)}
             className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
-            {isUploading ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <Camera />
-            )}
+            <Camera />
             Le mie foto
           </Button>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handlePhotoUpload}
-          className="hidden"
+        <PhotoGalleryModal
+          open={galleryOpen}
+          onOpenChange={(v) => {
+            setGalleryOpen(v);
+            if (!v) photoButtonRef.current?.focus();
+          }}
+          initialCategory="main_photos"
         />
         <h2 className="mt-10 font-display text-xl uppercase text-foreground">
           {displayName || "Il tuo nome"}

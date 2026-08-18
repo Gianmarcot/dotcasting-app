@@ -1,0 +1,1 @@
+ALTER TABLE public.talent_media ADD COLUMN IF NOT EXISTS crops jsonb NOT NULL DEFAULT '{}'::jsonb;

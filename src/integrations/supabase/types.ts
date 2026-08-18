@@ -1225,6 +1225,7 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          crops: Json
           id: string
           media_type: string
           profile_id: string
@@ -1237,6 +1238,7 @@ export type Database = {
         Insert: {
           category?: string
           created_at?: string
+          crops?: Json
           id?: string
           media_type: string
           profile_id: string
@@ -1249,6 +1251,7 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          crops?: Json
           id?: string
           media_type?: string
           profile_id?: string
