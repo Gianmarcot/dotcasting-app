@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { FieldGrid, FloatingInput, FloatingSelect, toOptions } from "./FormFields";
 import { COUNTRIES, ITALIAN_PROVINCES, ITALIAN_REGIONS } from "@/lib/profileOptions";
+import { getComuniSync, loadComuni } from "@/lib/geo/comuni";
 
 export interface AddressValue {
   state?: string;
@@ -25,6 +27,10 @@ export const cascadeAddress = (
   }
   if (field === "region") {
     next.province = "";
+    next.city = "";
+  }
+  if (field === "province") {
+    next.city = "";
   }
   return next;
 };
@@ -40,6 +46,25 @@ export const GeoFields = ({
   labels?: { state?: string; region?: string; province?: string; city?: string };
 }) => {
   const italy = isItaly(value);
+  const province = value.province ?? "";
+  const [comuni, setComuni] = useState<string[] | null>(() =>
+    province ? getComuniSync(province) : null
+  );
+
+  useEffect(() => {
+    if (!italy || !province) {
+      setComuni(null);
+      return;
+    }
+    let active = true;
+    loadComuni().then((data) => {
+      if (active) setComuni(data[province] ?? null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [italy, province]);
+
   const set = (field: keyof AddressValue) => (v: string) =>
     onChange(cascadeAddress(value, field, v));
 
@@ -68,22 +93,31 @@ export const GeoFields = ({
       {italy ? (
         <FloatingSelect
           label={labels.province ?? "Provincia"}
-          value={value.province ?? ""}
+          value={province}
           onValueChange={set("province")}
           options={toOptions(ITALIAN_PROVINCES[value.region ?? ""] ?? [])}
         />
       ) : (
         <FloatingInput
           label={labels.province ?? "Provincia"}
-          value={value.province ?? ""}
+          value={province}
           onChange={(v) => onChange({ ...value, province: v })}
         />
       )}
-      <FloatingInput
-        label={labels.city ?? "Città"}
-        value={value.city ?? ""}
-        onChange={(v) => onChange({ ...value, city: v })}
-      />
+      {italy && comuni && comuni.length > 0 ? (
+        <FloatingSelect
+          label={labels.city ?? "Città"}
+          value={value.city ?? ""}
+          onValueChange={(v) => onChange({ ...value, city: v })}
+          options={toOptions(comuni)}
+        />
+      ) : (
+        <FloatingInput
+          label={labels.city ?? "Città"}
+          value={value.city ?? ""}
+          onChange={(v) => onChange({ ...value, city: v })}
+        />
+      )}
     </>
   );
 };
