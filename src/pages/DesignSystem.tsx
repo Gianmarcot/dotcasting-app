@@ -897,6 +897,19 @@ const PatternsSection = () => (
       </a>
     </SubBlock>
 
+    <SubBlock
+      title="ModalNavBar"
+      source="src/components/ui/modal-nav-bar.tsx · 72x72 / 176x72"
+    >
+      <div className="flex flex-wrap items-center gap-6">
+        <ModalNavBar onClose={() => undefined} />
+        <ModalNavBar showNavigation onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
+        <ModalNavBar showNavigation prevDisabled onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
+      </div>
+    </SubBlock>
+
+
+
 
 
   </Section>
