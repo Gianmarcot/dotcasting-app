@@ -6,6 +6,7 @@ import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";
 import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
+import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
 
 const PHOTO_CATEGORIES = MEDIA_CATEGORIES.filter((c) => c.type === "photo");
 
@@ -82,6 +83,7 @@ const VideoBlock = ({
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const photos = (media ?? []).filter((m) => m.media_type === "photo");
 
   const previews = PHOTO_CATEGORIES.map((category) => ({
@@ -121,7 +123,7 @@ export const MediaCard = () => {
           </p>
         )}
         <div className="mt-6 flex justify-center">
-          <Button type="button" size="lg" iconPosition="left">
+          <Button type="button" size="lg" iconPosition="left" onClick={() => setGalleryOpen(true)}>
             <Camera />
             Tutte le foto
           </Button>
@@ -130,6 +132,8 @@ export const MediaCard = () => {
 
       <VideoBlock category="intro_video" title="Video di presentazione" buttonLabel="Carica un video" />
       <VideoBlock category="showreel" title="Showreel Professionale" buttonLabel="Carica un video" />
+
+      <PhotoGalleryModal open={galleryOpen} onOpenChange={setGalleryOpen} initialCategory="main_photos" />
     </SectionCard>
   );
 };
