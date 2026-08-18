@@ -27,7 +27,7 @@ export const AddressCard = () => {
   };
 
   return (
-    <SectionCard icon={<MapPin strokeWidth={1} />} title="Indirizzo">
+    <SectionCard icon={<LocationIcon />} title="Indirizzo">
       <div>
         <GroupHeading>Residenza</GroupHeading>
         <AddressBlock value={residence} onChange={setResidence} />

@@ -57,7 +57,7 @@ export const ContactsCard = () => {
   };
 
   return (
-    <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
+    <SectionCard icon={<EnvelopeOpenIcon />} title="Contatti">
       <FieldSlot name="contact_email">
         <FloatingInput
           label="Email di contatto"

@@ -68,7 +68,7 @@ export const BioCard = () => {
   };
 
   return (
-    <SectionCard icon={<GraduationCap strokeWidth={1} />} title="Bio, abilità e lingue">
+    <SectionCard icon={<EducationIcon />} title="Bio, abilità e lingue">
       <div>
         <GroupHeading>Esperienze</GroupHeading>
         <FloatingTextarea
