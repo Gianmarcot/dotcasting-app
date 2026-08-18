@@ -10,6 +10,8 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { validateFiscalCode } from "@/lib/fiscalCode";
+
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile, type ProfileUpdate } from "@/hooks/useUpdateProfile";
 import {
