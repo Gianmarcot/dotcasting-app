@@ -258,7 +258,7 @@ export const TalentDetailModal = ({
                   {section.fields.length > 0 && (
                     <div
                       className={cn(
-                        "grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2",
+                        "min-w-0 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2",
                         section.title ? "mt-12" : "mt-8"
                       )}
                     >
