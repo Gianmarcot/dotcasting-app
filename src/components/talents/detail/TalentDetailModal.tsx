@@ -31,7 +31,7 @@ const LABEL = "text-[13px] leading-tight text-[#686868]";
 const VALUE = "mt-[2px] text-[15px] leading-snug text-[#1a1a1a]";
 
 const FieldItem = ({ field }: { field: DetailField }) => (
-  <div className={field.wide ? "col-span-full" : ""}>
+  <div className={cn("min-w-0", field.wide ? "col-span-full" : "")}>
     <p className={LABEL}>{field.label}</p>
     <p className={cn(VALUE, "whitespace-pre-wrap break-words")}>{field.value}</p>
   </div>
@@ -207,8 +207,8 @@ export const TalentDetailModal = ({
           </div>
 
           {/* METÀ DESTRA — dettagli, scorre */}
-          <div ref={scrollRef} className="flex-1 bg-white lg:h-full lg:w-1/2 lg:overflow-y-auto">
-            <div className="w-full px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
+          <div ref={scrollRef} className="min-w-0 flex-1 bg-white lg:h-full lg:w-1/2 lg:overflow-y-auto">
+            <div className="min-w-0 w-full px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
               <Button
                 type="button"
                 variant="secondary"
@@ -258,7 +258,7 @@ export const TalentDetailModal = ({
                   {section.fields.length > 0 && (
                     <div
                       className={cn(
-                        "grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2",
+                        "min-w-0 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2",
                         section.title ? "mt-12" : "mt-8"
                       )}
                     >
