@@ -31,7 +31,7 @@ const LABEL = "text-[13px] leading-tight text-[#686868]";
 const VALUE = "mt-[2px] text-[15px] leading-snug text-[#1a1a1a]";
 
 const FieldItem = ({ field }: { field: DetailField }) => (
-  <div className={field.wide ? "col-span-full" : ""}>
+  <div className={cn("min-w-0", field.wide ? "col-span-full" : "")}>
     <p className={LABEL}>{field.label}</p>
     <p className={cn(VALUE, "whitespace-pre-wrap break-words")}>{field.value}</p>
   </div>
