@@ -135,7 +135,7 @@ export const TalentDetailModal = ({
                 {photos.length > 0 ? (
                   <div
                     key={profileId ?? "empty"}
-                    className="flex h-full w-full transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                    className="flex h-full w-full transition-transform duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
                     style={{ transform: `translateX(-${photoIndex * 100}%)` }}
                   >
                     {photos.map((url, i) => (
