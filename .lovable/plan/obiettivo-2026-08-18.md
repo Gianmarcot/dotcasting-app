@@ -1,54 +1,29 @@
-Accorgimenti di stile al profilo talent
+Centrare la barra sticky di salvataggio del profilo rispetto all'area main, esclusa la sidebar
 
 ## Obiettivo
-Aggiustare la gerarchia tipografica e la geometria dei divisori nella pagina di modifica profilo talent (`/talent/profile`), lasciando inalterata la sidebar e la logica di salvataggio.
+La `ProfileSaveBar` attualmente è centrata con `left-1/2 -translate-x-1/2`, quindi rispetto all'intera viewport. Questo la fa apparire spostata verso destra quando è presente la sidebar fissa a sinistra. L'obiettivo è centrarla invece rispetto all'area di contenuto principale (main), escludendo la sidebar.
 
-## Modifiche previste
+## Contesto verificato
+- Il profilo talent usa `TalentLayout`, dove la sidebar è fissa a `md:left-64` (16rem = 256px).
+- Il main inizia a `md:left-64` e ha padding/sfondo arrotondato.
+- `ProfileSaveBar` è posizionata con `fixed` e usa `left-1/2 -translate-x-1/2` per centrarsi nella viewport.
 
-### 1. Gerarchia dei titoli di gruppo
+## Modifica proposta
+Aggiornare `src/components/profile/v2/ProfileSaveBar.tsx` per applicare un offset orizzontale pari alla metà della larghezza della sidebar (128px) su desktop, mantenendo il centraggio pieno su mobile.
 
-Distinguere due componenti:
-- **Etichette di campo** (es. "Numero di telefono", "Data di nascita") — restano `15px medium` con `mb-2` come oggi.
-- **Titoli di gruppo** (es. "Residenza", "Domicilio", "Dati bancari") — diventano `16px` con `mb-8`.
+```text
+Viewport:  |--- sidebar 256px ---|------ main area ------|
+Ora:            barra centrata qui ------------------>
+Dopo:                          barra centrata qui ---->
+```
 
-File: `src/components/profile/fields/FormFields.tsx`
-- Creare un nuovo `GroupHeading` con `text-base font-medium mb-8 text-group-label`.
-- Lasciare `GroupLabel` invariato (`text-[15px] font-medium mb-2`).
-
-### 2. Dividori orizzontali interni al padding
-
-I `<hr>` tra blocchi di una stessa sezione devono essere larghi come la colonna di contenuto, non sporgere oltre il padding della card. Rimuovere i margini negativi da `SectionDivider`.
-
-File: `src/components/profile/fields/FormFields.tsx`
-- Cambiare `SectionDivider` da `-mx-5 border-t border-border sm:-mx-8` a un semplice `border-t border-border` senza margini negativi.
-
-### 3. Sostituzione dei titoli nelle card
-
-Tutti i titoli di tipo "Residenza", "Domicilio", "Dati bancari", "Corporatura", "Taglie", "Capelli e occhi", "Segni particolari", "Esperienze", "Ulteriori abilità", "Titolo di studio", "Lingue", "Occupazione principale", "Città di appoggio", "Patenti" etc. vengono convertiti da `GroupLabel` a `GroupHeading`.
-
-Etichette che restano `GroupLabel`:
-- "Numero di telefono", "WhatsApp", "Social Media" (Contatti)
-- "Data di nascita", "Sesso", "Rappresentanza" (Head)
-- "Hai allergie o intolleranze alimentari?", "Fai parte di una band o di un gruppo di artisti?", "Possiedo un'automobile", "Possiedo una moto" — domande brevi che fungono da label del campo sottostante.
-
-File interessati:
-- `src/components/profile/v2/AddressCard.tsx`
-- `src/components/profile/v2/ContactsCard.tsx`
-- `src/components/profile/v2/DocumentsCard.tsx`
-- `src/components/profile/v2/HeadCard.tsx`
-- `src/components/profile/v2/PhysicalCard.tsx`
-- `src/components/profile/v2/BioCard.tsx`
-- `src/components/profile/v2/RolesCard.tsx`
-- `src/components/profile/v2/WorkTravelCard.tsx`
-
-Nessun cambiamento richiesto per `MediaCard.tsx` che non usa `GroupLabel`.
-
-## Cosa NON cambia
-- Sidebar, colori del brand, font, spacing tra i campi (32px), componenti floating, salvataggio globale, barra sticky, logica del form.
-- Non si aggiungono campi nuovi né si modifica il database.
+### Dettagli tecnici
+- Su `md` e superiori: usare `left-[calc(50%+8rem)]` (8rem = 128px = metà sidebar 256px) al posto di `left-1/2`.
+- Su mobile la sidebar non è visibile, quindi lasciare `left-1/2`.
+- Mantenere `z-40`, transizioni, larghezza pill e funzionalità di salvataggio esistenti.
+- Non modificare il layout generale o la sidebar.
 
 ## Verifica
-Aprire `/talent/profile` e controllare:
-- I titoli "Residenza", "Domicilio", "Dati bancari" sono più grandi (16px) e distano di 32px dal primo campo.
-- I label "Numero di telefono" e "Data di nascita" restano 15px.
-- I divider orizzontali non toccano i bordi della card, ma rientrano nel padding interno.
+- Visualizzare `/talent/profile` con modifiche non salvate.
+- Confermare che la pill dark sia centrata rispetto alla zona bianca del contenuto, non rispetto all'intero schermo.
+- Verificare che su viewport mobile (senza sidebar) resti centrata a viewport piena.
