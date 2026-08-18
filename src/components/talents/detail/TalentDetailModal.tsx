@@ -128,12 +128,22 @@ export const TalentDetailModal = ({
                 className="overflow-hidden rounded-2xl bg-black/5"
                 style={{ height: "min(600px, 58.6vh)", aspectRatio: "2 / 3" }}
               >
-                {photos[photoIndex] ? (
-                  <img
-                    src={photos[photoIndex]}
-                    alt={`${fullName} — foto ${photoIndex + 1} di ${photos.length}`}
-                    className="h-full w-full object-cover"
-                  />
+                {photos.length > 0 ? (
+                  <div
+                    key={profileId ?? "empty"}
+                    className="flex h-full w-full transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                    style={{ transform: `translateX(-${photoIndex * 100}%)` }}
+                  >
+                    {photos.map((url, i) => (
+                      <img
+                        key={url + i}
+                        src={url}
+                        alt={`${fullName} — foto ${i + 1} di ${photos.length}`}
+                        className="h-full w-full shrink-0 object-cover"
+                        aria-hidden={i !== photoIndex}
+                      />
+                    ))}
+                  </div>
                 ) : (
                   <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-muted-foreground">
                     Nessuna foto disponibile
@@ -152,8 +162,8 @@ export const TalentDetailModal = ({
                       aria-label={`Vai alla foto ${i + 1}`}
                       aria-current={i === photoIndex}
                       className={cn(
-                        "h-1.5 w-1.5 rounded-full transition-colors",
-                        i === photoIndex ? "bg-[#1a1a1a]" : "bg-[#1a1a1a]/20"
+                        "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
+                        i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
                       )}
                     />
                   ))}
