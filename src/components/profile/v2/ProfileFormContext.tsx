@@ -227,14 +227,17 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
     const email = (draft.p.contact_email as string | null) ?? "";
     if (email && !EMAIL_RE.test(email)) found.contact_email = "Inserisci un indirizzo email valido";
     const fiscal = (draft.p.fiscal_code as string | null) ?? "";
+    const nationality = (draft.p.nationality as string | null) ?? "";
+    const italianFiscal = !nationality || /ital/i.test(nationality);
     if (fiscal) {
       if (fiscal.replace(/[^A-Za-z0-9]/g, "").length !== 16) {
         found.fiscal_code = "Il codice fiscale deve avere 16 caratteri";
-      } else {
+      } else if (italianFiscal) {
         const check = validateFiscalCode(fiscal);
         if (!check.valid) found.fiscal_code = check.error ?? "Codice fiscale non valido";
       }
     }
+
 
     const iban = (draft.p.iban as string | null) ?? "";
     if (iban && iban.replace(/\s/g, "").length < 15) found.iban = "IBAN non valido";
