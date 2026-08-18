@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,7 +103,11 @@ export const UploadBlock = ({
           disabled={busy}
           onClick={() => inputRef.current?.click()}
         >
-          {busy && <Loader2 className="h-4 w-4 animate-spin" />}
+          {busy ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          ) : (
+            <Upload className="h-4 w-4 mr-2" />
+          )}
           {currentPath ? "Sostituisci" : buttonLabel}
         </Button>
         {currentPath && (
