@@ -46,9 +46,9 @@ export const ProfileSaveBar = () => {
             type="button"
             onClick={() => void save()}
             disabled={isSaving}
-            className="h-12 gap-2 rounded-full px-7 text-base"
+            size="lg"
           >
-            {isSaving && <Loader2 className="h-5 w-5 animate-spin" />}
+            {isSaving && <Loader2 className="animate-spin" />}
             Salva
           </Button>
         </div>
