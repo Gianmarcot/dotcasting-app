@@ -181,7 +181,7 @@ export const TalentDetailModal = ({
                   type="button"
                   onClick={prevPhoto}
                   aria-label="Foto precedente"
-                  className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] lg:left-[54px]"
+                  className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] opacity-70 transition-opacity duration-200 hover:opacity-100 active:opacity-60 motion-reduce:transition-none lg:left-[54px]"
                 >
                   <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
                 </button>
@@ -189,7 +189,7 @@ export const TalentDetailModal = ({
                   type="button"
                   onClick={nextPhoto}
                   aria-label="Foto successiva"
-                  className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] lg:right-[54px]"
+                  className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] opacity-70 transition-opacity duration-200 hover:opacity-100 active:opacity-60 motion-reduce:transition-none lg:right-[54px]"
                 >
                   <ChevronRight className="h-6 w-6" strokeWidth={1.5} />
                 </button>
