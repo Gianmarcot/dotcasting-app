@@ -48,6 +48,7 @@ export const TalentDetailModal = ({
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
