@@ -794,6 +794,7 @@ export type Database = {
       profiles: {
         Row: {
           age_confirmed: boolean | null
+          band_name: string | null
           bank_account_holder: string | null
           bank_name: string | null
           bio: string | null
@@ -857,6 +858,7 @@ export type Database = {
         }
         Insert: {
           age_confirmed?: boolean | null
+          band_name?: string | null
           bank_account_holder?: string | null
           bank_name?: string | null
           bio?: string | null
@@ -920,6 +922,7 @@ export type Database = {
         }
         Update: {
           age_confirmed?: boolean | null
+          band_name?: string | null
           bank_account_holder?: string | null
           bank_name?: string | null
           bio?: string | null
