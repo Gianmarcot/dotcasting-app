@@ -313,6 +313,7 @@ const TokensSection = () => {
     "destructive",
     "destructive-foreground",
     "border",
+    "divider",
     "input",
     "ring",
     "success",
