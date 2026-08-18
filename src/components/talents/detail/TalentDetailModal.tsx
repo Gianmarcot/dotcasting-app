@@ -95,16 +95,16 @@ export const TalentDetailModal = ({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-200 data-[state=open]:duration-300" />
         <DialogPrimitive.Content
-          className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-white outline-none lg:flex-row"
+          className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-white outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:ease-out lg:flex-row motion-reduce:data-[state=closed]:slide-out-to-bottom-0 motion-reduce:data-[state=open]:slide-in-from-bottom-0"
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
 
           {/* barra di navigazione fissa in alto a destra */}
           <ModalNavBar
-            className="fixed right-8 top-8 z-[90]"
+            className="fixed right-8 top-8 z-[90] animate-fade-in motion-reduce:animate-none"
             showNavigation={hasNavigation}
             prevDisabled={currentIndex <= 0}
             nextDisabled={currentIndex >= profileIds.length - 1}
