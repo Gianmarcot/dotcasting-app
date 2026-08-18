@@ -22,7 +22,7 @@ import { OwnerLayout } from "@/components/layout/OwnerLayout";
 import TalentDashboard from "./pages/talent/TalentDashboard";
 import TalentApplications from "./pages/talent/TalentApplications";
 import TalentMessages from "./pages/talent/TalentMessages";
-import TalentProfile from "./pages/talent/TalentProfile";
+import TalentProfile from "./pages/talent/TalentProfileV2";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
 
