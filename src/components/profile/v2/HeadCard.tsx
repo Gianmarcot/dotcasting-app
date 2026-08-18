@@ -11,6 +11,7 @@ import {
   FieldGrid,
   FloatingInput,
   FloatingSelect,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
@@ -201,6 +202,7 @@ export const HeadCard = () => {
         </FieldSlot>
 
 
+        <GroupHeading>Luogo di nascita</GroupHeading>
         <FieldGrid cols={4}>
           <GeoFields
             value={birthPlace}
