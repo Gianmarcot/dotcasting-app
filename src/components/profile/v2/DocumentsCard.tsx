@@ -24,6 +24,25 @@ export const DocumentsCard = () => {
   const hasPassport = bool("p", "has_passport");
   const hasVat = bool("p", "has_vat_number");
 
+  const fiscalCode = str("p", "fiscal_code");
+  const nationality = str("p", "nationality");
+  const isItalian = !nationality || /ital/i.test(nationality);
+
+  const fiscalCheck = useMemo(
+    () => (isItalian ? validateFiscalCode(fiscalCode) : null),
+    [fiscalCode, isItalian]
+  );
+  const fiscalError = isItalian
+    ? fiscalCheck?.error ?? null
+    : fiscalCode && fiscalCode.length !== 16
+      ? "Il codice fiscale deve avere 16 caratteri"
+      : null;
+  const fiscalWarning =
+    !fiscalError && isItalian
+      ? fiscalCodeCoherenceWarning(fiscalCode, str("p", "birth_date") || null, str("p", "gender") || null)
+      : null;
+
+
   return (
     <SectionCard icon={<IdCard strokeWidth={1} />} title="Documenti e fiscalità">
       <FieldGrid cols={2}>
