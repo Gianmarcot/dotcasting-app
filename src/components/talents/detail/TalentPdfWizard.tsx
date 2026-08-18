@@ -9,9 +9,11 @@ import { useEffect, useMemo, useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { Buffer } from "buffer";
 import { Download, Loader2 } from "lucide-react";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   Dialog,
-  DialogContent,
+  DialogOverlay,
+  DialogPortal,
   DialogDescription,
   DialogFooter,
   DialogHeader,
@@ -119,7 +121,9 @@ export const TalentPdfWizard = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="z-[110] max-h-[85vh] max-w-2xl overflow-y-auto [&~div]:z-[100]">
+      <DialogPortal>
+        <DialogOverlay className="z-[100]" />
+        <DialogPrimitive.Content className="dc-dialog z-[110] max-h-[85vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Scarica PDF</DialogTitle>
           <DialogDescription>
@@ -218,7 +222,8 @@ export const TalentPdfWizard = ({
             </Button>
           )}
         </DialogFooter>
-      </DialogContent>
+        </DialogPrimitive.Content>
+      </DialogPortal>
     </Dialog>
   );
 };
