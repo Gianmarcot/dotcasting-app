@@ -1,66 +1,101 @@
  // Profile options constants for talent profiles
  
  export const TALENT_ROLES = {
-   artistic: [
-     "Modello/Modella",
-     "Attore/Attrice", 
-     "Real people",
-     "Comparse",
-     "Comici",
-     "Steward/Promoter",
-     "Piedista",
-     "Manista",
-     "Presentatore/Presentatrice",
-     "Speaker radiofonico",
-     "Doppiatore/Doppiatrice",
-     "Stuntman",
-     "Cantante",
-     "Musicista",
-     "Ballerino/Ballerina",
-     "Performer"
-   ],
-   creative: [
-     "Truccatore/Truccatrice",
-     "Parrucchiere/Parrucchiera",
-     "Nail Specialists",
-     "Stylists",
-     "Prop Stylists",
-     "Food Stylists",
-     "Scenografi",
-     "Art Directors",
-     "Copywriters",
-     "Fotografo/Fotografa",
-     "Social Media Manager",
-     "DOP",
-     "Direttore di produzione",
-     "Videomaker",
-     "Content Creator",
-     "Influencer",
-     "Regista"
-   ],
-   production: [
-     "Attrezzista",
-     "Fonico",
-     "Assistente di produzione",
-     "Accounts",
-     "Project Managers",
-     "Operatore/Operatrice",
-     "Steadicam",
-     "Driver",
-     "Focus Puller",
-     "Producer",
-     "Location Manager",
-     "Macchinista"
-   ]
- };
+  artistic: [
+    "Modello/Modella",
+    "Attore/Attrice",
+    "Real People",
+    "Comparse",
+    "Comici",
+    "Steward/Promoter",
+    "Piedista",
+    "Manista",
+    "Presentatore/Presentatrice",
+    "Speaker Radiofonico",
+    "Doppiatore/Doppiatrice",
+    "Stuntman",
+    "Cantante",
+    "Musicista",
+    "Ballerino/Ballerina",
+    "Performer"
+  ],
+  creative: [
+    "Truccatore/Truccatrice",
+    "Parrucchiere/Parrucchiera",
+    "Nail Specialist",
+    "Stylists",
+    "Prop Stylists",
+    "Food Stylists",
+    "Scenografi",
+    "Art Directors",
+    "Copywriters",
+    "Fotografo/Fotografa",
+    "Social Media Manager",
+    "DOP",
+    "Direttore di produzione",
+    "Videomaker",
+    "Content Creator",
+    "Influencer",
+    "Regista"
+  ],
+  production: [
+    "Attrezzista",
+    "Fonico",
+    "Assistente di produzione",
+    "Accounts",
+    "Project Manager",
+    "Operatore/Operatrice",
+    "Steadycam",
+    "Driver",
+    "Focus Puller",
+    "Producer",
+    "Location Manager",
+    "Macchinista"
+  ]
+};
 
 export const TALENT_ROLE_GROUPS = [
   { key: "artistic", label: "Artistici" },
-  { key: "creative", label: "Tecnici creativi" },
-  { key: "production", label: "Produzione" },
+  { key: "creative", label: "Tecnici e creativi" },
+  { key: "production", label: "Divisione tecnica" },
 ] as const;
- 
- export const HAIR_COLORS = [
+
+export const LANGUAGE_LEVELS = [
+  "Madrelingua",
+  "Fluente",
+  "Avanzato",
+  "Intermedio",
+  "Base"
+];
+
+export const EDUCATION_LEVELS = [
+  "Licenza media",
+  "Diploma di scuola superiore",
+  "Laurea triennale",
+  "Laurea magistrale",
+  "Master",
+  "Dottorato",
+  "Accademia o scuola professionale",
+  "Altro"
+];
+
+export const VAT_ACTIVITY_TYPES = [
+  "Spettacolo e intrattenimento",
+  "Moda e immagine",
+  "Servizi creativi",
+  "Servizi tecnici",
+  "Commercio",
+  "Altro"
+];
+
+export const VAT_REGIMES = [
+  "Regime forfettario",
+  "Regime ordinario",
+  "Regime dei minimi",
+  "Altro"
+];
+
+export const HAIR_COLORS = [
    "Nero",
    "Castano scuro",
    "Castano",
@@ -102,18 +137,11 @@ export const TALENT_ROLE_GROUPS = [
  ];
  
  export const DRIVING_LICENSES = [
-   "AM",
-   "A1",
-   "A2",
-   "A",
-   "B",
-   "BE",
-   "C",
-   "CE",
-   "D",
-   "D+E",
-   "Patente Nautica"
- ];
+  "AM", "A1", "A2", "A",
+  "B1", "B", "C1", "C",
+  "D1", "D", "BE", "C1E",
+  "CE", "D1E", "DE", "Patente nautica"
+];
  
  export const ABILITIES = [
    "Danza classica",
