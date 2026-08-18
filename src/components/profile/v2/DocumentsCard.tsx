@@ -36,10 +36,14 @@ export const DocumentsCard = () => {
         <FieldSlot name="fiscal_code">
           <FloatingInput
             label="Codice fiscale"
-            value={str("p", "fiscal_code")}
-            onChange={(v) => set("p", "fiscal_code", v.toUpperCase())}
+            value={fiscalCode}
+            maxLength={16}
+            onChange={(v) => set("p", "fiscal_code", v.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+            error={fiscalError}
+            warning={fiscalWarning}
           />
         </FieldSlot>
+
       </FieldGrid>
 
       <UploadBlock
