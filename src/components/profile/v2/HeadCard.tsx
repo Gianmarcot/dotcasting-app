@@ -149,15 +149,17 @@ export const HeadCard = () => {
 
         <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8 lg:max-w-[calc(190px*3+64px)]">
+          <FieldCluster className="max-w-[420px]">
             <FloatingSelect
               label="Giorno"
+              className="flex-1"
               value={birth.day}
               onValueChange={(v) => setBirthPart("day", v)}
               options={toOptions(DAYS)}
             />
             <FloatingSelect
               label="Mese"
+              className="flex-1"
               value={birth.month}
               onValueChange={(v) => setBirthPart("month", v)}
               options={MONTHS.map((m, i) => ({
@@ -167,12 +169,14 @@ export const HeadCard = () => {
             />
             <FloatingSelect
               label="Anno"
+              className="flex-1"
               value={birth.year}
               onValueChange={(v) => setBirthPart("year", v)}
               options={toOptions(YEARS)}
             />
-          </div>
+          </FieldCluster>
         </FieldSlot>
+
 
         <ProfileCheckbox
           checked={bool("p", "age_confirmed")}
