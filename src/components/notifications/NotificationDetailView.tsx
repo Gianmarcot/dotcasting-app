@@ -21,7 +21,7 @@ export const NotificationDetailView = ({
   /** List route, e.g. "/talent/notifications" */
   basePath: string;
   /** Area root used to build action links, e.g. "/talent" */
-  areaPath: string;
+  areaPath: "/owner" | "/talent";
 }) => {
   const { notificationId } = useParams<{ notificationId: string }>();
   const navigate = useNavigate();
