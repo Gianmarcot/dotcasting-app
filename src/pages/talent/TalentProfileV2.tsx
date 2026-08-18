@@ -51,16 +51,35 @@ const ProfileContent = () => {
 
         <ProfileStrengthCard />
         <div key={resetKey} className="space-y-6">
-          <HeadCard />
-          <ContactsCard />
-          <AddressCard />
-          <DocumentsCard />
-          <MediaCard />
-          <PhysicalCard />
-          <RolesCard />
-          <BioCard />
-          <WorkTravelCard />
+          <div id="section-head" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <HeadCard />
+          </div>
+          <div id="section-contacts" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <ContactsCard />
+          </div>
+          <div id="section-address" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <AddressCard />
+          </div>
+          <div id="section-documents" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <DocumentsCard />
+          </div>
+          <div id="section-media" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <MediaCard />
+          </div>
+          <div id="section-physical" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <PhysicalCard />
+          </div>
+          <div id="section-roles" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <RolesCard />
+          </div>
+          <div id="section-bio" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <BioCard />
+          </div>
+          <div id="section-work" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <WorkTravelCard />
+          </div>
         </div>
+
       </div>
 
       <ProfileSaveBar />

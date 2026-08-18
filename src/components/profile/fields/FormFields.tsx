@@ -72,6 +72,18 @@ export const FieldGrid = ({
   </div>
 );
 
+/**
+ * Group of fields that behave as a single component (e.g. day/month/year):
+ * horizontal spacing is 8px instead of the standard 32px.
+ */
+export const FieldCluster = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) => <div className={cn("flex gap-2", className)}>{children}</div>;
+
 /* ------------------------------ Field shell -------------------------------- */
 
 const shellBase =
@@ -84,6 +96,7 @@ const FieldShell = ({
   className,
   children,
   minHeight = "min-h-16",
+  as: Tag = "div",
 }: {
   filled: boolean;
   focused: boolean;
@@ -91,8 +104,9 @@ const FieldShell = ({
   className?: string;
   children: ReactNode;
   minHeight?: string;
+  as?: "div" | "label";
 }) => (
-  <div
+  <Tag
     className={cn(
       shellBase,
       minHeight,
@@ -103,28 +117,39 @@ const FieldShell = ({
     data-filled={filled}
   >
     {children}
-  </div>
+  </Tag>
 );
 
+/**
+ * Absolutely positioned label: it never takes part in the layout flow, so the
+ * field height stays identical between resting and floating state (no jump).
+ */
 const FloatLabel = ({
   children,
   floating,
   disabled,
+  align = "center",
 }: {
   children: ReactNode;
   floating: boolean;
   disabled?: boolean;
+  align?: "center" | "top";
 }) => (
   <span
     className={cn(
-      "pointer-events-none block truncate font-medium leading-[1.2] transition-all",
-      floating ? "text-xs" : "text-base font-normal",
+      "pointer-events-none absolute left-4 right-10 origin-left truncate transition-all duration-150 ease-out",
+      floating
+        ? "top-3 text-xs font-medium leading-[1.2]"
+        : align === "top"
+          ? "top-[18px] text-base font-normal leading-[1.2]"
+          : "top-1/2 -translate-y-1/2 text-base font-normal leading-[1.2]",
       disabled ? "text-field-disabled-foreground" : "text-field-label"
     )}
   >
     {children}
   </span>
 );
+
 
 /* -------------------------------- Text input -------------------------------- */
 
@@ -146,16 +171,31 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const floating = focused || value !== "";
 
     return (
-      <FieldShell filled={value !== ""} focused={focused} disabled={disabled} className={className}>
+      <FieldShell
+        as="label"
+        filled={value !== ""}
+        focused={focused}
+        disabled={disabled}
+        className={cn("cursor-text", className)}
+      >
         <FloatLabel floating={floating} disabled={disabled}>
           {label}
         </FloatLabel>
-        <div className={cn("flex items-center gap-1", floating ? "mt-1" : "hidden")}>
+        {/* Fixed offset: the value row never moves, only the label animates */}
+        <div className="mt-[18px] flex items-center gap-1">
           {prefix && (
-            <span className="shrink-0 text-base leading-[1.4] text-field-label">{prefix}</span>
+            <span
+              className={cn(
+                "shrink-0 text-base leading-[1.4] text-field-label transition-opacity",
+                floating ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {prefix}
+            </span>
           )}
           <input
             ref={ref}
+            aria-label={label}
             type={type}
             inputMode={inputMode}
             value={value}
@@ -167,24 +207,11 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               onBlur?.();
             }}
             className={cn(
-              "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none placeholder:text-field-label",
+              "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
               disabled && "text-field-disabled-foreground"
             )}
           />
         </div>
-        {!floating && (
-          <input
-            aria-label={label}
-            type={type}
-            inputMode={inputMode}
-            value={value}
-            disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={() => setFocused(true)}
-            onBlur={onBlur}
-            className="absolute inset-0 h-full w-full cursor-text rounded-2xl border-0 bg-transparent px-4 text-base text-transparent outline-none"
-          />
-        )}
       </FieldShell>
     );
   }
@@ -216,10 +243,11 @@ export const FloatingTextarea = ({
       filled={value !== ""}
       focused={focused}
       disabled={disabled}
+      as="label"
       minHeight="min-h-36"
-      className={cn("justify-start", className)}
+      className={cn("cursor-text justify-start", className)}
     >
-      <FloatLabel floating={floating} disabled={disabled}>
+      <FloatLabel floating={floating} disabled={disabled} align="top">
         {label}
       </FloatLabel>
       <textarea
@@ -232,14 +260,12 @@ export const FloatingTextarea = ({
           setFocused(false);
           onBlur?.();
         }}
-        className={cn(
-          "mt-1 h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
-          !floating && "absolute inset-0 h-full rounded-2xl px-4 text-transparent"
-        )}
+        className="mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none"
       />
     </FieldShell>
   );
 };
+
 
 /* ---------------------------------- Select --------------------------------- */
 
