@@ -85,8 +85,8 @@ export const HeadCard = () => {
 
   return (
     <SectionCard>
-      {/* Photo stack */}
-      <div className="flex flex-col items-center">
+      {/* Photo stack header */}
+      <div className="mb-16 flex flex-col items-center">
         <div className="relative h-[220px] w-[168px]">
           <div className="absolute inset-0 -rotate-6 rounded-2xl bg-field" />
           <div className="absolute inset-0 rotate-3 rounded-2xl bg-field/80" />
@@ -131,7 +131,7 @@ export const HeadCard = () => {
         {location && <p className="mt-1 text-[15px] text-field-label">{location}</p>}
       </div>
 
-      <div className="mt-10 space-y-8">
+      <div className="space-y-8">
         <FieldGrid cols={2}>
           <FloatingInput
             label="Nome"
