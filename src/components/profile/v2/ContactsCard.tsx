@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Mail } from "lucide-react";
-import type { Json } from "@/integrations/supabase/types";
 import { PHONE_PREFIXES } from "@/lib/profileOptions";
 import {
   FieldGrid,
@@ -10,7 +9,7 @@ import {
   ProfileCheckbox,
   SectionCard,
 } from "@/components/profile/fields/FormFields";
-import { useProfileAutoSave } from "./useProfileAutoSave";
+import { FieldSlot, useProfileForm } from "./ProfileFormContext";
 
 interface SocialLinks {
   instagram?: string;
@@ -36,55 +35,37 @@ const prefixOptions = PHONE_PREFIXES.map((p) => ({
 }));
 
 export const ContactsCard = () => {
-  const { profile, save } = useProfileAutoSave();
+  const { str, set, setMany, obj } = useProfileForm();
 
-  const [contactEmail, setContactEmail] = useState("");
-  const [phonePrefix, setPhonePrefix] = useState("+39");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [whatsappPrefix, setWhatsappPrefix] = useState("+39");
-  const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [sameWhatsapp, setSameWhatsapp] = useState(false);
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [socials, setSocials] = useState<SocialLinks>({});
+  const phonePrefix = str("p", "phone_prefix") || "+39";
+  const phoneNumber = str("p", "phone_number");
+  const whatsappPrefix = str("p", "whatsapp_prefix") || "+39";
+  const whatsappNumber = str("p", "whatsapp_number");
+  const socials = obj<SocialLinks>("p", "social_links");
 
-  useEffect(() => {
-    if (!profile) return;
-    setContactEmail(profile.contact_email ?? "");
-    setPhonePrefix(profile.phone_prefix ?? "+39");
-    setPhoneNumber(profile.phone_number ?? "");
-    setWhatsappPrefix(profile.whatsapp_prefix ?? "+39");
-    setWhatsappNumber(profile.whatsapp_number ?? "");
-    setSameWhatsapp(
-      !!profile.phone_number &&
-        profile.phone_number === profile.whatsapp_number &&
-        (profile.phone_prefix ?? "+39") === (profile.whatsapp_prefix ?? "+39")
-    );
-    setWebsiteUrl(profile.website_url ?? "");
-    setSocials((profile.social_links as SocialLinks) ?? {});
-  }, [profile]);
+  const [sameWhatsapp, setSameWhatsapp] = useState(
+    () => !!phoneNumber && phoneNumber === whatsappNumber && phonePrefix === whatsappPrefix
+  );
 
-  const commitSocials = (next: SocialLinks) => {
-    save({ social_links: next as unknown as Json });
-  };
-
-  const commitPhone = (prefix: string, number: string, mirror: boolean) => {
-    save({
+  const setPhone = (prefix: string, number: string) => {
+    setMany("p", {
       phone_prefix: prefix,
       phone_number: number || null,
-      ...(mirror ? { whatsapp_prefix: prefix, whatsapp_number: number || null } : {}),
+      ...(sameWhatsapp ? { whatsapp_prefix: prefix, whatsapp_number: number || null } : {}),
     });
   };
 
   return (
     <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
-      <FloatingInput
-        label="Email di contatto"
-        type="email"
-        inputMode="email"
-        value={contactEmail}
-        onChange={setContactEmail}
-        onBlur={() => save({ contact_email: contactEmail || null })}
-      />
+      <FieldSlot name="contact_email">
+        <FloatingInput
+          label="Email di contatto"
+          type="email"
+          inputMode="email"
+          value={str("p", "contact_email")}
+          onChange={(v) => set("p", "contact_email", v)}
+        />
+      </FieldSlot>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8">
         <div>
@@ -94,11 +75,7 @@ export const ContactsCard = () => {
               label="Prefisso"
               className="w-[110px] shrink-0"
               value={phonePrefix}
-              onValueChange={(v) => {
-                setPhonePrefix(v);
-                if (sameWhatsapp) setWhatsappPrefix(v);
-                commitPhone(v, phoneNumber, sameWhatsapp);
-              }}
+              onValueChange={(v) => setPhone(v, phoneNumber)}
               options={prefixOptions}
             />
             <FloatingInput
@@ -106,11 +83,7 @@ export const ContactsCard = () => {
               className="flex-1"
               inputMode="tel"
               value={phoneNumber}
-              onChange={(v) => {
-                setPhoneNumber(v);
-                if (sameWhatsapp) setWhatsappNumber(v);
-              }}
-              onBlur={() => commitPhone(phonePrefix, phoneNumber, sameWhatsapp)}
+              onChange={(v) => setPhone(phonePrefix, v)}
             />
           </div>
         </div>
@@ -120,9 +93,10 @@ export const ContactsCard = () => {
             onCheckedChange={(checked) => {
               setSameWhatsapp(checked);
               if (checked) {
-                setWhatsappPrefix(phonePrefix);
-                setWhatsappNumber(phoneNumber);
-                save({ whatsapp_prefix: phonePrefix, whatsapp_number: phoneNumber || null });
+                setMany("p", {
+                  whatsapp_prefix: phonePrefix,
+                  whatsapp_number: phoneNumber || null,
+                });
               }
             }}
             label="Ho WhatsApp su questo numero"
@@ -138,10 +112,7 @@ export const ContactsCard = () => {
             className="w-[110px] shrink-0"
             value={whatsappPrefix}
             disabled={sameWhatsapp}
-            onValueChange={(v) => {
-              setWhatsappPrefix(v);
-              save({ whatsapp_prefix: v });
-            }}
+            onValueChange={(v) => set("p", "whatsapp_prefix", v)}
             options={prefixOptions}
           />
           <FloatingInput
@@ -150,17 +121,15 @@ export const ContactsCard = () => {
             inputMode="tel"
             disabled={sameWhatsapp}
             value={whatsappNumber}
-            onChange={setWhatsappNumber}
-            onBlur={() => save({ whatsapp_number: whatsappNumber || null })}
+            onChange={(v) => set("p", "whatsapp_number", v)}
           />
         </div>
       </div>
 
       <FloatingInput
         label="Sito Web"
-        value={websiteUrl}
-        onChange={setWebsiteUrl}
-        onBlur={() => save({ website_url: websiteUrl || null })}
+        value={str("p", "website_url")}
+        onChange={(v) => set("p", "website_url", v)}
       />
 
       <div>
@@ -172,8 +141,7 @@ export const ContactsCard = () => {
               label={s.label}
               prefix={s.prefix}
               value={socials[s.key] ?? ""}
-              onChange={(v) => setSocials((prev) => ({ ...prev, [s.key]: v }))}
-              onBlur={() => commitSocials(socials)}
+              onChange={(v) => set("p", "social_links", { ...socials, [s.key]: v })}
             />
           ))}
         </FieldGrid>
