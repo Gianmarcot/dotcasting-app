@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { compressImage } from "@/lib/media/compressImage";
 import { GENDER_IDENTITIES, MONTHS, REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
   FieldCluster,
@@ -27,7 +23,6 @@ const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 export const HeadCard = () => {
-  const { user } = useAuth();
   const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
   const photoButtonRef = useRef<HTMLButtonElement>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
