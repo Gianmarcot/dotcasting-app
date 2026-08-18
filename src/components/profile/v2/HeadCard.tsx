@@ -201,21 +201,23 @@ export const HeadCard = () => {
         </FieldSlot>
 
 
-        <GroupLabel>Luogo di nascita</GroupLabel>
-        <FieldGrid cols={4}>
-          <GeoFields
-            value={birthPlace}
-            onChange={(next) =>
-              setMany("p", {
-                birth_country: next.state || null,
-                birth_region: next.region || null,
-                birth_province: next.province || null,
-                birth_city: next.city || null,
-              })
-            }
-            labels={{ state: "Stato di nascita" }}
-          />
-        </FieldGrid>
+        <FieldSlot name="birth_place">
+          <GroupLabel>Luogo di nascita</GroupLabel>
+          <FieldGrid cols={4}>
+            <GeoFields
+              value={birthPlace}
+              onChange={(next) =>
+                setMany("p", {
+                  birth_country: next.state || null,
+                  birth_region: next.region || null,
+                  birth_province: next.province || null,
+                  birth_city: next.city || null,
+                })
+              }
+              labels={{ state: "Stato di nascita" }}
+            />
+          </FieldGrid>
+        </FieldSlot>
 
         <FieldGrid cols={2}>
           <RadioField label="Sesso">
