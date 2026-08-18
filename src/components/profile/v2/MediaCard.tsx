@@ -117,7 +117,7 @@ export const MediaCard = () => {
           </p>
         )}
         <div className="mt-6 flex justify-center">
-          <Button type="button" variant="secondary" size="lg" iconPosition="left">
+          <Button type="button" size="lg" iconPosition="left">
             <Camera className="h-5 w-5" />
             Tutte le foto
           </Button>

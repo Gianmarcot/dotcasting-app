@@ -7,8 +7,9 @@ import {
   ConfirmButton,
   FloatingInput,
   GroupHeading,
-  GroupLabel,
   ProfileCheckbox,
+  CheckboxGrid,
+  RadioField,
   SectionCard,
   SectionDivider,
   ValueChip,
@@ -113,7 +114,7 @@ export const WorkTravelCard = () => {
 
       <div>
         <GroupHeading>Patenti</GroupHeading>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-8">
+        <CheckboxGrid cols={4}>
           {DRIVING_LICENSES.map((license) => (
             <ProfileCheckbox
               key={license}
@@ -122,21 +123,19 @@ export const WorkTravelCard = () => {
               label={license}
             />
           ))}
-        </div>
+        </CheckboxGrid>
       </div>
 
-      <div>
-        <GroupLabel>Possiedo un'automobile</GroupLabel>
+      <RadioField label="Possiedo un'automobile">
         <YesNoRadio value={triState("p", "has_car")} onValueChange={(v) => set("p", "has_car", v)} />
-      </div>
+      </RadioField>
 
-      <div>
-        <GroupLabel>Possiedo una moto</GroupLabel>
+      <RadioField label="Possiedo una moto">
         <YesNoRadio
           value={triState("p", "has_motorbike")}
           onValueChange={(v) => set("p", "has_motorbike", v)}
         />
-      </div>
+      </RadioField>
     </SectionCard>
   );
 };

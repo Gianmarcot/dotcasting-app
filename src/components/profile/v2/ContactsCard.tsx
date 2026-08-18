@@ -5,6 +5,7 @@ import {
   FieldGrid,
   FloatingInput,
   FloatingSelect,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   SectionCard,
@@ -67,7 +68,7 @@ export const ContactsCard = () => {
         />
       </FieldSlot>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         <div>
           <GroupLabel>Numero di telefono</GroupLabel>
           <div className="flex gap-2">
@@ -133,7 +134,7 @@ export const ContactsCard = () => {
       />
 
       <div>
-        <GroupLabel>Social Media</GroupLabel>
+        <GroupHeading>Social media</GroupHeading>
         <FieldGrid cols={2}>
           {SOCIALS.map((s) => (
             <FloatingInput

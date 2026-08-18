@@ -11,8 +11,9 @@ import {
   FloatingSelect,
   FloatingTextarea,
   GroupHeading,
-  GroupLabel,
   ProfileCheckbox,
+  CheckboxGrid,
+  RadioField,
   SectionCard,
   SectionDivider,
   ValueChip,
@@ -81,7 +82,7 @@ export const BioCard = () => {
 
       <div>
         <GroupHeading>Ulteriori abilità</GroupHeading>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
+        <CheckboxGrid cols={3}>
           {ABILITY_ITEMS.map((a) => (
             <ProfileCheckbox
               key={a.key}
@@ -90,8 +91,8 @@ export const BioCard = () => {
               label={a.label}
             />
           ))}
-        </div>
-        <div className="mt-6 space-y-4">
+        </CheckboxGrid>
+        <div className="mt-8 space-y-8">
           {ABILITY_ITEMS.filter((a) => "detail" in a && bool("a", a.key)).map((a) => {
             const detailKey = (a as { detail: string }).detail;
             const detailLabel = (a as { detailLabel: string }).detailLabel;
@@ -109,13 +110,12 @@ export const BioCard = () => {
 
       <SectionDivider />
 
-      <div>
-        <GroupLabel>Fai parte di una band o di un gruppo di artisti?</GroupLabel>
+      <RadioField label="Fai parte di una band o di un gruppo di artisti?">
         <YesNoRadio
           value={triState("p", "has_band")}
           onValueChange={(v) => set("p", "has_band", v)}
         />
-      </div>
+      </RadioField>
 
       <SectionDivider />
 

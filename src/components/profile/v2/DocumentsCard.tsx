@@ -55,7 +55,7 @@ export const DocumentsCard = () => {
 
       <SectionDivider />
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         <ProfileCheckbox
           checked={hasPassport}
           onCheckedChange={(checked) =>
@@ -107,7 +107,7 @@ export const DocumentsCard = () => {
 
       <div>
         <GroupHeading>Dati bancari</GroupHeading>
-        <div className="space-y-4 sm:space-y-8">
+        <div className="space-y-8">
           <FieldGrid cols={2}>
             <FloatingInput
               label="Banca"
