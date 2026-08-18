@@ -63,9 +63,9 @@ const VideoBlock = ({
         className="mt-6"
       >
         {busy ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <Loader2 className="animate-spin" />
         ) : (
-          <Upload className="h-4 w-4 mr-2" />
+          <Upload />
         )}
         {existing ? "Sostituisci il video" : buttonLabel}
       </Button>
