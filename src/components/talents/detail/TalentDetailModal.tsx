@@ -48,6 +48,7 @@ export const TalentDetailModal = ({
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
@@ -71,6 +72,7 @@ export const TalentDetailModal = ({
     else setLocalIndex(next);
     setPhotoIndex(0);
     scrollRef.current?.scrollTo({ top: 0 });
+    containerRef.current?.scrollTo({ top: 0 });
   };
 
   useEffect(() => setPhotoIndex(0), [profileId]);
@@ -98,7 +100,8 @@ export const TalentDetailModal = ({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-200 data-[state=open]:duration-300" />
         <DialogPrimitive.Content
-          className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-white outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:ease-out lg:flex-row motion-reduce:data-[state=closed]:slide-out-to-bottom-0 motion-reduce:data-[state=open]:slide-in-from-bottom-0"
+          ref={containerRef}
+          className="fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-white outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:ease-out lg:flex-row lg:overflow-hidden motion-reduce:data-[state=closed]:slide-out-to-bottom-0 motion-reduce:data-[state=open]:slide-in-from-bottom-0"
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
@@ -126,8 +129,8 @@ export const TalentDetailModal = ({
               }
             >
               <div
-                className="overflow-hidden rounded-2xl bg-black/5"
-                style={{ height: "min(600px, 58.6vh)", aspectRatio: "2 / 3" }}
+                className="overflow-hidden rounded-2xl bg-black/5 w-[min(90vw,calc(75vh*2/3))] lg:w-[min(40vw,calc(80vh*2/3))]"
+                style={{ aspectRatio: "2 / 3" }}
               >
                 {photos.length > 0 ? (
                   <div
@@ -199,7 +202,7 @@ export const TalentDetailModal = ({
           </div>
 
           {/* METÀ DESTRA — dettagli, scorre */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto bg-white lg:h-full lg:w-1/2">
+          <div ref={scrollRef} className="flex-1 bg-white lg:h-full lg:w-1/2 lg:overflow-y-auto">
             <div className="w-full max-w-[524px] px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
               <Button
                 type="button"
