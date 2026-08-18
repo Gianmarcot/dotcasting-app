@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MapPin } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 import {
@@ -8,37 +8,21 @@ import {
   SectionDivider,
 } from "@/components/profile/fields/FormFields";
 import { AddressBlock, type AddressValue } from "@/components/profile/fields/AddressFields";
-import { useProfileAutoSave } from "./useProfileAutoSave";
-
-const hasValues = (address: AddressValue) =>
-  Object.values(address).some((v) => v !== undefined && v !== "");
+import { useProfileForm } from "./ProfileFormContext";
 
 export const AddressCard = () => {
-  const { profile, save } = useProfileAutoSave();
+  const { obj, set, setMany, raw } = useProfileForm();
 
-  const [residence, setResidence] = useState<AddressValue>({});
-  const [domicile, setDomicile] = useState<AddressValue>({});
-  const [sameAsResidence, setSameAsResidence] = useState(true);
+  const residence = obj<AddressValue>("p", "residence_address");
+  const domicile = obj<AddressValue>("p", "domicile_address");
+  const [sameAsResidence, setSameAsResidence] = useState(() => !raw("p", "domicile_address"));
 
-  useEffect(() => {
-    if (!profile) return;
-    setResidence((profile.residence_address as AddressValue) ?? {});
-    setDomicile((profile.domicile_address as AddressValue) ?? {});
-    setSameAsResidence(!profile.domicile_address);
-  }, [profile]);
-
-  const commitResidence = () => {
-    save({
-      residence_address: hasValues(residence) ? (residence as unknown as Json) : null,
-      postal_code: residence.postal_code || null,
-      city: residence.city || null,
-      country: residence.state || null,
-    });
-  };
-
-  const commitDomicile = () => {
-    save({
-      domicile_address: hasValues(domicile) ? (domicile as unknown as Json) : null,
+  const setResidence = (next: AddressValue) => {
+    setMany("p", {
+      residence_address: next as unknown as Json,
+      postal_code: next.postal_code || null,
+      city: next.city || null,
+      country: next.state || null,
     });
   };
 
@@ -46,17 +30,14 @@ export const AddressCard = () => {
     <SectionCard icon={<MapPin strokeWidth={1} />} title="Indirizzo">
       <div>
         <GroupLabel>Residenza</GroupLabel>
-        <AddressBlock value={residence} onChange={setResidence} onCommit={commitResidence} />
+        <AddressBlock value={residence} onChange={setResidence} />
       </div>
 
       <ProfileCheckbox
         checked={sameAsResidence}
         onCheckedChange={(checked) => {
           setSameAsResidence(checked);
-          if (checked) {
-            setDomicile({});
-            save({ domicile_address: null });
-          }
+          if (checked) set("p", "domicile_address", null);
         }}
         label="Il domicilio coincide con la residenza"
       />
@@ -66,7 +47,10 @@ export const AddressCard = () => {
           <SectionDivider />
           <div>
             <GroupLabel>Domicilio</GroupLabel>
-            <AddressBlock value={domicile} onChange={setDomicile} onCommit={commitDomicile} />
+            <AddressBlock
+              value={domicile}
+              onChange={(next) => set("p", "domicile_address", next as unknown as Json)}
+            />
           </div>
         </>
       )}

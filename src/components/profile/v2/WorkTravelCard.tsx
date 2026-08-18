@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Briefcase, Plus } from "lucide-react";
 import { DRIVING_LICENSES } from "@/lib/profileOptions";
 import {
@@ -14,39 +14,21 @@ import {
 } from "@/components/profile/fields/FormFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
 import { UploadBlock } from "./UploadBlock";
-import { useProfileAutoSave } from "./useProfileAutoSave";
+import { useProfileForm } from "./ProfileFormContext";
 
 export const WorkTravelCard = () => {
-  const { profile, save } = useProfileAutoSave();
-
-  const [occupation, setOccupation] = useState("");
-  const [cities, setCities] = useState<string[]>([]);
-  const [licenses, setLicenses] = useState<string[]>([]);
-  const [hasCar, setHasCar] = useState<boolean | null>(null);
-  const [hasMotorbike, setHasMotorbike] = useState<boolean | null>(null);
+  const { str, arr, triState, set, saveNow, profileRow } = useProfileForm();
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState<AddressValue>({});
 
-  useEffect(() => {
-    if (!profile) return;
-    setOccupation(profile.main_occupation ?? "");
-    setCities(profile.work_cities ?? []);
-    setLicenses(profile.driving_licenses ?? []);
-    setHasCar(profile.has_car ?? null);
-    setHasMotorbike(profile.has_motorbike ?? null);
-  }, [profile]);
-
-  const persistCities = (next: string[]) => {
-    setCities(next);
-    save({ work_cities: next.length > 0 ? next : null });
-  };
+  const cities = arr("p", "work_cities");
+  const licenses = arr("p", "driving_licenses");
 
   const toggleLicense = (license: string) => {
     const next = licenses.includes(license)
       ? licenses.filter((l) => l !== license)
       : [...licenses, license];
-    setLicenses(next);
-    save({ driving_licenses: next.length > 0 ? next : null });
+    set("p", "driving_licenses", next);
   };
 
   const draftLabel = [draft.city, draft.province, draft.state].filter(Boolean).join(", ");
@@ -57,9 +39,8 @@ export const WorkTravelCard = () => {
         <GroupLabel>Occupazione principale</GroupLabel>
         <FloatingInput
           label="Occupazione principale"
-          value={occupation}
-          onChange={setOccupation}
-          onBlur={() => save({ main_occupation: occupation || null })}
+          value={str("p", "main_occupation")}
+          onChange={(v) => set("p", "main_occupation", v)}
         />
       </div>
 
@@ -71,8 +52,8 @@ export const WorkTravelCard = () => {
         buttonLabel="Carica CV"
         accept="application/pdf"
         fileNamePrefix="cv"
-        currentPath={profile?.cv_url ?? null}
-        onUploaded={(path) => save({ cv_url: path })}
+        currentPath={profileRow?.cv_url ?? null}
+        onUploaded={(path) => saveNow("p", { cv_url: path })}
       />
 
       <SectionDivider />
@@ -81,7 +62,10 @@ export const WorkTravelCard = () => {
         <GroupLabel>Città di appoggio</GroupLabel>
         <div className="flex flex-wrap gap-2">
           {cities.map((city) => (
-            <ValueChip key={city} onRemove={() => persistCities(cities.filter((c) => c !== city))}>
+            <ValueChip
+              key={city}
+              onRemove={() => set("p", "work_cities", cities.filter((c) => c !== city))}
+            >
               {city}
             </ValueChip>
           ))}
@@ -89,14 +73,14 @@ export const WorkTravelCard = () => {
 
         {adding ? (
           <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-            <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-8">
+            <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8 lg:grid-cols-4">
               <GeoFields value={draft} onChange={setDraft} />
             </div>
             <div className="flex gap-2">
               <ConfirmButton
                 disabled={!draftLabel || cities.includes(draftLabel)}
                 onClick={() => {
-                  persistCities([...cities, draftLabel]);
+                  set("p", "work_cities", [...cities, draftLabel]);
                   setDraft({});
                   setAdding(false);
                 }}
@@ -139,23 +123,14 @@ export const WorkTravelCard = () => {
 
       <div>
         <GroupLabel>Possiedo un'automobile</GroupLabel>
-        <YesNoRadio
-          value={hasCar}
-          onValueChange={(v) => {
-            setHasCar(v);
-            save({ has_car: v });
-          }}
-        />
+        <YesNoRadio value={triState("p", "has_car")} onValueChange={(v) => set("p", "has_car", v)} />
       </div>
 
       <div>
         <GroupLabel>Possiedo una moto</GroupLabel>
         <YesNoRadio
-          value={hasMotorbike}
-          onValueChange={(v) => {
-            setHasMotorbike(v);
-            save({ has_motorbike: v });
-          }}
+          value={triState("p", "has_motorbike")}
+          onValueChange={(v) => set("p", "has_motorbike", v)}
         />
       </div>
     </SectionCard>

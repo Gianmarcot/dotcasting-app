@@ -95,7 +95,7 @@ export const AddressBlock = ({
 }: {
   value: AddressValue;
   onChange: (next: AddressValue) => void;
-  onCommit: () => void;
+  onCommit?: () => void;
 }) => (
   <div className="space-y-4 sm:space-y-8">
     <FieldGrid cols={4}>
@@ -103,7 +103,7 @@ export const AddressBlock = ({
         value={value}
         onChange={(next) => {
           onChange(next);
-          onCommit();
+          onCommit?.();
         }}
       />
     </FieldGrid>

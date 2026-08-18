@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Tag } from "lucide-react";
 import { TALENT_ROLES, TALENT_ROLE_GROUPS } from "@/lib/profileOptions";
 import {
@@ -7,20 +6,15 @@ import {
   SectionCard,
   SectionDivider,
 } from "@/components/profile/fields/FormFields";
-import { useProfileAutoSave } from "./useProfileAutoSave";
+import { useProfileForm } from "./ProfileFormContext";
 
 export const RolesCard = () => {
-  const { profile, save } = useProfileAutoSave();
-  const [roles, setRoles] = useState<string[]>([]);
-
-  useEffect(() => {
-    setRoles(profile?.talent_categories ?? []);
-  }, [profile]);
+  const { arr, set } = useProfileForm();
+  const roles = arr("p", "talent_categories");
 
   const toggle = (role: string) => {
     const next = roles.includes(role) ? roles.filter((r) => r !== role) : [...roles, role];
-    setRoles(next);
-    save({ talent_categories: next.length > 0 ? next : null });
+    set("p", "talent_categories", next);
   };
 
   return (
