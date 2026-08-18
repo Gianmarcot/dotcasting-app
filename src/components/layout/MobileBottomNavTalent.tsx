@@ -1,10 +1,9 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, User, Bookmark, MessageSquare } from "lucide-react";
+import { User, Bookmark, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { it } from "@/lib/i18n";
 
 const navItems = [
-  { icon: Home, label: it.nav.home, href: "/talent" },
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
   { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
