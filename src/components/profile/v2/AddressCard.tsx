@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LocationIcon } from "@/components/profile/v2/sectionIcons";
+import { MapPin } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 import {
   GroupHeading,
@@ -27,7 +27,7 @@ export const AddressCard = () => {
   };
 
   return (
-    <SectionCard icon={<LocationIcon />} title="Indirizzo">
+    <SectionCard icon={<MapPin strokeWidth={1} />} title="Indirizzo">
       <div>
         <GroupHeading>Residenza</GroupHeading>
         <AddressBlock value={residence} onChange={setResidence} />

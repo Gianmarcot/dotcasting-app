@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Camera, Clapperboard, Loader2 } from "lucide-react";
-import { CameraIcon } from "@/components/profile/v2/sectionIcons";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";
@@ -90,7 +89,7 @@ export const MediaCard = () => {
   const remaining = photos.length - shown.length;
 
   return (
-    <SectionCard icon={<CameraIcon />} title="Galleria e media">
+    <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
       <div className="rounded-2xl border border-dashed border-border p-6">
         {shown.length > 0 ? (
           <div className="flex flex-wrap items-start justify-center gap-4">

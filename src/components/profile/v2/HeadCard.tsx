@@ -131,7 +131,7 @@ export const HeadCard = () => {
         {location && <p className="mt-1 text-[15px] text-field-label">{location}</p>}
       </div>
 
-      <div className="mt-16 space-y-8">
+      <div className="mt-10 space-y-8">
         <FieldGrid cols={2}>
           <FloatingInput
             label="Nome"

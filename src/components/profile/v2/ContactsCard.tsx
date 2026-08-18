@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { EnvelopeOpenIcon } from "@/components/profile/v2/sectionIcons";
+import { Mail } from "lucide-react";
 import { PHONE_PREFIXES } from "@/lib/profileOptions";
 import {
   FieldGrid,
@@ -57,7 +57,7 @@ export const ContactsCard = () => {
   };
 
   return (
-    <SectionCard icon={<EnvelopeOpenIcon />} title="Contatti">
+    <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
       <FieldSlot name="contact_email">
         <FloatingInput
           label="Email di contatto"
