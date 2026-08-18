@@ -19,7 +19,6 @@ import { TalentLayout } from "@/components/layout/TalentLayout";
 import { OwnerLayout } from "@/components/layout/OwnerLayout";
 
 // Talent pages
-import TalentDashboard from "./pages/talent/TalentDashboard";
 import TalentApplications from "./pages/talent/TalentApplications";
 import TalentMessages from "./pages/talent/TalentMessages";
 import TalentProfile from "./pages/talent/TalentProfileV2";
