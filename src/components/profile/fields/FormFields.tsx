@@ -29,7 +29,7 @@ export const SectionCard = ({
     )}
   >
     {(icon || title) && (
-      <header className="flex flex-col items-center text-center">
+      <header className="mb-16 flex flex-col items-center text-center">
         {icon && <div className="h-16 w-16 text-foreground [&>svg]:h-16 [&>svg]:w-16">{icon}</div>}
         {title && (
           <h2 className="mt-6 font-display text-base uppercase tracking-wide text-foreground">
@@ -38,7 +38,7 @@ export const SectionCard = ({
         )}
       </header>
     )}
-    <div className={cn(icon || title ? "mt-8" : "", "space-y-8")}>{children}</div>
+    <div className="space-y-8">{children}</div>
   </section>
 );
 
