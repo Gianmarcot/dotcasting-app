@@ -117,6 +117,17 @@ export const BioCard = () => {
         />
       </RadioField>
 
+      {bool("p", "has_band") && (
+        <div className="mt-8">
+          <FloatingInput
+            label="Nome della band / gruppo"
+            value={str("p", "band_name")}
+            onChange={(v) => set("p", "band_name", v)}
+          />
+        </div>
+      )}
+
+
       <SectionDivider />
 
       <div>
