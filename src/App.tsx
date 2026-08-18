@@ -25,6 +25,8 @@ import TalentMessages from "./pages/talent/TalentMessages";
 import TalentProfile from "./pages/talent/TalentProfileV2";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
+import TalentNotifications from "./pages/talent/TalentNotifications";
+import TalentNotificationDetail from "./pages/talent/TalentNotificationDetail";
 
 // Shared pages
 import TalentPublicProfile from "./pages/shared/TalentPublicProfile";
