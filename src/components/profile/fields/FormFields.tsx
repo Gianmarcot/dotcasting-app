@@ -72,6 +72,18 @@ export const FieldGrid = ({
   </div>
 );
 
+/**
+ * Group of fields that behave as a single component (e.g. day/month/year):
+ * horizontal spacing is 8px instead of the standard 32px.
+ */
+export const FieldCluster = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) => <div className={cn("flex gap-2", className)}>{children}</div>;
+
 /* ------------------------------ Field shell -------------------------------- */
 
 const shellBase =
@@ -106,25 +118,36 @@ const FieldShell = ({
   </div>
 );
 
+/**
+ * Absolutely positioned label: it never takes part in the layout flow, so the
+ * field height stays identical between resting and floating state (no jump).
+ */
 const FloatLabel = ({
   children,
   floating,
   disabled,
+  align = "center",
 }: {
   children: ReactNode;
   floating: boolean;
   disabled?: boolean;
+  align?: "center" | "top";
 }) => (
   <span
     className={cn(
-      "pointer-events-none block truncate font-medium leading-[1.2] transition-all",
-      floating ? "text-xs" : "text-base font-normal",
+      "pointer-events-none absolute left-4 right-10 origin-left truncate transition-all duration-150 ease-out",
+      floating
+        ? "top-3 text-xs font-medium leading-[1.2]"
+        : align === "top"
+          ? "top-[18px] text-base font-normal leading-[1.2]"
+          : "top-1/2 -translate-y-1/2 text-base font-normal leading-[1.2]",
       disabled ? "text-field-disabled-foreground" : "text-field-label"
     )}
   >
     {children}
   </span>
 );
+
 
 /* -------------------------------- Text input -------------------------------- */
 
