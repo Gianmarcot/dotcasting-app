@@ -425,23 +425,34 @@ export const ProfileCheckbox = ({
   disabled?: boolean;
   className?: string;
 }) => (
-  <label className={cn("flex cursor-pointer items-center gap-3", className)}>
+  <label
+    className={cn(
+      "flex items-center gap-3",
+      disabled ? "cursor-default" : "cursor-pointer",
+      className
+    )}
+  >
     <button
       type="button"
       role="checkbox"
       aria-checked={checked}
+      aria-disabled={disabled}
       disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "flex h-6 w-6 shrink-0 items-center justify-center rounded-[5px] border transition-colors",
-        checked ? "border-primary bg-primary" : "border-border bg-transparent"
+        checked ? "border-primary bg-primary" : "border-border bg-transparent",
+        disabled && !checked && "border-border bg-field"
       )}
     >
       {checked && <Check className="h-4 w-4 text-primary-foreground" strokeWidth={3} />}
     </button>
-    <span className="text-[15px] text-foreground">{label}</span>
+    <span className={cn("text-[15px]", disabled ? "text-field-label" : "text-foreground")}>
+      {label}
+    </span>
   </label>
 );
+
 
 export const ProfileRadioGroup = ({
   value,
