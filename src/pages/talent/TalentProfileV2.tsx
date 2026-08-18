@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Eye } from "lucide-react";
+import { TalentDetailModal } from "@/components/talents/detail/TalentDetailModal";
 import {
   AlertDialog,
   AlertDialogAction,
