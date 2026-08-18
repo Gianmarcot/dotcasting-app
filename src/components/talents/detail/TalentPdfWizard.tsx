@@ -159,13 +159,13 @@ export const TalentPdfWizard = ({
               const allOn = keys.every((k) => fields.includes(k));
               return (
                 <div key={g.group} className="space-y-3">
-                  <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <label className="flex cursor-pointer items-center gap-3 text-[15px] font-medium text-foreground">
                     <Checkbox checked={allOn} onCheckedChange={(c) => toggleGroup(keys, !!c)} />
                     {g.label}
                   </label>
-                  <div className="grid grid-cols-2 gap-2 pl-6 sm:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-x-8 gap-y-6 pl-9 sm:grid-cols-3">
                     {g.items.map((f) => (
-                      <label key={f.key} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <label key={f.key} className="flex cursor-pointer items-center gap-3 text-[15px] text-foreground">
                         <Checkbox
                           checked={fields.includes(f.key)}
                           onCheckedChange={() => toggleField(f.key)}
@@ -196,7 +196,7 @@ export const TalentPdfWizard = ({
                 >
                   <img src={url} alt="" className="h-full w-full object-cover" />
                   <span className="absolute left-2 top-2">
-                    <Checkbox checked={selected} className="bg-background" />
+                    <Checkbox checked={selected} className="data-[state=unchecked]:border-white data-[state=unchecked]:bg-background/80" />
                   </span>
                 </button>
               );
