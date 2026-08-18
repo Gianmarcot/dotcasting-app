@@ -96,7 +96,7 @@ export const TalentSidebar = () => {
           {navItems.map((item) => {
             const isActive =
               location.pathname === item.href ||
-              (item.href !== "/talent" && location.pathname.startsWith(item.href));
+              location.pathname.startsWith(item.href + "/");
             return (
               <li key={item.href}>
                 <Link
