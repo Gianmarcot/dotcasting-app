@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 
 import {
   Bell,
