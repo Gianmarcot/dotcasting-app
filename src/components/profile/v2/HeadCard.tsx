@@ -20,7 +20,7 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
-import { FieldSlot, useProfileForm } from "./ProfileFormContext";
+import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
 const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -37,12 +37,22 @@ export const HeadCard = () => {
     return { day: d, month: m, year: y };
   }, [birthDate]);
 
+  const age = calcAge(birthDate || null);
+  const isAdult = age !== null && age >= 18;
+  const ageConfirmed = bool("p", "age_confirmed");
+
+  // La conferma dei 18 anni è derivata dalla data di nascita, non modificabile a mano.
+  useEffect(() => {
+    if (ageConfirmed !== isAdult) set("p", "age_confirmed", isAdult);
+  }, [isAdult, ageConfirmed, set]);
+
   const setBirthPart = (part: "day" | "month" | "year", value: string) => {
     const next = { ...birth, [part]: value };
     set("p", "birth_date", next.day && next.month && next.year
       ? `${next.year}-${next.month}-${next.day}`
       : null);
   };
+
 
   const birthPlace: AddressValue = {
     state: str("p", "birth_country"),
