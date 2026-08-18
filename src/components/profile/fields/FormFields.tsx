@@ -292,19 +292,19 @@ export const FloatingSelect = ({
       <SelectTrigger
         className={cn(
           shellBase,
-          "min-h-16 items-stretch border-0 pr-11 text-left shadow-none focus:ring-2 focus:ring-inset focus:ring-foreground [&>svg]:hidden",
+          "min-h-16 items-center border-0 pr-11 text-left shadow-none focus:ring-2 focus:ring-inset focus:ring-foreground [&>svg]:h-5 [&>svg]:w-5 [&>svg]:shrink-0 [&>svg]:opacity-70",
           disabled ? "bg-field-disabled" : "bg-field",
           className
         )}
       >
-        <span className="flex w-full flex-col justify-center overflow-hidden">
+        <span className="flex w-full flex-col overflow-hidden">
           <FloatLabel floating={filled} disabled={disabled}>
             {label}
           </FloatLabel>
           {filled && (
             <span
               className={cn(
-                "mt-1 truncate text-base leading-[1.4] text-foreground",
+                "mt-[18px] truncate text-base leading-[1.2] text-foreground",
                 disabled && "text-field-disabled-foreground"
               )}
             >
@@ -312,13 +312,8 @@ export const FloatingSelect = ({
             </span>
           )}
         </span>
-        <ChevronDown
-          className={cn(
-            "pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 opacity-70",
-            disabled && "text-field-disabled-foreground"
-          )}
-        />
       </SelectTrigger>
+
       <SelectContent className="max-h-72">
         {options.map((o) => (
           <SelectItem key={o.value} value={o.value}>
