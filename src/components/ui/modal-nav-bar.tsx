@@ -32,8 +32,8 @@ const CircleButton = ({
     disabled={disabled}
     aria-label={label}
     className={cn(
-      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white transition-opacity",
-      disabled ? "opacity-30" : "opacity-100 hover:opacity-70"
+      "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white transition-opacity duration-200 ease-out motion-reduce:transition-none",
+      disabled ? "opacity-30" : "opacity-100 hover:opacity-70 active:opacity-50"
     )}
   >
     {children}
