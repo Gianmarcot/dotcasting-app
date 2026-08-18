@@ -96,6 +96,7 @@ const FieldShell = ({
   className,
   children,
   minHeight = "min-h-16",
+  as: Tag = "div",
 }: {
   filled: boolean;
   focused: boolean;
@@ -103,8 +104,9 @@ const FieldShell = ({
   className?: string;
   children: ReactNode;
   minHeight?: string;
+  as?: "div" | "label";
 }) => (
-  <div
+  <Tag
     className={cn(
       shellBase,
       minHeight,
@@ -115,7 +117,7 @@ const FieldShell = ({
     data-filled={filled}
   >
     {children}
-  </div>
+  </Tag>
 );
 
 /**
@@ -169,7 +171,13 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const floating = focused || value !== "";
 
     return (
-      <FieldShell filled={value !== ""} focused={focused} disabled={disabled} className={className}>
+      <FieldShell
+        as="label"
+        filled={value !== ""}
+        focused={focused}
+        disabled={disabled}
+        className={cn("cursor-text", className)}
+      >
         <FloatLabel floating={floating} disabled={disabled}>
           {label}
         </FloatLabel>
@@ -204,8 +212,6 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             )}
           />
         </div>
-        {/* Click anywhere in the shell focuses the input */}
-        <label className="absolute inset-0 cursor-text rounded-2xl" aria-hidden="true" />
       </FieldShell>
     );
   }
@@ -237,8 +243,9 @@ export const FloatingTextarea = ({
       filled={value !== ""}
       focused={focused}
       disabled={disabled}
+      as="label"
       minHeight="min-h-36"
-      className={cn("justify-start", className)}
+      className={cn("cursor-text justify-start", className)}
     >
       <FloatLabel floating={floating} disabled={disabled} align="top">
         {label}
