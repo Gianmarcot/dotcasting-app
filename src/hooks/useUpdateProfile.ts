@@ -1,55 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
- import type { Json } from "@/integrations/supabase/types";
+import type { TablesUpdate } from "@/integrations/supabase/types";
+
+export type ProfileUpdate = TablesUpdate<"profiles">;
 
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (updates: {
-      first_name?: string | null;
-      last_name?: string | null;
-      gender?: string | null;
-      ethnicity?: string | null;
-      birth_date?: string | null;
-      city?: string | null;
-      country?: string | null;
-      bio?: string | null;
-      profile_photo_url?: string | null;
-       talent_categories?: string[] | null;
-       representation_type?: string | null;
-       phone_prefix?: string | null;
-       phone_number?: string | null;
-       whatsapp_prefix?: string | null;
-       whatsapp_number?: string | null;
-       nationality?: string | null;
-       postal_code?: string | null;
-       residence_address?: Json | null;
-       domicile_address?: Json | null;
-       fiscal_code?: string | null;
-       work_cities?: string[] | null;
-       id_document_url?: string | null;
-       has_passport?: boolean;
-       passport_expiry?: string | null;
-       social_links?: Json | null;
-       website_url?: string | null;
-       has_minor_children?: boolean;
-       main_occupation?: string | null;
-       driving_licenses?: string[] | null;
-       travel_availability?: Json | null;
-       visas?: Json | null;
-        has_vat_number?: boolean;
-        vat_number?: string | null;
-        stage_name?: string | null;
-        birth_country?: string | null;
-        birth_region?: string | null;
-        birth_province?: string | null;
-        birth_city?: string | null;
-        gender_identity?: string | null;
-        contact_email?: string | null;
-    }) => {
+    mutationFn: async (updates: ProfileUpdate) => {
       if (!user?.id) throw new Error("User not authenticated");
 
       const { error } = await supabase
