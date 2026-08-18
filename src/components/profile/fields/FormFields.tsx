@@ -6,7 +6,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 /* ---------------------------------- Layout --------------------------------- */
@@ -293,7 +292,6 @@ export const FloatingSelect = ({
             disabled && "text-field-disabled-foreground"
           )}
         />
-        <SelectValue className="hidden" />
       </SelectTrigger>
       <SelectContent className="max-h-72">
         {options.map((o) => (
