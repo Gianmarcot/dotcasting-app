@@ -173,12 +173,21 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
         <FloatLabel floating={floating} disabled={disabled}>
           {label}
         </FloatLabel>
-        <div className={cn("flex items-center gap-1", floating ? "mt-1" : "hidden")}>
+        {/* Fixed offset: the value row never moves, only the label animates */}
+        <div className="mt-[18px] flex items-center gap-1">
           {prefix && (
-            <span className="shrink-0 text-base leading-[1.4] text-field-label">{prefix}</span>
+            <span
+              className={cn(
+                "shrink-0 text-base leading-[1.4] text-field-label transition-opacity",
+                floating ? "opacity-100" : "opacity-0"
+              )}
+            >
+              {prefix}
+            </span>
           )}
           <input
             ref={ref}
+            aria-label={label}
             type={type}
             inputMode={inputMode}
             value={value}
@@ -190,24 +199,13 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               onBlur?.();
             }}
             className={cn(
-              "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none placeholder:text-field-label",
+              "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
               disabled && "text-field-disabled-foreground"
             )}
           />
         </div>
-        {!floating && (
-          <input
-            aria-label={label}
-            type={type}
-            inputMode={inputMode}
-            value={value}
-            disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={() => setFocused(true)}
-            onBlur={onBlur}
-            className="absolute inset-0 h-full w-full cursor-text rounded-2xl border-0 bg-transparent px-4 text-base text-transparent outline-none"
-          />
-        )}
+        {/* Click anywhere in the shell focuses the input */}
+        <label className="absolute inset-0 cursor-text rounded-2xl" aria-hidden="true" />
       </FieldShell>
     );
   }
@@ -242,7 +240,7 @@ export const FloatingTextarea = ({
       minHeight="min-h-36"
       className={cn("justify-start", className)}
     >
-      <FloatLabel floating={floating} disabled={disabled}>
+      <FloatLabel floating={floating} disabled={disabled} align="top">
         {label}
       </FloatLabel>
       <textarea
@@ -255,14 +253,12 @@ export const FloatingTextarea = ({
           setFocused(false);
           onBlur?.();
         }}
-        className={cn(
-          "mt-1 h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
-          !floating && "absolute inset-0 h-full rounded-2xl px-4 text-transparent"
-        )}
+        className="mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none"
       />
     </FieldShell>
   );
 };
+
 
 /* ---------------------------------- Select --------------------------------- */
 
