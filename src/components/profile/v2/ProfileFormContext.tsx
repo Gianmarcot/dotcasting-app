@@ -332,10 +332,13 @@ export const FieldSlot = ({
   name,
   children,
   className,
+  hideMessage,
 }: {
   name: string;
   children: ReactNode;
   className?: string;
+  /** Il campo mostra già il proprio messaggio d'errore inline */
+  hideMessage?: boolean;
 }) => {
   const { errors, registerField } = useProfileForm();
   const error = errors[name];
@@ -345,12 +348,16 @@ export const FieldSlot = ({
       ref={registerField(name)}
       className={cn(
         "flex flex-col gap-1",
-        error && "rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-profile-card",
+        error && !hideMessage &&
+          "rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-profile-card",
         className
       )}
     >
       {children}
-      {error && <span className="px-4 text-sm text-destructive">{error}</span>}
+      {error && !hideMessage && (
+        <span className="px-4 text-sm text-destructive">{error}</span>
+      )}
     </div>
   );
 };
+
