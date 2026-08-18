@@ -201,14 +201,17 @@ export const TalentDetailModal = ({
           {/* METÀ DESTRA — dettagli, scorre */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto bg-white lg:h-full lg:w-1/2">
             <div className="w-full max-w-[524px] px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="lg"
+                iconPosition="left"
                 onClick={() => setWizardOpen(true)}
-                className="flex h-12 items-center gap-[10px] rounded-full border border-border bg-background px-5 text-[15px] text-foreground"
+                className="gap-[10px] text-[15px]"
               >
                 <Download className="h-5 w-5" strokeWidth={1.5} />
                 Scarica PDF
-              </button>
+              </Button>
 
               <h2 className="mt-8 font-display text-4xl uppercase leading-tight text-[#1a1a1a]">
                 {fullName}
