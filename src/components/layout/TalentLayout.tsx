@@ -3,9 +3,11 @@ import { TalentSidebar } from "./TalentSidebar";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNavTalent } from "./MobileBottomNavTalent";
 import { useOnboardingCheck } from "@/hooks/useOnboardingCheck";
+import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
 
 export const TalentLayout = () => {
   const { isLoading, isOnboardingComplete } = useOnboardingCheck();
+  const { width } = useOwnerSidebarWidth();
 
   if (isLoading) {
     return (
@@ -26,8 +28,11 @@ export const TalentLayout = () => {
     <div className="min-h-screen bg-white">
       <TalentSidebar />
       <MobileHeader variant="talent" />
-      <main className="fixed top-0 right-0 bottom-0 left-0 md:left-64 p-0 pt-[52px] pb-[68px] md:p-2 md:pt-2 md:pb-2">
-        <div className="h-full bg-background md:rounded-[3rem] overflow-hidden">
+      <main
+        className="fixed top-0 right-0 bottom-0 left-0 p-0 pt-[52px] pb-[68px] md:p-2 md:pt-2 md:pb-2"
+        style={{ ["--talent-sidebar-w" as any]: `${width}px` }}
+      >
+        <div className="h-full bg-background md:rounded-[3rem] overflow-hidden md:ml-[var(--talent-sidebar-w)]">
           <div className="h-full overflow-y-auto overflow-x-hidden">
             <div className="p-4 pt-4 md:p-8 md:pt-16 max-w-7xl mx-auto">
               <Outlet />
