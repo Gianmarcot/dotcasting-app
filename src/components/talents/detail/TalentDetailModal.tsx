@@ -207,8 +207,8 @@ export const TalentDetailModal = ({
           </div>
 
           {/* METÀ DESTRA — dettagli, scorre */}
-          <div ref={scrollRef} className="flex-1 bg-white lg:h-full lg:w-1/2 lg:overflow-y-auto">
-            <div className="w-full px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
+          <div ref={scrollRef} className="min-w-0 flex-1 bg-white lg:h-full lg:w-1/2 lg:overflow-y-auto">
+            <div className="min-w-0 w-full px-6 pb-24 pt-24 lg:ml-[100px] lg:mr-[96px] lg:px-0 lg:pt-[147px]">
               <Button
                 type="button"
                 variant="secondary"
