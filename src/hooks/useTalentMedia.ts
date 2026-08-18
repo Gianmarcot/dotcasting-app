@@ -165,8 +165,7 @@ export const useReplaceMediaFile = () => {
       userId: string;
       /** Ritaglio applicato, indicizzato per proporzione (es. "2:3"). Estendibile a "1:1". */
       crop?: { ratio: string; rect: Record<string, number> };
-      currentCrops?: Record<string, unknown>;
-    }, ctx?: unknown) => {
+    }) => {
       // Delete old file from storage
       const url = new URL(oldUrl);
       const pathParts = url.pathname.split("/talent-media/");
