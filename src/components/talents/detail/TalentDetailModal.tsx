@@ -72,6 +72,7 @@ export const TalentDetailModal = ({
     else setLocalIndex(next);
     setPhotoIndex(0);
     scrollRef.current?.scrollTo({ top: 0 });
+    containerRef.current?.scrollTo({ top: 0 });
   };
 
   useEffect(() => setPhotoIndex(0), [profileId]);
