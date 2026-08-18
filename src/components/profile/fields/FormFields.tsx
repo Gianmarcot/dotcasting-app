@@ -208,60 +208,97 @@ interface FloatingInputProps {
   type?: string;
   inputMode?: "text" | "numeric" | "decimal" | "email" | "tel" | "url";
   className?: string;
+  maxLength?: number;
+  /** Messaggio di errore (bordo rosso + testo sotto il campo) */
+  error?: string | null;
+  /** Messaggio di avviso non bloccante */
+  warning?: string | null;
 }
 
 export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
-  ({ label, value, onChange, onBlur, disabled, prefix, type = "text", inputMode, className }, ref) => {
+  (
+    {
+      label,
+      value,
+      onChange,
+      onBlur,
+      disabled,
+      prefix,
+      type = "text",
+      inputMode,
+      className,
+      maxLength,
+      error,
+      warning,
+    },
+    ref
+  ) => {
     const [focused, setFocused] = useState(false);
     const floating = focused || value !== "";
+    const message = error || warning;
 
     return (
-      <FieldShell
-        as="label"
-        filled={value !== ""}
-        focused={focused}
-        disabled={disabled}
-        className={cn("cursor-text", className)}
-      >
-        <FloatLabel floating={floating} disabled={disabled}>
-          {label}
-        </FloatLabel>
-        {/* Fixed offset: the value row never moves, only the label animates */}
-        <div className="mt-[18px] flex items-center gap-1">
-          {prefix && (
-            <span
-              className={cn(
-                "shrink-0 text-base leading-[1.4] text-field-label transition-opacity",
-                floating ? "opacity-100" : "opacity-0"
-              )}
-            >
-              {prefix}
-            </span>
-          )}
-          <input
-            ref={ref}
-            aria-label={label}
-            type={type}
-            inputMode={inputMode}
-            value={value}
-            disabled={disabled}
-            onChange={(e) => onChange(e.target.value)}
-            onFocus={() => setFocused(true)}
-            onBlur={() => {
-              setFocused(false);
-              onBlur?.();
-            }}
-            className={cn(
-              "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
-              disabled && "text-field-disabled-foreground"
+      <div className={cn("flex w-full flex-col", className)}>
+        <FieldShell
+          as="label"
+          filled={value !== ""}
+          focused={focused}
+          disabled={disabled}
+          className={cn("cursor-text", error && "ring-2 ring-inset ring-destructive")}
+        >
+          <FloatLabel floating={floating} disabled={disabled}>
+            {label}
+          </FloatLabel>
+          {/* Fixed offset: the value row never moves, only the label animates */}
+          <div className="mt-[18px] flex items-center gap-1">
+            {prefix && (
+              <span
+                className={cn(
+                  "shrink-0 text-base leading-[1.4] text-field-label transition-opacity",
+                  floating ? "opacity-100" : "opacity-0"
+                )}
+              >
+                {prefix}
+              </span>
             )}
-          />
-        </div>
-      </FieldShell>
+            <input
+              ref={ref}
+              aria-label={label}
+              aria-invalid={!!error}
+              type={type}
+              inputMode={inputMode}
+              maxLength={maxLength}
+              value={value}
+              disabled={disabled}
+              onChange={(e) => onChange(e.target.value)}
+              onFocus={() => setFocused(true)}
+              onBlur={() => {
+                setFocused(false);
+                onBlur?.();
+              }}
+              className={cn(
+                "w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-foreground outline-none",
+                disabled && "text-field-disabled-foreground"
+              )}
+            />
+          </div>
+        </FieldShell>
+        {message && (
+          <span
+            className={cn(
+              "mt-2 px-4 text-[13px] leading-[1.3]",
+              error ? "text-destructive" : "text-field-label"
+            )}
+          >
+            {message}
+          </span>
+        )}
+      </div>
     );
   }
 );
 FloatingInput.displayName = "FloatingInput";
+
 
 /* --------------------------------- Textarea -------------------------------- */
 
