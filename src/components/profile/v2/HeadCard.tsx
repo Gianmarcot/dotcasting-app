@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { compressImage } from "@/lib/media/compressImage";
@@ -101,11 +102,13 @@ export const HeadCard = () => {
               </div>
             )}
           </div>
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="lg"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="absolute -bottom-5 left-1/2 flex h-12 -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-primary px-5 text-[15px] text-primary-foreground disabled:opacity-60"
+            className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
             {isUploading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -113,7 +116,7 @@ export const HeadCard = () => {
               <Camera className="h-5 w-5" />
             )}
             Le mie foto
-          </button>
+          </Button>
         </div>
         <input
           ref={fileInputRef}

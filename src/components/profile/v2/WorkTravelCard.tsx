@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Briefcase, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { DRIVING_LICENSES } from "@/lib/profileOptions";
 import {
   CancelButton,
@@ -95,14 +96,16 @@ export const WorkTravelCard = () => {
             </div>
           </div>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="default"
+            size="sm"
             onClick={() => setAdding(true)}
-            className="mt-4 flex h-12 items-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground"
+            className="mt-4"
           >
             <Plus className="h-5 w-5" />
             Aggiungi città
-          </button>
+          </Button>
         )}
       </div>
 

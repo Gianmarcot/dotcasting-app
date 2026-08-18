@@ -14,9 +14,10 @@ export default {
   	},
   	extend: {
   		colors: {
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
+   			border: 'hsl(var(--border))',
+   			divider: 'hsl(var(--divider))',
+   			input: 'hsl(var(--input))',
+   			ring: 'hsl(var(--ring))',
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			primary: {

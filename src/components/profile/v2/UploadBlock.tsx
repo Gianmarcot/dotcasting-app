@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -95,25 +96,27 @@ export const UploadBlock = ({
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="lg"
           disabled={busy}
           onClick={() => inputRef.current?.click()}
-          className="flex h-12 items-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground disabled:opacity-60"
         >
           {busy && <Loader2 className="h-4 w-4 animate-spin" />}
           {currentPath ? "Sostituisci" : buttonLabel}
-        </button>
+        </Button>
         {currentPath && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="icon-lg"
             disabled={busy}
             onClick={handleRemove}
             aria-label="Rimuovi file"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-border text-foreground"
           >
             <Trash2 className="h-5 w-5" />
-          </button>
+          </Button>
         )}
         <input ref={inputRef} type="file" accept={accept} onChange={handleSelect} className="hidden" />
       </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { GraduationCap, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { Json } from "@/integrations/supabase/types";
 import { EDUCATION_LEVELS, LANGUAGES, LANGUAGE_LEVELS } from "@/lib/profileOptions";
 import {
@@ -191,14 +192,16 @@ export const BioCard = () => {
             </div>
           </div>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="default"
+            size="sm"
             onClick={() => setAdding(true)}
-            className="mt-4 flex h-12 items-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground"
+            className="mt-4"
           >
             <Plus className="h-5 w-5" />
             Aggiungi lingua
-          </button>
+          </Button>
         )}
       </div>
     </SectionCard>

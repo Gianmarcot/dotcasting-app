@@ -63,6 +63,7 @@
 
     /* Borders & Inputs */
     --border: 0 0% 78%;
+    --divider: 0 0% 85%;
     --input: 40 15% 85%;
     --ring: 345 65% 35%;
 
@@ -133,6 +134,7 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 15% 22%;
+    --divider: 220 15% 25%;
     --input: 220 15% 22%;
     --ring: 345 55% 50%;
 
