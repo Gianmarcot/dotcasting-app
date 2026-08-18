@@ -84,7 +84,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             >
-              <Route index element={<TalentDashboard />} />
+              <Route index element={<Navigate to="/talent/profile" replace />} />
               <Route path="applications" element={<TalentApplications />} />
               <Route path="messages" element={<TalentMessages />} />
               <Route path="profile" element={<TalentProfile />} />

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
-import { Home, Bookmark, User, MessageSquare, LogOut, Settings, Bell } from "lucide-react";
+import { Bookmark, User, MessageSquare, LogOut, Settings, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
@@ -10,7 +10,6 @@ import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
 import logo from "@/assets/logo.png";
 
 const navItems = [
-  { icon: Home, label: it.nav.home, href: "/talent" },
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
   { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
@@ -86,11 +85,8 @@ export const TalentSidebar = () => {
 
       {/* Logo */}
       <div className="dc-sidebar-header">
-        <Link to="/talent" className="flex items-center gap-3">
+        <Link to="/talent/profile" className="flex items-center">
           <img src={logo} alt="dotCasting" className="h-7" />
-          <span className="text-xs font-display uppercase tracking-widest text-muted-foreground">
-            Talent
-          </span>
         </Link>
       </div>
 

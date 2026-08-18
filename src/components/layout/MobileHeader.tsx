@@ -40,7 +40,7 @@ export const MobileHeader = ({ variant = "talent" }: MobileHeaderProps) => {
 
   return (
     <header className="dc-mobile-header md:hidden">
-      <Link to={variant === "owner" ? "/owner" : "/talent"} className="flex items-center">
+      <Link to={variant === "owner" ? "/owner" : "/talent/profile"} className="flex items-center">
         <img src={logo} alt="dotCasting" className="h-6" />
       </Link>
 
