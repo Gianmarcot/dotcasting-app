@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
-import { FieldSlot, useProfileForm } from "./ProfileFormContext";
+import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
 const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
 const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
@@ -37,12 +37,22 @@ export const HeadCard = () => {
     return { day: d, month: m, year: y };
   }, [birthDate]);
 
+  const age = calcAge(birthDate || null);
+  const isAdult = age !== null && age >= 18;
+  const ageConfirmed = bool("p", "age_confirmed");
+
+  // La conferma dei 18 anni è derivata dalla data di nascita, non modificabile a mano.
+  useEffect(() => {
+    if (ageConfirmed !== isAdult) set("p", "age_confirmed", isAdult);
+  }, [isAdult, ageConfirmed, set]);
+
   const setBirthPart = (part: "day" | "month" | "year", value: string) => {
     const next = { ...birth, [part]: value };
     set("p", "birth_date", next.day && next.month && next.year
       ? `${next.year}-${next.month}-${next.day}`
       : null);
   };
+
 
   const birthPlace: AddressValue = {
     state: str("p", "birth_country"),
@@ -153,40 +163,43 @@ export const HeadCard = () => {
 
         <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
-          <FieldCluster className="max-w-[420px]">
-            <FloatingSelect
-              label="Giorno"
-              className="flex-1"
-              value={birth.day}
-              onValueChange={(v) => setBirthPart("day", v)}
-              options={toOptions(DAYS)}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
+            <FieldCluster className="w-full max-w-[420px]">
+              <FloatingSelect
+                label="Giorno"
+                className="flex-1"
+                value={birth.day}
+                onValueChange={(v) => setBirthPart("day", v)}
+                options={toOptions(DAYS)}
+              />
+              <FloatingSelect
+                label="Mese"
+                className="flex-1"
+                value={birth.month}
+                onValueChange={(v) => setBirthPart("month", v)}
+                options={MONTHS.map((m, i) => ({
+                  value: String(i + 1).padStart(2, "0"),
+                  label: m,
+                }))}
+              />
+              <FloatingSelect
+                label="Anno"
+                className="flex-1"
+                value={birth.year}
+                onValueChange={(v) => setBirthPart("year", v)}
+                options={toOptions(YEARS)}
+              />
+            </FieldCluster>
+            <ProfileCheckbox
+              checked={isAdult}
+              disabled
+              onCheckedChange={() => {}}
+              label="Confermo di aver compiuto 18 anni"
+              className="shrink-0"
             />
-            <FloatingSelect
-              label="Mese"
-              className="flex-1"
-              value={birth.month}
-              onValueChange={(v) => setBirthPart("month", v)}
-              options={MONTHS.map((m, i) => ({
-                value: String(i + 1).padStart(2, "0"),
-                label: m,
-              }))}
-            />
-            <FloatingSelect
-              label="Anno"
-              className="flex-1"
-              value={birth.year}
-              onValueChange={(v) => setBirthPart("year", v)}
-              options={toOptions(YEARS)}
-            />
-          </FieldCluster>
+          </div>
         </FieldSlot>
 
-
-        <ProfileCheckbox
-          checked={bool("p", "age_confirmed")}
-          onCheckedChange={(checked) => set("p", "age_confirmed", checked)}
-          label="Confermo di aver compiuto 18 anni *"
-        />
 
         <FieldGrid cols={4}>
           <GeoFields

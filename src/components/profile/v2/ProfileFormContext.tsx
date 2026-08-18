@@ -10,6 +10,8 @@ import {
 } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { validateFiscalCode } from "@/lib/fiscalCode";
+
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile, type ProfileUpdate } from "@/hooks/useUpdateProfile";
 import {
@@ -225,7 +227,18 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
     const email = (draft.p.contact_email as string | null) ?? "";
     if (email && !EMAIL_RE.test(email)) found.contact_email = "Inserisci un indirizzo email valido";
     const fiscal = (draft.p.fiscal_code as string | null) ?? "";
-    if (fiscal && fiscal.length !== 16) found.fiscal_code = "Il codice fiscale deve avere 16 caratteri";
+    const nationality = (draft.p.nationality as string | null) ?? "";
+    const italianFiscal = !nationality || /ital/i.test(nationality);
+    if (fiscal) {
+      if (fiscal.replace(/[^A-Za-z0-9]/g, "").length !== 16) {
+        found.fiscal_code = "Il codice fiscale deve avere 16 caratteri";
+      } else if (italianFiscal) {
+        const check = validateFiscalCode(fiscal);
+        if (!check.valid) found.fiscal_code = check.error ?? "Codice fiscale non valido";
+      }
+    }
+
+
     const iban = (draft.p.iban as string | null) ?? "";
     if (iban && iban.replace(/\s/g, "").length < 15) found.iban = "IBAN non valido";
     return found;
@@ -319,10 +332,13 @@ export const FieldSlot = ({
   name,
   children,
   className,
+  hideMessage,
 }: {
   name: string;
   children: ReactNode;
   className?: string;
+  /** Il campo mostra già il proprio messaggio d'errore inline */
+  hideMessage?: boolean;
 }) => {
   const { errors, registerField } = useProfileForm();
   const error = errors[name];
@@ -332,12 +348,16 @@ export const FieldSlot = ({
       ref={registerField(name)}
       className={cn(
         "flex flex-col gap-1",
-        error && "rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-profile-card",
+        error && !hideMessage &&
+          "rounded-2xl ring-2 ring-destructive ring-offset-2 ring-offset-profile-card",
         className
       )}
     >
       {children}
-      {error && <span className="px-4 text-sm text-destructive">{error}</span>}
+      {error && !hideMessage && (
+        <span className="px-4 text-sm text-destructive">{error}</span>
+      )}
     </div>
   );
 };
+
