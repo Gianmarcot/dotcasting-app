@@ -135,8 +135,13 @@ export const TalentDetailModal = ({
                 {photos.length > 0 ? (
                   <div
                     key={profileId ?? "empty"}
-                    className="flex h-full w-full transition-transform duration-[800ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-                    style={{ transform: `translateX(-${photoIndex * 100}%)` }}
+                    className="flex h-full w-full motion-reduce:!transition-none"
+                    style={{
+                      transform: `translateX(-${photoIndex * 100}%)`,
+                      transitionProperty: "transform",
+                      transitionDuration: "800ms",
+                      transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+                    }}
                   >
                     {photos.map((url, i) => (
                       <img
