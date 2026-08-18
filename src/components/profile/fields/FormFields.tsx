@@ -38,12 +38,13 @@ export const SectionCard = ({
         )}
       </header>
     )}
-    <div className={cn(icon || title ? "mt-8" : "", "space-y-6")}>{children}</div>
+    <div className={cn(icon || title ? "mt-8" : "", "space-y-8")}>{children}</div>
   </section>
 );
 
+/** Horizontal rule with a fixed 32px breathing space above and below. */
 export const SectionDivider = ({ className }: { className?: string }) => (
-  <hr className={cn("border-t border-divider", className)} />
+  <hr className={cn("my-8 border-t border-divider", className)} />
 );
 
 export const GroupLabel = ({ children }: { children: ReactNode }) => (
@@ -52,6 +53,45 @@ export const GroupLabel = ({ children }: { children: ReactNode }) => (
 
 export const GroupHeading = ({ children }: { children: ReactNode }) => (
   <p className="mb-8 text-base font-medium leading-5 text-group-label">{children}</p>
+);
+
+/** Label + radio group: the gap between the two is always 32px. */
+export const RadioField = ({
+  label,
+  children,
+  className,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) => (
+  <div className={className}>
+    <p className="mb-8 text-[15px] font-medium leading-5 text-group-label">{label}</p>
+    {children}
+  </div>
+);
+
+/** Grid of checkboxes: 24px between rows, 32px between columns. */
+export const CheckboxGrid = ({
+  cols = 3,
+  children,
+  className,
+}: {
+  cols?: 2 | 3 | 4;
+  children: ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={cn(
+      "grid gap-x-4 gap-y-6 sm:gap-x-8",
+      cols === 2 && "grid-cols-1 sm:grid-cols-2",
+      cols === 3 && "grid-cols-1 sm:grid-cols-3",
+      cols === 4 && "grid-cols-2 sm:grid-cols-4",
+      className
+    )}
+  >
+    {children}
+  </div>
 );
 
 export const FieldGrid = ({
