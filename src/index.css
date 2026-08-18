@@ -92,6 +92,17 @@
     --charcoal: 220 10% 25%;
     --charcoal-foreground: 40 25% 97%;
     --input-background: 0 0% 100%;
+
+    /* Talent profile form (floating label) tokens */
+    --field: 30 27% 94%;              /* #f4f0ec */
+    --field-focus: 30 30% 97%;
+    --field-label: 0 0% 41%;          /* #686868 */
+    --group-label: 0 0% 27%;          /* #464646 */
+    --field-disabled: 30 6% 91%;
+    --field-disabled-foreground: 0 0% 47%; /* #787878 */
+    --profile-card: 0 0% 100%;
+    --profile-strength: 30 24% 90%;   /* #ece5de */
+
     --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
   }
@@ -139,6 +150,16 @@
     --charcoal: 40 20% 85%;
     --charcoal-foreground: 220 15% 10%;
     --input-background: 0 0% 100%;
+
+    --field: 220 15% 18%;
+    --field-focus: 220 15% 22%;
+    --field-label: 40 10% 65%;
+    --group-label: 40 12% 78%;
+    --field-disabled: 220 10% 22%;
+    --field-disabled-foreground: 40 8% 55%;
+    --profile-card: 220 15% 14%;
+    --profile-strength: 220 15% 20%;
+
     --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
     --radius: 0.5rem;

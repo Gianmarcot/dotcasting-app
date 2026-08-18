@@ -793,6 +793,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_confirmed: boolean | null
+          bank_account_holder: string | null
+          bank_name: string | null
           bio: string | null
           birth_city: string | null
           birth_country: string | null
@@ -803,16 +806,23 @@ export type Database = {
           contact_email: string | null
           country: string | null
           created_at: string
+          cv_url: string | null
           domicile_address: Json | null
           driving_licenses: string[] | null
+          education_field: string | null
+          education_level: string | null
           ethnicity: string | null
           first_name: string | null
           fiscal_code: string | null
           gender: string | null
           gender_identity: string | null
+          has_band: boolean | null
+          has_car: boolean | null
           has_minor_children: boolean | null
+          has_motorbike: boolean | null
           has_passport: boolean | null
           has_vat_number: boolean | null
+          iban: string | null
           id: string
           id_document_url: string | null
           is_shortlisted: boolean
@@ -820,6 +830,7 @@ export type Database = {
           main_occupation: string | null
           nationality: string | null
           onboarding_completed: boolean | null
+          passport_country: string | null
           passport_expiry: string | null
           phone_number: string | null
           phone_prefix: string | null
@@ -834,7 +845,9 @@ export type Database = {
           triaged_at: string | null
           updated_at: string
           user_id: string
+          vat_activity_type: string | null
           vat_number: string | null
+          vat_regime: string | null
           visas: Json | null
           visibility_settings: Json | null
           website_url: string | null
@@ -843,6 +856,9 @@ export type Database = {
           work_cities: string[] | null
         }
         Insert: {
+          age_confirmed?: boolean | null
+          bank_account_holder?: string | null
+          bank_name?: string | null
           bio?: string | null
           birth_city?: string | null
           birth_country?: string | null
@@ -853,16 +869,23 @@ export type Database = {
           contact_email?: string | null
           country?: string | null
           created_at?: string
+          cv_url?: string | null
           domicile_address?: Json | null
           driving_licenses?: string[] | null
+          education_field?: string | null
+          education_level?: string | null
           ethnicity?: string | null
           first_name?: string | null
           fiscal_code?: string | null
           gender?: string | null
           gender_identity?: string | null
+          has_band?: boolean | null
+          has_car?: boolean | null
           has_minor_children?: boolean | null
+          has_motorbike?: boolean | null
           has_passport?: boolean | null
           has_vat_number?: boolean | null
+          iban?: string | null
           id?: string
           id_document_url?: string | null
           is_shortlisted?: boolean
@@ -870,6 +893,7 @@ export type Database = {
           main_occupation?: string | null
           nationality?: string | null
           onboarding_completed?: boolean | null
+          passport_country?: string | null
           passport_expiry?: string | null
           phone_number?: string | null
           phone_prefix?: string | null
@@ -884,7 +908,9 @@ export type Database = {
           triaged_at?: string | null
           updated_at?: string
           user_id: string
+          vat_activity_type?: string | null
           vat_number?: string | null
+          vat_regime?: string | null
           visas?: Json | null
           visibility_settings?: Json | null
           website_url?: string | null
@@ -893,6 +919,9 @@ export type Database = {
           work_cities?: string[] | null
         }
         Update: {
+          age_confirmed?: boolean | null
+          bank_account_holder?: string | null
+          bank_name?: string | null
           bio?: string | null
           birth_city?: string | null
           birth_country?: string | null
@@ -903,16 +932,23 @@ export type Database = {
           contact_email?: string | null
           country?: string | null
           created_at?: string
+          cv_url?: string | null
           domicile_address?: Json | null
           driving_licenses?: string[] | null
+          education_field?: string | null
+          education_level?: string | null
           ethnicity?: string | null
           first_name?: string | null
           fiscal_code?: string | null
           gender?: string | null
           gender_identity?: string | null
+          has_band?: boolean | null
+          has_car?: boolean | null
           has_minor_children?: boolean | null
+          has_motorbike?: boolean | null
           has_passport?: boolean | null
           has_vat_number?: boolean | null
+          iban?: string | null
           id?: string
           id_document_url?: string | null
           is_shortlisted?: boolean
@@ -920,6 +956,7 @@ export type Database = {
           main_occupation?: string | null
           nationality?: string | null
           onboarding_completed?: boolean | null
+          passport_country?: string | null
           passport_expiry?: string | null
           phone_number?: string | null
           phone_prefix?: string | null
@@ -934,7 +971,9 @@ export type Database = {
           triaged_at?: string | null
           updated_at?: string
           user_id?: string
+          vat_activity_type?: string | null
           vat_number?: string | null
+          vat_regime?: string | null
           visas?: Json | null
           visibility_settings?: Json | null
           website_url?: string | null
@@ -1052,6 +1091,7 @@ export type Database = {
           has_albinism: boolean | null
           has_diastema: boolean | null
           has_dwarfism: boolean | null
+          has_food_allergies: boolean | null
           has_freckles: boolean | null
           has_piercings: boolean | null
           has_tattoos: boolean | null
@@ -1060,6 +1100,7 @@ export type Database = {
           hips: number | null
           id: string
           jacket_size: string | null
+          language_levels: Json | null
           languages: string[] | null
           measurements: string | null
           neck_size: number | null
@@ -1096,6 +1137,7 @@ export type Database = {
           has_albinism?: boolean | null
           has_diastema?: boolean | null
           has_dwarfism?: boolean | null
+          has_food_allergies?: boolean | null
           has_freckles?: boolean | null
           has_piercings?: boolean | null
           has_tattoos?: boolean | null
@@ -1104,6 +1146,7 @@ export type Database = {
           hips?: number | null
           id?: string
           jacket_size?: string | null
+          language_levels?: Json | null
           languages?: string[] | null
           measurements?: string | null
           neck_size?: number | null
@@ -1140,6 +1183,7 @@ export type Database = {
           has_albinism?: boolean | null
           has_diastema?: boolean | null
           has_dwarfism?: boolean | null
+          has_food_allergies?: boolean | null
           has_freckles?: boolean | null
           has_piercings?: boolean | null
           has_tattoos?: boolean | null
@@ -1148,6 +1192,7 @@ export type Database = {
           hips?: number | null
           id?: string
           jacket_size?: string | null
+          language_levels?: Json | null
           languages?: string[] | null
           measurements?: string | null
           neck_size?: number | null

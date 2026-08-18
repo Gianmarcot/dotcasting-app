@@ -76,7 +76,18 @@ export default {
   			charcoal: {
   				DEFAULT: 'hsl(var(--charcoal))',
   				foreground: 'hsl(var(--charcoal-foreground))'
-  			}
+  			},
+  			field: {
+  				DEFAULT: 'hsl(var(--field))',
+  				focus: 'hsl(var(--field-focus))',
+  				label: 'hsl(var(--field-label))',
+  				disabled: 'hsl(var(--field-disabled))',
+  				'disabled-foreground': 'hsl(var(--field-disabled-foreground))'
+  			},
+  			'group-label': 'hsl(var(--group-label))',
+  			'profile-card': 'hsl(var(--profile-card))',
+  			'profile-strength': 'hsl(var(--profile-strength))'
+
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
