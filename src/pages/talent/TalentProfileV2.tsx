@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Eye } from "lucide-react";
+import { TalentDetailModal } from "@/components/talents/detail/TalentDetailModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,8 +26,9 @@ import { BioCard } from "@/components/profile/v2/BioCard";
 import { WorkTravelCard } from "@/components/profile/v2/WorkTravelCard";
 
 const ProfileContent = () => {
-  const { isLoading, isDirty, resetKey } = useProfileForm();
+  const { isLoading, isDirty, resetKey, profileRow } = useProfileForm();
   const { pendingHref, confirmLeave, cancelLeave } = useUnsavedGuard(isDirty);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -41,13 +43,16 @@ const ProfileContent = () => {
       <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
         <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="font-display text-2xl uppercase text-foreground">Il mio profilo</h1>
-          <Link to="/talent/profile/preview">
-            <button className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground sm:w-auto">
-              <Eye className="h-5 w-5" />
-              Visualizza preview
-            </button>
-          </Link>
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground sm:w-auto"
+          >
+            <Eye className="h-5 w-5" />
+            Visualizza preview
+          </button>
         </header>
+
 
         <ProfileStrengthCard />
         <div key={resetKey} className="space-y-6">
@@ -83,6 +88,14 @@ const ProfileContent = () => {
       </div>
 
       <ProfileSaveBar />
+
+      {profileRow?.id && (
+        <TalentDetailModal
+          profileIds={[profileRow.id]}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+        />
+      )}
 
       <AlertDialog open={!!pendingHref} onOpenChange={(open) => !open && cancelLeave()}>
         <AlertDialogContent>
