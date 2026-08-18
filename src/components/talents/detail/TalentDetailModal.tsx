@@ -95,16 +95,16 @@ export const TalentDetailModal = ({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-200 data-[state=open]:duration-300" />
         <DialogPrimitive.Content
-          className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-white outline-none lg:flex-row"
+          className="fixed inset-0 z-[80] flex flex-col overflow-hidden bg-white outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:ease-out lg:flex-row motion-reduce:data-[state=closed]:slide-out-to-bottom-0 motion-reduce:data-[state=open]:slide-in-from-bottom-0"
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
 
           {/* barra di navigazione fissa in alto a destra */}
           <ModalNavBar
-            className="fixed right-8 top-8 z-[90]"
+            className="fixed right-8 top-8 z-[90] animate-fade-in motion-reduce:animate-none"
             showNavigation={hasNavigation}
             prevDisabled={currentIndex <= 0}
             nextDisabled={currentIndex >= profileIds.length - 1}
@@ -128,12 +128,22 @@ export const TalentDetailModal = ({
                 className="overflow-hidden rounded-2xl bg-black/5"
                 style={{ height: "min(600px, 58.6vh)", aspectRatio: "2 / 3" }}
               >
-                {photos[photoIndex] ? (
-                  <img
-                    src={photos[photoIndex]}
-                    alt={`${fullName} — foto ${photoIndex + 1} di ${photos.length}`}
-                    className="h-full w-full object-cover"
-                  />
+                {photos.length > 0 ? (
+                  <div
+                    key={profileId ?? "empty"}
+                    className="flex h-full w-full transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+                    style={{ transform: `translateX(-${photoIndex * 100}%)` }}
+                  >
+                    {photos.map((url, i) => (
+                      <img
+                        key={url + i}
+                        src={url}
+                        alt={`${fullName} — foto ${i + 1} di ${photos.length}`}
+                        className="h-full w-full shrink-0 object-cover"
+                        aria-hidden={i !== photoIndex}
+                      />
+                    ))}
+                  </div>
                 ) : (
                   <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-muted-foreground">
                     Nessuna foto disponibile
@@ -152,8 +162,8 @@ export const TalentDetailModal = ({
                       aria-label={`Vai alla foto ${i + 1}`}
                       aria-current={i === photoIndex}
                       className={cn(
-                        "h-1.5 w-1.5 rounded-full transition-colors",
-                        i === photoIndex ? "bg-[#1a1a1a]" : "bg-[#1a1a1a]/20"
+                        "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
+                        i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
                       )}
                     />
                   ))}
@@ -171,7 +181,7 @@ export const TalentDetailModal = ({
                   type="button"
                   onClick={prevPhoto}
                   aria-label="Foto precedente"
-                  className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] lg:left-[54px]"
+                  className="absolute left-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] opacity-70 transition-opacity duration-200 hover:opacity-100 active:opacity-60 motion-reduce:transition-none lg:left-[54px]"
                 >
                   <ChevronLeft className="h-6 w-6" strokeWidth={1.5} />
                 </button>
@@ -179,7 +189,7 @@ export const TalentDetailModal = ({
                   type="button"
                   onClick={nextPhoto}
                   aria-label="Foto successiva"
-                  className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] lg:right-[54px]"
+                  className="absolute right-4 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center text-[#1a1a1a] opacity-70 transition-opacity duration-200 hover:opacity-100 active:opacity-60 motion-reduce:transition-none lg:right-[54px]"
                 >
                   <ChevronRight className="h-6 w-6" strokeWidth={1.5} />
                 </button>
