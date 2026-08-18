@@ -11,6 +11,7 @@ import {
   FieldGrid,
   FloatingInput,
   FloatingSelect,
+  GroupHeading,
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
