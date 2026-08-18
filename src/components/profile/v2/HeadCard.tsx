@@ -122,9 +122,9 @@ export const HeadCard = () => {
             className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
             {isUploading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
-              <Camera className="h-5 w-5" />
+              <Camera />
             )}
             Le mie foto
           </Button>

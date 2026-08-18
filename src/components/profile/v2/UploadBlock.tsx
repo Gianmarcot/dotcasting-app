@@ -104,9 +104,9 @@ export const UploadBlock = ({
           onClick={() => inputRef.current?.click()}
         >
           {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <Loader2 className="animate-spin" />
           ) : (
-            <Upload className="h-4 w-4 mr-2" />
+            <Upload />
           )}
           {currentPath ? "Sostituisci" : buttonLabel}
         </Button>
@@ -119,7 +119,7 @@ export const UploadBlock = ({
             onClick={handleRemove}
             aria-label="Rimuovi file"
           >
-            <Trash2 className="h-5 w-5" />
+            <Trash2 />
           </Button>
         )}
         <input ref={inputRef} type="file" accept={accept} onChange={handleSelect} className="hidden" />

@@ -313,9 +313,9 @@ export const MediaGallerySection = ({
                         disabled={isUploading}
                       >
                         {isUploading ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          <Loader2 className="animate-spin" />
                         ) : (
-                          <Upload className="h-4 w-4 mr-2" />
+                          <Upload />
                         )}
                         {isPhotoCat ? "Aggiungi foto" : "Aggiungi video"}
                       </Button>

@@ -62,9 +62,9 @@ export const MediaUploadButton = ({ disabled, externalProfileId, externalUserId 
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" disabled={disabled || isPending}>
             {isPending ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload />
             )}
             {isPending ? "Caricamento..." : "Aggiungi"}
           </Button>
