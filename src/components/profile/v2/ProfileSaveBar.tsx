@@ -21,9 +21,7 @@ export const ProfileSaveBar = () => {
         )}
       >
         <div className="flex min-w-0 items-center gap-3 text-white">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary">
-            <Pencil className="h-3.5 w-3.5 text-primary-foreground" strokeWidth={2.5} />
-          </div>
+          <Pencil className="h-5 w-5 shrink-0" strokeWidth={2} />
           <span className="truncate text-base">
             <span className="font-bold">{dirtyCount}</span>
             <span className="hidden opacity-70 sm:inline">
