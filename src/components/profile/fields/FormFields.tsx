@@ -42,11 +42,15 @@ export const SectionCard = ({
 );
 
 export const SectionDivider = ({ className }: { className?: string }) => (
-  <hr className={cn("-mx-5 border-t border-border sm:-mx-8", className)} />
+  <hr className={cn("border-t border-border", className)} />
 );
 
 export const GroupLabel = ({ children }: { children: ReactNode }) => (
   <p className="mb-2 text-[15px] font-medium leading-5 text-group-label">{children}</p>
+);
+
+export const GroupHeading = ({ children }: { children: ReactNode }) => (
+  <p className="mb-8 text-base font-medium leading-5 text-group-label">{children}</p>
 );
 
 export const FieldGrid = ({
