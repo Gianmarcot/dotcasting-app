@@ -379,8 +379,8 @@
 
 
   .dc-select-content {
-    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md 
-           border bg-popover text-popover-foreground shadow-md 
+    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl 
+           bg-popover text-popover-foreground shadow-md 
            data-[state=open]:animate-in data-[state=closed]:animate-out 
            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
@@ -395,10 +395,12 @@
 
   .dc-select-item {
     @apply relative flex w-full cursor-default select-none items-center 
-           rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none 
+           rounded-lg py-2.5 pl-8 pr-3 text-sm outline-none 
            data-[disabled]:pointer-events-none data-[disabled]:opacity-50 
-           focus:bg-accent focus:text-accent-foreground;
+           data-[highlighted]:bg-[#F4F0EC] data-[highlighted]:text-foreground
+           dark:data-[highlighted]:bg-[#2a2a2a] dark:data-[highlighted]:text-foreground;
   }
+
 
   .dc-label {
     @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
