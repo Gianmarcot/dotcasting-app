@@ -10,7 +10,6 @@ import {
   FloatingInput,
   FloatingSelect,
   GroupHeading,
-  GroupLabel,
   ProfileCheckbox,
   SectionCard,
   SectionDivider,
