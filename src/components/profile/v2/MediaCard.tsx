@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Camera, Clapperboard, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";
 import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
@@ -53,15 +54,17 @@ const VideoBlock = ({
           className="mx-auto mt-6 max-h-64 w-full max-w-md rounded-2xl bg-black"
         />
       )}
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="lg"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="mt-6 inline-flex h-12 items-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground disabled:opacity-60"
+        className="mt-6"
       >
         {busy && <Loader2 className="h-4 w-4 animate-spin" />}
         {existing ? "Sostituisci il video" : buttonLabel}
-      </button>
+      </Button>
       <input
         ref={inputRef}
         type="file"
@@ -114,13 +117,10 @@ export const MediaCard = () => {
           </p>
         )}
         <div className="mt-6 flex justify-center">
-          <button
-            type="button"
-            className="flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-[15px] text-primary-foreground"
-          >
+          <Button type="button" variant="secondary" size="lg" iconPosition="left">
             <Camera className="h-5 w-5" />
             Tutte le foto
-          </button>
+          </Button>
         </div>
       </div>
 
