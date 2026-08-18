@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { IdCard } from "lucide-react";
 import {
   COUNTRIES,
@@ -17,56 +16,30 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { UploadBlock } from "./UploadBlock";
-import { useProfileAutoSave } from "./useProfileAutoSave";
+import { FieldSlot, useProfileForm } from "./ProfileFormContext";
 
 export const DocumentsCard = () => {
-  const { profile, save } = useProfileAutoSave();
+  const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
 
-  const [nationality, setNationality] = useState("");
-  const [fiscalCode, setFiscalCode] = useState("");
-  const [hasPassport, setHasPassport] = useState(false);
-  const [passportCountry, setPassportCountry] = useState("");
-  const [hasVat, setHasVat] = useState(false);
-  const [vatNumber, setVatNumber] = useState("");
-  const [vatActivity, setVatActivity] = useState("");
-  const [vatRegime, setVatRegime] = useState("");
-  const [bankName, setBankName] = useState("");
-  const [bankHolder, setBankHolder] = useState("");
-  const [iban, setIban] = useState("");
-
-  useEffect(() => {
-    if (!profile) return;
-    setNationality(profile.nationality ?? "");
-    setFiscalCode(profile.fiscal_code ?? "");
-    setHasPassport(!!profile.has_passport);
-    setPassportCountry(profile.passport_country ?? "");
-    setHasVat(!!profile.has_vat_number);
-    setVatNumber(profile.vat_number ?? "");
-    setVatActivity(profile.vat_activity_type ?? "");
-    setVatRegime(profile.vat_regime ?? "");
-    setBankName(profile.bank_name ?? "");
-    setBankHolder(profile.bank_account_holder ?? "");
-    setIban(profile.iban ?? "");
-  }, [profile]);
+  const hasPassport = bool("p", "has_passport");
+  const hasVat = bool("p", "has_vat_number");
 
   return (
     <SectionCard icon={<IdCard strokeWidth={1} />} title="Documenti e fiscalità">
       <FieldGrid cols={2}>
         <FloatingSelect
           label="Cittadinanza"
-          value={nationality}
-          onValueChange={(v) => {
-            setNationality(v);
-            save({ nationality: v });
-          }}
+          value={str("p", "nationality")}
+          onValueChange={(v) => set("p", "nationality", v)}
           options={toOptions(NATIONALITIES)}
         />
-        <FloatingInput
-          label="Codice fiscale"
-          value={fiscalCode}
-          onChange={(v) => setFiscalCode(v.toUpperCase())}
-          onBlur={() => save({ fiscal_code: fiscalCode || null })}
-        />
+        <FieldSlot name="fiscal_code">
+          <FloatingInput
+            label="Codice fiscale"
+            value={str("p", "fiscal_code")}
+            onChange={(v) => set("p", "fiscal_code", v.toUpperCase())}
+          />
+        </FieldSlot>
       </FieldGrid>
 
       <UploadBlock
@@ -75,8 +48,8 @@ export const DocumentsCard = () => {
         buttonLabel="Carica documento"
         accept="image/jpeg,image/png,application/pdf"
         fileNamePrefix="id-document"
-        currentPath={profile?.id_document_url ?? null}
-        onUploaded={(path) => save({ id_document_url: path })}
+        currentPath={profileRow?.id_document_url ?? null}
+        onUploaded={(path) => saveNow("p", { id_document_url: path })}
       />
 
       <SectionDivider />
@@ -84,57 +57,45 @@ export const DocumentsCard = () => {
       <div className="space-y-6">
         <ProfileCheckbox
           checked={hasPassport}
-          onCheckedChange={(checked) => {
-            setHasPassport(checked);
-            save({ has_passport: checked, ...(checked ? {} : { passport_country: null }) });
-            if (!checked) setPassportCountry("");
-          }}
+          onCheckedChange={(checked) =>
+            setMany("p", {
+              has_passport: checked,
+              ...(checked ? {} : { passport_country: null }),
+            })
+          }
           label="Ho un passaporto valido"
         />
         {hasPassport && (
           <FloatingSelect
             label="Stato di emissione"
-            value={passportCountry}
-            onValueChange={(v) => {
-              setPassportCountry(v);
-              save({ passport_country: v });
-            }}
+            value={str("p", "passport_country")}
+            onValueChange={(v) => set("p", "passport_country", v)}
             options={toOptions(COUNTRIES)}
           />
         )}
 
         <ProfileCheckbox
           checked={hasVat}
-          onCheckedChange={(checked) => {
-            setHasVat(checked);
-            save({ has_vat_number: checked });
-          }}
+          onCheckedChange={(checked) => set("p", "has_vat_number", checked)}
           label="Ho una Partita IVA"
         />
         {hasVat && (
           <FieldGrid cols={3}>
             <FloatingInput
               label="Numero"
-              value={vatNumber}
-              onChange={setVatNumber}
-              onBlur={() => save({ vat_number: vatNumber || null })}
+              value={str("p", "vat_number")}
+              onChange={(v) => set("p", "vat_number", v)}
             />
             <FloatingSelect
               label="Tipologia attività"
-              value={vatActivity}
-              onValueChange={(v) => {
-                setVatActivity(v);
-                save({ vat_activity_type: v });
-              }}
+              value={str("p", "vat_activity_type")}
+              onValueChange={(v) => set("p", "vat_activity_type", v)}
               options={toOptions(VAT_ACTIVITY_TYPES)}
             />
             <FloatingSelect
               label="Regime fiscale"
-              value={vatRegime}
-              onValueChange={(v) => {
-                setVatRegime(v);
-                save({ vat_regime: v });
-              }}
+              value={str("p", "vat_regime")}
+              onValueChange={(v) => set("p", "vat_regime", v)}
               options={toOptions(VAT_REGIMES)}
             />
           </FieldGrid>
@@ -149,23 +110,22 @@ export const DocumentsCard = () => {
           <FieldGrid cols={2}>
             <FloatingInput
               label="Banca"
-              value={bankName}
-              onChange={setBankName}
-              onBlur={() => save({ bank_name: bankName || null })}
+              value={str("p", "bank_name")}
+              onChange={(v) => set("p", "bank_name", v)}
             />
             <FloatingInput
               label="Intestatario conto corrente"
-              value={bankHolder}
-              onChange={setBankHolder}
-              onBlur={() => save({ bank_account_holder: bankHolder || null })}
+              value={str("p", "bank_account_holder")}
+              onChange={(v) => set("p", "bank_account_holder", v)}
             />
           </FieldGrid>
-          <FloatingInput
-            label="IBAN"
-            value={iban}
-            onChange={(v) => setIban(v.toUpperCase())}
-            onBlur={() => save({ iban: iban || null })}
-          />
+          <FieldSlot name="iban">
+            <FloatingInput
+              label="IBAN"
+              value={str("p", "iban")}
+              onChange={(v) => set("p", "iban", v.toUpperCase())}
+            />
+          </FieldSlot>
         </div>
       </div>
     </SectionCard>
