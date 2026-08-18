@@ -128,8 +128,8 @@ export const TalentDetailModal = ({
               }
             >
               <div
-                className="overflow-hidden rounded-2xl bg-black/5"
-                style={{ height: "min(600px, 58.6vh)", aspectRatio: "2 / 3" }}
+                className="overflow-hidden rounded-2xl bg-black/5 w-[min(90vw,calc(75vh*2/3))] lg:w-[min(40vw,calc(80vh*2/3))]"
+                style={{ aspectRatio: "2 / 3" }}
               >
                 {photos.length > 0 ? (
                   <div
