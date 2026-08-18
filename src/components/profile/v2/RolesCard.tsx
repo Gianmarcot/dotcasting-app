@@ -1,4 +1,4 @@
-import { Tag } from "lucide-react";
+import { PriceTagIcon } from "@/components/profile/v2/sectionIcons";
 import { TALENT_ROLES, TALENT_ROLE_GROUPS } from "@/lib/profileOptions";
 import {
   GroupHeading,
@@ -18,7 +18,7 @@ export const RolesCard = () => {
   };
 
   return (
-    <SectionCard icon={<Tag strokeWidth={1} />} title="Ruoli e talenti">
+    <SectionCard icon={<PriceTagIcon />} title="Ruoli e talenti">
       {TALENT_ROLE_GROUPS.map((group, index) => (
         <div key={group.key}>
           {index > 0 && <SectionDivider />}

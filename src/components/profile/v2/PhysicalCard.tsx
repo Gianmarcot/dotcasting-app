@@ -1,4 +1,4 @@
-import { Shirt } from "lucide-react";
+import { TShirtIcon } from "@/components/profile/v2/sectionIcons";
 import {
   ETHNICITIES,
   EYE_COLORS,
@@ -57,7 +57,7 @@ export const PhysicalCard = () => {
   );
 
   return (
-    <SectionCard icon={<Shirt strokeWidth={1} />} title="Aspetto fisico">
+    <SectionCard icon={<TShirtIcon />} title="Aspetto fisico">
       <div>
         <GroupHeading>Corporatura</GroupHeading>
         <div className="space-y-8">
