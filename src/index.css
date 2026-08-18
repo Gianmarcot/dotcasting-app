@@ -349,32 +349,37 @@
 
   /* =====================
      FORM INPUTS
+     Reference: Talent Profile fields (soft warm shell, no border,
+     rounded-2xl, inset focus ring).
      ===================== */
   .dc-input {
-    @apply flex h-12 w-full rounded-md border border-input 
-           bg-[hsl(var(--input-background))] px-3 py-2 text-base 
-           ring-offset-background placeholder:text-muted-foreground 
-           focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2 
-           disabled:cursor-not-allowed disabled:opacity-50 md:text-sm;
+    @apply flex h-12 w-full rounded-2xl border-0 bg-field px-4 py-2 text-base
+           text-foreground transition-colors placeholder:text-field-label
+           focus-visible:bg-field-focus focus-visible:outline-none
+           focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground
+           disabled:cursor-not-allowed disabled:bg-field-disabled
+           disabled:text-field-disabled-foreground;
   }
 
 
   .dc-textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-input 
-           bg-[hsl(var(--input-background))] px-3 py-2 text-sm 
-           ring-offset-background placeholder:text-muted-foreground 
-           focus-visible:outline-none focus-visible:ring-2 
-           focus-visible:ring-ring focus-visible:ring-offset-2 
-           disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex min-h-[96px] w-full resize-none rounded-2xl border-0 bg-field
+           px-4 py-3 text-base text-foreground transition-colors
+           placeholder:text-field-label focus-visible:bg-field-focus
+           focus-visible:outline-none focus-visible:ring-2
+           focus-visible:ring-inset focus-visible:ring-foreground
+           disabled:cursor-not-allowed disabled:bg-field-disabled
+           disabled:text-field-disabled-foreground;
   }
 
   .dc-select-trigger {
-    @apply flex h-12 w-full items-center justify-between rounded-md 
-           border border-input bg-[hsl(var(--input-background))] px-3 py-2 
-           text-sm ring-offset-background placeholder:text-muted-foreground 
-           focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 
-           disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1;
+    @apply flex h-12 w-full items-center justify-between rounded-2xl border-0
+           bg-field px-4 py-2 text-base text-foreground shadow-none
+           transition-colors data-[placeholder]:text-field-label
+           focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground
+           disabled:cursor-not-allowed disabled:bg-field-disabled
+           disabled:text-field-disabled-foreground
+           [&>span]:line-clamp-1 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:opacity-70;
   }
 
 
