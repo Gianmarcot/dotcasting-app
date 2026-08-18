@@ -55,7 +55,7 @@ export const DocumentsCard = () => {
           onValueChange={(v) => set("p", "nationality", v)}
           options={toOptions(NATIONALITIES)}
         />
-        <FieldSlot name="fiscal_code">
+        <FieldSlot name="fiscal_code" hideMessage>
           <FloatingInput
             label="Codice fiscale"
             value={fiscalCode}
