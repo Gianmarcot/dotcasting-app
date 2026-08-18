@@ -88,6 +88,8 @@ const App = () => (
               <Route path="profile" element={<TalentProfile />} />
               <Route path="profile/preview" element={<TalentPublicProfile />} />
               <Route path="settings" element={<TalentSettings />} />
+              <Route path="notifications" element={<TalentNotifications />} />
+              <Route path="notifications/:notificationId" element={<TalentNotificationDetail />} />
             </Route>
 
             {/* Owner/Admin routes */}
