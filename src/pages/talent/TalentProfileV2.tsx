@@ -89,6 +89,14 @@ const ProfileContent = () => {
 
       <ProfileSaveBar />
 
+      {profileRow?.id && (
+        <TalentDetailModal
+          profileIds={[profileRow.id]}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+        />
+      )}
+
       <AlertDialog open={!!pendingHref} onOpenChange={(open) => !open && cancelLeave()}>
         <AlertDialogContent>
           <AlertDialogHeader>
