@@ -244,9 +244,9 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
     persistOrder(arrayMove(ids, index, target));
   };
 
-  const handleFiles = async (files: FileList | null) => {
-    if (!files?.length) return;
-    const list = Array.from(files);
+  const handleFiles = async (files: File[]) => {
+    if (!files.length) return;
+    const list = files;
     setUploading(list.length);
     for (const file of list) {
       try {
