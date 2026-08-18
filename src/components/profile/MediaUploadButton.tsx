@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Plus, Image, Video, Loader2 } from "lucide-react";
+import { Plus, Image, Video, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -64,7 +64,7 @@ export const MediaUploadButton = ({ disabled, externalProfileId, externalUserId 
             {isPending ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
-              <Plus className="h-4 w-4 mr-2" />
+              <Upload className="h-4 w-4 mr-2" />
             )}
             {isPending ? "Caricamento..." : "Aggiungi"}
           </Button>

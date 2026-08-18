@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { ImageIcon, Plus, Video, Image, Loader2 } from "lucide-react";
+import { ImageIcon, Plus, Video, Image, Loader2, Upload } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -315,7 +315,7 @@ export const MediaGallerySection = ({
                         {isUploading ? (
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         ) : (
-                          <Plus className="h-4 w-4 mr-2" />
+                          <Upload className="h-4 w-4 mr-2" />
                         )}
                         {isPhotoCat ? "Aggiungi foto" : "Aggiungi video"}
                       </Button>
