@@ -14,6 +14,7 @@ import {
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
+  RadioField,
   SectionCard,
   SectionDivider,
   toOptions,
@@ -104,7 +105,6 @@ export const HeadCard = () => {
           </div>
           <Button
             type="button"
-            variant="secondary"
             size="lg"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
@@ -131,7 +131,7 @@ export const HeadCard = () => {
         {location && <p className="mt-1 text-[15px] text-field-label">{location}</p>}
       </div>
 
-      <div className="mt-10 space-y-6 sm:space-y-8">
+      <div className="mt-10 space-y-8">
         <FieldGrid cols={2}>
           <FloatingInput
             label="Nome"
@@ -204,19 +204,16 @@ export const HeadCard = () => {
         </FieldGrid>
 
         <FieldGrid cols={2}>
-          <div>
-            <GroupLabel>Sesso</GroupLabel>
-            <div className="flex min-h-16 items-center">
-              <ProfileRadioGroup
-                value={str("p", "gender")}
-                onValueChange={(v) => set("p", "gender", v)}
-                options={[
-                  { value: "M", label: "M" },
-                  { value: "F", label: "F" },
-                ]}
-              />
-            </div>
-          </div>
+          <RadioField label="Sesso">
+            <ProfileRadioGroup
+              value={str("p", "gender")}
+              onValueChange={(v) => set("p", "gender", v)}
+              options={[
+                { value: "M", label: "M" },
+                { value: "F", label: "F" },
+              ]}
+            />
+          </RadioField>
           <FloatingSelect
             label="Identità di genere"
             value={str("p", "gender_identity")}
@@ -227,14 +224,13 @@ export const HeadCard = () => {
 
         <SectionDivider />
 
-        <div>
-          <GroupLabel>Rappresentanza</GroupLabel>
+        <RadioField label="Rappresentanza">
           <ProfileRadioGroup
             value={str("p", "representation_type")}
             onValueChange={(v) => set("p", "representation_type", v)}
             options={REPRESENTATION_TYPES}
           />
-        </div>
+        </RadioField>
       </div>
     </SectionCard>
   );

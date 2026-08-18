@@ -3,7 +3,6 @@ import { MapPin } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 import {
   GroupHeading,
-  GroupLabel,
   ProfileCheckbox,
   SectionCard,
   SectionDivider,

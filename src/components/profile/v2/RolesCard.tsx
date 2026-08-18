@@ -21,7 +21,7 @@ export const RolesCard = () => {
     <SectionCard icon={<Tag strokeWidth={1} />} title="Ruoli e talenti">
       {TALENT_ROLE_GROUPS.map((group, index) => (
         <div key={group.key}>
-          {index > 0 && <SectionDivider className="mb-6" />}
+          {index > 0 && <SectionDivider />}
           <GroupHeading>{group.label}</GroupHeading>
           <div className="flex flex-wrap gap-2">
             {TALENT_ROLES[group.key].map((role) => (

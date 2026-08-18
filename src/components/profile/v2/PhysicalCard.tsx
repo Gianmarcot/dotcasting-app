@@ -15,8 +15,9 @@ import {
   FloatingInput,
   FloatingSelect,
   GroupHeading,
-  GroupLabel,
   ProfileCheckbox,
+  CheckboxGrid,
+  RadioField,
   SectionCard,
   SectionDivider,
   YesNoRadio,
@@ -59,7 +60,7 @@ export const PhysicalCard = () => {
     <SectionCard icon={<Shirt strokeWidth={1} />} title="Aspetto fisico">
       <div>
         <GroupHeading>Corporatura</GroupHeading>
-        <div className="space-y-4 sm:space-y-8">
+        <div className="space-y-8">
           <FieldGrid cols={3}>
             {measureField("height", "Altezza (cm)")}
             {measureField("weight", "Peso (kg)")}
@@ -82,7 +83,7 @@ export const PhysicalCard = () => {
 
       <div>
         <GroupHeading>Taglie</GroupHeading>
-        <div className="space-y-4 sm:space-y-8">
+        <div className="space-y-8">
           <FieldGrid cols={3}>
             {attrSelect("jacket_size", "Taglia giacca", JACKET_SIZES)}
             {attrSelect("shirt_size", "Taglia maglia", SHIRT_SIZES)}
@@ -100,7 +101,7 @@ export const PhysicalCard = () => {
 
       <div>
         <GroupHeading>Capelli e occhi</GroupHeading>
-        <div className="space-y-4 sm:space-y-8">
+        <div className="space-y-8">
           <FieldGrid cols={3}>
             {attrSelect("hair_color", "Colore capelli", HAIR_COLORS)}
             {attrSelect("eye_color", "Colore occhi", EYE_COLORS)}
@@ -122,7 +123,7 @@ export const PhysicalCard = () => {
 
       <div>
         <GroupHeading>Segni particolari</GroupHeading>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-8">
+        <CheckboxGrid cols={3}>
           {MARKS.map((m) => (
             <ProfileCheckbox
               key={m.key}
@@ -131,18 +132,17 @@ export const PhysicalCard = () => {
               label={m.label}
             />
           ))}
-        </div>
+        </CheckboxGrid>
       </div>
 
       <SectionDivider />
 
-      <div>
-        <GroupLabel>Hai allergie o intolleranze alimentari?</GroupLabel>
+      <RadioField label="Hai allergie o intolleranze alimentari?">
         <YesNoRadio
           value={triState("a", "has_food_allergies")}
           onValueChange={(v) => set("a", "has_food_allergies", v)}
         />
-      </div>
+      </RadioField>
     </SectionCard>
   );
 };
