@@ -3,10 +3,11 @@ import { Camera, Clapperboard, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";
-import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
+import { MEDIA_CATEGORIES, PHOTO_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
+import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const VIDEO_HELP =
