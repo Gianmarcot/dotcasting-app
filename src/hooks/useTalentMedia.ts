@@ -4,6 +4,7 @@ import { useProfile } from "./useProfile";
 import { toast } from "@/hooks/use-toast";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { compressImage } from "@/lib/media/compressImage";
+import { getVariantUrls, parseCrops, type CropRatio, type CropRect } from "@/lib/media/crops";
 
 export interface TalentMedia {
   id: string;
@@ -14,6 +15,8 @@ export interface TalentMedia {
   title: string | null;
   sort_order: number;
   category: string;
+  /** Ritagli derivati per proporzione (JSONB). Vedi src/lib/media/crops.ts */
+  crops?: unknown;
   created_at: string;
   updated_at: string;
 }
@@ -207,17 +210,114 @@ export const useReplaceMediaFile = () => {
   });
 };
 
+/** Estrae il path interno al bucket da una URL pubblica di talent-media. */
+const storagePath = (publicUrl: string): string | null => {
+  try {
+    const parts = new URL(publicUrl).pathname.split("/talent-media/");
+    return parts.length > 1 ? decodeURIComponent(parts[1]) : null;
+  } catch {
+    return null;
+  }
+};
+
+export interface MediaCropInput {
+  ratio: CropRatio;
+  blob: Blob;
+  rect: CropRect;
+}
+
+/**
+ * Salva uno o più ritagli derivati di una foto.
+ * L'originale non viene mai eliminato: viene conservato in `crops.original_url`
+ * così ogni proporzione può essere ri-ritagliata senza perdita di qualità.
+ */
+export const useSaveMediaCrops = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      media,
+      userId,
+      crops,
+    }: {
+      media: TalentMedia;
+      userId: string;
+      crops: MediaCropInput[];
+    }) => {
+      if (!crops.length) return;
+
+      const existing = parseCrops(media.crops);
+      const originalUrl =
+        typeof existing.original_url === "string" && existing.original_url
+          ? existing.original_url
+          : media.url;
+
+      const next: Record<string, unknown> = { ...existing, original_url: originalUrl };
+      const staleUrls: string[] = [];
+
+      for (const crop of crops) {
+        const preset = crop.ratio === "1:1" ? "avatar" : "gallery";
+        const compressed = await compressImage(crop.blob, preset);
+        const suffix = crop.ratio.replace(":", "x");
+        const fileName = `${userId}/photo/${Date.now()}-${suffix}.jpg`;
+        const { error: uploadError } = await supabase.storage
+          .from("talent-media")
+          .upload(fileName, compressed);
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("talent-media")
+          .getPublicUrl(fileName);
+
+        const prev = existing[crop.ratio];
+        if (prev && typeof prev === "object" && typeof (prev as { url?: string }).url === "string") {
+          const prevUrl = (prev as { url: string }).url;
+          if (prevUrl !== originalUrl) staleUrls.push(prevUrl);
+        }
+
+        next[crop.ratio] = { url: urlData.publicUrl, rect: crop.rect };
+      }
+
+      const cover = next["2:3"] as { url?: string } | undefined;
+      const { error: updateError } = await supabase
+        .from("talent_media")
+        .update({
+          crops: next as never,
+          ...(cover?.url ? { url: cover.url } : {}),
+        })
+        .eq("id", media.id);
+      if (updateError) throw updateError;
+
+      // Pulizia delle varianti sostituite (best effort)
+      const stalePaths = Array.from(
+        new Set(staleUrls.map(storagePath).filter((p): p is string => !!p))
+      );
+      if (stalePaths.length) {
+        await supabase.storage.from("talent-media").remove(stalePaths);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["talent-media"] });
+      toast({ title: "Foto aggiornata", description: "Il ritaglio è stato salvato." });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Errore", description: error.message, variant: "destructive" });
+    },
+  });
+};
+
 export const useDeleteMedia = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (media: TalentMedia) => {
       // Extract file path from URL
-      const url = new URL(media.url);
-      const pathParts = url.pathname.split("/talent-media/");
-      if (pathParts.length > 1) {
-        const filePath = pathParts[1];
-        await supabase.storage.from("talent-media").remove([filePath]);
+      const paths = [media.url, ...getVariantUrls(media)]
+        .map(storagePath)
+        .filter((p): p is string => !!p);
+      const unique = Array.from(new Set(paths));
+      if (unique.length) {
+        await supabase.storage.from("talent-media").remove(unique);
       }
 
       const { error } = await supabase
