@@ -99,6 +99,12 @@ const Matrix = ({ variant, label }: { variant: SurfaceVariant; label: string }) 
   <Surface variant={variant} className="rounded-3xl p-8">
     <p className="mb-6 font-display text-xl uppercase">{label}</p>
 
+    <StateLabel>Standard — floating label</StateLabel>
+    <FloatingRow />
+
+    <p className="mb-2 mt-10 text-xs uppercase tracking-wide opacity-70">
+      Compatti — input/select/textarea base
+    </p>
     <div className="grid max-w-[1000px] grid-cols-1 gap-6 md:grid-cols-4">
       <Column title="Filled">
         <Input defaultValue="Gianmarco Varetti" />
