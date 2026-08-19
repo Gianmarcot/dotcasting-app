@@ -123,7 +123,10 @@ export const TalentCommunications = () => {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-24 w-[75%] rounded-3xl" />
+            <div key={i} className="flex gap-2">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-20 w-[60%] rounded-2xl" />
+            </div>
           ))}
         </div>
       ) : list.length === 0 ? (
