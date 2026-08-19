@@ -86,7 +86,7 @@ export const TalentCastingDetail = () => {
     : null;
 
   return (
-    <div className="w-full max-w-[1040px] animate-fade-up">
+    <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
       <BackLink onClick={() => navigate("/talent/applications")} />
 
       <h1 className="mt-6 font-display uppercase text-2xl md:text-3xl tracking-wide text-[#1a1a1a]">
