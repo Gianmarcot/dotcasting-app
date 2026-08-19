@@ -34,7 +34,7 @@ export const TalentCommunications = () => {
   const { data: settings } = useAppSettings();
   const markRead = useMarkCommunicationRead();
   const bottomRef = useRef<HTMLDivElement>(null);
-  const didScroll = useRef(false);
+  const lastCount = useRef(0);
 
   const phone = (settings?.contact_phone || "").replace(/[^\d]/g, "");
   const waHref = phone
@@ -50,10 +50,14 @@ export const TalentCommunications = () => {
     [communications]
   );
 
+  // All'apertura (e quando arrivano nuove comunicazioni) la vista resta sull'ultimo messaggio.
   useEffect(() => {
-    if (didScroll.current || isLoading || list.length === 0) return;
-    didScroll.current = true;
-    bottomRef.current?.scrollIntoView({ block: "end" });
+    if (isLoading || list.length === 0 || list.length === lastCount.current) return;
+    lastCount.current = list.length;
+    const id = requestAnimationFrame(() =>
+      bottomRef.current?.scrollIntoView({ block: "end" })
+    );
+    return () => cancelAnimationFrame(id);
   }, [isLoading, list.length]);
 
   const handleOpen = (comm: Communication) => {

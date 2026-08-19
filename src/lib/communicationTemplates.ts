@@ -112,7 +112,7 @@ export const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     placeholders: [P.talent_name, P.project_title, P.role_name, P.date, P.location],
     defaults: {
       label: "Nuovo ingaggio",
-      body: "Sei stato ingaggiato per: {project_title}\nRuolo: {role_name}\nQuando: {date}\nDove: {location}",
+      body: "Sei stato ingaggiato per: **{project_title}**\nRuolo: {role_name}\nQuando: {date}\nDove: {location}",
       action_label: "Vai al casting",
     },
   },
