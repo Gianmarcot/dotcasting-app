@@ -315,7 +315,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
             className="fixed right-8 top-8 z-10"
           />
 
-          <div className="mx-auto w-full max-w-[1400px] pr-20">
+          <div className="mx-auto mt-16 w-full max-w-[1400px] pr-20">
             <DialogPrimitive.Title className="font-display text-2xl uppercase tracking-wide text-foreground">
               Fotografie
             </DialogPrimitive.Title>
@@ -324,7 +324,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
           <div className="mx-auto mt-10 w-full max-w-[1400px]">
             {/* Selettore categorie */}
             <div className="-mx-2 overflow-x-auto px-2 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)]">
-              <div className="flex min-w-max gap-2 pb-2">
+              <div className="flex min-w-max items-start gap-2 pb-2">
                 {PHOTO_CATEGORIES.map((cat) => {
                   const active = cat.key === category;
                   const first = firstOf(cat.key);
@@ -339,7 +339,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
                       }}
                       aria-pressed={active}
                       className={cn(
-                        "w-[180px] shrink-0 rounded-2xl p-4 text-center transition-colors",
+                        "flex w-[180px] shrink-0 flex-col items-center justify-start rounded-2xl p-4 text-center transition-colors",
                         active ? "bg-[#f4f0ec]" : "hover:bg-[#f4f0ec]/60"
                       )}
                     >
@@ -347,7 +347,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
                         <img
                           src={first.url}
                           alt=""
-                          className="mx-auto aspect-[2/3] w-[86px] rounded-xl object-cover"
+                          className="mx-auto block aspect-[2/3] w-[86px] rounded-xl object-cover"
                         />
                       ) : (
                         <span className="mx-auto flex aspect-[2/3] w-[86px] items-center justify-center rounded-xl border border-dashed border-border">
