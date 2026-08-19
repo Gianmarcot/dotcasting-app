@@ -21,12 +21,10 @@ import { OwnerLayout } from "@/components/layout/OwnerLayout";
 // Talent pages
 import TalentCastings from "./pages/talent/TalentCastings";
 import TalentCastingDetail from "./pages/talent/TalentCastingDetail";
-import TalentMessages from "./pages/talent/TalentMessages";
+import TalentCommunications from "./pages/talent/TalentCommunications";
 import TalentProfile from "./pages/talent/TalentProfileV2";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
-import TalentNotifications from "./pages/talent/TalentNotifications";
-import TalentNotificationDetail from "./pages/talent/TalentNotificationDetail";
 
 // Shared pages
 import TalentPublicProfile from "./pages/shared/TalentPublicProfile";
@@ -87,12 +85,13 @@ const App = () => (
               <Route index element={<Navigate to="/talent/profile" replace />} />
               <Route path="applications" element={<TalentCastings />} />
               <Route path="applications/:engagementId" element={<TalentCastingDetail />} />
-              <Route path="messages" element={<TalentMessages />} />
+              <Route path="communications" element={<TalentCommunications />} />
+              <Route path="messages" element={<Navigate to="/talent/communications" replace />} />
               <Route path="profile" element={<TalentProfile />} />
               <Route path="profile/preview" element={<TalentPublicProfile />} />
               <Route path="settings" element={<TalentSettings />} />
-              <Route path="notifications" element={<TalentNotifications />} />
-              <Route path="notifications/:notificationId" element={<TalentNotificationDetail />} />
+              <Route path="notifications" element={<Navigate to="/talent/communications" replace />} />
+              <Route path="notifications/*" element={<Navigate to="/talent/communications" replace />} />
             </Route>
 
             {/* Owner/Admin routes */}
