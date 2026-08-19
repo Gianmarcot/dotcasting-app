@@ -7,18 +7,20 @@ import { useTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentMedia } from "@/hooks/useTalentMedia";
 import { useTalentEngagements } from "@/hooks/useTalentEngagements";
 import { useCommunications } from "@/hooks/useCommunications";
+import { useCommunicationTemplates } from "@/hooks/useCommunicationTemplates";
 import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
+import { renderTemplate, type CommunicationTemplateType } from "@/lib/communicationTemplates";
 import type { Communication } from "@/lib/communications";
 
 interface Desired {
   dedupe_key: string;
-  type: string;
+  type: CommunicationTemplateType;
   title: string;
   body: string;
   severity?: string;
   action_type: "link";
   action_payload: Record<string, unknown>;
-  /** peso della condizione: se aumenta, la comunicazione torna in cima */
+  /** peso della condizione: se aumenta, la comunicazione torna in fondo al flusso */
   weight: number;
 }
 
@@ -32,13 +34,39 @@ export const useCommunicationSync = () => {
   const { data: media } = useTalentMedia();
   const { data: engagements } = useTalentEngagements();
   const { data: existing } = useCommunications();
+  const { data: templates } = useCommunicationTemplates();
   const runningRef = useRef(false);
 
   useEffect(() => {
-    if (!user?.id || !profile || !existing || !engagements) return;
+    if (!user?.id || !profile || !existing || !engagements || !templates) return;
     if (runningRef.current) return;
 
+    const talentName = profile.first_name || "";
     const desired: Desired[] = [];
+
+    const push = (
+      type: CommunicationTemplateType,
+      opts: {
+        dedupe_key?: string;
+        vars: Record<string, string | number | null | undefined>;
+        payload?: Record<string, unknown>;
+        weight: number;
+        severity?: string;
+      }
+    ) => {
+      const tpl = templates[type];
+      if (!tpl || !tpl.enabled_app) return;
+      desired.push({
+        dedupe_key: opts.dedupe_key ?? type,
+        type,
+        title: renderTemplate(tpl.label, { talent_name: talentName, ...opts.vars }),
+        body: renderTemplate(tpl.body, { talent_name: talentName, ...opts.vars }),
+        severity: opts.severity,
+        action_type: "link",
+        action_payload: { label: tpl.action_label, ...(opts.payload ?? {}) },
+        weight: opts.weight,
+      });
+    };
 
     /* --- 1. Profilo incompleto ---------------------------------------- */
     const missingGroups: { label: string; target: string }[] = [];
@@ -60,41 +88,33 @@ export const useCommunicationSync = () => {
     if (!profile.bio) missingGroups.push({ label: "biografia", target: "bio" });
 
     if (missingGroups.length) {
-      const first = missingGroups[0];
-      desired.push({
-        dedupe_key: "profile_incomplete",
-        type: "profile_incomplete",
-        title: "Completa il tuo profilo",
-        body: `Mancano ancora questi dati: ${missingGroups
-          .map((g) => g.label)
-          .join(", ")}. Inizia dai ${first.label}.`,
-        action_type: "link",
-        action_payload: { target: first.target, label: `Vai a ${first.label}` },
+      push("profile_incomplete", {
+        vars: { missing_list: missingGroups.map((g) => g.label).join(", ") },
+        payload: { target: missingGroups[0].target },
         weight: missingGroups.length,
       });
     }
 
-    /* --- 2. Foto insufficienti ---------------------------------------- */
-    (media ?? []) &&
+    /* --- 2. Foto insufficienti (una sola comunicazione) ---------------- */
+    if (media) {
+      const short: { label: string; count: number; min: number; key: string }[] = [];
       PHOTO_CATEGORIES.forEach((cat) => {
         const min = "minRequired" in cat ? (cat.minRequired as number) : MIN_PHOTOS_FALLBACK;
-        const count = (media ?? []).filter((m) => m.category === cat.key).length;
-        if (media && count < min) {
-          desired.push({
-            dedupe_key: `photos_missing:${cat.key}`,
-            type: "photos_missing",
-            title: count === 0 ? `Aggiungi le "${cat.label}"` : `Foto insufficienti: ${cat.label}`,
-            body: `Hai ${count} foto su ${min} richieste nella categoria "${cat.label}".`,
-            action_type: "link",
-            action_payload: {
-              target: "media",
-              photos_category: cat.key,
-              label: "Gestisci le foto",
-            },
-            weight: min - count,
-          });
-        }
+        const count = media.filter((m) => m.category === cat.key).length;
+        if (count < min) short.push({ label: cat.label, count, min, key: cat.key });
       });
+      if (short.length) {
+        push("photos_missing", {
+          vars: {
+            categories_list: short.map((s) => `${s.label} (${s.count} su ${s.min})`).join(", "),
+            photos_count: short.reduce((a, s) => a + s.count, 0),
+            photos_required: short.reduce((a, s) => a + s.min, 0),
+          },
+          payload: { target: "media", photos_category: short[0].key },
+          weight: short.reduce((a, s) => a + (s.min - s.count), 0),
+        });
+      }
+    }
 
     /* --- 3. Documenti / passaporto ------------------------------------ */
     const passportExpiry = profile.passport_expiry ? new Date(profile.passport_expiry) : null;
@@ -103,46 +123,36 @@ export const useCommunicationSync = () => {
       : null;
     if (!profile.id_document_url || (daysToExpiry !== null && daysToExpiry < 90)) {
       const expiring = daysToExpiry !== null && daysToExpiry < 90;
-      desired.push({
-        dedupe_key: "documents",
-        type: "documents",
-        title: expiring ? "Passaporto in scadenza" : "Documento d'identità mancante",
-        body: expiring
-          ? `Il tuo passaporto scade tra ${Math.max(daysToExpiry ?? 0, 0)} giorni. Aggiorna i dati nella sezione Documenti e fiscalità.`
-          : "Carica il tuo documento d'identità nella sezione Documenti e fiscalità.",
+      push("documents", {
+        vars: {
+          documents_detail: expiring
+            ? `passaporto in scadenza tra ${Math.max(daysToExpiry ?? 0, 0)} giorni`
+            : "documento d'identità",
+        },
+        payload: { target: "documents" },
         severity: expiring && (daysToExpiry ?? 0) < 30 ? "warning" : "info",
-        action_type: "link",
-        action_payload: { target: "documents", label: "Vai ai documenti" },
         weight: expiring ? 2 : 1,
       });
     }
 
-    /* --- 4/5. Ingaggi pubblicati e modificati -------------------------- */
+    /* --- 4. Ingaggi pubblicati ---------------------------------------- */
     (engagements ?? []).forEach((e) => {
       const signature = [e.dateISO, e.venueName, e.venueAddress, e.instructions].join("|");
-      desired.push({
+      push("engagement_new", {
         dedupe_key: `engagement_new:${e.id}`,
-        type: "engagement_new",
-        title: `Nuovo ingaggio: ${e.title}`,
-        body: [
-          e.roleName ? `Ruolo: ${e.roleName}` : null,
-          e.dateISO
+        vars: {
+          project_title: e.title,
+          role_name: e.roleName,
+          date: e.dateISO
             ? new Date(e.dateISO).toLocaleDateString("it-IT", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
               })
-            : null,
-          e.venueName || e.city,
-        ]
-          .filter(Boolean)
-          .join(" · "),
-        action_type: "link",
-        action_payload: {
-          href: `/talent/applications/${e.id}`,
-          label: "Apri l'ingaggio",
-          signature,
+            : "da definire",
+          location: e.venueName || e.city || "da definire",
         },
+        payload: { href: `/talent/applications/${e.id}`, signature },
         weight: 1,
       });
     });
@@ -182,7 +192,7 @@ export const useCommunicationSync = () => {
             severity: d.severity ?? "info",
             action_payload: { ...d.action_payload, weight: d.weight },
           };
-          // torna in cima e di nuovo da leggere solo se la situazione peggiora
+          // torna in fondo e di nuovo da leggere solo se la situazione peggiora
           if (worsened) {
             patch.created_at = new Date().toISOString();
             patch.read_at = null;
@@ -194,7 +204,8 @@ export const useCommunicationSync = () => {
           if (!error) changed = true;
         }
 
-        /* Ingaggio modificato dopo la pubblicazione */
+        /* --- 5. Ingaggio modificato dopo la pubblicazione --------------- */
+        const updTpl = templates.engagement_updated;
         for (const e of engagements ?? []) {
           const base = byKey.get(`engagement_new:${e.id}`);
           if (!base) continue;
@@ -209,15 +220,39 @@ export const useCommunicationSync = () => {
             changes.push("luogo");
           if (pInstr !== String(e.instructions)) changes.push("istruzioni");
 
+          await supabase
+            .from("communications")
+            .update({ action_payload: { ...base.action_payload, signature } })
+            .eq("id", base.id);
+          changed = true;
+
+          if (!updTpl?.enabled_app) continue;
+
+          const vars = {
+            talent_name: talentName,
+            project_title: e.title,
+            changes_list: changes.join(", "),
+            date: e.dateISO
+              ? new Date(e.dateISO).toLocaleDateString("it-IT", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })
+              : "da definire",
+            location: e.venueName || e.city || "da definire",
+          };
           const key = `engagement_updated:${e.id}`;
           const prevUpd = byKey.get(key);
           const payload = {
             talent_user_id: user.id,
             type: "engagement_updated",
-            title: `Ingaggio aggiornato: ${e.title}`,
-            body: `Sono cambiate: ${changes.join(", ")}. Controlla il dettaglio aggiornato.`,
-            action_type: "link",
-            action_payload: { href: `/talent/applications/${e.id}`, label: "Vedi cosa è cambiato" },
+            title: renderTemplate(updTpl.label, vars),
+            body: renderTemplate(updTpl.body, vars),
+            action_type: "link" as const,
+            action_payload: {
+              href: `/talent/applications/${e.id}`,
+              label: updTpl.action_label,
+            },
             dedupe_key: key,
           };
           if (prevUpd) {
@@ -234,11 +269,6 @@ export const useCommunicationSync = () => {
           } else {
             await supabase.from("communications").insert(payload);
           }
-          await supabase
-            .from("communications")
-            .update({ action_payload: { ...base.action_payload, signature } })
-            .eq("id", base.id);
-          changed = true;
         }
 
         if (changed) {
@@ -251,5 +281,5 @@ export const useCommunicationSync = () => {
 
     void run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, profile, attributes, media, engagements, existing]);
+  }, [user?.id, profile, attributes, media, engagements, existing, templates]);
 };
