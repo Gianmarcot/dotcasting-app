@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link2, Paperclip, Upload, CalendarClock, X } from "lucide-react";
+import { Link2, Paperclip, Upload, CalendarClock, MessageCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,10 +22,13 @@ const TYPE_LABELS: Record<AttachedAction["type"], string> = {
   upload: "Richiesta di materiale",
   link: "Rimando a una sezione del profilo",
   availability: "Richiesta di disponibilità",
+  whatsapp: "Rimando a WhatsApp con messaggio precompilato",
 };
 
 export const actionSummary = (action: AttachedAction) => {
   if (action.type === "upload") return `Materiale: ${action.material || "da specificare"}`;
+  if (action.type === "whatsapp") return "WhatsApp con messaggio precompilato";
+  if (action.type === "link" && action.engagementHref) return "Rimando a un ingaggio";
   if (action.type === "link")
     return `Sezione: ${PROFILE_TARGETS.find((t) => t.value === action.target)?.label ?? "profilo"}`;
   return "Disponibilità richiesta";
@@ -86,7 +89,29 @@ export const ActionAttachPopover = ({
             </div>
           )}
 
+          {draft.type === "whatsapp" && (
+            <div className="space-y-2">
+              <Label>Messaggio precompilato</Label>
+              <Input
+                value={draft.waText ?? ""}
+                onChange={(e) => setDraft({ ...draft, waText: e.target.value })}
+                placeholder="Es. Ciao, sono disponibile nelle date indicate"
+              />
+            </div>
+          )}
+
           {draft.type === "link" && (
+            <div className="space-y-2">
+              <Label>Rimando a un ingaggio (opzionale)</Label>
+              <Input
+                value={draft.engagementHref ?? ""}
+                onChange={(e) => setDraft({ ...draft, engagementHref: e.target.value })}
+                placeholder="/talent/applications/<id ingaggio>"
+              />
+            </div>
+          )}
+
+          {draft.type === "link" && !draft.engagementHref && (
             <div className="space-y-2">
               <Label>Sezione del profilo</Label>
               <Select
@@ -148,6 +173,7 @@ export const ActionAttachPopover = ({
           {value.type === "upload" && <Upload className="h-3.5 w-3.5" />}
           {value.type === "link" && <Link2 className="h-3.5 w-3.5" />}
           {value.type === "availability" && <CalendarClock className="h-3.5 w-3.5" />}
+          {value.type === "whatsapp" && <MessageCircle className="h-3.5 w-3.5" />}
           {actionSummary(value)}
           <button type="button" onClick={() => onChange(null)} aria-label="Rimuovi azione">
             <X className="h-3.5 w-3.5" />
