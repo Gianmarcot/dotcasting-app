@@ -2,6 +2,7 @@ import { it } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AgencySettingsForm } from "@/components/owner/settings/AgencySettingsForm";
 import { AccountSection } from "@/components/owner/settings/AccountSection";
+import { CommunicationsSettingsSection } from "@/components/owner/settings/CommunicationsSettingsSection";
 
 export const OwnerSettings = () => {
   return (
@@ -18,11 +19,16 @@ export const OwnerSettings = () => {
       <Tabs defaultValue="agency" className="space-y-6">
         <TabsList>
           <TabsTrigger value="agency">Agenzia</TabsTrigger>
+          <TabsTrigger value="communications">Comunicazioni</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
 
         <TabsContent value="agency">
           <AgencySettingsForm />
+        </TabsContent>
+
+        <TabsContent value="communications">
+          <CommunicationsSettingsSection />
         </TabsContent>
 
         <TabsContent value="account">

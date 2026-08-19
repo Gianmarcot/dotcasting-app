@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type { CommunicationActionPayload } from "@/lib/communications";
 
 export interface AttachedAction {
-  type: "upload" | "link" | "availability";
+  type: "upload" | "link" | "availability" | "whatsapp";
   /** richiesta materiale */
   material?: string;
   /** rimando a una sezione del profilo */
@@ -12,6 +12,10 @@ export interface AttachedAction {
   /** richiesta di disponibilità */
   periodStart?: string;
   periodEnd?: string;
+  /** rimando a WhatsApp con messaggio precompilato */
+  waText?: string;
+  /** rimando a un ingaggio */
+  engagementHref?: string;
   deadline?: string;
 }
 
@@ -32,6 +36,8 @@ const actionTitle = (action: AttachedAction | null | undefined) => {
       return "Richiesta di disponibilità";
     case "link":
       return "Aggiorna il tuo profilo";
+    case "whatsapp":
+      return "Scrivici su WhatsApp";
     default:
       return "Comunicazione dall'agenzia";
   }
@@ -105,8 +111,17 @@ export const useSendCommunication = () => {
         actionPayload.label = "Carica il materiale";
       }
       if (action?.type === "link") {
-        actionPayload.target = action.target;
-        actionPayload.label = "Vai alla sezione";
+        if (action.engagementHref) {
+          actionPayload.href = action.engagementHref;
+          actionPayload.label = "Vai al casting";
+        } else {
+          actionPayload.target = action.target;
+          actionPayload.label = "Vai alla sezione";
+        }
+      }
+      if (action?.type === "whatsapp") {
+        actionPayload.wa_text = action.waText;
+        actionPayload.label = "Scrivici su WhatsApp";
       }
       if (action?.type === "availability") {
         actionPayload.period_start = action.periodStart;

@@ -64,6 +64,11 @@
     /* Borders & Inputs */
     --border: 0 0% 78%;
     --divider: 0 0% 85%;
+
+    /* Comunicazioni */
+    --bubble: 30 20% 90%;
+    --whatsapp: 141 45% 46%;
+    --whatsapp-foreground: 0 0% 100%;
     --input: 40 15% 85%;
     --ring: 345 65% 35%;
 
@@ -645,6 +650,18 @@
   .dc-divider-vertical {
     @apply dc-divider h-full w-[1px];
   }
+
+  /* =====================
+     COMUNICAZIONI
+     ===================== */
+  .dc-action-pill {
+    @apply inline-flex h-9 items-center gap-2 rounded-full border border-border bg-white/30 pl-4 pr-5 text-[15px] font-medium text-[#1a1a1a] backdrop-blur-[4px] transition-colors hover:bg-white/60 disabled:opacity-60;
+  }
+
+  .dc-comm-pill {
+    @apply inline-flex items-center rounded-full bg-white px-3 py-1.5 text-[15px] font-medium text-[#1a1a1a];
+  }
+
 
   /* =====================
      SCROLLAREA

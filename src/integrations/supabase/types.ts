@@ -555,6 +555,42 @@ export type Database = {
           },
         ]
       }
+      communication_templates: {
+        Row: {
+          action_label: string
+          body: string
+          email_body: string | null
+          email_subject: string | null
+          enabled_app: boolean
+          enabled_email: boolean
+          label: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          action_label?: string
+          body?: string
+          email_body?: string | null
+          email_subject?: string | null
+          enabled_app?: boolean
+          enabled_email?: boolean
+          label?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          action_label?: string
+          body?: string
+          email_body?: string | null
+          email_subject?: string | null
+          enabled_app?: boolean
+          enabled_email?: boolean
+          label?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       communications: {
         Row: {
           action_payload: Json
