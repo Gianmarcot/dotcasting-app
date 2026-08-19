@@ -61,6 +61,28 @@ export const RoleTalentRow = ({
   onRemove,
 }: Props) => {
   const navigate = useNavigate();
+  const togglePublished = useToggleEngagementPublished();
+  const isPublished = !!(rt as any).published_to_talent;
+
+  const handleTogglePublished = async () => {
+    try {
+      await togglePublished.mutateAsync({
+        id: rt.id,
+        published: !isPublished,
+        roleId: rt.casting_role_id,
+      });
+      toast({
+        title: isPublished
+          ? "Ingaggio nascosto al talent"
+          : "Ingaggio pubblicato al talent",
+        description: isPublished
+          ? "Non è più visibile in \"I miei casting\" del talent."
+          : "Ora compare in \"I miei casting\" del talent con data, luogo e istruzioni.",
+      });
+    } catch {
+      toast({ title: "Errore", variant: "destructive" });
+    }
+  };
   const age = getAge(rt.profile?.birth_date ?? null);
   const talentSt = (rt.talent_status || "none") as TalentStatus;
   const companySt = (rt.company_status || "none") as CompanyStatus;
