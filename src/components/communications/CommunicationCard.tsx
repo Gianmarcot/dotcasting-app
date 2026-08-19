@@ -1,10 +1,9 @@
 import { useRef } from "react";
 import { Link } from "react-router-dom";
-import { CalendarClock, Check, CheckCheck, Link2, Loader2, Upload, X } from "lucide-react";
+import { Check, CheckCheck, Loader2, Upload, X } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import {
   formatPeriod,
@@ -31,15 +30,9 @@ const resolveHref = (comm: Communication): string => {
   return base;
 };
 
-const ACTION_CHIP: Record<string, { icon: typeof Upload; label: string }> = {
-  upload: { icon: Upload, label: "Materiale richiesto" },
-  link: { icon: Link2, label: "Rimando al profilo" },
-  availability: { icon: CalendarClock, label: "Disponibilità richiesta" },
-};
-
 /**
- * Comunicazione ricevuta, resa come bolla di chat in arrivo (allineata a sinistra),
- * con lo stesso stile della chat lato agenzia.
+ * Comunicazione ricevuta, resa come bolla di chat in arrivo (allineata a sinistra).
+ * Il talent non scrive: la bolla contiene solo il contenuto e le eventuali azioni.
  */
 export const CommunicationCard = ({
   communication,
@@ -58,150 +51,151 @@ export const CommunicationCard = ({
   const payload = communication.action_payload || {};
 
   const answered = !!communication.responded_at;
-  const chip = communication.action_type ? ACTION_CHIP[communication.action_type] : undefined;
-  const ChipIcon = chip?.icon;
 
   return (
-    <div className="flex max-w-[80%] gap-2">
-      <Avatar className="mt-0.5 h-8 w-8 shrink-0">
-        <AvatarFallback className="bg-white text-xs text-foreground">
-          <Icon className="h-4 w-4" />
-        </AvatarFallback>
-      </Avatar>
-
+    <div className="flex w-full">
       <article
         onMouseEnter={() => isUnread && onOpen(communication)}
         onFocus={() => isUnread && onOpen(communication)}
         tabIndex={0}
         className={cn(
-          "min-w-0 rounded-2xl rounded-tl-sm bg-muted px-4 py-2 outline-none",
-          isUnread && "ring-1 ring-primary/20",
+          "relative w-full max-w-[85%] rounded-3xl rounded-tl-md bg-white p-4 shadow-sm outline-none transition-shadow md:max-w-[75%]",
+          isUnread && "shadow-md ring-1 ring-primary/20",
           pending && "ring-1 ring-primary/40",
           overdue && "ring-1 ring-destructive/50"
         )}
       >
-        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-          {getCommunicationTypeLabel(communication.type)}
-        </p>
-        <p
-          className={cn(
-            "text-sm leading-5",
-            isUnread ? "font-medium text-foreground" : "text-foreground/85"
-          )}
-        >
-          {communication.title}
-        </p>
-
-        {communication.body && (
-          <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
-            {communication.body}
-          </p>
-        )}
-
-        {communication.action_type === "availability" && payload.period_start && (
-          <p className="mt-1 text-sm text-foreground/80">
-            Periodo:{" "}
-            {formatPeriod(payload.period_start as string, payload.period_end as string)}
-          </p>
-        )}
-
-        {communication.action_type === "upload" && payload.material && (
-          <p className="mt-1 text-sm text-foreground/80">Serve: {String(payload.material)}</p>
-        )}
-
-        {communication.deadline && !answered && (
-          <p className={cn("mt-1 text-sm", overdue ? "text-destructive" : "text-foreground/80")}>
-            entro il {format(new Date(communication.deadline), "d MMMM", { locale: itLocale })}
-          </p>
-        )}
-
-        {chip && ChipIcon && !answered && (
-          <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-background px-2.5 py-1 text-[11px] text-foreground/80">
-            <ChipIcon className="h-3 w-3" />
-            {chip.label}
+        <div className="flex items-start gap-3">
+          <span
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+              isUnread ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+            )}
+          >
+            <Icon className="h-4 w-4" />
           </span>
-        )}
 
-        {answered && (
-          <p className="mt-2 flex items-start gap-1.5 text-sm text-foreground/80">
-            <CheckCheck className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>
-              {communication.response === "available" && "Hai risposto: disponibile"}
-              {communication.response === "unavailable" && "Hai risposto: non disponibile"}
-              {communication.response === "uploaded" &&
-                `Materiale inviato${payload.file_name ? `: ${payload.file_name}` : ""}`}{" "}
-              ·{" "}
-              {format(new Date(communication.responded_at!), "d MMMM, HH:mm", {
-                locale: itLocale,
-              })}
-            </span>
-          </p>
-        )}
+          <div className="min-w-0 flex-1">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              {getCommunicationTypeLabel(communication.type)}
+            </p>
+            <p
+              className={cn(
+                "mt-0.5 text-[15px] leading-5",
+                isUnread ? "font-medium text-foreground" : "text-foreground/85"
+              )}
+            >
+              {communication.title}
+            </p>
 
-        {/* Azioni */}
-        {!answered && communication.action_type && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {communication.action_type === "link" && (
-              <Button asChild size="sm" onClick={() => onOpen(communication)}>
-                <Link to={resolveHref(communication)}>{(payload.label as string) || "Apri"}</Link>
-              </Button>
+            {communication.body && (
+              <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
+                {communication.body}
+              </p>
             )}
 
-            {communication.action_type === "upload" && (
-              <>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    e.target.value = "";
-                    if (file) upload.mutate({ communication, file });
-                  }}
-                />
-                <Button
-                  size="sm"
-                  disabled={upload.isPending}
-                  onClick={() => fileRef.current?.click()}
-                >
-                  {upload.isPending ? <Loader2 className="animate-spin" /> : <Upload />}
-                  Carica il materiale
-                </Button>
-              </>
+            {communication.action_type === "availability" && payload.period_start && (
+              <p className="mt-1 text-sm text-foreground/80">
+                Periodo:{" "}
+                {formatPeriod(payload.period_start as string, payload.period_end as string)}
+              </p>
             )}
 
-            {communication.action_type === "availability" && (
-              <>
-                <Button
-                  size="sm"
-                  disabled={respond.isPending}
-                  onClick={() => respond.mutate({ communication, response: "available" })}
-                >
-                  <Check />
-                  Disponibile
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={respond.isPending}
-                  onClick={() => respond.mutate({ communication, response: "unavailable" })}
-                >
-                  <X />
-                  Non disponibile
-                </Button>
-              </>
+            {communication.action_type === "upload" && payload.material && (
+              <p className="mt-1 text-sm text-foreground/80">Serve: {String(payload.material)}</p>
             )}
+
+            {communication.deadline && !answered && (
+              <p className={cn("mt-1 text-sm", overdue ? "text-destructive" : "text-foreground/80")}>
+                entro il{" "}
+                {format(new Date(communication.deadline), "d MMMM", { locale: itLocale })}
+              </p>
+            )}
+
+            {answered && (
+              <p className="mt-2 flex items-start gap-1.5 text-sm text-foreground/80">
+                <CheckCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  {communication.response === "available" && "Hai risposto: disponibile"}
+                  {communication.response === "unavailable" && "Hai risposto: non disponibile"}
+                  {communication.response === "uploaded" &&
+                    `Materiale inviato${payload.file_name ? `: ${payload.file_name}` : ""}`}{" "}
+                  ·{" "}
+                  {format(new Date(communication.responded_at!), "d MMMM, HH:mm", {
+                    locale: itLocale,
+                  })}
+                </span>
+              </p>
+            )}
+
+            {/* Azioni */}
+            {!answered && communication.action_type && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {communication.action_type === "link" && (
+                  <Button asChild size="sm" onClick={() => onOpen(communication)}>
+                    <Link to={resolveHref(communication)}>
+                      {(payload.label as string) || "Apri"}
+                    </Link>
+                  </Button>
+                )}
+
+                {communication.action_type === "upload" && (
+                  <>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) upload.mutate({ communication, file });
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={upload.isPending}
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      {upload.isPending ? <Loader2 className="animate-spin" /> : <Upload />}
+                      Carica il materiale
+                    </Button>
+                  </>
+                )}
+
+                {communication.action_type === "availability" && (
+                  <>
+                    <Button
+                      size="sm"
+                      disabled={respond.isPending}
+                      onClick={() => respond.mutate({ communication, response: "available" })}
+                    >
+                      <Check />
+                      Disponibile
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={respond.isPending}
+                      onClick={() => respond.mutate({ communication, response: "unavailable" })}
+                    >
+                      <X />
+                      Non disponibile
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
+
+            <p className="mt-2 flex items-center justify-end gap-1 text-[11px] text-muted-foreground">
+              {format(new Date(communication.created_at), "HH:mm")}
+              {isUnread ? (
+                <span aria-label="Non letta" className="h-1.5 w-1.5 rounded-full bg-primary" />
+              ) : (
+                <CheckCheck className="h-3.5 w-3.5" />
+              )}
+            </p>
           </div>
-        )}
-
-        <p className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
-          {format(new Date(communication.created_at), "HH:mm")}
-          {isUnread ? (
-            <span aria-label="Non letta" className="h-1.5 w-1.5 rounded-full bg-primary" />
-          ) : (
-            <CheckCheck className="h-3 w-3" />
-          )}
-        </p>
+        </div>
       </article>
     </div>
   );

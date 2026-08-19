@@ -19,7 +19,7 @@ const dayLabel = (iso: string) => {
   const d = new Date(iso);
   if (isToday(d)) return "Oggi";
   if (isYesterday(d)) return "Ieri";
-  return format(d, "EEEE d MMMM", { locale: itLocale });
+  return format(d, "d MMMM yyyy", { locale: itLocale });
 };
 
 const EmptyState = () => (
@@ -34,7 +34,7 @@ const EmptyState = () => (
 
 const DaySeparator = ({ label }: { label: string }) => (
   <div className="flex items-center justify-center py-2">
-    <span className="rounded-full bg-muted px-3 py-1 text-xs capitalize text-muted-foreground">
+    <span className="rounded-full bg-white/70 px-3 py-1 text-xs capitalize text-muted-foreground">
       {label}
     </span>
   </div>
@@ -123,10 +123,7 @@ export const TalentCommunications = () => {
       {isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex gap-2">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <Skeleton className="h-20 w-[60%] rounded-2xl" />
-            </div>
+            <Skeleton key={i} className="h-24 w-[75%] rounded-3xl" />
           ))}
         </div>
       ) : list.length === 0 ? (
