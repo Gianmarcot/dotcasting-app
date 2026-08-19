@@ -129,11 +129,13 @@ export const ImageCropModal = ({
   const onImageLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       const { width, height } = e.currentTarget;
-      const next: Partial<Record<CropRatio, Crop>> = {};
-      ratioList.forEach((r) => {
-        next[r] = initFor(r, width, height);
+      setCrops((prev) => {
+        const next = { ...prev };
+        ratioList.forEach((r) => {
+          if (!next[r]) next[r] = initFor(r, width, height);
+        });
+        return next;
       });
-      setCrops(next);
     },
     [ratioList, initFor]
   );
