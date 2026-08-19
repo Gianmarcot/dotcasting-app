@@ -1405,6 +1405,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      casting_is_active: { Args: { _casting_id: string }; Returns: boolean }
       confirm_round_selection: {
         Args: { p_password: string; p_selected: string[]; p_token: string }
         Returns: Json
@@ -1442,6 +1443,14 @@ export type Database = {
       set_casting_client_password: {
         Args: { p_casting_id: string; p_password: string }
         Returns: undefined
+      }
+      talent_can_view_casting: {
+        Args: { _casting_id: string }
+        Returns: boolean
+      }
+      talent_can_view_casting_role: {
+        Args: { _role_id: string }
+        Returns: boolean
       }
       update_member_role: {
         Args: {
