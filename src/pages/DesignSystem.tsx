@@ -555,7 +555,14 @@ const PrimitivesSection = () => (
     </SubBlock>
 
 
-    <SubBlock title="Form controls" source="input, textarea, select, checkbox, radio, switch, slider">
+    <SubBlock
+      title="Campi (standard)"
+      source="ui/field — floating label, colori dai token --field-* della Surface"
+    >
+      <FloatingFieldsShowcase />
+    </SubBlock>
+
+    <SubBlock title="Campi compatti + altri controlli" source="input, textarea, select, checkbox, radio, switch, slider">
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <Label>Input</Label>
