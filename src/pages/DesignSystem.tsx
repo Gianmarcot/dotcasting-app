@@ -499,7 +499,10 @@ const FloatingFieldsShowcase = () => {
         <FloatingTextarea label="Racconta di te" value={bio} onChange={setBio} />
       </div>
 
-      <div className="grid gap-4 rounded-3xl bg-muted p-6 sm:grid-cols-2">
+      <Surface
+        variant="muted"
+        className="grid gap-4 rounded-3xl p-6 sm:grid-cols-2"
+      >
         <FloatingInput label="Su fondo crema" value={empty} onChange={setEmpty} />
         <FloatingSelect
           label="Su fondo crema"
