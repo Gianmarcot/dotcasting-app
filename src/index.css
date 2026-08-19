@@ -111,6 +111,86 @@
 
     --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
+
+    /* =====================
+       PRIMITIVI (mai usati direttamente nei componenti)
+       ===================== */
+    --white: #ffffff;
+    --cream: #f4f0ec;
+    --grey-100: #f2f2f2;
+    --grey-200: #dddddd;
+    --grey-400: #c7c7c7;
+    --grey-600: #686868;
+    --grey-800: #383838;
+    --grey-900: #2f2f2f;
+    --ink: #1a1a1a;
+    --brand-600: #a30a2b;
+    --brand-700: #940927;
+    --brand-800: #800e27;
+  }
+
+  /* =====================
+     CONTESTI DI SUPERFICIE — ridefiniscono solo variabili
+     ===================== */
+  :root,
+  [data-surface="base"] {
+    --surface: var(--white);
+    --surface-fg: var(--ink);
+    --field-bg: var(--cream);
+    --field-bg-disabled: var(--grey-200);
+    --field-fg: var(--ink);
+    --field-fg-disabled: var(--grey-600);
+    --field-label: var(--grey-600);
+    --field-label-disabled: color-mix(in srgb, var(--grey-600) 60%, transparent);
+    --field-border: transparent;
+    --field-border-focus: var(--ink);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  [data-surface="muted"] {
+    --surface: var(--cream);
+    --surface-fg: var(--ink);
+    --field-bg: var(--white);
+    --field-bg-disabled: var(--grey-200);
+    --field-fg: var(--ink);
+    --field-fg-disabled: var(--grey-600);
+    --field-label: var(--grey-600);
+    --field-label-disabled: color-mix(in srgb, var(--grey-600) 60%, transparent);
+    --field-border: transparent;
+    --field-border-focus: var(--ink);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  [data-surface="brand"] {
+    --surface: var(--brand-600);
+    --surface-fg: var(--white);
+    --field-bg: var(--brand-800);
+    --field-bg-disabled: var(--brand-700);
+    --field-fg: var(--white);
+    --field-fg-disabled: rgba(255, 255, 255, 0.6);
+    --field-label: var(--cream);
+    --field-label-disabled: rgba(255, 255, 255, 0.6);
+    --field-border: transparent;
+    --field-border-focus: var(--cream);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  [data-surface="inverse"] {
+    --surface: var(--ink);
+    --surface-fg: var(--white);
+    --field-bg: var(--grey-800);
+    --field-bg-disabled: var(--grey-900);
+    --field-fg: var(--white);
+    --field-fg-disabled: rgba(199, 199, 199, 0.6);
+    --field-label: var(--grey-400);
+    --field-label-disabled: rgba(199, 199, 199, 0.6);
+    --field-border: transparent;
+    --field-border-focus: var(--cream);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
   }
 
   .dark {
