@@ -43,7 +43,7 @@ export const TalentCastingDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-[1040px] space-y-6">
+      <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-10 w-72" />
         <Skeleton className="h-64 w-full rounded-3xl" />
@@ -53,7 +53,7 @@ export const TalentCastingDetail = () => {
 
   if (!engagement) {
     return (
-      <div className="w-full max-w-[1040px]">
+      <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
         <BackLink onClick={() => navigate("/talent/applications")} />
         <p className="mt-8 text-[#686868]">Ingaggio non trovato.</p>
       </div>
