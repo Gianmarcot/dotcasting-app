@@ -1,25 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
-import { Bookmark, User, MessageSquare, LogOut, Settings, Bell } from "lucide-react";
+import { Bookmark, User, Megaphone, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
+import { useUnreadCommunicationsCount } from "@/hooks/useCommunications";
 import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
 import logo from "@/assets/logo.png";
 
 const navItems = [
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
-  { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
+  { icon: Megaphone, label: it.nav.communications, href: "/talent/communications" },
 ];
 
 export const TalentSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
-  const unreadCount = useUnreadNotificationsCount();
+  const unreadCount = useUnreadCommunicationsCount();
 
   const handleLogout = async () => {
     await signOut();
