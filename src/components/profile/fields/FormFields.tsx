@@ -1,13 +1,19 @@
-import { forwardRef, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
+
+/* I campi con floating label vivono nel Design System: qui li ri-esportiamo
+   per non duplicare la logica e mantenere le API usate nelle card di profilo. */
+export {
+  FieldShell,
+  FloatLabel,
+  FloatingInput,
+  FloatingTextarea,
+  FloatingSelect,
+  FieldCluster,
+  toOptions,
+} from "@/components/ui/field";
 
 /* ---------------------------------- Layout --------------------------------- */
 
