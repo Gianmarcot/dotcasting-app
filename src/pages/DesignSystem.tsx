@@ -513,7 +513,7 @@ const FloatingFieldsShowcase = () => {
             { value: "Torino", label: "Torino" },
           ]}
         />
-      </div>
+      </Surface>
     </div>
   );
 };
