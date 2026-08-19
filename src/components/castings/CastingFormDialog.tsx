@@ -109,6 +109,11 @@ export const CastingFormDialog = ({
       compensation_amount: "",
       compensation_type: "",
       currency: "EUR",
+      call_datetime: "",
+      venue_name: "",
+      venue_address: "",
+      talent_instructions: "",
+      show_client_to_talent: false,
     },
   });
 
@@ -125,6 +130,13 @@ export const CastingFormDialog = ({
         compensation_amount: casting.compensation_amount?.toString() || "",
         compensation_type: casting.compensation_type || "",
         currency: casting.currency || "EUR",
+        call_datetime: (casting as any).call_datetime
+          ? new Date((casting as any).call_datetime).toISOString().slice(0, 16)
+          : "",
+        venue_name: (casting as any).venue_name || "",
+        venue_address: (casting as any).venue_address || "",
+        talent_instructions: (casting as any).talent_instructions || "",
+        show_client_to_talent: !!(casting as any).show_client_to_talent,
       });
     } else {
       form.reset({
@@ -138,6 +150,11 @@ export const CastingFormDialog = ({
         compensation_amount: "",
         compensation_type: "",
         currency: "EUR",
+        call_datetime: "",
+        venue_name: "",
+        venue_address: "",
+        talent_instructions: "",
+        show_client_to_talent: false,
       });
     }
   }, [casting, form, open]);
