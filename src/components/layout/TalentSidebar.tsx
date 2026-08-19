@@ -97,6 +97,7 @@ export const TalentSidebar = () => {
             const isActive =
               location.pathname === item.href ||
               location.pathname.startsWith(item.href + "/");
+            const showBadge = item.href === "/talent/communications" && unreadCount > 0;
             return (
               <li key={item.href}>
                 <Link
@@ -104,7 +105,12 @@ export const TalentSidebar = () => {
                   className={isActive ? "dc-sidebar-nav-item-active" : "dc-sidebar-nav-item-inactive"}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {showBadge && (
+                    <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-medium text-primary-foreground">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );
