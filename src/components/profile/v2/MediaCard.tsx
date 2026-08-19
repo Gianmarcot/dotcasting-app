@@ -86,36 +86,32 @@ export const MediaCard = () => {
   const { data: media } = useTalentMedia();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [capacity, setCapacity] = useState(4);
-  console.log("[MediaCard] render, ref exists:", !!containerRef.current);
+  const [capacity, setCapacity] = useState(3);
 
   const photos = (media ?? [])
     .filter((m) => m.media_type === "photo")
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   useEffect(() => {
-    console.log("[MediaCard] effect running, photos count:", photos.length, "ref exists:", !!containerRef.current);
     const el = containerRef.current;
     if (!el) return;
 
     const update = () => {
       const width = el.clientWidth;
-      const cap = Math.max(1, Math.floor((width + TILE_GAP) / (TILE_WIDTH + TILE_GAP)));
-      console.log("[MediaCard] resize observer width", width, "capacity", cap);
-      el.setAttribute("data-capacity", String(cap));
+      // Use a responsive tile width: 3 tiles per row on narrow containers,
+      // fixed 140px tiles on wider containers (matching the CSS class below).
+      const tileWidth = Math.min(
+        TILE_WIDTH,
+        (width - (MOBILE_COLS - 1) * TILE_GAP) / MOBILE_COLS
+      );
+      const cap = Math.max(1, Math.floor((width + TILE_GAP) / (tileWidth + TILE_GAP)));
       setCapacity(cap);
     };
 
-    // Initial measurement deferred to allow layout to settle
     const initialTimer = setTimeout(update, 50);
-
-    let ro: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(update);
-      ro.observe(el);
-    } else {
-      window.addEventListener("resize", update);
-    }
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    if (ro) ro.observe(el);
+    else window.addEventListener("resize", update);
 
     return () => {
       clearTimeout(initialTimer);
@@ -124,23 +120,25 @@ export const MediaCard = () => {
     };
   }, [photos.length]);
 
-  const shownCount = photos.length <= capacity ? photos.length : Math.max(0, capacity - 1);
+  const shownCount = photos.length <= capacity ? photos.length : Math.max(1, capacity - 1);
   const shownPhotos = photos.slice(0, shownCount);
   const remaining = photos.length - shownCount;
+
+  const tileClass = "w-[min(140px,calc((100%_-_32px)/3))] flex-shrink-0";
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
       <div className="rounded-2xl border border-dashed border-border p-6">
         {photos.length > 0 ? (
-          <div ref={containerRef} data-capacity-render={capacity} className="flex flex-nowrap gap-4 overflow-hidden">
+          <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
             {shownPhotos.map((photo) => (
-              <div key={photo.id} className="relative w-[140px] flex-shrink-0">
+              <div key={photo.id} className={cn("relative", tileClass)}>
                 <img
                   src={photo.url}
                   alt={getCategoryLabel(photo.category)}
                   className="aspect-[2/3] w-full rounded-xl object-cover"
                 />
-                <span className="absolute left-1/2 top-2 max-w-[124px] -translate-x-1/2 truncate rounded-full bg-background px-3 py-1 text-xs text-foreground">
+                <span className="absolute left-1/2 top-2 max-w-[calc(100%-16px)] -translate-x-1/2 truncate rounded-full bg-background px-3 py-1 text-xs text-foreground">
                   {getCategoryLabel(photo.category)}
                 </span>
               </div>
@@ -149,7 +147,10 @@ export const MediaCard = () => {
               <button
                 type="button"
                 onClick={() => setGalleryOpen(true)}
-                className="flex aspect-[2/3] w-[140px] flex-shrink-0 items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80"
+                className={cn(
+                  "flex aspect-[2/3] items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80",
+                  tileClass
+                )}
               >
                 + {remaining} foto
               </button>
