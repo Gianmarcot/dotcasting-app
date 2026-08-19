@@ -315,7 +315,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
             className="fixed right-8 top-8 z-10"
           />
 
-          <div className="mx-auto w-full max-w-[1400px] pr-20">
+          <div className="mx-auto mt-16 w-full max-w-[1400px] pr-20">
             <DialogPrimitive.Title className="font-display text-2xl uppercase tracking-wide text-foreground">
               Fotografie
             </DialogPrimitive.Title>
