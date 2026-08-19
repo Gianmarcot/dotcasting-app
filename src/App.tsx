@@ -13,6 +13,7 @@ import CardPreview from "./dev/CardPreview";
 import SharedRound from "./pages/shared/SharedRound";
 import AcceptInvitation from "./pages/AcceptInvitation";
 import DesignSystem from "./pages/DesignSystem";
+import FieldsMatrix from "./pages/dev/FieldsMatrix";
 
 // Layouts
 import { TalentLayout } from "@/components/layout/TalentLayout";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/round/:token" element={<SharedRound />} />
             <Route path="/accept-invitation" element={<AcceptInvitation />} />
             <Route path="/design-system" element={<DesignSystem />} />
+            <Route path="/dev/fields" element={<FieldsMatrix />} />
             
             {/* Talent onboarding - protected but outside layout */}
             <Route
