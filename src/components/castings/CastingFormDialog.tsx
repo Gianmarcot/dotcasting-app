@@ -44,6 +44,11 @@ const castingSchema = z.object({
   compensation_amount: z.string().optional(),
   compensation_type: z.string().optional(),
   currency: z.string().optional(),
+  call_datetime: z.string().optional(),
+  venue_name: z.string().optional(),
+  venue_address: z.string().optional(),
+  talent_instructions: z.string().optional(),
+  show_client_to_talent: z.boolean().optional(),
 });
 
 type CastingFormValues = z.infer<typeof castingSchema>;
