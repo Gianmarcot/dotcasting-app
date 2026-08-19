@@ -101,7 +101,7 @@ export const TalentCastingDetail = () => {
         <div className="flex-1 lg:max-w-[688px] space-y-4">
           {date && (
             <section className="bg-white rounded-3xl p-8 flex flex-col md:flex-row md:items-center gap-8">
-              <CalendarDays className="h-16 w-16 shrink-0 stroke-[1] text-[#1a1a1a]" />
+              <CalendarDays className="h-16 w-16 shrink-0 stroke-[0.75] text-[#1a1a1a]" />
               <div className="flex-1 flex flex-col gap-2">
                 <span className="text-[15px] text-[#686868]">Quando</span>
                 <span className="font-display uppercase text-base text-[#1a1a1a]">
@@ -126,7 +126,7 @@ export const TalentCastingDetail = () => {
           {address && (
             <section className="bg-white rounded-3xl p-8">
               <div className="flex items-start gap-8">
-                <MapPin className="h-16 w-16 shrink-0 stroke-[1] text-[#1a1a1a]" />
+                <MapPin className="h-16 w-16 shrink-0 stroke-[0.75] text-[#1a1a1a]" />
                 <div className="flex flex-col gap-2 min-w-0">
                   <span className="text-[15px] text-[#686868]">Location</span>
                   {engagement.venueName && (
@@ -161,7 +161,7 @@ export const TalentCastingDetail = () => {
         {(engagement.instructions || waHref) && (
           <div className="w-full lg:w-[336px] shrink-0">
             <section className="bg-white rounded-3xl p-8 flex flex-col gap-8">
-              <Info className="h-16 w-16 stroke-[1] text-[#1a1a1a]" />
+              <Info className="h-16 w-16 stroke-[0.75] text-[#1a1a1a]" />
               {engagement.instructions && (
                 <div className="flex flex-col gap-2">
                   <span className="text-[15px] text-[#686868]">Istruzioni</span>
