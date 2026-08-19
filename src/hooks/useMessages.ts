@@ -32,7 +32,7 @@ export interface Message {
   read_at: string | null;
   kind?: string | null;
   action_type?: string | null;
-  action_payload?: Record<string, unknown> | null;
+  action_payload?: unknown;
   sender?: {
     first_name: string | null;
     last_name: string | null;
