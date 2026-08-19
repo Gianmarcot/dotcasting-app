@@ -7,6 +7,7 @@ import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
+import { cn } from "@/lib/utils";
 
 const VIDEO_HELP =
   "Formati accettati MP4, MOV o WEBM, massimo 100MB. Il video resta visibile solo a te e allo staff dell'agenzia fino a quando non viene condiviso in una selezione.";
