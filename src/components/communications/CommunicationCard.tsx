@@ -31,12 +31,14 @@ export const CommunicationCard = ({
   agencyName,
   agencyLogoUrl,
   agencyPhone,
+  isNew,
   onOpen,
 }: {
   communication: Communication;
   agencyName?: string | null;
   agencyLogoUrl?: string | null;
   agencyPhone?: string | null;
+  isNew?: boolean;
   onOpen: (comm: Communication) => void;
 }) => {
   const navigate = useNavigate();
@@ -152,6 +154,7 @@ export const CommunicationCard = ({
         label={communication.title}
         body={renderBody(bodyText)}
         time={format(new Date(communication.created_at), "HH:mm")}
+        isNew={isNew}
         action={action}
       />
     </div>

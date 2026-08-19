@@ -60,12 +60,14 @@ export const CommunicationBubble = ({
   body,
   time,
   action,
+  isNew,
   className,
 }: {
   label: string;
   body: ReactNode;
   time?: string;
   action?: ReactNode;
+  isNew?: boolean;
   className?: string;
 }) => (
   <div
@@ -87,7 +89,19 @@ export const CommunicationBubble = ({
     >
       {action}
       {time && (
-        <span className="ml-auto text-xs font-medium text-[#686868]">{time}</span>
+        <span className="ml-auto flex items-center gap-3 text-xs font-medium text-[#686868]">
+          <span>{time}</span>
+          {isNew && (
+            <span className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full"
+                style={{ backgroundColor: "var(--dot-unread)" }}
+              />
+              <span>Nuovo</span>
+            </span>
+          )}
+        </span>
       )}
     </div>
   </div>

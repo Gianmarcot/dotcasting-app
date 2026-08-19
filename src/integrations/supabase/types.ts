@@ -1571,6 +1571,10 @@ export type Database = {
         Args: { p_role_talent_id: string }
         Returns: undefined
       }
+      mark_messages_read: {
+        Args: { message_ids: string[] }
+        Returns: undefined
+      }
       remove_team_member: { Args: { p_user_id: string }; Returns: undefined }
       set_casting_client_password: {
         Args: { p_casting_id: string; p_password: string }
