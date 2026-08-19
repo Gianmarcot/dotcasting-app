@@ -2,25 +2,32 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
+import { ActionAttachPopover } from "@/components/messages/ActionAttachPopover";
+import type { AttachedAction } from "@/hooks/useSendCommunication";
 
 interface MessageInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, action?: AttachedAction | null) => void;
   disabled?: boolean;
   placeholder?: string;
+  /** Abilita il comando per allegare un'azione alla comunicazione. */
+  enableActions?: boolean;
 }
 
 export const MessageInput = ({
   onSend,
   disabled,
   placeholder = "Scrivi un messaggio...",
+  enableActions = false,
 }: MessageInputProps) => {
   const [message, setMessage] = useState("");
+  const [action, setAction] = useState<AttachedAction | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = () => {
     if (message.trim() && !disabled) {
-      onSend(message.trim());
+      onSend(message.trim(), action);
       setMessage("");
+      setAction(null);
     }
   };
 
@@ -40,7 +47,8 @@ export const MessageInput = ({
   }, [message]);
 
   return (
-    <div className="border-t p-4 bg-background">
+    <div className="border-t p-4 bg-background space-y-2">
+      {enableActions && <ActionAttachPopover value={action} onChange={setAction} />}
       <div className="flex items-end gap-2">
         <Textarea
           ref={textareaRef}
