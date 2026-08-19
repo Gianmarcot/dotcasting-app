@@ -19,7 +19,7 @@ const dayLabel = (iso: string) => {
   const d = new Date(iso);
   if (isToday(d)) return "Oggi";
   if (isYesterday(d)) return "Ieri";
-  return format(d, "d MMMM yyyy", { locale: itLocale });
+  return format(d, "EEEE d MMMM", { locale: itLocale });
 };
 
 const EmptyState = () => (
@@ -34,7 +34,7 @@ const EmptyState = () => (
 
 const DaySeparator = ({ label }: { label: string }) => (
   <div className="flex items-center justify-center py-2">
-    <span className="rounded-full bg-white/70 px-3 py-1 text-xs capitalize text-muted-foreground">
+    <span className="rounded-full bg-muted px-3 py-1 text-xs capitalize text-muted-foreground">
       {label}
     </span>
   </div>
