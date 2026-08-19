@@ -30,6 +30,9 @@ export interface Message {
   body: string;
   created_at: string;
   read_at: string | null;
+  kind?: string | null;
+  action_type?: string | null;
+  action_payload?: Record<string, unknown> | null;
   sender?: {
     first_name: string | null;
     last_name: string | null;
