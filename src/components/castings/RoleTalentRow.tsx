@@ -13,7 +13,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Send, RotateCcw, MessageSquare, Trash2, ChevronRight } from "lucide-react";
+import { Send, RotateCcw, MessageSquare, Trash2, Eye, EyeOff } from "lucide-react";
+import { useToggleEngagementPublished } from "@/hooks/useTalentEngagements";
+import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
