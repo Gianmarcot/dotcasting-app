@@ -23,6 +23,7 @@ interface MobileHeaderProps {
 export const MobileHeader = ({ variant = "talent" }: MobileHeaderProps) => {
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
+  const communicationsUnread = useUnreadCommunicationsCount();
 
   const handleLogout = async () => {
     await signOut();
