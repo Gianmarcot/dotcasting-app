@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Menu, Settings, LogOut } from "lucide-react";
+import { Menu, Settings, LogOut, Megaphone } from "lucide-react";
+import { useUnreadCommunicationsCount } from "@/hooks/useCommunications";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
@@ -45,7 +46,22 @@ export const MobileHeader = ({ variant = "talent" }: MobileHeaderProps) => {
       </Link>
 
       <div className="flex items-center gap-2">
-        <NotificationBell />
+        {variant === "owner" ? (
+          <NotificationBell />
+        ) : (
+          <Link
+            to="/talent/communications"
+            aria-label="Comunicazioni"
+            className="relative rounded-lg p-2 transition-colors hover:bg-muted"
+          >
+            <Megaphone className="h-5 w-5 text-foreground" />
+            {communicationsUnread > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground">
+                {communicationsUnread > 9 ? "9+" : communicationsUnread}
+              </span>
+            )}
+          </Link>
+        )}
 
         <Drawer>
           <DrawerTrigger asChild>
