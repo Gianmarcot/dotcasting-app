@@ -178,6 +178,7 @@
     --field-border-focus: var(--cream);
     --field-icon: var(--field-label);
     --field-icon-disabled: var(--field-label-disabled);
+    --dot-unread: var(--cream);
   }
 
   .dark,
