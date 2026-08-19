@@ -111,6 +111,87 @@
 
     --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
       Noto Color Emoji;
+
+    /* =====================
+       PRIMITIVI (mai usati direttamente nei componenti)
+       ===================== */
+    --white: #ffffff;
+    --cream: #f4f0ec;
+    --grey-100: #f2f2f2;
+    --grey-200: #dddddd;
+    --grey-400: #c7c7c7;
+    --grey-600: #686868;
+    --grey-800: #383838;
+    --grey-900: #2f2f2f;
+    --ink: #1a1a1a;
+    --brand-600: #a30a2b;
+    --brand-700: #940927;
+    --brand-800: #800e27;
+  }
+
+  /* =====================
+     CONTESTI DI SUPERFICIE — ridefiniscono solo variabili
+     ===================== */
+  :root,
+  [data-surface="base"] {
+    --surface: var(--white);
+    --surface-fg: var(--ink);
+    --field-bg: var(--cream);
+    --field-bg-disabled: var(--grey-200);
+    --field-fg: var(--ink);
+    --field-fg-disabled: var(--grey-600);
+    --field-label: var(--grey-600);
+    --field-label-disabled: color-mix(in srgb, var(--grey-600) 60%, transparent);
+    --field-border: transparent;
+    --field-border-focus: var(--ink);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  [data-surface="muted"] {
+    --surface: var(--cream);
+    --surface-fg: var(--ink);
+    --field-bg: var(--white);
+    --field-bg-disabled: var(--grey-200);
+    --field-fg: var(--ink);
+    --field-fg-disabled: var(--grey-600);
+    --field-label: var(--grey-600);
+    --field-label-disabled: color-mix(in srgb, var(--grey-600) 60%, transparent);
+    --field-border: transparent;
+    --field-border-focus: var(--ink);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  [data-surface="brand"] {
+    --surface: var(--brand-600);
+    --surface-fg: var(--white);
+    --field-bg: var(--brand-800);
+    --field-bg-disabled: var(--brand-700);
+    --field-fg: var(--white);
+    --field-fg-disabled: rgba(255, 255, 255, 0.6);
+    --field-label: var(--cream);
+    --field-label-disabled: rgba(255, 255, 255, 0.6);
+    --field-border: transparent;
+    --field-border-focus: var(--cream);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+  }
+
+  .dark,
+  [data-surface="inverse"] {
+    --surface: var(--ink);
+    --surface-fg: var(--white);
+    --field-bg: var(--grey-800);
+    --field-bg-disabled: var(--grey-900);
+    --field-fg: var(--white);
+    --field-fg-disabled: rgba(199, 199, 199, 0.6);
+    --field-label: var(--grey-400);
+    --field-label-disabled: rgba(199, 199, 199, 0.6);
+    --field-border: transparent;
+    --field-border-focus: var(--cream);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
   }
 
   .dark {
@@ -357,60 +438,148 @@
      Reference: Talent Profile fields (soft warm shell, no border,
      rounded-2xl, inset focus ring).
      ===================== */
-  .dc-input {
-    @apply flex h-12 w-full rounded-2xl border-0 bg-field px-4 py-2 text-base
-           text-foreground transition-colors placeholder:text-field-label
-           focus-visible:bg-field-focus focus-visible:outline-none
-           focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-foreground
-           disabled:cursor-not-allowed disabled:bg-field-disabled
-           disabled:text-field-disabled-foreground;
+  .dc-surface {
+    background-color: var(--surface);
+    color: var(--surface-fg);
   }
 
+  /* Campi surface-aware: nessun colore proprio, solo token --field-* */
+  .dc-field-shell {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--field-border);
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .dc-input {
+    @apply flex h-12 px-4 py-2 text-base;
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--field-border);
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .dc-input::placeholder {
+    color: var(--field-label);
+  }
+
+  .dc-input:focus-visible,
+  .dc-input:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--field-border-focus);
+  }
+
+  .dc-input:disabled {
+    cursor: not-allowed;
+    background-color: var(--field-bg-disabled);
+    color: var(--field-fg-disabled);
+  }
+
+  .dc-input:disabled::placeholder {
+    color: var(--field-label-disabled);
+  }
 
   .dc-textarea {
-    @apply flex min-h-[96px] w-full resize-none rounded-2xl border-0 bg-field
-           px-4 py-3 text-base text-foreground transition-colors
-           placeholder:text-field-label focus-visible:bg-field-focus
-           focus-visible:outline-none focus-visible:ring-2
-           focus-visible:ring-inset focus-visible:ring-foreground
-           disabled:cursor-not-allowed disabled:bg-field-disabled
-           disabled:text-field-disabled-foreground;
+    @apply flex min-h-[96px] resize-none px-4 py-3 text-base;
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--field-border);
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+  }
+
+  .dc-textarea::placeholder {
+    color: var(--field-label);
+  }
+
+  .dc-textarea:focus-visible,
+  .dc-textarea:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--field-border-focus);
+  }
+
+  .dc-textarea:disabled {
+    cursor: not-allowed;
+    background-color: var(--field-bg-disabled);
+    color: var(--field-fg-disabled);
+  }
+
+  .dc-textarea:disabled::placeholder {
+    color: var(--field-label-disabled);
   }
 
   .dc-select-trigger {
-    @apply flex h-12 w-full items-center justify-between rounded-2xl border-0
-           bg-field px-4 py-2 text-base text-foreground shadow-none
-           transition-colors data-[placeholder]:text-field-label
-           focus:outline-none focus:ring-2 focus:ring-inset focus:ring-foreground
-           disabled:cursor-not-allowed disabled:bg-field-disabled
-           disabled:text-field-disabled-foreground
-           [&>span]:line-clamp-1 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:opacity-70;
+    @apply flex h-12 items-center justify-between px-4 py-2 text-base
+           [&>span]:line-clamp-1 [&>svg]:h-5 [&>svg]:w-5;
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid var(--field-border);
+    background-color: var(--field-bg);
+    color: var(--field-fg);
+    box-shadow: none;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
   }
 
+  .dc-select-trigger > svg {
+    color: var(--field-icon);
+  }
+
+  .dc-select-trigger[data-placeholder] {
+    color: var(--field-label);
+  }
+
+  .dc-select-trigger:focus,
+  .dc-select-trigger:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--field-border-focus);
+  }
+
+  .dc-select-trigger:disabled {
+    cursor: not-allowed;
+    background-color: var(--field-bg-disabled);
+    color: var(--field-fg-disabled);
+  }
+
+  .dc-select-trigger:disabled > svg {
+    color: var(--field-icon-disabled);
+  }
 
   .dc-select-content {
-    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl 
-           bg-popover text-popover-foreground shadow-md 
-           data-[state=open]:animate-in data-[state=closed]:animate-out 
-           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
-           data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-           data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 
+    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl shadow-md
+           data-[state=open]:animate-in data-[state=closed]:animate-out
+           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+           data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
+           data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
            data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
+    border: 1px solid var(--field-border);
+    background-color: var(--field-bg);
+    color: var(--field-fg);
   }
 
   .dc-select-content-popper {
-    @apply data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 
+    @apply data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1
            data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1;
   }
 
   .dc-select-item {
-    @apply relative flex w-full cursor-default select-none items-center 
-           rounded-lg py-2.5 pl-8 pr-3 text-sm outline-none 
-           data-[disabled]:pointer-events-none data-[disabled]:opacity-50 
-           data-[highlighted]:bg-[#F4F0EC] data-[highlighted]:text-foreground
-           dark:data-[highlighted]:bg-[#2a2a2a] dark:data-[highlighted]:text-foreground;
+    @apply relative flex w-full cursor-default select-none items-center
+           rounded-lg py-2.5 pl-8 pr-3 text-sm outline-none
+           data-[disabled]:pointer-events-none data-[disabled]:opacity-50;
+    color: var(--field-fg);
   }
 
+  .dc-select-item[data-highlighted] {
+    background-color: color-mix(in srgb, var(--field-fg) 8%, var(--field-bg));
+    color: var(--field-fg);
+  }
 
   .dc-label {
     @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;

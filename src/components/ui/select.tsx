@@ -3,6 +3,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useSurface } from "@/components/ui/surface";
 
 const Select = SelectPrimitive.Root;
 
@@ -21,7 +22,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-5 w-5 opacity-50" />
+      <ChevronDown className="h-5 w-5" />
     </SelectPrimitive.Icon>
 
   </SelectPrimitive.Trigger>
@@ -59,10 +60,14 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
+>(({ className, children, position = "popper", ...props }, ref) => {
+  // Il contenuto è in un portal: la superficie va propagata via contesto React.
+  const surface = useSurface();
+  return (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
+      data-surface={surface}
       className={cn("dc-select-content", position === "popper" && "dc-select-content-popper", className)}
       position={position}
       {...props}
@@ -80,7 +85,8 @@ const SelectContent = React.forwardRef<
       <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
-));
+  );
+});
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 
 const SelectLabel = React.forwardRef<
