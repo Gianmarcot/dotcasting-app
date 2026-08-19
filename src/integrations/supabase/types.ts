@@ -468,6 +468,7 @@ export type Database = {
       }
       castings: {
         Row: {
+          call_datetime: string | null
           category: string | null
           client_password_hash: string | null
           company_id: string | null
@@ -483,12 +484,17 @@ export type Database = {
           id: string
           is_favorite: boolean
           locations: string[] | null
+          show_client_to_talent: boolean
           start_date: string | null
           status: string | null
+          talent_instructions: string | null
           title: string
           updated_at: string
+          venue_address: string | null
+          venue_name: string | null
         }
         Insert: {
+          call_datetime?: string | null
           category?: string | null
           client_password_hash?: string | null
           company_id?: string | null
@@ -504,12 +510,17 @@ export type Database = {
           id?: string
           is_favorite?: boolean
           locations?: string[] | null
+          show_client_to_talent?: boolean
           start_date?: string | null
           status?: string | null
+          talent_instructions?: string | null
           title: string
           updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
         }
         Update: {
+          call_datetime?: string | null
           category?: string | null
           client_password_hash?: string | null
           company_id?: string | null
@@ -525,10 +536,14 @@ export type Database = {
           id?: string
           is_favorite?: boolean
           locations?: string[] | null
+          show_client_to_talent?: boolean
           start_date?: string | null
           status?: string | null
+          talent_instructions?: string | null
           title?: string
           updated_at?: string
+          venue_address?: string | null
+          venue_name?: string | null
         }
         Relationships: [
           {
@@ -995,8 +1010,11 @@ export type Database = {
           id: string
           notes: string | null
           profile_id: string
+          published_at: string | null
+          published_to_talent: boolean
           status: string
           status_changed_at: string
+          talent_opened_at: string | null
           talent_status: string
           updated_at: string
         }
@@ -1008,8 +1026,11 @@ export type Database = {
           id?: string
           notes?: string | null
           profile_id: string
+          published_at?: string | null
+          published_to_talent?: boolean
           status?: string
           status_changed_at?: string
+          talent_opened_at?: string | null
           talent_status?: string
           updated_at?: string
         }
@@ -1021,8 +1042,11 @@ export type Database = {
           id?: string
           notes?: string | null
           profile_id?: string
+          published_at?: string | null
+          published_to_talent?: boolean
           status?: string
           status_changed_at?: string
+          talent_opened_at?: string | null
           talent_status?: string
           updated_at?: string
         }
@@ -1409,6 +1433,10 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }[]
+      }
+      mark_engagement_opened: {
+        Args: { p_role_talent_id: string }
+        Returns: undefined
       }
       remove_team_member: { Args: { p_user_id: string }; Returns: undefined }
       set_casting_client_password: {

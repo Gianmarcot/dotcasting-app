@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -44,6 +45,11 @@ const castingSchema = z.object({
   compensation_amount: z.string().optional(),
   compensation_type: z.string().optional(),
   currency: z.string().optional(),
+  call_datetime: z.string().optional(),
+  venue_name: z.string().optional(),
+  venue_address: z.string().optional(),
+  talent_instructions: z.string().optional(),
+  show_client_to_talent: z.boolean().optional(),
 });
 
 type CastingFormValues = z.infer<typeof castingSchema>;
@@ -104,6 +110,11 @@ export const CastingFormDialog = ({
       compensation_amount: "",
       compensation_type: "",
       currency: "EUR",
+      call_datetime: "",
+      venue_name: "",
+      venue_address: "",
+      talent_instructions: "",
+      show_client_to_talent: false,
     },
   });
 
@@ -120,6 +131,13 @@ export const CastingFormDialog = ({
         compensation_amount: casting.compensation_amount?.toString() || "",
         compensation_type: casting.compensation_type || "",
         currency: casting.currency || "EUR",
+        call_datetime: (casting as any).call_datetime
+          ? new Date((casting as any).call_datetime).toISOString().slice(0, 16)
+          : "",
+        venue_name: (casting as any).venue_name || "",
+        venue_address: (casting as any).venue_address || "",
+        talent_instructions: (casting as any).talent_instructions || "",
+        show_client_to_talent: !!(casting as any).show_client_to_talent,
       });
     } else {
       form.reset({
@@ -133,6 +151,11 @@ export const CastingFormDialog = ({
         compensation_amount: "",
         compensation_type: "",
         currency: "EUR",
+        call_datetime: "",
+        venue_name: "",
+        venue_address: "",
+        talent_instructions: "",
+        show_client_to_talent: false,
       });
     }
   }, [casting, form, open]);
@@ -404,6 +427,90 @@ export const CastingFormDialog = ({
                 )}
               />
             </div>
+
+            <div className="border-t border-divider pt-4 space-y-4">
+              <p className="text-sm font-medium text-foreground">Convocazione (visibile ai talent pubblicati)</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="call_datetime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data e ora convocazione</FormLabel>
+                      <FormControl>
+                        <Input type="datetime-local" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="venue_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Es. Superstudio" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="venue_address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Indirizzo completo</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Via Tortona, 27 — 20144, Milano" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="talent_instructions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Istruzioni per il talent</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={3}
+                        placeholder="Cosa portare, come presentarsi, note operative."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="show_client_to_talent"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between gap-4">
+                    <div>
+                      <FormLabel>Mostra il nome del cliente ai talent</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Disattivato: i talent vedono solo il titolo del progetto.
+                      </p>
+                    </div>
+                    <FormControl>
+                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
 
             <div className="flex justify-end gap-3 pt-4">
               <Button

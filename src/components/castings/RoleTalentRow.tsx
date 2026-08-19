@@ -13,7 +13,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Send, RotateCcw, MessageSquare, Trash2, ChevronRight } from "lucide-react";
+import { Send, RotateCcw, MessageSquare, Trash2, Eye, EyeOff } from "lucide-react";
+import { useToggleEngagementPublished } from "@/hooks/useTalentEngagements";
+import { toast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
@@ -59,6 +61,28 @@ export const RoleTalentRow = ({
   onRemove,
 }: Props) => {
   const navigate = useNavigate();
+  const togglePublished = useToggleEngagementPublished();
+  const isPublished = !!(rt as any).published_to_talent;
+
+  const handleTogglePublished = async () => {
+    try {
+      await togglePublished.mutateAsync({
+        id: rt.id,
+        published: !isPublished,
+        roleId: rt.casting_role_id,
+      });
+      toast({
+        title: isPublished
+          ? "Ingaggio nascosto al talent"
+          : "Ingaggio pubblicato al talent",
+        description: isPublished
+          ? "Non è più visibile in \"I miei casting\" del talent."
+          : "Ora compare in \"I miei casting\" del talent con data, luogo e istruzioni.",
+      });
+    } catch {
+      toast({ title: "Errore", variant: "destructive" });
+    }
+  };
   const age = getAge(rt.profile?.birth_date ?? null);
   const talentSt = (rt.talent_status || "none") as TalentStatus;
   const companySt = (rt.company_status || "none") as CompanyStatus;
@@ -134,6 +158,27 @@ export const RoleTalentRow = ({
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-1" onClick={stop} onKeyDown={stop}>
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-md"
+                onClick={handleTogglePublished}
+                disabled={togglePublished.isPending}
+                aria-label={isPublished ? "Nascondi al talent" : "Pubblica al talent"}
+                className={cn(isPublished && "text-[#729128]")}
+              >
+                {isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[240px]">
+              {isPublished
+                ? "Visibile al talent in \"I miei casting\". Clicca per nasconderlo."
+                : "Non visibile al talent. Clicca per pubblicare l'ingaggio (data, luogo e istruzioni)."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <TooltipProvider delayDuration={200}>
             {showSendInvite && (

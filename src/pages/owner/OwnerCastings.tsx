@@ -76,6 +76,13 @@ export const OwnerCastings = () => {
           : null,
         compensation_type: (data.compensation_type as string) || null,
         currency: (data.currency as string) || "EUR",
+        call_datetime: data.call_datetime
+          ? new Date(data.call_datetime as string).toISOString()
+          : null,
+        venue_name: (data.venue_name as string) || null,
+        venue_address: (data.venue_address as string) || null,
+        talent_instructions: (data.talent_instructions as string) || null,
+        show_client_to_talent: !!data.show_client_to_talent,
       };
 
       if (selectedCasting) {
