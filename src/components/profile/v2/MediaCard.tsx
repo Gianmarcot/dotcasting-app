@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Camera, Clapperboard, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,6 @@ import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
-
-const PHOTO_CATEGORIES = MEDIA_CATEGORIES.filter((c) => c.type === "photo");
 
 const VIDEO_HELP =
   "Formati accettati MP4, MOV o WEBM, massimo 100MB. Il video resta visibile solo a te e allo staff dell'agenzia fino a quando non viene condiviso in una selezione.";
@@ -81,40 +79,80 @@ const VideoBlock = ({
   );
 };
 
+const TILE_WIDTH = 140;
+const TILE_GAP = 16;
+
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
   const [galleryOpen, setGalleryOpen] = useState(false);
-  const photos = (media ?? []).filter((m) => m.media_type === "photo");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [capacity, setCapacity] = useState(4);
+  console.log("[MediaCard] render, ref exists:", !!containerRef.current);
 
-  const previews = PHOTO_CATEGORIES.map((category) => ({
-    category: category.key as string,
-    photo: photos.find((p) => p.category === category.key),
-  })).filter((p) => p.photo);
+  const photos = (media ?? [])
+    .filter((m) => m.media_type === "photo")
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  const shown = previews.slice(0, 4);
-  const remaining = photos.length - shown.length;
+  useEffect(() => {
+    console.log("[MediaCard] effect running, photos count:", photos.length, "ref exists:", !!containerRef.current);
+    const el = containerRef.current;
+    if (!el) return;
+
+    const update = () => {
+      const width = el.clientWidth;
+      const cap = Math.max(1, Math.floor((width + TILE_GAP) / (TILE_WIDTH + TILE_GAP)));
+      console.log("[MediaCard] resize observer width", width, "capacity", cap);
+      el.setAttribute("data-capacity", String(cap));
+      setCapacity(cap);
+    };
+
+    // Initial measurement deferred to allow layout to settle
+    const initialTimer = setTimeout(update, 50);
+
+    let ro: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(update);
+      ro.observe(el);
+    } else {
+      window.addEventListener("resize", update);
+    }
+
+    return () => {
+      clearTimeout(initialTimer);
+      if (ro) ro.disconnect();
+      else window.removeEventListener("resize", update);
+    };
+  }, [photos.length]);
+
+  const shownCount = photos.length <= capacity ? photos.length : Math.max(0, capacity - 1);
+  const shownPhotos = photos.slice(0, shownCount);
+  const remaining = photos.length - shownCount;
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
       <div className="rounded-2xl border border-dashed border-border p-6">
-        {shown.length > 0 ? (
-          <div className="flex flex-wrap items-start justify-center gap-4">
-            {shown.map(({ category, photo }) => (
-              <div key={category} className="relative w-[140px]">
+        {photos.length > 0 ? (
+          <div ref={containerRef} data-capacity-render={capacity} className="flex flex-nowrap gap-4 overflow-hidden">
+            {shownPhotos.map((photo) => (
+              <div key={photo.id} className="relative w-[140px] flex-shrink-0">
                 <img
-                  src={photo!.url}
-                  alt={getCategoryLabel(category)}
+                  src={photo.url}
+                  alt={getCategoryLabel(photo.category)}
                   className="aspect-[2/3] w-full rounded-xl object-cover"
                 />
                 <span className="absolute left-1/2 top-2 max-w-[124px] -translate-x-1/2 truncate rounded-full bg-background px-3 py-1 text-xs text-foreground">
-                  {getCategoryLabel(category)}
+                  {getCategoryLabel(photo.category)}
                 </span>
               </div>
             ))}
             {remaining > 0 && (
-              <div className="flex aspect-[2/3] w-[140px] items-center justify-center rounded-xl bg-muted text-[15px] text-field-label">
+              <button
+                type="button"
+                onClick={() => setGalleryOpen(true)}
+                className="flex aspect-[2/3] w-[140px] flex-shrink-0 items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80"
+              >
                 + {remaining} foto
-              </div>
+              </button>
             )}
           </div>
         ) : (
