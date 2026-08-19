@@ -36,13 +36,21 @@ import { PHOTO_CATEGORIES, getCategoryMin } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import {
   useDeleteMedia,
-  useReplaceMediaFile,
+  useSaveMediaCrops,
   useTalentMedia,
   useUpdateMediaOrder,
   useUploadMedia,
   type TalentMedia,
 } from "@/hooks/useTalentMedia";
 import { useProfileForm } from "../ProfileFormContext";
+import {
+  getCropRect,
+  getCropUrl,
+  getOriginalUrl,
+  hasCrop,
+  type CropRatio,
+} from "@/lib/media/crops";
+import type { CropResult } from "@/components/profile/ImageCropModal";
 
 const UNDO_MS = 6000;
 
@@ -59,6 +67,7 @@ const PhotoTile = ({
   index,
   total,
   showBadges,
+  isProfilePhoto,
   busy,
   onCrop,
   onDelete,
@@ -68,6 +77,7 @@ const PhotoTile = ({
   index: number;
   total: number;
   showBadges: boolean;
+  isProfilePhoto: boolean;
   busy: boolean;
   onCrop: () => void;
   onDelete: () => void;
@@ -92,10 +102,28 @@ const PhotoTile = ({
     >
       <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
 
-      {badge && (
-        <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-background/90 px-3 py-1 text-xs text-foreground">
-          {badge}
-        </span>
+      {(badge || isProfilePhoto) && (
+        <div className="pointer-events-none absolute inset-x-2 bottom-2 flex flex-wrap items-center gap-1">
+          {badge && (
+            <span className="rounded-full bg-background/90 px-3 py-1 text-xs text-foreground">
+              {badge}
+            </span>
+          )}
+          {isProfilePhoto &&
+            (["2:3", "1:1"] as CropRatio[]).map((ratio) => (
+              <span
+                key={ratio}
+                className={cn(
+                  "rounded-full px-2 py-1 text-[11px]",
+                  hasCrop(media, ratio)
+                    ? "bg-foreground/85 text-background"
+                    : "bg-background/70 text-field-label"
+                )}
+              >
+                {ratio}
+              </span>
+            ))}
+        </div>
       )}
 
       {busy && (
@@ -160,7 +188,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
   const { profileRow, saveNow } = useProfileForm();
   const upload = useUploadMedia();
   const remove = useDeleteMedia();
-  const replace = useReplaceMediaFile();
+  const saveCrops = useSaveMediaCrops();
   const reorder = useUpdateMediaOrder();
 
   const [category, setCategory] = useState<MediaCategory>(initialCategory ?? "main_photos");
@@ -202,10 +230,13 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
   const belowMin = min !== undefined && photos.length < min;
 
   // La prima foto principale è anche la foto profilo del talent.
-  const mainFirstUrl = useMemo(() => {
-    if (category === "main_photos") return photos[0]?.url;
-    return firstOf("main_photos")?.url;
+  const mainFirst = useMemo(() => {
+    if (category === "main_photos") return photos[0];
+    return firstOf("main_photos");
   }, [photos, category, media, pendingDelete]);
+
+  // L'avatar usa il ritaglio 1:1 quando presente, altrimenti la foto principale.
+  const mainFirstUrl = mainFirst ? getCropUrl(mainFirst, "1:1") : undefined;
 
   useEffect(() => {
     if (!open || !mainFirstUrl || !profileRow) return;
@@ -283,22 +314,28 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
     });
   };
 
-  const handleCropSave = async (blob: Blob) => {
+  const handleCropSave = async (results: CropResult[]) => {
     if (!cropTarget || !profileRow?.user_id) return;
+    if (!results.length) {
+      setCropTarget(null);
+      return;
+    }
     setSavingId(cropTarget.id);
     try {
-      await replace.mutateAsync({
-        mediaId: cropTarget.id,
-        oldUrl: cropTarget.url,
-        newFile: blob,
+      await saveCrops.mutateAsync({
+        media: cropTarget,
         userId: profileRow.user_id,
-        crop: { ratio: "2:3", rect: { applied: 1 } },
+        crops: results,
       });
       setCropTarget(null);
     } finally {
       setSavingId(null);
     }
   };
+
+  /** Solo la prima foto principale (che fa da foto profilo) ha anche il ritaglio 1:1. */
+  const isProfilePhoto = (item: TalentMedia) =>
+    category === "main_photos" && photos[0]?.id === item.id;
 
   useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
@@ -417,6 +454,7 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
                       index={index}
                       total={photos.length}
                       showBadges={category === "main_photos"}
+                      isProfilePhoto={isProfilePhoto(item)}
                       busy={savingId === item.id}
                       onCrop={() => setCropTarget(item)}
                       onDelete={() => handleDelete(item)}
@@ -451,10 +489,15 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
           {cropTarget && (
             <ImageCropModal
               open
-              imageSrc={cropTarget.url}
+              imageSrc={getOriginalUrl(cropTarget)}
+              ratios={isProfilePhoto(cropTarget) ? ["2:3", "1:1"] : ["2:3"]}
+              initialRects={{
+                "2:3": getCropRect(cropTarget, "2:3"),
+                "1:1": getCropRect(cropTarget, "1:1"),
+              }}
               isSaving={savingId === cropTarget.id}
               onClose={() => setCropTarget(null)}
-              onCropComplete={handleCropSave}
+              onSave={handleCropSave}
             />
           )}
         </DialogPrimitive.Content>
