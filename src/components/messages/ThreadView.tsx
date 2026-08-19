@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CalendarClock, CircleCheck, Link2, Upload } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Message } from "@/hooks/useMessages";
@@ -40,6 +41,23 @@ const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
         )}
       >
         <p className="text-sm whitespace-pre-wrap break-words">{message.body}</p>
+        {message.action_type && (
+          <span
+            className={cn(
+              "mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px]",
+              isOwn ? "bg-primary-foreground/15" : "bg-background"
+            )}
+          >
+            {message.action_type === "upload" && <Upload className="h-3 w-3" />}
+            {message.action_type === "link" && <Link2 className="h-3 w-3" />}
+            {message.action_type === "availability" && <CalendarClock className="h-3 w-3" />}
+            {message.action_type === "upload"
+              ? "Materiale richiesto"
+              : message.action_type === "link"
+                ? "Rimando al profilo"
+                : "Disponibilità richiesta"}
+          </span>
+        )}
         <p
           className={cn(
             "text-[10px] mt-1",
@@ -52,6 +70,22 @@ const MessageBubble = ({ message, isOwn }: MessageBubbleProps) => {
     </div>
   );
 };
+
+/** Voce di sistema: azione compiuta dal talent, distinta dai messaggi dell'operatore. */
+const SystemEntry = ({ message }: { message: Message }) => (
+  <div className="flex justify-center">
+    <div className="flex max-w-[85%] items-center gap-2 rounded-full border border-dashed border-border px-3 py-1.5 text-xs text-muted-foreground">
+      <CircleCheck className="h-3.5 w-3.5 shrink-0" />
+      <span className="break-words">{message.body}</span>
+      <span className="shrink-0 opacity-70">
+        {new Date(message.created_at).toLocaleTimeString("it-IT", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </span>
+    </div>
+  </div>
+);
 
 interface ThreadViewProps {
   messages: Message[];
@@ -114,13 +148,17 @@ export const ThreadView = ({ messages, isLoading }: ThreadViewProps) => {
             </span>
           </div>
           <div className="space-y-3">
-            {msgs.map((message) => (
+            {msgs.map((message) =>
+              message.kind === "system" ? (
+                <SystemEntry key={message.id} message={message} />
+              ) : (
               <MessageBubble
                 key={message.id}
                 message={message}
                 isOwn={message.sender_user_id === user?.id}
               />
-            ))}
+              )
+            )}
           </div>
         </div>
       ))}
