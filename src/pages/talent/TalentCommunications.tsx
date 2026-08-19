@@ -35,6 +35,9 @@ export const TalentCommunications = () => {
   const markRead = useMarkCommunicationRead();
   const bottomRef = useRef<HTMLDivElement>(null);
   const lastCount = useRef(0);
+  /** Snapshot di sessione: gli id nuovi restano evidenziati fino all'uscita. */
+  const newIds = useRef<Set<string>>(new Set());
+  const marked = useRef(false);
 
   const phone = (settings?.contact_phone || "").replace(/[^\d]/g, "");
   const waHref = phone
@@ -49,6 +52,18 @@ export const TalentCommunications = () => {
       ),
     [communications]
   );
+
+  // Aggiunge (mai rimuove) i non letti allo snapshot, e marca una sola volta per mount.
+  const unread = (communications ?? []).filter((c) => !c.read_at);
+  unread.forEach((c) => newIds.current.add(c.id));
+
+  useEffect(() => {
+    if (isLoading || !communications || marked.current) return;
+    const ids = communications.filter((c) => !c.read_at).map((c) => c.id);
+    if (ids.length === 0) return;
+    marked.current = true;
+    void supabase.rpc("mark_messages_read", { message_ids: ids });
+  }, [isLoading, communications]);
 
   // All'apertura (e quando arrivano nuove comunicazioni) la vista resta sull'ultimo messaggio.
   useEffect(() => {
