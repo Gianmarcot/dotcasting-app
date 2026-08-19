@@ -10,7 +10,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export type CommunicationActionType = "link" | "upload" | "availability" | null;
+export type CommunicationActionType = "link" | "upload" | "availability" | "whatsapp" | null;
 
 export interface CommunicationActionPayload {
   href?: string;
