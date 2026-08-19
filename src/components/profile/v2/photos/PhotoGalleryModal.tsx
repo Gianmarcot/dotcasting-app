@@ -238,12 +238,21 @@ export const PhotoGalleryModal = ({ open, onOpenChange, initialCategory }: Photo
   // L'avatar usa il ritaglio 1:1 quando presente, altrimenti la foto principale.
   const mainFirstUrl = mainFirst ? getCropUrl(mainFirst, "1:1") : undefined;
 
+  // Ogni URL viene sincronizzato una sola volta: senza questa guardia
+  // l'invalidazione della query profilo rilancerebbe l'effetto all'infinito.
+  const syncedPhotoUrl = useRef<string | null>(null);
+
   useEffect(() => {
     if (!open || !mainFirstUrl || !profileRow) return;
-    if (profileRow.profile_photo_url !== mainFirstUrl) {
-      saveNow("p", { profile_photo_url: mainFirstUrl });
+    if (profileRow.profile_photo_url === mainFirstUrl) {
+      syncedPhotoUrl.current = mainFirstUrl;
+      return;
     }
-  }, [open, mainFirstUrl, profileRow, saveNow]);
+    if (syncedPhotoUrl.current === mainFirstUrl) return;
+    syncedPhotoUrl.current = mainFirstUrl;
+    saveNow("p", { profile_photo_url: mainFirstUrl });
+  }, [open, mainFirstUrl, profileRow?.profile_photo_url, saveNow]);
+
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
