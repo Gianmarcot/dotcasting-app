@@ -14,7 +14,14 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  FieldCluster,
+  FloatingInput,
+  FloatingSelect,
+  FloatingTextarea,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Surface } from "@/components/ui/surface";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -440,6 +447,78 @@ const TypographySection = () => (
   </Section>
 );
 
+const FloatingFieldsShowcase = () => {
+  const [nome, setNome] = useState("Gianmarco Varetti");
+  const [empty, setEmpty] = useState("");
+  const [cf, setCf] = useState("ABC");
+  const [bio, setBio] = useState("");
+  const [citta, setCitta] = useState("Milano");
+  const [day, setDay] = useState("12");
+  const [month, setMonth] = useState("07");
+  const [year, setYear] = useState("1994");
+
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <FloatingInput label="Nome e cognome" value={nome} onChange={setNome} />
+        <FloatingInput label="Nome e cognome" value={empty} onChange={setEmpty} />
+        <FloatingInput label="Nome e cognome" value="Non modificabile" onChange={() => {}} disabled />
+        <FloatingInput
+          label="Codice fiscale"
+          value={cf}
+          onChange={setCf}
+          error="Codice fiscale non valido"
+        />
+        <FloatingInput
+          label="Altezza"
+          value="178"
+          onChange={() => {}}
+          prefix="cm"
+          inputMode="numeric"
+        />
+        <FloatingSelect
+          label="Città"
+          value={citta}
+          onValueChange={setCitta}
+          options={[
+            { value: "Milano", label: "Milano" },
+            { value: "Torino", label: "Torino" },
+            { value: "Roma", label: "Roma" },
+          ]}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <p className="mb-2 text-[15px] font-medium text-group-label">Data di nascita</p>
+          <FieldCluster>
+            <FloatingInput label="GG" value={day} onChange={setDay} inputMode="numeric" maxLength={2} />
+            <FloatingInput label="MM" value={month} onChange={setMonth} inputMode="numeric" maxLength={2} />
+            <FloatingInput label="AAAA" value={year} onChange={setYear} inputMode="numeric" maxLength={4} />
+          </FieldCluster>
+        </div>
+        <FloatingTextarea label="Racconta di te" value={bio} onChange={setBio} />
+      </div>
+
+      <Surface
+        variant="muted"
+        className="grid gap-4 rounded-3xl p-6 sm:grid-cols-2"
+      >
+        <FloatingInput label="Su fondo crema" value={empty} onChange={setEmpty} />
+        <FloatingSelect
+          label="Su fondo crema"
+          value={citta}
+          onValueChange={setCitta}
+          options={[
+            { value: "Milano", label: "Milano" },
+            { value: "Torino", label: "Torino" },
+          ]}
+        />
+      </Surface>
+    </div>
+  );
+};
+
 const PrimitivesSection = () => (
   <Section
     id="primitives"
@@ -549,7 +628,14 @@ const PrimitivesSection = () => (
     </SubBlock>
 
 
-    <SubBlock title="Form controls" source="input, textarea, select, checkbox, radio, switch, slider">
+    <SubBlock
+      title="Campi (standard)"
+      source="ui/field — floating label, colori dai token --field-* della Surface"
+    >
+      <FloatingFieldsShowcase />
+    </SubBlock>
+
+    <SubBlock title="Campi compatti + altri controlli" source="input, textarea, select, checkbox, radio, switch, slider">
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-2">
           <Label>Input</Label>

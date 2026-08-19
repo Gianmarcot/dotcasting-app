@@ -9,6 +9,45 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Surface, type SurfaceVariant } from "@/components/ui/surface";
+import { useState } from "react";
+import {
+  FloatingInput,
+  FloatingSelect,
+  FloatingTextarea,
+} from "@/components/ui/field";
+
+/** Riga con i campi standard (floating label) nei vari stati. */
+const FloatingRow = () => {
+  const [filled, setFilled] = useState("Gianmarco Varetti");
+  const [empty, setEmpty] = useState("");
+  const [city, setCity] = useState("Milano");
+  const [note, setNote] = useState("");
+
+  return (
+    <div className="mt-8 grid max-w-[1000px] grid-cols-1 gap-6 md:grid-cols-4">
+      <FloatingInput label="Nome e cognome" value={filled} onChange={setFilled} />
+      <FloatingInput label="Nome e cognome" value={empty} onChange={setEmpty} />
+      <FloatingInput label="Nome e cognome" value="Bloccato" onChange={() => {}} disabled />
+      <FloatingSelect
+        label="Città"
+        value={city}
+        onValueChange={setCity}
+        options={[
+          { value: "Milano", label: "Milano" },
+          { value: "Torino", label: "Torino" },
+          { value: "Roma", label: "Roma" },
+        ]}
+      />
+      <FloatingInput
+        label="Codice fiscale"
+        value="ABC"
+        onChange={() => {}}
+        error="Codice fiscale non valido"
+      />
+      <FloatingTextarea label="Note" value={note} onChange={setNote} className="md:col-span-3" />
+    </div>
+  );
+};
 
 const SURFACES: { variant: SurfaceVariant; label: string }[] = [
   { variant: "base", label: "base — fondo bianco" },
@@ -60,6 +99,12 @@ const Matrix = ({ variant, label }: { variant: SurfaceVariant; label: string }) 
   <Surface variant={variant} className="rounded-3xl p-8">
     <p className="mb-6 font-display text-xl uppercase">{label}</p>
 
+    <StateLabel>Standard — floating label</StateLabel>
+    <FloatingRow />
+
+    <p className="mb-2 mt-10 text-xs uppercase tracking-wide opacity-70">
+      Compatti — input/select/textarea base
+    </p>
     <div className="grid max-w-[1000px] grid-cols-1 gap-6 md:grid-cols-4">
       <Column title="Filled">
         <Input defaultValue="Gianmarco Varetti" />
