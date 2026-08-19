@@ -3,8 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { FloatingInput } from "@/components/ui/field";
+import { Surface } from "@/components/ui/surface";
+
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -195,54 +196,48 @@ export const AuthPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{it.auth.email}</Label>
-              <Input
-                id="email"
+          <Surface variant="muted" className="bg-transparent">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <FloatingInput
+                label={it.auth.email}
                 type="email"
-                placeholder="nome@esempio.it"
+                inputMode="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
+                onChange={setEmail}
               />
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password">{it.auth.password}</Label>
-              <Input
-                id="password"
+              <FloatingInput
+                label={it.auth.password}
                 type="password"
-                placeholder="••••••••"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
+                onChange={setPassword}
               />
-            </div>
 
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{it.auth.confirmPassword}</Label>
-                <Input
-                  id="confirmPassword"
+              {!isLogin && (
+                <FloatingInput
+                  label={it.auth.confirmPassword}
                   type="password"
-                  placeholder="••••••••"
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
+                  onChange={setConfirmPassword}
+                  error={
+                    confirmPassword && confirmPassword !== password
+                      ? it.validation.passwordMatch
+                      : null
+                  }
                 />
-              </div>
-            )}
+              )}
 
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isLoading}
-            >
-              {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={isLoading}
+              >
+                {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
+              </Button>
+            </form>
+          </Surface>
+
 
           <div className="mt-6 text-center">
             <button
