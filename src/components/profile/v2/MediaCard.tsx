@@ -3,10 +3,11 @@ import { Camera, Clapperboard, Loader2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia, useUploadMedia } from "@/hooks/useTalentMedia";
-import { MEDIA_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
+import { MEDIA_CATEGORIES, PHOTO_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
+import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const VIDEO_HELP =
@@ -86,7 +87,22 @@ const MOBILE_COLS = 3;
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedCategory = searchParams.get("photos");
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<MediaCategory>("main_photos");
+
+  // Deep link da una comunicazione: apre la gestione foto sulla categoria indicata
+  useEffect(() => {
+    if (!requestedCategory) return;
+    if (PHOTO_CATEGORIES.some((c) => c.key === requestedCategory)) {
+      setInitialCategory(requestedCategory as MediaCategory);
+      setGalleryOpen(true);
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("photos");
+    setSearchParams(next, { replace: true });
+  }, [requestedCategory]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
 
@@ -174,7 +190,7 @@ export const MediaCard = () => {
       <VideoBlock category="intro_video" title="Video di presentazione" buttonLabel="Carica un video" />
       <VideoBlock category="showreel" title="Showreel Professionale" buttonLabel="Carica un video" />
 
-      <PhotoGalleryModal open={galleryOpen} onOpenChange={setGalleryOpen} initialCategory="main_photos" />
+      <PhotoGalleryModal open={galleryOpen} onOpenChange={setGalleryOpen} initialCategory={initialCategory} />
     </SectionCard>
   );
 };

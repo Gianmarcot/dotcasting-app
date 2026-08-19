@@ -1,25 +1,25 @@
 import { Link, useLocation } from "react-router-dom";
 import { useRef } from "react";
-import { Bookmark, User, MessageSquare, LogOut, Settings, Bell } from "lucide-react";
+import { Bookmark, User, Megaphone, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
+import { useUnreadCommunicationsCount } from "@/hooks/useCommunications";
 import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
 import logo from "@/assets/logo.png";
 
 const navItems = [
   { icon: User, label: it.nav.profile, href: "/talent/profile" },
   { icon: Bookmark, label: it.nav.myCastings, href: "/talent/applications" },
-  { icon: MessageSquare, label: it.nav.messages, href: "/talent/messages" },
+  { icon: Megaphone, label: it.nav.communications, href: "/talent/communications" },
 ];
 
 export const TalentSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
-  const unreadCount = useUnreadNotificationsCount();
+  const unreadCount = useUnreadCommunicationsCount();
 
   const handleLogout = async () => {
     await signOut();
@@ -97,6 +97,7 @@ export const TalentSidebar = () => {
             const isActive =
               location.pathname === item.href ||
               location.pathname.startsWith(item.href + "/");
+            const showBadge = item.href === "/talent/communications" && unreadCount > 0;
             return (
               <li key={item.href}>
                 <Link
@@ -104,7 +105,12 @@ export const TalentSidebar = () => {
                   className={isActive ? "dc-sidebar-nav-item-active" : "dc-sidebar-nav-item-inactive"}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  <span className="flex-1">{item.label}</span>
+                  {showBadge && (
+                    <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-medium text-primary-foreground">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  )}
                 </Link>
               </li>
             );
@@ -142,22 +148,6 @@ export const TalentSidebar = () => {
           </div>
         </div>
 
-        <Link
-          to="/talent/notifications"
-          className={
-            location.pathname.startsWith("/talent/notifications")
-              ? "dc-sidebar-nav-item-active"
-              : "dc-sidebar-nav-item-inactive"
-          }
-        >
-          <Bell className="h-4 w-4" />
-          <span className="flex-1">Notifiche</span>
-          {unreadCount > 0 && (
-            <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </Link>
 
         <Link
           to="/talent/settings"

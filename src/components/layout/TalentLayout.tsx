@@ -4,10 +4,12 @@ import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNavTalent } from "./MobileBottomNavTalent";
 import { useOnboardingCheck } from "@/hooks/useOnboardingCheck";
 import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
+import { useCommunicationSync } from "@/hooks/useCommunicationSync";
 
 export const TalentLayout = () => {
   const { isLoading, isOnboardingComplete } = useOnboardingCheck();
   const { width } = useOwnerSidebarWidth();
+  useCommunicationSync();
 
   if (isLoading) {
     return (

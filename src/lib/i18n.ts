@@ -7,6 +7,7 @@ export const it = {
     profile: "Profilo",
     applications: "Candidature",
     messages: "Messaggi",
+    communications: "Comunicazioni",
     
     settings: "Impostazioni",
     account: "Account",

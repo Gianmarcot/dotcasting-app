@@ -555,6 +555,93 @@ export type Database = {
           },
         ]
       }
+      communications: {
+        Row: {
+          action_payload: Json
+          action_type: string | null
+          batch_id: string | null
+          body: string | null
+          created_at: string
+          created_by_user_id: string | null
+          deadline: string | null
+          dedupe_key: string | null
+          id: string
+          message_id: string | null
+          read_at: string | null
+          resolved_at: string | null
+          responded_at: string | null
+          response: string | null
+          response_note: string | null
+          severity: string
+          talent_user_id: string
+          thread_id: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          action_payload?: Json
+          action_type?: string | null
+          batch_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          deadline?: string | null
+          dedupe_key?: string | null
+          id?: string
+          message_id?: string | null
+          read_at?: string | null
+          resolved_at?: string | null
+          responded_at?: string | null
+          response?: string | null
+          response_note?: string | null
+          severity?: string
+          talent_user_id: string
+          thread_id?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          action_payload?: Json
+          action_type?: string | null
+          batch_id?: string | null
+          body?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          deadline?: string | null
+          dedupe_key?: string | null
+          id?: string
+          message_id?: string | null
+          read_at?: string | null
+          resolved_at?: string | null
+          responded_at?: string | null
+          response?: string | null
+          response_note?: string | null
+          severity?: string
+          talent_user_id?: string
+          thread_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communications_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communications_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "message_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           contacts_json: Json | null
@@ -743,25 +830,34 @@ export type Database = {
       }
       messages: {
         Row: {
+          action_payload: Json
+          action_type: string | null
           body: string
           created_at: string
           id: string
+          kind: string
           read_at: string | null
           sender_user_id: string | null
           thread_id: string
         }
         Insert: {
+          action_payload?: Json
+          action_type?: string | null
           body: string
           created_at?: string
           id?: string
+          kind?: string
           read_at?: string | null
           sender_user_id?: string | null
           thread_id: string
         }
         Update: {
+          action_payload?: Json
+          action_type?: string | null
           body?: string
           created_at?: string
           id?: string
+          kind?: string
           read_at?: string | null
           sender_user_id?: string | null
           thread_id?: string
