@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { format, isSameDay, isToday, isYesterday } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import {
   useCommunications,
@@ -129,6 +130,7 @@ export const TalentCommunications = () => {
                   agencyName={settings?.agency_name}
                   agencyLogoUrl={settings?.agency_logo_url}
                   agencyPhone={settings?.contact_phone}
+                  isNew={newIds.current.has(comm.id)}
                   onOpen={handleOpen}
                 />
               </div>
