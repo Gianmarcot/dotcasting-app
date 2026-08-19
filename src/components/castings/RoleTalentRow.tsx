@@ -158,6 +158,27 @@ export const RoleTalentRow = ({
 
       {/* Actions */}
       <div className="flex items-center justify-end gap-1" onClick={stop} onKeyDown={stop}>
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-md"
+                onClick={handleTogglePublished}
+                disabled={togglePublished.isPending}
+                aria-label={isPublished ? "Nascondi al talent" : "Pubblica al talent"}
+                className={cn(isPublished && "text-[#729128]")}
+              >
+                {isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[240px]">
+              {isPublished
+                ? "Visibile al talent in \"I miei casting\". Clicca per nasconderlo."
+                : "Non visibile al talent. Clicca per pubblicare l'ingaggio (data, luogo e istruzioni)."}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <TooltipProvider delayDuration={200}>
             {showSendInvite && (
