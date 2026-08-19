@@ -19,7 +19,8 @@ import { TalentLayout } from "@/components/layout/TalentLayout";
 import { OwnerLayout } from "@/components/layout/OwnerLayout";
 
 // Talent pages
-import TalentApplications from "./pages/talent/TalentApplications";
+import TalentCastings from "./pages/talent/TalentCastings";
+import TalentCastingDetail from "./pages/talent/TalentCastingDetail";
 import TalentMessages from "./pages/talent/TalentMessages";
 import TalentProfile from "./pages/talent/TalentProfileV2";
 import TalentSettings from "./pages/talent/TalentSettings";
@@ -84,7 +85,8 @@ const App = () => (
               }
             >
               <Route index element={<Navigate to="/talent/profile" replace />} />
-              <Route path="applications" element={<TalentApplications />} />
+              <Route path="applications" element={<TalentCastings />} />
+              <Route path="applications/:engagementId" element={<TalentCastingDetail />} />
               <Route path="messages" element={<TalentMessages />} />
               <Route path="profile" element={<TalentProfile />} />
               <Route path="profile/preview" element={<TalentPublicProfile />} />
