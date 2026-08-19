@@ -146,6 +146,7 @@
     --field-border-focus: var(--ink);
     --field-icon: var(--field-label);
     --field-icon-disabled: var(--field-label-disabled);
+    --dot-unread: var(--brand-600);
   }
 
   [data-surface="muted"] {
