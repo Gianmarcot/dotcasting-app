@@ -86,7 +86,22 @@ const MOBILE_COLS = 3;
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedCategory = searchParams.get("photos");
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<MediaCategory>("main_photos");
+
+  // Deep link da una comunicazione: apre la gestione foto sulla categoria indicata
+  useEffect(() => {
+    if (!requestedCategory) return;
+    if (PHOTO_CATEGORIES.some((c) => c.key === requestedCategory)) {
+      setInitialCategory(requestedCategory as MediaCategory);
+      setGalleryOpen(true);
+    }
+    const next = new URLSearchParams(searchParams);
+    next.delete("photos");
+    setSearchParams(next, { replace: true });
+  }, [requestedCategory]);
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
 
@@ -174,7 +189,7 @@ export const MediaCard = () => {
       <VideoBlock category="intro_video" title="Video di presentazione" buttonLabel="Carica un video" />
       <VideoBlock category="showreel" title="Showreel Professionale" buttonLabel="Carica un video" />
 
-      <PhotoGalleryModal open={galleryOpen} onOpenChange={setGalleryOpen} initialCategory="main_photos" />
+      <PhotoGalleryModal open={galleryOpen} onOpenChange={setGalleryOpen} initialCategory={initialCategory} />
     </SectionCard>
   );
 };
