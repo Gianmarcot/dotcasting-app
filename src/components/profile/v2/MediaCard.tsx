@@ -82,6 +82,7 @@ const VideoBlock = ({
 
 const TILE_WIDTH = 140;
 const TILE_GAP = 16;
+const MOBILE_COLS = 3;
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
