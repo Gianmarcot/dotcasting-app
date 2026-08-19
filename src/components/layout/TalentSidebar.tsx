@@ -148,22 +148,6 @@ export const TalentSidebar = () => {
           </div>
         </div>
 
-        <Link
-          to="/talent/notifications"
-          className={
-            location.pathname.startsWith("/talent/notifications")
-              ? "dc-sidebar-nav-item-active"
-              : "dc-sidebar-nav-item-inactive"
-          }
-        >
-          <Bell className="h-4 w-4" />
-          <span className="flex-1">Notifiche</span>
-          {unreadCount > 0 && (
-            <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </Link>
 
         <Link
           to="/talent/settings"
