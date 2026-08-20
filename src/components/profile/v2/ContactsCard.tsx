@@ -13,6 +13,8 @@ import {
 import {
   ContactEmailField,
   PhoneFields,
+  type PhoneValue,
+
 } from "@/components/profile/fields/BasicInfoFields";
 
 import { FieldSlot, useProfileForm } from "./ProfileFormContext";
