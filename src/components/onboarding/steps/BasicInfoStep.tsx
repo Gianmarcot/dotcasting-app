@@ -1,4 +1,4 @@
-import { GroupLabel } from "@/components/profile/fields/FormFields";
+import { GroupLabel, ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import {
   BirthDateFields,
   ContactEmailField,
@@ -9,6 +9,7 @@ import {
   type BasicInfoValue,
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
+
 
 export interface BasicInfoStepState extends BasicInfoValue {
   whatsapp_prefix: string;
