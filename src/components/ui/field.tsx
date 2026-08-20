@@ -162,7 +162,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
                 setFocused(false);
                 onBlur?.();
               }}
-              className="w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+              className="dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
             />
           </div>
         </FieldShell>
