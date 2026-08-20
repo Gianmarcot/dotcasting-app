@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
 import { Surface } from "@/components/ui/surface";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
-import { parseSignupMode } from "@/lib/signupMode";
+import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Users } from "lucide-react";
 import logo from "@/assets/logo.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
@@ -31,9 +32,13 @@ export const AuthPage = () => {
   const [slideIndex, setSlideIndex] = useState(0);
   const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const signupMode = parseSignupMode(searchParams.get("mode"));
   const isGuardianMode = signupMode === "guardian";
+
+  const handleModeChange = (value: SignupMode) => {
+    setSearchParams({ mode: value }, { replace: true });
+  };
 
 
   // Auto-advance slider
@@ -221,16 +226,38 @@ export const AuthPage = () => {
             </p>
 
             {!isLogin && (
-              <p className="pt-3">
-                <Link
-                  to={isGuardianMode ? "/auth" : "/auth?mode=guardian"}
-                  className="text-sm text-primary font-medium underline-offset-4 hover:underline"
-                >
-                  {isGuardianMode
-                    ? "oppure registrati come talent"
-                    : "oppure registra un minore o un adulto di cui sei tutore"}
-                </Link>
-              </p>
+              <div className="pt-3 space-y-3">
+                <SegmentedControl
+                  aria-label="Modalità di registrazione"
+                  value={signupMode}
+                  onChange={handleModeChange}
+                  options={[
+                    {
+                      value: "self",
+                      label: "Mi registro",
+                      icon: <User size={48} strokeWidth={1.25} />,
+                    },
+                    {
+                      value: "guardian",
+                      label: "Registro un minore",
+                      icon: <Users size={48} strokeWidth={1.25} />,
+                    },
+                  ]}
+                />
+                <div className="grid place-items-center text-xs font-medium text-center text-[var(--grey-600)]">
+                  <span className="col-start-1 row-start-1 invisible px-4">
+                    Crei un profilo per te.
+                  </span>
+                  <span className="col-start-1 row-start-1 invisible px-4">
+                    Crei un profilo per un minore o un adulto di cui sei tutore.
+                  </span>
+                  <span className="col-start-1 row-start-1">
+                    {isGuardianMode
+                      ? "Crei un profilo per un minore o un adulto di cui sei tutore."
+                      : "Crei un profilo per te."}
+                  </span>
+                </div>
+              </div>
             )}
           </div>
 
@@ -290,7 +317,9 @@ export const AuthPage = () => {
                     onCheckedChange={setAgeConfirmed}
                     label={
                       <span className="text-[15px] text-foreground">
-                        Confermo di essere maggiorenne
+                        {isGuardianMode
+                          ? "Confermo di essere maggiorenne e tutore legale"
+                          : "Confermo di aver compiuto 18 anni"}
                       </span>
                     }
                   />
