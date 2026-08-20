@@ -6,6 +6,7 @@
 // =============================================================
 
 import { FIELD_REGISTRY, Talent } from "./talentFields";
+import { MINOR_CONTACTS_NOTE } from "@/lib/guardianship";
 
 export interface RoundPreset {
   /** chiavi del registry visibili in questo round, qualunque gruppo */
@@ -79,6 +80,11 @@ export function resolveCard(
     const value = f.format ? f.format(raw) : String(raw);
     (f.group === "contatti" ? contacts : rows).push({ label: f.label, value });
   }
+
+  // Minore: l'indicazione sta accanto ai contatti (che sono del tutore) e non
+  // dipende dal preset — chi sceglie il talent deve sempre saperlo.
+  if (talent.is_minor) contacts.push({ label: "Tutela", value: MINOR_CONTACTS_NOTE });
+
 
   // split a metà, colonna sinistra più lunga in caso di numero dispari
   const mid = Math.ceil(rows.length / 2);

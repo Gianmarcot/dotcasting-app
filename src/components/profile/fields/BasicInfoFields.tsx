@@ -23,6 +23,11 @@ export const YEARS = Array.from({ length: 80 }, (_, i) =>
   String(new Date().getFullYear() - 16 - i)
 );
 
+/** Anni senza vincolo di età minima (profili tutelati / minori). */
+export const YEARS_ALL = Array.from({ length: 96 }, (_, i) =>
+  String(new Date().getFullYear() - i)
+);
+
 export const MONTH_OPTIONS = MONTHS.map((m, i) => ({
   value: String(i + 1).padStart(2, "0"),
   label: m,
@@ -117,11 +122,14 @@ export const BirthDateFields = ({
   onChange,
   error,
   className,
+  years = YEARS,
 }: {
   birthDate: string;
   onChange: (value: string | null) => void;
   error?: string | null;
   className?: string;
+  /** elenco anni selezionabili: default = solo maggiorenni */
+  years?: string[];
 }) => {
   const fromProp = splitBirthDate(birthDate);
   // Le parti selezionate vivono in locale: una data incompleta non è ancora
@@ -166,7 +174,7 @@ export const BirthDateFields = ({
         value={parts.year}
         error={error ? " " : undefined}
         onValueChange={(v) => setPart("year", v)}
-        options={toOptions(YEARS)}
+        options={toOptions(years)}
       />
 
     </FieldCluster>
