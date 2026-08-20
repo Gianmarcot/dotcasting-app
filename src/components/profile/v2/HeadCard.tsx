@@ -183,24 +183,12 @@ export const HeadCard = () => {
           </FieldGrid>
         </FieldSlot>
 
-        <FieldGrid cols={2}>
-          <RadioField label="Sesso">
-            <ProfileRadioGroup
-              value={str("p", "gender")}
-              onValueChange={(v) => set("p", "gender", v)}
-              options={[
-                { value: "M", label: "M" },
-                { value: "F", label: "F" },
-              ]}
-            />
-          </RadioField>
-          <FloatingSelect
-            label="Identità di genere"
-            value={str("p", "gender_identity")}
-            onValueChange={(v) => set("p", "gender_identity", v)}
-            options={toOptions(GENDER_IDENTITIES)}
-          />
-        </FieldGrid>
+        <GenderFields
+          gender={str("p", "gender")}
+          genderIdentity={str("p", "gender_identity")}
+          onChange={(patch) => setMany("p", patch)}
+        />
+
 
         <SectionDivider />
 
