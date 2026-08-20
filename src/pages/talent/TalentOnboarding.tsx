@@ -4,6 +4,7 @@ import { Camera, Tag, User } from "lucide-react";
 import { toast } from "sonner";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useUploadMedia } from "@/hooks/useTalentMedia";
@@ -146,16 +147,11 @@ export const TalentOnboarding = () => {
 
   const leave = async () => {
     if (step === 1 && !basicSaved && !profile?.onboarding_completed) {
-      await supabaseSignOut();
+      await supabase.auth.signOut();
+      navigate("/auth", { replace: true });
       return;
     }
     navigate("/talent/profile", { replace: true });
-  };
-
-  const supabaseSignOut = async () => {
-    const { supabase } = await import("@/integrations/supabase/client");
-    await supabase.auth.signOut();
-    navigate("/auth", { replace: true });
   };
 
   const handleExit = () => {
