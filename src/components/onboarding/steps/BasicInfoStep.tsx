@@ -55,12 +55,17 @@ export const BasicInfoStep = ({
     />
 
     <PhoneFields
-      prefix={value.phone_prefix}
-      number={value.phone_number}
-      whatsappSame={value.whatsapp_same}
+      value={{
+        phone_prefix: value.phone_prefix,
+        phone_number: value.phone_number,
+        whatsapp_prefix: value.whatsapp_prefix,
+        whatsapp_number: value.whatsapp_number,
+      }}
       error={errors.phone_number}
-      onChange={(prefix, number) => onChange({ phone_prefix: prefix, phone_number: number })}
-      onWhatsappSameChange={(checked) => onChange({ whatsapp_same: checked })}
+      whatsappError={whatsappError}
+      onChange={onChange}
+      onModeChange={onWhatsappModeChange}
     />
+
   </div>
 );
