@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
+import { MinorBadge } from "@/components/talents/MinorBadge";
 import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
@@ -224,6 +225,10 @@ export const TalentDetailModal = ({
               <h2 className="mt-8 font-display text-4xl uppercase leading-tight text-[#1a1a1a]">
                 {fullName}
               </h2>
+              <MinorBadge
+                birthDate={(profile as { birth_date?: string | null } | null)?.birth_date}
+                className="mt-3"
+              />
               {location && <p className="mt-2 text-[15px] text-[#686868]">{location}</p>}
 
               {sections.map((section) => (
