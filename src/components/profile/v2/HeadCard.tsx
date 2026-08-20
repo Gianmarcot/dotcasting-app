@@ -28,10 +28,6 @@ export const HeadCard = () => {
   const [galleryOpen, setGalleryOpen] = useState(false);
 
   const birthDate = str("p", "birth_date");
-  const birth = useMemo(() => {
-    const [y = "", m = "", d = ""] = birthDate.split("-");
-    return { day: d, month: m, year: y };
-  }, [birthDate]);
 
   const age = calcAge(birthDate || null);
   const isAdult = age !== null && age >= 18;
@@ -42,12 +38,6 @@ export const HeadCard = () => {
     if (ageConfirmed !== isAdult) set("p", "age_confirmed", isAdult);
   }, [isAdult, ageConfirmed, set]);
 
-  const setBirthPart = (part: "day" | "month" | "year", value: string) => {
-    const next = { ...birth, [part]: value };
-    set("p", "birth_date", next.day && next.month && next.year
-      ? `${next.year}-${next.month}-${next.day}`
-      : null);
-  };
 
 
   const birthPlace: AddressValue = {
