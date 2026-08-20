@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useUploadMedia } from "@/hooks/useTalentMedia";
+import { useGuardianBootstrap } from "@/hooks/useGuardianBootstrap";
 import { Surface } from "@/components/ui/surface";
 import {
   AlertDialog,
@@ -53,7 +54,7 @@ const EMPTY_BASIC: BasicInfoStepState = {
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
-  terms_accepted: false,
+
 };
 
 
@@ -64,6 +65,10 @@ export const TalentOnboarding = () => {
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
   const uploadMedia = useUploadMedia();
+
+  // Account registrato come tutore: predispone riga guardians + tutela sul profilo.
+  useGuardianBootstrap();
+
 
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -90,12 +95,7 @@ export const TalentOnboarding = () => {
   const whatsappValid = isWhatsappValid(whatsappMode, basic);
   const whatsappError =
     basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
-  const termsError =
-    basicTouched && !basic.terms_accepted
-      ? "Devi accettare i termini e le condizioni per continuare"
-      : undefined;
-  const basicValid =
-    Object.keys(errors).length === 0 && whatsappValid && basic.terms_accepted;
+  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
 
 
@@ -260,7 +260,7 @@ export const TalentOnboarding = () => {
                 value={basic}
                 errors={visibleErrors}
                 whatsappError={whatsappError}
-                termsError={termsError}
+                
                 onWhatsappModeChange={setWhatsappMode}
                 onChange={(patch) => {
                   setBasicTouched(true);

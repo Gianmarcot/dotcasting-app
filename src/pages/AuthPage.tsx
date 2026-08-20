@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
 import { Surface } from "@/components/ui/surface";
+import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
+import { parseSignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -22,10 +24,17 @@ export const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const signupMode = parseSignupMode(searchParams.get("mode"));
+  const isGuardianMode = signupMode === "guardian";
+
 
   // Auto-advance slider
   useEffect(() => {
@@ -60,8 +69,12 @@ export const AuthPage = () => {
     checkAndRedirect();
   }, [user, userRole, authLoading, navigate]);
 
+  const consentsValid = isLogin || (termsAccepted && ageConfirmed);
+  const submitDisabled = isLoading || !consentsValid;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
 
     if (!email || !password) {
       toast.error(it.validation.required);
@@ -77,6 +90,10 @@ export const AuthPage = () => {
       toast.error(it.validation.passwordMin);
       return;
     }
+
+    if (!consentsValid) return;
+
+
 
     setIsLoading(true);
 
@@ -95,7 +112,7 @@ export const AuthPage = () => {
           toast.success("Accesso effettuato!");
         }
       } else {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, { signupMode });
         if (error) {
           if (error.message.includes("already registered") || error.message.includes("User already registered")) {
             toast.error("Questa email è già registrata. Prova ad accedere.");
@@ -189,12 +206,34 @@ export const AuthPage = () => {
 
           <div className="text-center mb-8 space-y-1">
             <h1 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground">
-              {isLogin ? it.auth.loginTitle : it.auth.signupTitle}
+              {isLogin
+                ? it.auth.loginTitle
+                : isGuardianMode
+                  ? "Crea l'account come tutore"
+                  : it.auth.signupTitle}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isLogin ? it.auth.loginSubtitle : it.auth.signupSubtitle}
+              {isLogin
+                ? it.auth.loginSubtitle
+                : isGuardianMode
+                  ? "Gestirai tu il profilo della persona di cui sei tutore"
+                  : it.auth.signupSubtitle}
             </p>
+
+            {!isLogin && (
+              <p className="pt-3">
+                <Link
+                  to={isGuardianMode ? "/auth" : "/auth?mode=guardian"}
+                  className="text-sm text-primary font-medium underline-offset-4 hover:underline"
+                >
+                  {isGuardianMode
+                    ? "oppure registrati come talent"
+                    : "oppure registra un minore o un adulto di cui sei tutore"}
+                </Link>
+              </p>
+            )}
           </div>
+
 
           <Surface variant="muted" className="bg-transparent">
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -227,12 +266,49 @@ export const AuthPage = () => {
                 />
               )}
 
+              {!isLogin && (
+                <div className="space-y-3 pt-2">
+                  <ProfileCheckbox
+                    checked={termsAccepted}
+                    onCheckedChange={setTermsAccepted}
+                    label={
+                      <span className="text-[15px] text-foreground">
+                        Ho letto e accetto i{" "}
+                        <a
+                          href="/termini"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          termini e le condizioni
+                        </a>
+                      </span>
+                    }
+                  />
+                  <ProfileCheckbox
+                    checked={ageConfirmed}
+                    onCheckedChange={setAgeConfirmed}
+                    label={
+                      <span className="text-[15px] text-foreground">
+                        Confermo di essere maggiorenne
+                      </span>
+                    }
+                  />
+                  {submitted && !consentsValid && (
+                    <p className="text-xs text-destructive">
+                      Devi accettare i termini e confermare di essere maggiorenne per continuare
+                    </p>
+                  )}
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isLoading}
+                disabled={submitDisabled}
               >
+
                 {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
               </Button>
             </form>
