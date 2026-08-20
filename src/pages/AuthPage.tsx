@@ -206,12 +206,34 @@ export const AuthPage = () => {
 
           <div className="text-center mb-8 space-y-1">
             <h1 className="font-tenor uppercase tracking-wide text-2xl md:text-3xl text-foreground">
-              {isLogin ? it.auth.loginTitle : it.auth.signupTitle}
+              {isLogin
+                ? it.auth.loginTitle
+                : isGuardianMode
+                  ? "Crea l'account come tutore"
+                  : it.auth.signupTitle}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {isLogin ? it.auth.loginSubtitle : it.auth.signupSubtitle}
+              {isLogin
+                ? it.auth.loginSubtitle
+                : isGuardianMode
+                  ? "Gestirai tu il profilo della persona di cui sei tutore"
+                  : it.auth.signupSubtitle}
             </p>
+
+            {!isLogin && (
+              <p className="pt-3">
+                <Link
+                  to={isGuardianMode ? "/auth" : "/auth?mode=guardian"}
+                  className="text-sm text-primary font-medium underline-offset-4 hover:underline"
+                >
+                  {isGuardianMode
+                    ? "oppure registrati come talent"
+                    : "oppure registra un minore o un adulto di cui sei tutore"}
+                </Link>
+              </p>
+            )}
           </div>
+
 
           <Surface variant="muted" className="bg-transparent">
             <form onSubmit={handleSubmit} className="space-y-4">
