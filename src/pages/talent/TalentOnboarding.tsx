@@ -255,7 +255,7 @@ export const TalentOnboarding = () => {
                 value={basic}
                 errors={visibleErrors}
                 whatsappError={whatsappError}
-                termsError={termsError}
+                
                 onWhatsappModeChange={setWhatsappMode}
                 onChange={(patch) => {
                   setBasicTouched(true);
