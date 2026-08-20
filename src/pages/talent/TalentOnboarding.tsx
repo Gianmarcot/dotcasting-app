@@ -53,7 +53,7 @@ const EMPTY_BASIC: BasicInfoStepState = {
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
-  terms_accepted: false,
+
 };
 
 
