@@ -317,7 +317,9 @@ export const AuthPage = () => {
                     onCheckedChange={setAgeConfirmed}
                     label={
                       <span className="text-[15px] text-foreground">
-                        Confermo di essere maggiorenne
+                        {isGuardianMode
+                          ? "Confermo di essere maggiorenne e tutore legale"
+                          : "Confermo di aver compiuto 18 anni"}
                       </span>
                     }
                   />
