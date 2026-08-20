@@ -250,48 +250,144 @@ export const ContactEmailField = ({
   />
 );
 
+/**
+ * Stato dei consensi WhatsApp:
+ *  - "same"   → whatsapp = copia del telefono
+ *  - "custom" → numero WhatsApp indipendente (obbligatorio)
+ *  - "none"   → nessun WhatsApp, campi nulli
+ */
+export type WhatsappMode = "same" | "custom" | "none";
+
+export interface PhoneValue {
+  phone_prefix: string;
+  phone_number: string;
+  whatsapp_prefix: string;
+  whatsapp_number: string;
+}
+
+const isEmptyPhoneValue = (v: PhoneValue) =>
+  !v.phone_number.trim() && !v.whatsapp_number.trim();
+
+/** Deduce lo stato delle spunte dai dati salvati (profilo già compilato). */
+export const deriveWhatsappMode = (v: PhoneValue): WhatsappMode => {
+  if (isEmptyPhoneValue(v)) return "same";
+  const wa = v.whatsapp_number.trim();
+  if (!wa) return "none";
+  if (wa === v.phone_number.trim() && (v.whatsapp_prefix || "") === (v.phone_prefix || ""))
+    return "same";
+  return "custom";
+};
+
+export const isWhatsappValid = (mode: WhatsappMode, value: PhoneValue) =>
+  mode !== "custom" || value.whatsapp_number.trim().length >= 6;
+
 export const PhoneFields = ({
-  prefix,
-  number,
-  whatsappSame,
+  value,
   onChange,
-  onWhatsappSameChange,
+  onModeChange,
   error,
+  whatsappError,
 }: {
-  prefix: string;
-  number: string;
-  whatsappSame: boolean;
-  onChange: (prefix: string, number: string) => void;
-  onWhatsappSameChange: (checked: boolean) => void;
+  value: PhoneValue;
+  onChange: (patch: Partial<PhoneValue>) => void;
+  onModeChange?: (mode: WhatsappMode) => void;
   error?: string | null;
-}) => (
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8">
-    <div>
-      <GroupLabel>Numero di telefono</GroupLabel>
-      <div className="flex gap-2">
-        <FloatingSelect
-          label="Prefisso"
-          className="w-[110px] shrink-0"
-          value={prefix}
-          onValueChange={(v) => onChange(v, number)}
-          options={PHONE_PREFIX_OPTIONS}
-        />
-        <FloatingInput
-          label="Numero"
-          className="flex-1"
-          inputMode="tel"
-          value={number}
-          error={error}
-          onChange={(v) => onChange(prefix, v)}
-        />
+  whatsappError?: string | null;
+}) => {
+  const [mode, setMode] = useState<WhatsappMode>(() => deriveWhatsappMode(value));
+  // Il componente è condiviso col profilo: se i dati arrivano dopo il primo
+  // render (fetch asincrono), lo stato delle spunte va ri-dedotto una volta.
+  const hydrated = useRef(!isEmptyPhoneValue(value));
+
+  useEffect(() => {
+    if (hydrated.current || isEmptyPhoneValue(value)) return;
+    hydrated.current = true;
+    const next = deriveWhatsappMode(value);
+    setMode(next);
+    onModeChange?.(next);
+  }, [value, onModeChange]);
+
+  const applyMode = (next: WhatsappMode) => {
+    setMode(next);
+    onModeChange?.(next);
+    if (next === "same") {
+      onChange({
+        whatsapp_prefix: value.phone_prefix,
+        whatsapp_number: value.phone_number,
+      });
+    } else if (next === "none") {
+      onChange({ whatsapp_prefix: value.phone_prefix, whatsapp_number: "" });
+    } else {
+      onChange({ whatsapp_prefix: value.phone_prefix, whatsapp_number: "" });
+    }
+  };
+
+  const setPhone = (prefix: string, number: string) =>
+    onChange({
+      phone_prefix: prefix,
+      phone_number: number,
+      ...(mode === "same" ? { whatsapp_prefix: prefix, whatsapp_number: number } : {}),
+    });
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <GroupLabel>Numero di telefono</GroupLabel>
+        <FieldCluster className="w-full max-w-[420px]">
+          <FloatingSelect
+            label="Prefisso"
+            className="w-[110px] shrink-0"
+            value={value.phone_prefix}
+            onValueChange={(v) => setPhone(v, value.phone_number)}
+            options={PHONE_PREFIX_OPTIONS}
+          />
+          <FloatingInput
+            label="Numero"
+            className="flex-1"
+            inputMode="tel"
+            value={value.phone_number}
+            error={error}
+            onChange={(v) => setPhone(value.phone_prefix, v)}
+          />
+        </FieldCluster>
       </div>
-    </div>
-    <div className="flex items-end pb-5">
+
       <ProfileCheckbox
-        checked={whatsappSame}
-        onCheckedChange={onWhatsappSameChange}
+        checked={mode === "same"}
+        onCheckedChange={(checked) => applyMode(checked ? "same" : "custom")}
         label="Ho WhatsApp su questo numero"
       />
+
+      {mode !== "same" && (
+        <div className="space-y-4">
+          <FieldCluster className="w-full max-w-[420px]">
+            <FloatingSelect
+              label="Prefisso"
+              className="w-[110px] shrink-0"
+              value={value.whatsapp_prefix}
+              disabled={mode === "none"}
+              onValueChange={(v) => onChange({ whatsapp_prefix: v })}
+              options={PHONE_PREFIX_OPTIONS}
+            />
+            <FloatingInput
+              label="Numero WhatsApp"
+              className="flex-1"
+              inputMode="tel"
+              disabled={mode === "none"}
+              value={value.whatsapp_number}
+              error={whatsappError}
+              onChange={(v) => onChange({ whatsapp_number: v })}
+            />
+          </FieldCluster>
+
+          <ProfileCheckbox
+            checked={mode === "none"}
+            onCheckedChange={(checked) => applyMode(checked ? "none" : "custom")}
+            label="Non ho WhatsApp"
+          />
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
+
