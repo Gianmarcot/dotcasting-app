@@ -76,29 +76,7 @@ export const BasicInfoStep = ({
       onChange={onChange}
       onModeChange={onWhatsappModeChange}
     />
-
-    <div>
-      <ProfileCheckbox
-        checked={value.terms_accepted}
-        onCheckedChange={(checked) => onChange({ terms_accepted: checked })}
-        label={
-          <span className="text-[15px] text-foreground">
-            Ho letto e accetto i{" "}
-            <a
-              href="/termini"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              termini e le condizioni
-            </a>
-          </span>
-        }
-      />
-      {termsError && (
-        <p className="mt-2 text-xs text-destructive">{termsError}</p>
-      )}
-    </div>
   </div>
+
 );
 
