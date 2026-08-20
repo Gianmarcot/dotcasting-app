@@ -226,16 +226,38 @@ export const AuthPage = () => {
             </p>
 
             {!isLogin && (
-              <p className="pt-3">
-                <Link
-                  to={isGuardianMode ? "/auth" : "/auth?mode=guardian"}
-                  className="text-sm text-primary font-medium underline-offset-4 hover:underline"
-                >
-                  {isGuardianMode
-                    ? "oppure registrati come talent"
-                    : "oppure registra un minore o un adulto di cui sei tutore"}
-                </Link>
-              </p>
+              <div className="pt-3 space-y-3">
+                <SegmentedControl
+                  aria-label="Modalità di registrazione"
+                  value={signupMode}
+                  onChange={handleModeChange}
+                  options={[
+                    {
+                      value: "self",
+                      label: "Mi registro",
+                      icon: <User size={48} strokeWidth={1.25} />,
+                    },
+                    {
+                      value: "guardian",
+                      label: "Registro un minore",
+                      icon: <Users size={48} strokeWidth={1.25} />,
+                    },
+                  ]}
+                />
+                <div className="grid place-items-center text-xs font-medium text-center text-[var(--grey-600)]">
+                  <span className="col-start-1 row-start-1 invisible px-4">
+                    Crei un profilo per te.
+                  </span>
+                  <span className="col-start-1 row-start-1 invisible px-4">
+                    Crei un profilo per un minore o un adulto di cui sei tutore.
+                  </span>
+                  <span className="col-start-1 row-start-1">
+                    {isGuardianMode
+                      ? "Crei un profilo per un minore o un adulto di cui sei tutore."
+                      : "Crei un profilo per te."}
+                  </span>
+                </div>
+              </div>
             )}
           </div>
 
