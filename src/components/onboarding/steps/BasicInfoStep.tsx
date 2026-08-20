@@ -7,21 +7,28 @@ import {
   PhoneFields,
   type BasicInfoErrors,
   type BasicInfoValue,
+  type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
 
 export interface BasicInfoStepState extends BasicInfoValue {
-  whatsapp_same: boolean;
+  whatsapp_prefix: string;
+  whatsapp_number: string;
 }
 
 export const BasicInfoStep = ({
   value,
   errors,
+  whatsappError,
   onChange,
+  onWhatsappModeChange,
 }: {
   value: BasicInfoStepState;
   errors: BasicInfoErrors;
+  whatsappError?: string | null;
   onChange: (patch: Partial<BasicInfoStepState>) => void;
+  onWhatsappModeChange: (mode: WhatsappMode) => void;
 }) => (
+
   <div className="space-y-8">
     <NameFields
       firstName={value.first_name}
