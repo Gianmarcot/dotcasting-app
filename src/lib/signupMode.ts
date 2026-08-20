@@ -20,3 +20,26 @@ export const getSignupMode = (user: User | null | undefined): SignupMode =>
 
 export const isGuardianSignup = (user: User | null | undefined) =>
   getSignupMode(user) === "guardian";
+
+/**
+ * Conversione di un profilo tutelato: dopo il compimento dei 18 anni le
+ * credenziali sono ancora del genitore. Teniamo traccia sui metadati di quando
+ * il talent le ha aggiornate, per non far sparire l'avviso troppo presto.
+ */
+export const CREDENTIALS_UPDATED_METADATA_KEY = "credentials_updated_at";
+
+export const hasUpdatedCredentials = (user: User | null | undefined) =>
+  !!user?.user_metadata?.[CREDENTIALS_UPDATED_METADATA_KEY];
+
+/** true quando l'account nasce come tutela ma il profilo non è più tutelato. */
+export const needsCredentialsUpdate = (
+  user: User | null | undefined,
+  guardianUserId: string | null | undefined
+) => isGuardianSignup(user) && !guardianUserId && !hasUpdatedCredentials(user);
+
+export const markCredentialsUpdated = async () => {
+  const { supabase } = await import("@/integrations/supabase/client");
+  await supabase.auth.updateUser({
+    data: { [CREDENTIALS_UPDATED_METADATA_KEY]: new Date().toISOString() },
+  });
+};
