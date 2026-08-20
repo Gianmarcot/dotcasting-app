@@ -95,6 +95,8 @@ interface FloatingInputProps {
   inputMode?: "text" | "numeric" | "decimal" | "email" | "tel" | "url";
   className?: string;
   maxLength?: number;
+  name?: string;
+  autoComplete?: string;
   /** Messaggio di errore (bordo rosso + testo sotto il campo) */
   error?: string | null;
   /** Messaggio di avviso non bloccante */
