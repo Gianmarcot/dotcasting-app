@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GENDER_IDENTITIES, MONTHS, PHONE_PREFIXES } from "@/lib/profileOptions";
 import {
   FieldCluster,
