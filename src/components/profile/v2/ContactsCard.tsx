@@ -10,6 +10,11 @@ import {
   ProfileCheckbox,
   SectionCard,
 } from "@/components/profile/fields/FormFields";
+import {
+  ContactEmailField,
+  PhoneFields,
+} from "@/components/profile/fields/BasicInfoFields";
+
 import { FieldSlot, useProfileForm } from "./ProfileFormContext";
 
 interface SocialLinks {
