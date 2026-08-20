@@ -251,12 +251,15 @@ export const TalentOnboarding = () => {
               <BasicInfoStep
                 value={basic}
                 errors={visibleErrors}
+                whatsappError={whatsappError}
+                onWhatsappModeChange={setWhatsappMode}
                 onChange={(patch) => {
                   setBasicTouched(true);
                   setBasicSaved(false);
                   setBasic((prev) => ({ ...prev, ...patch }));
                 }}
               />
+
             )}
             {step === 2 && (
               <RolesStep
