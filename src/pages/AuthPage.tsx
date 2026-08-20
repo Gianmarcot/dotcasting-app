@@ -154,7 +154,8 @@ export const AuthPage = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left — image slider */}
-      <div className="hidden md:block relative overflow-hidden md:rounded-r-[2rem] bg-black md:max-w-[720px] md:flex-1">
+      <div className="hidden md:block sticky top-0 h-screen shrink-0 w-[45%] max-w-[720px] overflow-hidden md:rounded-r-[2rem] bg-black">
+
         {SLIDES.map((src, i) => (
           <img
             key={src}
@@ -202,7 +203,8 @@ export const AuthPage = () => {
       </div>
 
       {/* Right — form (no card) */}
-      <div className="flex-1 flex items-center justify-center p-6 md:p-12">
+      <div className="flex-1 min-h-screen flex items-center justify-center p-6 md:p-12">
+
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center gap-1">
