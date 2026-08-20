@@ -89,7 +89,7 @@ export default {
   			'profile-card': 'hsl(var(--profile-card))',
   			'cream-dark': 'var(--cream-dark)',
   			cream: 'var(--cream)',
-  			white: 'var(--white)',
+  			
 
   			ink: 'var(--ink)',
   			'grey-600': 'var(--grey-600)',
