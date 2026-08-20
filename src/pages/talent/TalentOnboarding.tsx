@@ -1,490 +1,284 @@
-import { useState, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Camera, Tag, User } from "lucide-react";
+import { toast } from "sonner";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
-import { 
-  Camera, 
-  ChevronRight, 
-  ChevronLeft, 
-  Check, 
-  User
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import logo from "@/assets/logo.png";
-import { compressImage } from "@/lib/media/compressImage";
-import { TALENT_ROLES, TALENT_ROLE_GROUPS, GENDER_IDENTITIES } from "@/lib/profileOptions";
+import { useProfile } from "@/hooks/useProfile";
+import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { useUploadMedia } from "@/hooks/useTalentMedia";
+import { Surface } from "@/components/ui/surface";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  OnboardingCard,
+  OnboardingFooter,
+  OnboardingHeader,
+  OnboardingStepper,
+} from "@/components/onboarding/OnboardingChrome";
+import {
+  BasicInfoStep,
+  type BasicInfoStepState,
+} from "@/components/onboarding/steps/BasicInfoStep";
+import { RolesStep } from "@/components/onboarding/steps/RolesStep";
+import { PhotoStep } from "@/components/onboarding/steps/PhotoStep";
+import {
+  validateBasicInfo,
+  type BasicInfoErrors,
+} from "@/components/profile/fields/BasicInfoFields";
 
-const isAdult = (birthDate: string) => {
-  if (!birthDate) return false;
-  const bd = new Date(birthDate);
-  if (Number.isNaN(bd.getTime())) return false;
-  const limit = new Date();
-  limit.setFullYear(limit.getFullYear() - 18);
-  return bd <= limit;
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
+const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png"];
+
+const EMPTY_BASIC: BasicInfoStepState = {
+  first_name: "",
+  last_name: "",
+  birth_date: "",
+  gender: "",
+  gender_identity: "",
+  contact_email: "",
+  phone_prefix: "+39",
+  phone_number: "",
+  whatsapp_same: false,
 };
-
-const STEPS = [
-  { id: 1, title: "Seleziona i tuoi ruoli", description: "Che tipo di talento sei?" },
-  { id: 2, title: "Informazioni base", description: "Raccontaci di te" },
-  { id: 3, title: "Avatar", description: "Facoltativo: le foto principali si caricano dal profilo" },
-];
 
 export const TalentOnboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const [currentStep, setCurrentStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Step 1: Categories
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  
-  // Step 2: Basic info
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    birthDate: "",
-    gender: "",
-    genderIdentity: "",
-    city: "",
-    country: "Italia",
-  });
-  
-  // Step 3: Photo
+  const { data: profile } = useProfile();
+  const updateProfile = useUpdateProfile();
+  const uploadMedia = useUploadMedia();
+
+  const [step, setStep] = useState(1);
+  const [saving, setSaving] = useState(false);
+  const [exitOpen, setExitOpen] = useState(false);
+
+  // Step 1 — anagrafica: nulla viene scritto prima di "Avanti".
+  const [basic, setBasic] = useState<BasicInfoStepState>(EMPTY_BASIC);
+  const [basicTouched, setBasicTouched] = useState(false);
+  const [basicSaved, setBasicSaved] = useState(false);
+
+  // Step 2 — ruoli
+  const [roles, setRoles] = useState<string[]>([]);
+  const [rolesDirty, setRolesDirty] = useState(false);
+
+  // Step 3 — foto
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
-  const progress = (currentStep / STEPS.length) * 100;
+  const errors: BasicInfoErrors = useMemo(() => validateBasicInfo(basic), [basic]);
+  const basicValid = Object.keys(errors).length === 0;
+  const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
 
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+  const stepDirty =
+    step === 1 ? basicTouched && !basicSaved : step === 2 ? rolesDirty : !!photoFile;
+
+  /* ------------------------------- salvataggi ------------------------------ */
+
+  const saveBasic = async () => {
+    await updateProfile.mutateAsync({
+      first_name: basic.first_name.trim(),
+      last_name: basic.last_name.trim(),
+      birth_date: basic.birth_date || null,
+      gender: basic.gender || null,
+      gender_identity: basic.gender_identity || null,
+      contact_email: basic.contact_email.trim() || null,
+      phone_prefix: basic.phone_prefix,
+      phone_number: basic.phone_number.trim() || null,
+      whatsapp_prefix: basic.whatsapp_same ? basic.phone_prefix : null,
+      whatsapp_number: basic.whatsapp_same ? basic.phone_number.trim() || null : null,
+      age_confirmed: true,
+      onboarding_completed: true,
+    });
+    setBasicSaved(true);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+  const saveRoles = async () => {
+    if (!rolesDirty) return;
+    await updateProfile.mutateAsync({ talent_categories: roles.length ? roles : null });
+    setRolesDirty(false);
   };
 
-  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("La foto non può superare i 5MB");
-        return;
-      }
-      if (!file.type.startsWith("image/")) {
-        toast.error("Il file deve essere un'immagine");
-        return;
-      }
-      setPhotoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const savePhoto = async () => {
+    if (!photoFile) return;
+    const media = await uploadMedia.mutateAsync({
+      file: photoFile,
+      mediaType: "photo",
+      category: "main_photos",
+    });
+    if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
+    setPhotoFile(null);
   };
 
-  const canProceed = () => {
-    switch (currentStep) {
-      case 1:
-        return selectedCategories.length > 0;
-      case 2:
-        return !!(
-          formData.firstName.trim() &&
-          formData.lastName.trim() &&
-          formData.birthDate &&
-          isAdult(formData.birthDate)
-        );
-      case 3:
-        return true; // Avatar is optional
-      default:
-        return false;
-    }
+  const saveCurrentStep = async () => {
+    if (step === 1) return saveBasic();
+    if (step === 2) return saveRoles();
+    return savePhoto();
   };
 
-  const handleNext = () => {
-    if (currentStep < STEPS.length) {
-      setCurrentStep(prev => prev + 1);
-    }
-  };
+  /* -------------------------------- azioni -------------------------------- */
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
-  const handleComplete = async () => {
-    if (!user) return;
-    
-    setIsLoading(true);
-    
+  const goNext = async () => {
+    setSaving(true);
     try {
-      let photoUrl: string | null = null;
-      
-      // Upload photo if selected
-      if (photoFile) {
-        const compressed = await compressImage(photoFile, "avatar");
-        const fileExt = compressed.name.split(".").pop();
-        const filePath = `${user.id}/avatar.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from("avatars")
-          .upload(filePath, compressed, { upsert: true });
-        
-        if (uploadError) {
-          console.error("Upload error:", uploadError);
-          toast.error("Errore nel caricamento della foto. Puoi aggiungerla dopo.");
-        } else {
-          const { data: { publicUrl } } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(filePath);
-          photoUrl = publicUrl;
-        }
+      await saveCurrentStep();
+      if (step < 3) setStep(step + 1);
+      else {
+        toast.success("Benvenuto in dotCasting!");
+        navigate("/talent/profile", { replace: true });
       }
-      
-      // Update profile
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          birth_date: formData.birthDate || null,
-          gender: formData.gender || null,
-          gender_identity: formData.genderIdentity || null,
-          city: formData.city || null,
-          country: formData.country || null,
-          talent_categories: selectedCategories,
-          profile_photo_url: photoUrl,
-          onboarding_completed: true,
-        })
-        .eq("user_id", user.id);
-      
-      if (profileError) {
-        console.error("Profile update error:", profileError);
-        toast.error("Errore nel salvataggio del profilo");
-        return;
-      }
-      
-      toast.success("Onboarding completato! Benvenuto in dotCasting.");
-      navigate("/talent", { replace: true });
-      
     } catch (error) {
-      console.error("Onboarding error:", error);
-      toast.error("Si è verificato un errore. Riprova.");
+      console.error("Onboarding save error:", error);
+      toast.error("Errore nel salvataggio. Riprova.");
     } finally {
-      setIsLoading(false);
+      setSaving(false);
     }
   };
+
+  const leave = async () => {
+    if (step === 1 && !basicSaved && !profile?.onboarding_completed) {
+      await supabase.auth.signOut();
+      navigate("/auth", { replace: true });
+      return;
+    }
+    navigate("/talent/profile", { replace: true });
+  };
+
+  const handleExit = () => {
+    if (stepDirty) setExitOpen(true);
+    else void leave();
+  };
+
+  const handleLater = async () => {
+    setSaving(true);
+    try {
+      await saveCurrentStep();
+      navigate("/talent/profile", { replace: true });
+    } catch (error) {
+      console.error("Onboarding save error:", error);
+      toast.error("Errore nel salvataggio. Riprova.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePhoto = (file: File) => {
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      setPhotoError("Il file deve essere in formato JPG o PNG");
+      return;
+    }
+    if (file.size > MAX_PHOTO_SIZE) {
+      setPhotoError("Il file non può superare i 5MB");
+      return;
+    }
+    setPhotoError(null);
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  /* ---------------------------------- UI ---------------------------------- */
+
+  const cardProps = {
+    1: {
+      icon: <User strokeWidth={1} />,
+      title: "INFORMAZIONI DI BASE",
+      subtitle: undefined as string | undefined,
+      nextLabel: "Avanti",
+    },
+    2: {
+      icon: <Tag strokeWidth={1} />,
+      title: "SELEZIONA I TUOI RUOLI",
+      subtitle: "Che tipo di talento sei?",
+      nextLabel: "Avanti",
+    },
+    3: {
+      icon: <Camera strokeWidth={1} />,
+      title: "IMMAGINE PROFILO",
+      subtitle:
+        "Imposta una foto di base, potrai caricare tutte le altre foto dal profilo.",
+      nextLabel: "Iniziamo",
+    },
+  }[step as 1 | 2 | 3];
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img src={logo} alt="dotCasting" className="h-8 mx-auto" />
-        </div>
+    <Surface variant="muted" className="min-h-screen px-4 py-6 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl">
+        <OnboardingHeader onExit={handleExit} />
 
-        {/* Progress */}
-        <div className="mb-8 bg-[#ECE5DE] rounded-lg p-4">
-          <Progress value={progress} className="h-3 bg-white" />
-          <div className="flex justify-between mt-3">
-            {STEPS.map((step) => (
-              <div 
-                key={step.id}
-                className={cn(
-                  "text-xs transition-colors",
-                  currentStep >= step.id ? "text-foreground" : "text-muted-foreground"
-                )}
-              >
-                <span className={cn(
-                  "inline-flex items-center justify-center w-6 h-6 rounded-full text-xs mr-2",
-                  currentStep > step.id 
-                    ? "bg-primary text-primary-foreground" 
-                    : currentStep === step.id 
-                      ? "bg-secondary text-secondary-foreground"
-                      : "bg-muted text-muted-foreground"
-                )}>
-                  {currentStep > step.id ? <Check className="w-3 h-3" /> : step.id}
-                </span>
-                <span className="hidden sm:inline">{step.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Step Content */}
-        <Card className="shadow-lg">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">{STEPS[currentStep - 1].title}</CardTitle>
-            <CardDescription>{STEPS[currentStep - 1].description}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Step 1: Role Selection */}
-            {currentStep === 1 && (
-              <div className="space-y-6">
-                {TALENT_ROLE_GROUPS.map((group) => (
-                  <div key={group.key} className="space-y-3">
-                    <Label className="text-sm font-medium text-muted-foreground">{group.label}</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {TALENT_ROLES[group.key].map((role) => {
-                        const isSelected = selectedCategories.includes(role);
-                        return (
-                          <button
-                            key={role}
-                            type="button"
-                            onClick={() => toggleCategory(role)}
-                            className={cn(
-                              "px-3 py-1.5 rounded-full text-sm font-medium transition-colors border",
-                              isSelected
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-transparent text-foreground border-foreground hover:bg-muted"
-                            )}
-                          >
-                            {role}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Step 2: Basic Info */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">Nome *</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      placeholder="Mario"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Cognome *</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      placeholder="Rossi"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="birthDate">Data di nascita *</Label>
-                    <Input
-                      id="birthDate"
-                      name="birthDate"
-                      type="date"
-                      value={formData.birthDate}
-                      onChange={handleInputChange}
-                    />
-                    {formData.birthDate && !isAdult(formData.birthDate) && (
-                      <p className="text-xs text-destructive">
-                        Devi aver compiuto 18 anni per registrarti.
-                      </p>
-                    )}
-                  </div>
-                  <div className="space-y-3">
-                    <Label>Sesso</Label>
-                    <RadioGroup
-                      value={formData.gender}
-                      onValueChange={(v) => setFormData((prev) => ({ ...prev, gender: v }))}
-                      className="flex gap-6 pt-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="M" id="onb-gender-m" />
-                        <Label htmlFor="onb-gender-m" className="font-normal">M</Label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RadioGroupItem value="F" id="onb-gender-f" />
-                        <Label htmlFor="onb-gender-f" className="font-normal">F</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Identità di genere</Label>
-                  <Select
-                    value={formData.genderIdentity}
-                    onValueChange={(v) => setFormData((prev) => ({ ...prev, genderIdentity: v }))}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
-                    <SelectContent>
-                      {GENDER_IDENTITIES.map((gi) => (
-                        <SelectItem key={gi} value={gi}>{gi}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Città</Label>
-                    <Input
-                      id="city"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      placeholder="Milano"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Paese</Label>
-                    <Input
-                      id="country"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleInputChange}
-                      placeholder="Italia"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Photo Upload */}
-            {currentStep === 3 && (
-              <div className="flex flex-col items-center space-y-6">
-                <div className="relative">
-                  <Avatar className="h-40 w-40">
-                    <AvatarImage src={photoPreview || undefined} />
-                    <AvatarFallback className="text-4xl bg-muted">
-                      <User className="w-16 h-16 text-muted-foreground" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <button 
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 h-12 w-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:bg-primary/90 transition-colors"
-                  >
-                    <Camera className="h-5 w-5" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoSelect}
-                    className="hidden"
-                  />
-                </div>
-                
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Carica il tuo avatar (opzionale)
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Formato: JPG, PNG. Massimo 5MB.
-                  </p>
-                </div>
-
-                {photoPreview && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      setPhotoFile(null);
-                      setPhotoPreview(null);
-                    }}
-                  >
-                    Rimuovi foto
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleBack}
-                disabled={currentStep === 1}
-              >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Indietro
-              </Button>
-
-              {currentStep < STEPS.length ? (
-                <Button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!canProceed()}
-                >
-                  Avanti
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={handleComplete}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Salvataggio..." : "Completa"}
-                  <Check className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Skip option */}
-        <div className="text-center mt-6 flex items-center justify-center gap-2">
-          <button
-            type="button"
-            onClick={async () => {
-              if (!user) return;
-              const { error } = await supabase
-                .from("profiles")
-                .update({ onboarding_completed: true })
-                .eq("user_id", user.id);
-              if (error) {
-                toast.error("Errore nel salvataggio. Riprova.");
-                return;
-              }
-              navigate("/talent");
-            }}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        <div className="mt-6">
+          <OnboardingStepper current={step} />
+          <OnboardingCard
+            icon={cardProps.icon}
+            title={cardProps.title}
+            subtitle={cardProps.subtitle}
+            nextLabel={cardProps.nextLabel}
+            nextDisabled={step === 1 && !basicValid}
+            loading={saving}
+            onBack={step > 1 ? () => setStep(step - 1) : undefined}
+            onNext={goNext}
           >
-            Completa dopo
-          </button>
-          <span className="text-sm text-muted-foreground">·</span>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Torna alla home
-          </button>
+            {step === 1 && (
+              <BasicInfoStep
+                value={basic}
+                errors={visibleErrors}
+                onChange={(patch) => {
+                  setBasicTouched(true);
+                  setBasicSaved(false);
+                  setBasic((prev) => ({ ...prev, ...patch }));
+                }}
+              />
+            )}
+            {step === 2 && (
+              <RolesStep
+                selected={roles}
+                onToggle={(role) => {
+                  setRolesDirty(true);
+                  setRoles((prev) =>
+                    prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+                  );
+                }}
+              />
+            )}
+            {step === 3 && (
+              <PhotoStep
+                previewUrl={photoPreview ?? profile?.profile_photo_url ?? null}
+                error={photoError}
+                onSelectFile={handlePhoto}
+              />
+            )}
+          </OnboardingCard>
         </div>
+
+        <OnboardingFooter onLater={step > 1 ? handleLater : undefined} />
       </div>
-    </div>
+
+      <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Uscire senza salvare?</AlertDialogTitle>
+            <AlertDialogDescription>
+              I dati inseriti in questo passaggio e non ancora salvati andranno persi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Torna indietro</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void leave()}>Esci comunque</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Surface>
   );
 };
 

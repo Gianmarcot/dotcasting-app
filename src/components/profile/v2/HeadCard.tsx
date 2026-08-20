@@ -1,26 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GENDER_IDENTITIES, MONTHS, REPRESENTATION_TYPES } from "@/lib/profileOptions";
+import { REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
-  FieldCluster,
   FieldGrid,
   FloatingInput,
-  FloatingSelect,
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
   RadioField,
   SectionCard,
   SectionDivider,
-  toOptions,
 } from "@/components/profile/fields/FormFields";
+import {
+  BirthDateFields,
+  GenderFields,
+  NameFields,
+} from "@/components/profile/fields/BasicInfoFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
 import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
-const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
-const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 export const HeadCard = () => {
   const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
@@ -28,10 +28,6 @@ export const HeadCard = () => {
   const [galleryOpen, setGalleryOpen] = useState(false);
 
   const birthDate = str("p", "birth_date");
-  const birth = useMemo(() => {
-    const [y = "", m = "", d = ""] = birthDate.split("-");
-    return { day: d, month: m, year: y };
-  }, [birthDate]);
 
   const age = calcAge(birthDate || null);
   const isAdult = age !== null && age >= 18;
@@ -42,12 +38,6 @@ export const HeadCard = () => {
     if (ageConfirmed !== isAdult) set("p", "age_confirmed", isAdult);
   }, [isAdult, ageConfirmed, set]);
 
-  const setBirthPart = (part: "day" | "month" | "year", value: string) => {
-    const next = { ...birth, [part]: value };
-    set("p", "birth_date", next.day && next.month && next.year
-      ? `${next.year}-${next.month}-${next.day}`
-      : null);
-  };
 
 
   const birthPlace: AddressValue = {
@@ -106,18 +96,11 @@ export const HeadCard = () => {
       </div>
 
       <div className="space-y-8">
-        <FieldGrid cols={2}>
-          <FloatingInput
-            label="Nome"
-            value={str("p", "first_name")}
-            onChange={(v) => set("p", "first_name", v)}
-          />
-          <FloatingInput
-            label="Cognome"
-            value={str("p", "last_name")}
-            onChange={(v) => set("p", "last_name", v)}
-          />
-        </FieldGrid>
+        <NameFields
+          firstName={str("p", "first_name")}
+          lastName={str("p", "last_name")}
+          onChange={(patch) => setMany("p", patch)}
+        />
 
         <FloatingInput
           label="Nome d'arte"
@@ -128,32 +111,11 @@ export const HeadCard = () => {
         <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-            <FieldCluster className="w-full max-w-[420px]">
-              <FloatingSelect
-                label="Giorno"
-                className="flex-1"
-                value={birth.day}
-                onValueChange={(v) => setBirthPart("day", v)}
-                options={toOptions(DAYS)}
-              />
-              <FloatingSelect
-                label="Mese"
-                className="flex-1"
-                value={birth.month}
-                onValueChange={(v) => setBirthPart("month", v)}
-                options={MONTHS.map((m, i) => ({
-                  value: String(i + 1).padStart(2, "0"),
-                  label: m,
-                }))}
-              />
-              <FloatingSelect
-                label="Anno"
-                className="flex-1"
-                value={birth.year}
-                onValueChange={(v) => setBirthPart("year", v)}
-                options={toOptions(YEARS)}
-              />
-            </FieldCluster>
+            <BirthDateFields
+              className="w-full max-w-[420px]"
+              birthDate={birthDate}
+              onChange={(v) => set("p", "birth_date", v)}
+            />
             <ProfileCheckbox
               checked={isAdult}
               disabled
@@ -163,6 +125,7 @@ export const HeadCard = () => {
             />
           </div>
         </FieldSlot>
+
 
 
         <FieldSlot name="birth_place">
@@ -183,24 +146,12 @@ export const HeadCard = () => {
           </FieldGrid>
         </FieldSlot>
 
-        <FieldGrid cols={2}>
-          <RadioField label="Sesso">
-            <ProfileRadioGroup
-              value={str("p", "gender")}
-              onValueChange={(v) => set("p", "gender", v)}
-              options={[
-                { value: "M", label: "M" },
-                { value: "F", label: "F" },
-              ]}
-            />
-          </RadioField>
-          <FloatingSelect
-            label="Identità di genere"
-            value={str("p", "gender_identity")}
-            onValueChange={(v) => set("p", "gender_identity", v)}
-            options={toOptions(GENDER_IDENTITIES)}
-          />
-        </FieldGrid>
+        <GenderFields
+          gender={str("p", "gender")}
+          genderIdentity={str("p", "gender_identity")}
+          onChange={(patch) => setMany("p", patch)}
+        />
+
 
         <SectionDivider />
 

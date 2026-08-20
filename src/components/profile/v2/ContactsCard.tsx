@@ -10,6 +10,11 @@ import {
   ProfileCheckbox,
   SectionCard,
 } from "@/components/profile/fields/FormFields";
+import {
+  ContactEmailField,
+  PhoneFields,
+} from "@/components/profile/fields/BasicInfoFields";
+
 import { FieldSlot, useProfileForm } from "./ProfileFormContext";
 
 interface SocialLinks {
@@ -59,51 +64,28 @@ export const ContactsCard = () => {
   return (
     <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
       <FieldSlot name="contact_email">
-        <FloatingInput
-          label="Email di contatto"
-          type="email"
-          inputMode="email"
+        <ContactEmailField
           value={str("p", "contact_email")}
           onChange={(v) => set("p", "contact_email", v)}
         />
       </FieldSlot>
 
-      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-        <div>
-          <GroupLabel>Numero di telefono</GroupLabel>
-          <div className="flex gap-2">
-            <FloatingSelect
-              label="Prefisso"
-              className="w-[110px] shrink-0"
-              value={phonePrefix}
-              onValueChange={(v) => setPhone(v, phoneNumber)}
-              options={prefixOptions}
-            />
-            <FloatingInput
-              label="Numero"
-              className="flex-1"
-              inputMode="tel"
-              value={phoneNumber}
-              onChange={(v) => setPhone(phonePrefix, v)}
-            />
-          </div>
-        </div>
-        <div className="flex items-end pb-5">
-          <ProfileCheckbox
-            checked={sameWhatsapp}
-            onCheckedChange={(checked) => {
-              setSameWhatsapp(checked);
-              if (checked) {
-                setMany("p", {
-                  whatsapp_prefix: phonePrefix,
-                  whatsapp_number: phoneNumber || null,
-                });
-              }
-            }}
-            label="Ho WhatsApp su questo numero"
-          />
-        </div>
-      </div>
+      <PhoneFields
+        prefix={phonePrefix}
+        number={phoneNumber}
+        whatsappSame={sameWhatsapp}
+        onChange={setPhone}
+        onWhatsappSameChange={(checked) => {
+          setSameWhatsapp(checked);
+          if (checked) {
+            setMany("p", {
+              whatsapp_prefix: phonePrefix,
+              whatsapp_number: phoneNumber || null,
+            });
+          }
+        }}
+      />
+
 
       <div>
         <GroupLabel>WhatsApp</GroupLabel>
