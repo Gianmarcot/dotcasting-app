@@ -84,7 +84,7 @@ export const OnboardingCard = ({
     <section className="relative -mt-[57px] rounded-[24px] bg-profile-card px-5 pb-8 pt-[54px] sm:px-10 sm:pb-10">
       <header className="mb-10 flex flex-col items-center text-center">
         <div className="h-16 w-16 text-ink [&>svg]:h-16 [&>svg]:w-16">{icon}</div>
-        <h1 className="mt-6 font-display text-2xl uppercase text-ink">{title}</h1>
+        <h1 className="mt-6 font-display text-base uppercase tracking-wide text-ink">{title}</h1>
         {subtitle && (
           <p className="mt-3 text-base leading-5 text-grey-600">{subtitle}</p>
         )}
