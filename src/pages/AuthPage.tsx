@@ -266,12 +266,49 @@ export const AuthPage = () => {
                 />
               )}
 
+              {!isLogin && (
+                <div className="space-y-3 pt-2">
+                  <ProfileCheckbox
+                    checked={termsAccepted}
+                    onCheckedChange={setTermsAccepted}
+                    label={
+                      <span className="text-[15px] text-foreground">
+                        Ho letto e accetto i{" "}
+                        <a
+                          href="/termini"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          termini e le condizioni
+                        </a>
+                      </span>
+                    }
+                  />
+                  <ProfileCheckbox
+                    checked={ageConfirmed}
+                    onCheckedChange={setAgeConfirmed}
+                    label={
+                      <span className="text-[15px] text-foreground">
+                        Confermo di essere maggiorenne
+                      </span>
+                    }
+                  />
+                  {submitted && !consentsValid && (
+                    <p className="text-xs text-destructive">
+                      Devi accettare i termini e confermare di essere maggiorenne per continuare
+                    </p>
+                  )}
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full"
                 size="lg"
-                disabled={isLoading}
+                disabled={submitDisabled}
               >
+
                 {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
               </Button>
             </form>
