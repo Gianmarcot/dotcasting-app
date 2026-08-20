@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
 import { Surface } from "@/components/ui/surface";
+import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
+import { parseSignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -22,10 +24,17 @@ export const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
   const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const signupMode = parseSignupMode(searchParams.get("mode"));
+  const isGuardianMode = signupMode === "guardian";
+
 
   // Auto-advance slider
   useEffect(() => {
