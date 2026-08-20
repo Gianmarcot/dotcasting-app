@@ -65,6 +65,10 @@ export const TalentOnboarding = () => {
   const updateProfile = useUpdateProfile();
   const uploadMedia = useUploadMedia();
 
+  // Account registrato come tutore: predispone riga guardians + tutela sul profilo.
+  useGuardianBootstrap();
+
+
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
