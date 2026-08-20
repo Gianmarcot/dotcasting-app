@@ -32,9 +32,12 @@ import {
 import { RolesStep } from "@/components/onboarding/steps/RolesStep";
 import { PhotoStep } from "@/components/onboarding/steps/PhotoStep";
 import {
+  isWhatsappValid,
   validateBasicInfo,
   type BasicInfoErrors,
+  type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
+
 
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png"];
