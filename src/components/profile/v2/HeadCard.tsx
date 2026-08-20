@@ -106,18 +106,11 @@ export const HeadCard = () => {
       </div>
 
       <div className="space-y-8">
-        <FieldGrid cols={2}>
-          <FloatingInput
-            label="Nome"
-            value={str("p", "first_name")}
-            onChange={(v) => set("p", "first_name", v)}
-          />
-          <FloatingInput
-            label="Cognome"
-            value={str("p", "last_name")}
-            onChange={(v) => set("p", "last_name", v)}
-          />
-        </FieldGrid>
+        <NameFields
+          firstName={str("p", "first_name")}
+          lastName={str("p", "last_name")}
+          onChange={(patch) => setMany("p", patch)}
+        />
 
         <FloatingInput
           label="Nome d'arte"
@@ -128,32 +121,11 @@ export const HeadCard = () => {
         <FieldSlot name="birth_date">
           <GroupLabel>Data di nascita</GroupLabel>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-            <FieldCluster className="w-full max-w-[420px]">
-              <FloatingSelect
-                label="Giorno"
-                className="flex-1"
-                value={birth.day}
-                onValueChange={(v) => setBirthPart("day", v)}
-                options={toOptions(DAYS)}
-              />
-              <FloatingSelect
-                label="Mese"
-                className="flex-1"
-                value={birth.month}
-                onValueChange={(v) => setBirthPart("month", v)}
-                options={MONTHS.map((m, i) => ({
-                  value: String(i + 1).padStart(2, "0"),
-                  label: m,
-                }))}
-              />
-              <FloatingSelect
-                label="Anno"
-                className="flex-1"
-                value={birth.year}
-                onValueChange={(v) => setBirthPart("year", v)}
-                options={toOptions(YEARS)}
-              />
-            </FieldCluster>
+            <BirthDateFields
+              className="w-full max-w-[420px]"
+              birthDate={birthDate}
+              onChange={(v) => set("p", "birth_date", v)}
+            />
             <ProfileCheckbox
               checked={isAdult}
               disabled
@@ -163,6 +135,7 @@ export const HeadCard = () => {
             />
           </div>
         </FieldSlot>
+
 
 
         <FieldSlot name="birth_place">
