@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
 import { Surface } from "@/components/ui/surface";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
-import { parseSignupMode } from "@/lib/signupMode";
+import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Users } from "lucide-react";
 import logo from "@/assets/logo.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
@@ -31,9 +32,13 @@ export const AuthPage = () => {
   const [slideIndex, setSlideIndex] = useState(0);
   const { user, userRole, isLoading: authLoading, signIn, signUp } = useAuth();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const signupMode = parseSignupMode(searchParams.get("mode"));
   const isGuardianMode = signupMode === "guardian";
+
+  const handleModeChange = (value: SignupMode) => {
+    setSearchParams({ mode: value }, { replace: true });
+  };
 
 
   // Auto-advance slider
