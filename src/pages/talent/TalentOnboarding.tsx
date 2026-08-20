@@ -53,7 +53,9 @@ const EMPTY_BASIC: BasicInfoStepState = {
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
+  terms_accepted: false,
 };
+
 
 
 export const TalentOnboarding = () => {
@@ -88,8 +90,14 @@ export const TalentOnboarding = () => {
   const whatsappValid = isWhatsappValid(whatsappMode, basic);
   const whatsappError =
     basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
-  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
+  const termsError =
+    basicTouched && !basic.terms_accepted
+      ? "Devi accettare i termini e le condizioni per continuare"
+      : undefined;
+  const basicValid =
+    Object.keys(errors).length === 0 && whatsappValid && basic.terms_accepted;
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
+
 
   const whatsappPrefixToSave =
     whatsappMode === "same" ? basic.phone_prefix : basic.whatsapp_prefix;
@@ -252,6 +260,7 @@ export const TalentOnboarding = () => {
                 value={basic}
                 errors={visibleErrors}
                 whatsappError={whatsappError}
+                termsError={termsError}
                 onWhatsappModeChange={setWhatsappMode}
                 onChange={(patch) => {
                   setBasicTouched(true);
@@ -259,6 +268,7 @@ export const TalentOnboarding = () => {
                   setBasic((prev) => ({ ...prev, ...patch }));
                 }}
               />
+
 
             )}
             {step === 2 && (
