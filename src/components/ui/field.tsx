@@ -239,6 +239,7 @@ export const FloatingSelect = ({
   options,
   disabled,
   className,
+  error,
 }: {
   label: string;
   value: string;
@@ -246,44 +247,53 @@ export const FloatingSelect = ({
   options: { value: string; label: string }[];
   disabled?: boolean;
   className?: string;
+  /** Messaggio di errore (bordo rosso + testo sotto il campo) */
+  error?: string | null;
 }) => {
   const filled = value !== "";
   const selected = options.find((o) => o.value === value);
+  const message = error?.trim() ? error : null;
 
   return (
-    <Select value={value || undefined} onValueChange={onValueChange} disabled={disabled}>
-      <SelectTrigger
-        className={cn(
-          shellBase,
-          "min-h-16 h-auto items-stretch pr-11 text-left shadow-none",
-          "border-[var(--field-border)] focus:border-[var(--field-border-focus)]",
-          disabled
-            ? "bg-[var(--field-bg-disabled)] text-[var(--field-fg-disabled)]"
-            : "bg-[var(--field-bg)] text-[var(--field-fg)]",
-          "[&>svg]:absolute [&>svg]:right-4 [&>svg]:top-1/2 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:-translate-y-1/2 [&>svg]:opacity-70",
-          className
-        )}
-      >
-        <FloatLabel floating={filled} disabled={disabled}>
-          {label}
-        </FloatLabel>
-        {filled && (
-          <span className="mt-[18px] block w-full truncate text-base leading-[1.2] text-inherit">
-            {selected?.label ?? value}
-          </span>
-        )}
-      </SelectTrigger>
+    <div className={cn("flex flex-col", className)}>
+      <Select value={value || undefined} onValueChange={onValueChange} disabled={disabled}>
+        <SelectTrigger
+          aria-invalid={!!error}
+          className={cn(
+            shellBase,
+            "min-h-16 h-auto items-stretch pr-11 text-left shadow-none",
+            error
+              ? "border-destructive"
+              : "border-[var(--field-border)] focus:border-[var(--field-border-focus)]",
+            disabled
+              ? "bg-[var(--field-bg-disabled)] text-[var(--field-fg-disabled)]"
+              : "bg-[var(--field-bg)] text-[var(--field-fg)]",
+            "[&>svg]:absolute [&>svg]:right-4 [&>svg]:top-1/2 [&>svg]:h-5 [&>svg]:w-5 [&>svg]:-translate-y-1/2 [&>svg]:opacity-70"
+          )}
+        >
+          <FloatLabel floating={filled} disabled={disabled}>
+            {label}
+          </FloatLabel>
+          {filled && (
+            <span className="mt-[18px] block w-full truncate text-base leading-[1.2] text-inherit">
+              {selected?.label ?? value}
+            </span>
+          )}
+        </SelectTrigger>
 
-      <SelectContent className="max-h-72">
-        {options.map((o) => (
-          <SelectItem key={o.value} value={o.value}>
-            {o.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+        <SelectContent className="max-h-72">
+          {options.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {message && <p className="mt-1.5 px-1 text-xs text-destructive">{message}</p>}
+    </div>
   );
 };
+
 
 export const toOptions = (values: readonly string[]) =>
   values.map((v) => ({ value: v, label: v }));
