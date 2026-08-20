@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Tag, User } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +30,15 @@ import {
   BasicInfoStep,
   type BasicInfoStepState,
 } from "@/components/onboarding/steps/BasicInfoStep";
+import {
+  EMPTY_GUARDIAN,
+  validateGuardian,
+  type GuardianErrors,
+  type GuardianValue,
+} from "@/components/profile/fields/GuardianFields";
+import { isGuardianSignup } from "@/lib/signupMode";
+import { isAdultBirthDate } from "@/lib/guardianship";
+import { useUpdateGuardian } from "@/hooks/useGuardian";
 import { RolesStep } from "@/components/onboarding/steps/RolesStep";
 import { PhotoStep } from "@/components/onboarding/steps/PhotoStep";
 import {
@@ -64,7 +73,12 @@ export const TalentOnboarding = () => {
   const navigate = useNavigate();
   const { data: profile } = useProfile();
   const updateProfile = useUpdateProfile();
+  const updateGuardian = useUpdateGuardian();
   const uploadMedia = useUploadMedia();
+
+  // Registrazione con la porta "tutore": il primo step raccoglie anche i dati
+  // del tutore, unici contatti del profilo tutelato.
+  const isGuardianMode = isGuardianSignup(user);
 
   // Account registrato come tutore: predispone riga guardians + tutela sul profilo.
   useGuardianBootstrap();
@@ -91,11 +105,40 @@ export const TalentOnboarding = () => {
   // Stato delle spunte WhatsApp (dedotto dal componente condiviso).
   const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>("same");
 
-  const errors: BasicInfoErrors = useMemo(() => validateBasicInfo(basic), [basic]);
-  const whatsappValid = isWhatsappValid(whatsappMode, basic);
+  // Dati del tutore (solo in modalità tutore): email precompilata con quella
+  // di accesso e modificabile.
+  const [guardian, setGuardian] = useState<GuardianValue>(EMPTY_GUARDIAN);
+  const [guardianEmailInit, setGuardianEmailInit] = useState(false);
+  const [guardianWhatsappMode, setGuardianWhatsappMode] = useState<WhatsappMode>("same");
+
+  useEffect(() => {
+    if (!isGuardianMode || guardianEmailInit || !user?.email) return;
+    setGuardianEmailInit(true);
+    setGuardian((prev) => (prev.contact_email ? prev : { ...prev, contact_email: user.email! }));
+  }, [isGuardianMode, guardianEmailInit, user?.email]);
+
+  const guardianErrors: GuardianErrors = useMemo(
+    () => (isGuardianMode ? validateGuardian(guardian) : {}),
+    [isGuardianMode, guardian]
+  );
+  const guardianWhatsappValid = isWhatsappValid(guardianWhatsappMode, guardian);
+  const guardianVisibleErrors: GuardianErrors = basicTouched ? guardianErrors : {};
+  const guardianWhatsappError =
+    basicTouched && !guardianWhatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+  const guardianValid = Object.keys(guardianErrors).length === 0 && guardianWhatsappValid;
+
+  const errors: BasicInfoErrors = useMemo(() => {
+    const all = validateBasicInfo(basic);
+    if (!isGuardianMode) return all;
+    // Il minore non ha contatti propri: nessun vincolo su email e telefono.
+    const { contact_email, phone_number, ...rest } = all;
+    return rest;
+  }, [basic, isGuardianMode]);
+  const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
   const whatsappError =
     basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
-  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
+  const basicValid =
+    Object.keys(errors).length === 0 && whatsappValid && (!isGuardianMode || guardianValid);
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
 
 
@@ -111,6 +154,41 @@ export const TalentOnboarding = () => {
   /* ------------------------------- salvataggi ------------------------------ */
 
   const saveBasic = async () => {
+    if (isGuardianMode) {
+      const guardianWhatsappPrefix =
+        guardianWhatsappMode === "same" ? guardian.phone_prefix : guardian.whatsapp_prefix;
+      const guardianWhatsappNumber =
+        (guardianWhatsappMode === "same"
+          ? guardian.phone_number
+          : guardian.whatsapp_number
+        ).trim() || null;
+
+      await updateGuardian.mutateAsync({
+        first_name: guardian.first_name.trim(),
+        last_name: guardian.last_name.trim(),
+        birth_date: guardian.birth_date || null,
+        age_confirmed: isAdultBirthDate(guardian.birth_date),
+        contact_email: guardian.contact_email.trim() || null,
+        phone_prefix: guardian.phone_prefix,
+        phone_number: guardian.phone_number.trim() || null,
+        whatsapp_prefix: guardianWhatsappMode === "none" ? null : guardianWhatsappPrefix,
+        whatsapp_number: guardianWhatsappMode === "none" ? null : guardianWhatsappNumber,
+      });
+
+      await updateProfile.mutateAsync({
+        first_name: basic.first_name.trim(),
+        last_name: basic.last_name.trim(),
+        birth_date: basic.birth_date || null,
+        gender: basic.gender || null,
+        gender_identity: basic.gender_identity || null,
+        guardian_user_id: user?.id ?? null,
+        age_confirmed: isAdultBirthDate(basic.birth_date),
+        onboarding_completed: true,
+      });
+      setBasicSaved(true);
+      return;
+    }
+
     await updateProfile.mutateAsync({
       first_name: basic.first_name.trim(),
       last_name: basic.last_name.trim(),
@@ -262,6 +340,21 @@ export const TalentOnboarding = () => {
                 whatsappError={whatsappError}
                 
                 onWhatsappModeChange={setWhatsappMode}
+                guardian={
+                  isGuardianMode
+                    ? {
+                        value: guardian,
+                        errors: guardianVisibleErrors,
+                        whatsappError: guardianWhatsappError,
+                        onChange: (patch) => {
+                          setBasicTouched(true);
+                          setBasicSaved(false);
+                          setGuardian((prev) => ({ ...prev, ...patch }));
+                        },
+                        onWhatsappModeChange: setGuardianWhatsappMode,
+                      }
+                    : undefined
+                }
                 onChange={(patch) => {
                   setBasicTouched(true);
                   setBasicSaved(false);

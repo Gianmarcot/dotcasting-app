@@ -7,6 +7,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Talent } from "./talentFields";
+import {
+  formatPhone,
+  isMinorBirthDate,
+  type GuardianContact,
+} from "@/lib/guardianship";
 
 interface DbMedia { url: string; sort_order: number; media_type: string; category: string | null }
 interface DbAttrs {
@@ -37,11 +42,14 @@ interface DbProfile {
   whatsapp_prefix: string | null; whatsapp_number: string | null;
   website_url: string | null;
   contact_email: string | null;
+  guardian_user_id: string | null;
   driving_licenses: string[] | null;
   travel_availability: unknown; // jsonb in DB
   // PostgREST può restituire la riga singola come array o come oggetto
   attributes: DbAttrs[] | DbAttrs | null;
   media: DbMedia[] | null;
+  /** contatti del tutore, iniettati a monte per i profili tutelati */
+  guardian?: GuardianContact | null;
 }
 
 const age = (birth?: string | null) => {
@@ -117,6 +125,9 @@ export function mapToTalent(p: DbProfile): Talent {
   if (a.has_dwarfism) segni.push("Nanismo");
 
   // abilità: array libero + flag con eventuale dettaglio
+  const isTutelato = !!p.guardian_user_id;
+  const g: GuardianContact = p.guardian ?? {};
+
   const abilita: string[] = [...(a.abilities ?? [])];
   if (a.ability_dance) abilita.push("Danza");
   if (a.ability_sing) abilita.push("Canto");
@@ -158,15 +169,48 @@ export function mapToTalent(p: DbProfile): Talent {
     abilita: abilita.length ? abilita : null,
     patenti: p.driving_licenses?.length ? p.driving_licenses : null,
     disponibilita_viaggio: travelToText(p.travel_availability),
-    email: p.contact_email ?? null,
-    telefono: phone(p.phone_prefix, p.phone_number),
-    whatsapp: phone(p.whatsapp_prefix, p.whatsapp_number),
+    // Profilo tutelato: i contatti si risolvono al tutore. I renderer (PDF e
+    // card web) restano puri e non sanno nulla della tutela.
+    email: (isTutelato ? g.contact_email : p.contact_email) ?? null,
+    telefono: isTutelato
+      ? formatPhone(g.phone_prefix, g.phone_number)
+      : phone(p.phone_prefix, p.phone_number),
+    whatsapp: isTutelato
+      ? formatPhone(g.whatsapp_prefix, g.whatsapp_number)
+      : phone(p.whatsapp_prefix, p.whatsapp_number),
+    is_minor: isMinorBirthDate(p.birth_date),
     sito_web: p.website_url ?? null,
     photos: (p.media ?? [])
       .filter(m => m.media_type === "photo" && (m.category ?? "main_photos") === "main_photos")
       .sort((x, y) => x.sort_order - y.sort_order)
       .map(m => transformPhotoUrl(m.url)),
   };
+}
+
+/**
+ * Per i profili tutelati carica la riga `guardians` del tutore e la allega al
+ * profilo, così il mapper può risolvere i contatti senza altre query.
+ */
+async function attachGuardians(profiles: DbProfile[]): Promise<void> {
+  const ids = Array.from(
+    new Set(profiles.map(p => p.guardian_user_id).filter((v): v is string => !!v))
+  );
+  if (!ids.length) return;
+
+  const { data, error } = await supabase
+    .from("guardians")
+    .select("user_id, first_name, last_name, contact_email, phone_prefix, phone_number, whatsapp_prefix, whatsapp_number")
+    .in("user_id", ids);
+
+  if (error) {
+    console.error("attachGuardians:", error);
+    return;
+  }
+
+  const byUser = new Map((data ?? []).map(g => [g.user_id as string, g as GuardianContact]));
+  for (const p of profiles) {
+    if (p.guardian_user_id) p.guardian = byUser.get(p.guardian_user_id) ?? null;
+  }
 }
 
 /**
@@ -184,7 +228,7 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
         id, first_name, last_name, stage_name, gender, ethnicity, birth_date,
         city, country, nationality, work_cities,
         phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
-        website_url, contact_email, driving_licenses, travel_availability,
+        website_url, contact_email, guardian_user_id, driving_licenses, travel_availability,
         attributes:talent_attributes (
           height, weight, hair_color, eye_color, hair_length, hair_type,
           languages, abilities, shirt_size, pants_size, jacket_size,
@@ -203,8 +247,10 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
 
   if (error) throw error;
 
-  return (data ?? [])
-    .filter(r => r.profile)
+  const rows = (data ?? []).filter(r => r.profile);
+  await attachGuardians(rows.map(r => r.profile as unknown as DbProfile));
+
+  return rows
     .map(r => ({
       roleTalentId: r.id as string,
       talent: mapToTalent(r.profile as unknown as DbProfile),
@@ -222,7 +268,7 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
       id, first_name, last_name, stage_name, gender, ethnicity, birth_date,
       city, country, nationality, work_cities,
       phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
-      website_url, contact_email, driving_licenses, travel_availability,
+      website_url, contact_email, guardian_user_id, driving_licenses, travel_availability,
       attributes:talent_attributes (
         height, weight, hair_color, eye_color, hair_length, hair_type,
         languages, abilities, shirt_size, pants_size, jacket_size,
@@ -241,5 +287,7 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
 
   if (error) throw error;
   if (!data) return null;
-  return mapToTalent(data as unknown as DbProfile);
+  const profile = data as unknown as DbProfile;
+  await attachGuardians([profile]);
+  return mapToTalent(profile);
 }

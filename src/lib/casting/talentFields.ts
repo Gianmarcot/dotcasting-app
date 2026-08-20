@@ -45,6 +45,8 @@ export interface Talent {
   telefono?: string | null;
   whatsapp?: string | null;
   sito_web?: string | null;
+  /** profilo tutelato con data di nascita da minore: i contatti sono del tutore */
+  is_minor?: boolean | null;
   // --- foto
   photos: string[];
 }

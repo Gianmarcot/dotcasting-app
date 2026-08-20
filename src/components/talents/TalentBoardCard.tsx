@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
 import { Badge } from "@/components/ui/badge";
+import { MinorBadge } from "@/components/talents/MinorBadge";
 import { Image as ImageIcon, Video, FileText } from "lucide-react";
 
 export interface MaterialIndicators {
@@ -122,7 +123,10 @@ export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }:
 
       {/* Bottom fade overlay */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-3 pt-12 pb-2 text-white">
-        <div className="text-[15px] font-medium leading-tight">{name}</div>
+        <div className="flex items-center gap-2">
+          <div className="text-[15px] font-medium leading-tight">{name}</div>
+          <MinorBadge birthDate={talent.birth_date} withIcon={false} />
+        </div>
         {meta && (
           <div className="truncate text-[12px] text-white/80 mt-0.5">{meta}</div>
         )}

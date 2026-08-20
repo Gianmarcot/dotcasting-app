@@ -24,11 +24,17 @@ import { PhysicalCard } from "@/components/profile/v2/PhysicalCard";
 import { RolesCard } from "@/components/profile/v2/RolesCard";
 import { BioCard } from "@/components/profile/v2/BioCard";
 import { WorkTravelCard } from "@/components/profile/v2/WorkTravelCard";
+import { GuardianCard } from "@/components/profile/v2/GuardianCard";
+import { MaturityNotice, UpdateAccessNotice } from "@/components/profile/v2/MaturityNotice";
+import { useAuth } from "@/contexts/AuthContext";
+import { needsCredentialsUpdate } from "@/lib/signupMode";
 
 const ProfileContent = () => {
   const { isLoading, isDirty, resetKey, profileRow } = useProfileForm();
   const { pendingHref, confirmLeave, cancelLeave } = useUnsavedGuard(isDirty);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const { user } = useAuth();
+  const guardianUserId = profileRow?.guardian_user_id ?? null;
 
   if (isLoading) {
     return (
@@ -54,6 +60,12 @@ const ProfileContent = () => {
         </header>
 
 
+        <MaturityNotice
+          birthDate={profileRow?.birth_date}
+          guardianUserId={guardianUserId}
+        />
+        <UpdateAccessNotice show={needsCredentialsUpdate(user, guardianUserId)} />
+
         <ProfileStrengthCard />
         <div key={resetKey} className="space-y-6">
           <div id="section-head" className="scroll-mt-6 rounded-[24px] transition-shadow">
@@ -62,6 +74,11 @@ const ProfileContent = () => {
           <div id="section-contacts" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <ContactsCard />
           </div>
+          {guardianUserId && (
+            <div id="section-guardian" className="scroll-mt-6 rounded-[24px] transition-shadow">
+              <GuardianCard guardianUserId={guardianUserId} />
+            </div>
+          )}
           <div id="section-address" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <AddressCard />
           </div>

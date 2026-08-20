@@ -18,6 +18,8 @@ import {
 } from "@/components/profile/fields/BasicInfoFields";
 
 import { FieldSlot, useProfileForm } from "./ProfileFormContext";
+import { useGuardian } from "@/hooks/useGuardian";
+import { formatPhone, guardianFullName } from "@/lib/guardianship";
 
 interface SocialLinks {
   instagram?: string;
@@ -42,8 +44,45 @@ const prefixOptions = PHONE_PREFIXES.map((p) => ({
   label: `${p.code} ${p.country}`,
 }));
 
+/** Contatti del tutore in sola lettura: su un profilo tutelato non si modificano qui. */
+const GuardianContactsBox = ({ guardianUserId }: { guardianUserId: string }) => {
+  const { data: guardian } = useGuardian(guardianUserId);
+  const rows: { label: string; value: string }[] = [];
+  const name = guardianFullName(guardian);
+  if (name) rows.push({ label: "Tutore", value: name });
+  if (guardian?.contact_email) rows.push({ label: "Email", value: guardian.contact_email });
+  const tel = formatPhone(guardian?.phone_prefix, guardian?.phone_number);
+  if (tel) rows.push({ label: "Telefono", value: tel });
+  const wa = formatPhone(guardian?.whatsapp_prefix, guardian?.whatsapp_number);
+  if (wa) rows.push({ label: "WhatsApp", value: wa });
+
+  return (
+    <div className="rounded-[20px] bg-field px-5 py-6 sm:px-6">
+      <p className="text-[15px] text-field-label">
+        Il profilo è tutelato: i contatti sono quelli del tutore e non si modificano da qui.
+      </p>
+      <dl className="mt-6 space-y-4">
+        {rows.length ? (
+          rows.map((r) => (
+            <div key={r.label}>
+              <dt className="text-[13px] text-field-label">{r.label}</dt>
+              <dd className="text-[15px] text-foreground">{r.value}</dd>
+            </div>
+          ))
+        ) : (
+          <p className="text-[15px] text-foreground">Nessun contatto del tutore inserito.</p>
+        )}
+      </dl>
+      <a href="#section-guardian" className="dc-link-action mt-6 inline-block">
+        Modifica i dati del tutore
+      </a>
+    </div>
+  );
+};
+
 export const ContactsCard = () => {
-  const { str, set, setMany, obj } = useProfileForm();
+  const { str, set, setMany, obj, profileRow } = useProfileForm();
+  const guardianUserId = profileRow?.guardian_user_id ?? null;
 
   const socials = obj<SocialLinks>("p", "social_links");
 
@@ -56,6 +95,10 @@ export const ContactsCard = () => {
 
   return (
     <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
+      {guardianUserId ? (
+        <GuardianContactsBox guardianUserId={guardianUserId} />
+      ) : (
+        <>
       <FieldSlot name="contact_email">
         <ContactEmailField
           value={str("p", "contact_email")}
@@ -76,7 +119,8 @@ export const ContactsCard = () => {
           })
         }
       />
-
+        </>
+      )}
 
       <FloatingInput
         label="Sito Web"

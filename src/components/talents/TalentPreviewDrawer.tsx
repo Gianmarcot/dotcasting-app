@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { MinorBadge } from "@/components/talents/MinorBadge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ExternalLink, Send } from "lucide-react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
@@ -232,9 +233,12 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
 
             {/* Header */}
             <div className="px-6 pt-6 pb-5">
-              <h2 className="text-2xl font-medium text-foreground leading-tight">
-                {name}
-              </h2>
+              <div className="flex flex-wrap items-center gap-3">
+                <h2 className="text-2xl font-medium text-foreground leading-tight">
+                  {name}
+                </h2>
+                <MinorBadge birthDate={talent.birth_date} />
+              </div>
               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                 {location && <span>{location}</span>}
                 {location && age ? <span aria-hidden>·</span> : null}

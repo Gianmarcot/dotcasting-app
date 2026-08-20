@@ -26,6 +26,7 @@ import TalentCommunications from "./pages/talent/TalentCommunications";
 import TalentProfile from "./pages/talent/TalentProfileV2";
 import TalentSettings from "./pages/talent/TalentSettings";
 import TalentOnboarding from "./pages/talent/TalentOnboarding";
+import TalentUpdateAccess from "./pages/talent/TalentUpdateAccess";
 
 // Shared pages
 import TalentPublicProfile from "./pages/shared/TalentPublicProfile";
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="profile" element={<TalentProfile />} />
               <Route path="profile/preview" element={<TalentPublicProfile />} />
               <Route path="settings" element={<TalentSettings />} />
+              <Route path="aggiorna-accesso" element={<TalentUpdateAccess />} />
               <Route path="notifications" element={<Navigate to="/talent/communications" replace />} />
               <Route path="notifications/*" element={<Navigate to="/talent/communications" replace />} />
             </Route>
