@@ -97,8 +97,9 @@ export const TalentOnboarding = () => {
       contact_email: basic.contact_email.trim() || null,
       phone_prefix: basic.phone_prefix,
       phone_number: basic.phone_number.trim() || null,
-      whatsapp_prefix: basic.whatsapp_same ? basic.phone_prefix : null,
-      whatsapp_number: basic.whatsapp_same ? basic.phone_number.trim() || null : null,
+      whatsapp_prefix: whatsappMode === "none" ? null : whatsappPrefixToSave,
+      whatsapp_number: whatsappMode === "none" ? null : whatsappNumberToSave,
+
       age_confirmed: true,
       onboarding_completed: true,
     });
