@@ -43,22 +43,13 @@ const prefixOptions = PHONE_PREFIXES.map((p) => ({
 export const ContactsCard = () => {
   const { str, set, setMany, obj } = useProfileForm();
 
-  const phonePrefix = str("p", "phone_prefix") || "+39";
-  const phoneNumber = str("p", "phone_number");
-  const whatsappPrefix = str("p", "whatsapp_prefix") || "+39";
-  const whatsappNumber = str("p", "whatsapp_number");
   const socials = obj<SocialLinks>("p", "social_links");
 
-  const [sameWhatsapp, setSameWhatsapp] = useState(
-    () => !!phoneNumber && phoneNumber === whatsappNumber && phonePrefix === whatsappPrefix
-  );
-
-  const setPhone = (prefix: string, number: string) => {
-    setMany("p", {
-      phone_prefix: prefix,
-      phone_number: number || null,
-      ...(sameWhatsapp ? { whatsapp_prefix: prefix, whatsapp_number: number || null } : {}),
-    });
+  const phoneValue: PhoneValue = {
+    phone_prefix: str("p", "phone_prefix") || "+39",
+    phone_number: str("p", "phone_number"),
+    whatsapp_prefix: str("p", "whatsapp_prefix") || str("p", "phone_prefix") || "+39",
+    whatsapp_number: str("p", "whatsapp_number"),
   };
 
   return (
@@ -71,43 +62,19 @@ export const ContactsCard = () => {
       </FieldSlot>
 
       <PhoneFields
-        prefix={phonePrefix}
-        number={phoneNumber}
-        whatsappSame={sameWhatsapp}
-        onChange={setPhone}
-        onWhatsappSameChange={(checked) => {
-          setSameWhatsapp(checked);
-          if (checked) {
-            setMany("p", {
-              whatsapp_prefix: phonePrefix,
-              whatsapp_number: phoneNumber || null,
-            });
-          }
-        }}
+        value={phoneValue}
+        onChange={(patch) =>
+          setMany("p", {
+            ...("phone_prefix" in patch ? { phone_prefix: patch.phone_prefix } : {}),
+            ...("phone_number" in patch ? { phone_number: patch.phone_number || null } : {}),
+            ...("whatsapp_prefix" in patch ? { whatsapp_prefix: patch.whatsapp_prefix } : {}),
+            ...("whatsapp_number" in patch
+              ? { whatsapp_number: patch.whatsapp_number || null }
+              : {}),
+          })
+        }
       />
 
-
-      <div>
-        <GroupLabel>WhatsApp</GroupLabel>
-        <div className="flex gap-2 sm:max-w-[472px]">
-          <FloatingSelect
-            label="Prefisso"
-            className="w-[110px] shrink-0"
-            value={whatsappPrefix}
-            disabled={sameWhatsapp}
-            onValueChange={(v) => set("p", "whatsapp_prefix", v)}
-            options={prefixOptions}
-          />
-          <FloatingInput
-            label="Numero"
-            className="flex-1"
-            inputMode="tel"
-            disabled={sameWhatsapp}
-            value={whatsappNumber}
-            onChange={(v) => set("p", "whatsapp_number", v)}
-          />
-        </div>
-      </div>
 
       <FloatingInput
         label="Sito Web"
