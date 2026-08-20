@@ -45,6 +45,26 @@ const FloatingRow = () => {
         error="Codice fiscale non valido"
       />
       <FloatingTextarea label="Note" value={note} onChange={setNote} className="md:col-span-3" />
+
+      <div className="md:col-span-4">
+        <p className="mb-3 text-xs uppercase tracking-wide opacity-70">Autofill (email / password)</p>
+        <div className="grid max-w-[1000px] grid-cols-1 gap-6 md:grid-cols-2">
+          <FloatingInput
+            label="Email"
+            type="email"
+            autoComplete="email"
+            value="gianmarco@example.com"
+            onChange={() => {}}
+          />
+          <FloatingInput
+            label="Password"
+            type="password"
+            autoComplete="current-password"
+            value="password123"
+            onChange={() => {}}
+          />
+        </div>
+      </div>
     </div>
   );
 };

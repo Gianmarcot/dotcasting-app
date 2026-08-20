@@ -95,6 +95,8 @@ interface FloatingInputProps {
   inputMode?: "text" | "numeric" | "decimal" | "email" | "tel" | "url";
   className?: string;
   maxLength?: number;
+  name?: string;
+  autoComplete?: string;
   /** Messaggio di errore (bordo rosso + testo sotto il campo) */
   error?: string | null;
   /** Messaggio di avviso non bloccante */
@@ -114,6 +116,8 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
       inputMode,
       className,
       maxLength,
+      name,
+      autoComplete,
       error,
       warning,
     },
@@ -154,6 +158,8 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               type={type}
               inputMode={inputMode}
               maxLength={maxLength}
+              name={name}
+              autoComplete={autoComplete}
               value={value}
               disabled={disabled}
               onChange={(e) => onChange(e.target.value)}
@@ -162,7 +168,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
                 setFocused(false);
                 onBlur?.();
               }}
-              className="w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+              className="dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
             />
           </div>
         </FieldShell>
@@ -224,7 +230,7 @@ export const FloatingTextarea = ({
           setFocused(false);
           onBlur?.();
         }}
-        className="mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+        className="dc-autofill mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
       />
     </FieldShell>
   );

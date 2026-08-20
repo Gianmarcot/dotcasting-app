@@ -271,6 +271,7 @@ export const AuthPage = () => {
                 label={it.auth.email}
                 type="email"
                 inputMode="email"
+                autoComplete="email"
                 value={email}
                 onChange={setEmail}
               />
@@ -278,6 +279,7 @@ export const AuthPage = () => {
               <FloatingInput
                 label={it.auth.password}
                 type="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={setPassword}
               />
@@ -286,6 +288,7 @@ export const AuthPage = () => {
                 <FloatingInput
                   label={it.auth.confirmPassword}
                   type="password"
+                  autoComplete="new-password"
                   value={confirmPassword}
                   onChange={setConfirmPassword}
                   error={
