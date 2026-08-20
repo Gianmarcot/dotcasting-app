@@ -48,8 +48,10 @@ const EMPTY_BASIC: BasicInfoStepState = {
   contact_email: "",
   phone_prefix: "+39",
   phone_number: "",
-  whatsapp_same: false,
+  whatsapp_prefix: "+39",
+  whatsapp_number: "",
 };
+
 
 export const TalentOnboarding = () => {
   const { user } = useAuth();
