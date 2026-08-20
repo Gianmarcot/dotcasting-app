@@ -69,8 +69,12 @@ export const AuthPage = () => {
     checkAndRedirect();
   }, [user, userRole, authLoading, navigate]);
 
+  const consentsValid = isLogin || (termsAccepted && ageConfirmed);
+  const submitDisabled = isLoading || !consentsValid;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
 
     if (!email || !password) {
       toast.error(it.validation.required);
@@ -86,6 +90,10 @@ export const AuthPage = () => {
       toast.error(it.validation.passwordMin);
       return;
     }
+
+    if (!consentsValid) return;
+
+
 
     setIsLoading(true);
 
