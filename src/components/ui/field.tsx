@@ -116,6 +116,8 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
       inputMode,
       className,
       maxLength,
+      name,
+      autoComplete,
       error,
       warning,
     },
