@@ -241,7 +241,7 @@ export const AuthPage = () => {
                     {
                       value: "guardian",
                       label: "Registro un minore",
-                      icon: <Users size={48} strokeWidth={1.25} />,
+                      icon: <ParentChildIcon size={48} />,
                     },
                   ]}
                 />
