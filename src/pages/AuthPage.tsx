@@ -112,7 +112,7 @@ export const AuthPage = () => {
           toast.success("Accesso effettuato!");
         }
       } else {
-        const { error } = await signUp(email, password);
+        const { error } = await signUp(email, password, { signupMode });
         if (error) {
           if (error.message.includes("already registered") || error.message.includes("User already registered")) {
             toast.error("Questa email è già registrata. Prova ad accedere.");
