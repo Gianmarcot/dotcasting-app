@@ -158,6 +158,8 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               type={type}
               inputMode={inputMode}
               maxLength={maxLength}
+              name={name}
+              autoComplete={autoComplete}
               value={value}
               disabled={disabled}
               onChange={(e) => onChange(e.target.value)}
