@@ -539,6 +539,18 @@
     color: var(--field-label-disabled);
   }
 
+  /* Autofill: maschera il background blu/giallo del browser con il token surface-aware */
+  .dc-autofill:-webkit-autofill,
+  .dc-autofill:-webkit-autofill:hover,
+  .dc-autofill:-webkit-autofill:focus,
+  .dc-autofill:-webkit-autofill:active {
+    -webkit-box-shadow: inset 0 0 0 1000px var(--field-bg) !important;
+    -webkit-text-fill-color: var(--field-fg) !important;
+    caret-color: var(--field-fg);
+    transition: background-color 5000s ease-in-out 0s, color 5000s ease-in-out 0s;
+  }
+
+
   .dc-select-trigger {
     @apply flex h-12 items-center justify-between px-4 py-2 text-base
            [&>span]:line-clamp-1 [&>svg]:h-5 [&>svg]:w-5;
