@@ -78,12 +78,24 @@ export const TalentOnboarding = () => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
+  // Stato delle spunte WhatsApp (dedotto dal componente condiviso).
+  const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>("same");
+
   const errors: BasicInfoErrors = useMemo(() => validateBasicInfo(basic), [basic]);
-  const basicValid = Object.keys(errors).length === 0;
+  const whatsappValid = isWhatsappValid(whatsappMode, basic);
+  const whatsappError =
+    basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
+
+  const whatsappPrefixToSave =
+    whatsappMode === "same" ? basic.phone_prefix : basic.whatsapp_prefix;
+  const whatsappNumberToSave =
+    (whatsappMode === "same" ? basic.phone_number : basic.whatsapp_number).trim() || null;
 
   const stepDirty =
     step === 1 ? basicTouched && !basicSaved : step === 2 ? rolesDirty : !!photoFile;
+
 
   /* ------------------------------- salvataggi ------------------------------ */
 
