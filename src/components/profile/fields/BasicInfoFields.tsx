@@ -122,10 +122,18 @@ export const BirthDateFields = ({
   error?: string | null;
   className?: string;
 }) => {
-  const birth = splitBirthDate(birthDate);
+  const fromProp = splitBirthDate(birthDate);
+  // Le parti selezionate vivono in locale: una data incompleta non è ancora
+  // salvabile, ma le select devono comunque mostrare la scelta dell'utente.
+  const [parts, setParts] = useState(fromProp);
+
+  useEffect(() => {
+    if (birthDate) setParts(splitBirthDate(birthDate));
+  }, [birthDate]);
 
   const setPart = (part: "day" | "month" | "year", value: string) => {
-    const next = { ...birth, [part]: value };
+    const next = { ...parts, [part]: value };
+    setParts(next);
     onChange(
       next.day && next.month && next.year
         ? `${next.year}-${next.month}-${next.day}`
@@ -138,7 +146,7 @@ export const BirthDateFields = ({
       <FloatingSelect
         label="Giorno"
         className="flex-1"
-        value={birth.day}
+        value={parts.day}
         error={error}
         onValueChange={(v) => setPart("day", v)}
         options={toOptions(DAYS)}
@@ -146,7 +154,7 @@ export const BirthDateFields = ({
       <FloatingSelect
         label="Mese"
         className="flex-1"
-        value={birth.month}
+        value={parts.month}
         error={error ? " " : undefined}
         onValueChange={(v) => setPart("month", v)}
         options={MONTH_OPTIONS}
@@ -154,11 +162,12 @@ export const BirthDateFields = ({
       <FloatingSelect
         label="Anno"
         className="flex-1"
-        value={birth.year}
+        value={parts.year}
         error={error ? " " : undefined}
         onValueChange={(v) => setPart("year", v)}
         options={toOptions(YEARS)}
       />
+
     </FieldCluster>
   );
 };
