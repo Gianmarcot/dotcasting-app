@@ -11,7 +11,8 @@ import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
 import { toast } from "sonner";
-import { ChevronLeft, ChevronRight, User, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
 import logo from "@/assets/logo.png";
 import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
 import slide2 from "@/assets/auth-slide-2.jpg.asset.json";
