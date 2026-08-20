@@ -236,7 +236,7 @@ export const AuthPage = () => {
                     {
                       value: "self",
                       label: "Mi registro",
-                      icon: <User size={48} strokeWidth={1.25} />,
+                      icon: <User size={48} strokeWidth={1} />,
                     },
                     {
                       value: "guardian",
