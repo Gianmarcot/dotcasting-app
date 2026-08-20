@@ -1,26 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GENDER_IDENTITIES, MONTHS, REPRESENTATION_TYPES } from "@/lib/profileOptions";
+import { REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
-  FieldCluster,
   FieldGrid,
   FloatingInput,
-  FloatingSelect,
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
   RadioField,
   SectionCard,
   SectionDivider,
-  toOptions,
 } from "@/components/profile/fields/FormFields";
+import {
+  BirthDateFields,
+  GenderFields,
+  NameFields,
+} from "@/components/profile/fields/BasicInfoFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
 import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
-const YEARS = Array.from({ length: 80 }, (_, i) => String(new Date().getFullYear() - 16 - i));
-const DAYS = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
 
 export const HeadCard = () => {
   const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
