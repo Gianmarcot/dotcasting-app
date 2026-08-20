@@ -279,7 +279,7 @@ export const AuthPage = () => {
               <FloatingInput
                 label={it.auth.password}
                 type="password"
-                autoComplete={current-password}
+                autoComplete="current-password"
                 value={password}
                 onChange={setPassword}
               />
