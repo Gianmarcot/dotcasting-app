@@ -32,9 +32,12 @@ import {
 import { RolesStep } from "@/components/onboarding/steps/RolesStep";
 import { PhotoStep } from "@/components/onboarding/steps/PhotoStep";
 import {
+  isWhatsappValid,
   validateBasicInfo,
   type BasicInfoErrors,
+  type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
+
 
 const MAX_PHOTO_SIZE = 5 * 1024 * 1024;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png"];
@@ -48,8 +51,10 @@ const EMPTY_BASIC: BasicInfoStepState = {
   contact_email: "",
   phone_prefix: "+39",
   phone_number: "",
-  whatsapp_same: false,
+  whatsapp_prefix: "+39",
+  whatsapp_number: "",
 };
+
 
 export const TalentOnboarding = () => {
   const { user } = useAuth();
@@ -76,12 +81,24 @@ export const TalentOnboarding = () => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [photoError, setPhotoError] = useState<string | null>(null);
 
+  // Stato delle spunte WhatsApp (dedotto dal componente condiviso).
+  const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>("same");
+
   const errors: BasicInfoErrors = useMemo(() => validateBasicInfo(basic), [basic]);
-  const basicValid = Object.keys(errors).length === 0;
+  const whatsappValid = isWhatsappValid(whatsappMode, basic);
+  const whatsappError =
+    basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
+
+  const whatsappPrefixToSave =
+    whatsappMode === "same" ? basic.phone_prefix : basic.whatsapp_prefix;
+  const whatsappNumberToSave =
+    (whatsappMode === "same" ? basic.phone_number : basic.whatsapp_number).trim() || null;
 
   const stepDirty =
     step === 1 ? basicTouched && !basicSaved : step === 2 ? rolesDirty : !!photoFile;
+
 
   /* ------------------------------- salvataggi ------------------------------ */
 
@@ -95,8 +112,9 @@ export const TalentOnboarding = () => {
       contact_email: basic.contact_email.trim() || null,
       phone_prefix: basic.phone_prefix,
       phone_number: basic.phone_number.trim() || null,
-      whatsapp_prefix: basic.whatsapp_same ? basic.phone_prefix : null,
-      whatsapp_number: basic.whatsapp_same ? basic.phone_number.trim() || null : null,
+      whatsapp_prefix: whatsappMode === "none" ? null : whatsappPrefixToSave,
+      whatsapp_number: whatsappMode === "none" ? null : whatsappNumberToSave,
+
       age_confirmed: true,
       onboarding_completed: true,
     });
@@ -233,12 +251,15 @@ export const TalentOnboarding = () => {
               <BasicInfoStep
                 value={basic}
                 errors={visibleErrors}
+                whatsappError={whatsappError}
+                onWhatsappModeChange={setWhatsappMode}
                 onChange={(patch) => {
                   setBasicTouched(true);
                   setBasicSaved(false);
                   setBasic((prev) => ({ ...prev, ...patch }));
                 }}
               />
+
             )}
             {step === 2 && (
               <RolesStep

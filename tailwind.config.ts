@@ -88,7 +88,14 @@ export default {
   			'group-label': 'hsl(var(--group-label))',
   			'profile-card': 'hsl(var(--profile-card))',
   			'cream-dark': 'var(--cream-dark)',
+  			cream: 'var(--cream)',
+  			
+
+  			ink: 'var(--ink)',
+  			'grey-600': 'var(--grey-600)',
+  			'brand-600': 'var(--brand-600)',
   			'profile-strength': 'hsl(var(--profile-strength))'
+
 
   		},
   		borderRadius: {

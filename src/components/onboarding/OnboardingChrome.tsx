@@ -17,46 +17,39 @@ export const OnboardingHeader = ({ onExit }: { onExit: () => void }) => (
     <button
       type="button"
       onClick={onExit}
-      className="absolute left-0 flex items-center gap-2 text-[15px] text-foreground"
+      className="absolute left-0 flex items-center gap-2 text-[15px] text-ink"
     >
       <ArrowLeft className="h-4 w-4" />
       <span className="underline">Esci</span>
     </button>
-    <img src={logo} alt="dotCasting" className="h-6" />
+    <img src={logo} alt="dotCasting" className="h-[30px] w-[128px] object-contain" />
   </header>
 );
 
+/* Banda dello stepper: prosegue 57px sotto la barra + 32px di crema visibile,
+   così la card bianca (che le sta sopra) non lascia affiorare il fondo pagina. */
 export const OnboardingStepper = ({ current }: { current: number }) => (
-  <div className="rounded-t-[24px] bg-cream-dark px-5 pb-8 pt-6 sm:px-8">
-    <div className="grid grid-cols-3 gap-3 sm:gap-6">
+  <div className="relative rounded-[24px] bg-cream-dark px-8 pt-8 pb-[89px]">
+    <div className="flex gap-1">
       {ONBOARDING_STEPS.map((label, index) => {
         const reached = index + 1 <= current;
         return (
-          <div key={label} className="flex flex-col gap-3">
+          <div key={label} className="flex flex-1 flex-col items-center gap-2">
             <div className="flex items-center gap-2">
               <span
                 className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium",
-                  reached
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-white text-field-label"
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium leading-none",
+                  reached ? "bg-brand-600 text-white" : "border border-border bg-white text-ink"
                 )}
               >
                 {index + 1}
               </span>
-              <span
-                className={cn(
-                  "truncate text-[13px] sm:text-[15px]",
-                  reached ? "text-foreground" : "text-field-label"
-                )}
-              >
-                {label}
-              </span>
+              <span className="truncate text-[15px] font-medium text-ink">{label}</span>
             </div>
             <span
               className={cn(
-                "h-1 w-full rounded-full",
-                reached ? "bg-primary" : "bg-white"
+                "h-2 w-full rounded-full",
+                reached ? "bg-brand-600" : "bg-white"
               )}
             />
           </div>
@@ -88,13 +81,13 @@ export const OnboardingCard = ({
   loading?: boolean;
 }) => (
   <Surface variant="base" asChild>
-    <section className="-mt-4 rounded-[24px] bg-profile-card px-5 pb-8 pt-10 sm:px-10 sm:pb-10 sm:pt-12">
+    <section className="relative -mt-[57px] rounded-[24px] bg-profile-card px-5 pb-8 pt-[54px] sm:px-10 sm:pb-10">
       <header className="mb-10 flex flex-col items-center text-center">
-        <div className="h-14 w-14 text-foreground [&>svg]:h-14 [&>svg]:w-14">{icon}</div>
-        <h1 className="mt-6 font-display text-base uppercase tracking-[0.12em] text-foreground">
-          {title}
-        </h1>
-        {subtitle && <p className="mt-3 text-[15px] text-field-label">{subtitle}</p>}
+        <div className="h-16 w-16 text-ink [&>svg]:h-16 [&>svg]:w-16">{icon}</div>
+        <h1 className="mt-6 font-display text-2xl uppercase text-ink">{title}</h1>
+        {subtitle && (
+          <p className="mt-3 text-base leading-5 text-grey-600">{subtitle}</p>
+        )}
       </header>
 
       {children}
@@ -104,7 +97,7 @@ export const OnboardingCard = ({
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-[15px] text-foreground"
+            className="flex items-center gap-2 text-[15px] text-ink"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="underline">Indietro</span>
@@ -120,6 +113,7 @@ export const OnboardingCard = ({
     </section>
   </Surface>
 );
+
 
 export const OnboardingFooter = ({ onLater }: { onLater?: () => void }) => (
   <div className="flex h-16 items-center justify-center">
