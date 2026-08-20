@@ -224,7 +224,7 @@ export const FloatingTextarea = ({
           setFocused(false);
           onBlur?.();
         }}
-        className="mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+        className="dc-autofill mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
       />
     </FieldShell>
   );
