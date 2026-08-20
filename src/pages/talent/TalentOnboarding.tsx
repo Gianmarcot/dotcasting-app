@@ -90,12 +90,7 @@ export const TalentOnboarding = () => {
   const whatsappValid = isWhatsappValid(whatsappMode, basic);
   const whatsappError =
     basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
-  const termsError =
-    basicTouched && !basic.terms_accepted
-      ? "Devi accettare i termini e le condizioni per continuare"
-      : undefined;
-  const basicValid =
-    Object.keys(errors).length === 0 && whatsappValid && basic.terms_accepted;
+  const basicValid = Object.keys(errors).length === 0 && whatsappValid;
   const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
 
 
