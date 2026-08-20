@@ -87,6 +87,7 @@ export default {
   			},
   			'group-label': 'hsl(var(--group-label))',
   			'profile-card': 'hsl(var(--profile-card))',
+  			'cream-dark': 'var(--cream-dark)',
   			'profile-strength': 'hsl(var(--profile-strength))'
 
   		},
