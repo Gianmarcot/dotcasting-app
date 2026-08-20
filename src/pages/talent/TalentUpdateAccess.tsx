@@ -9,7 +9,8 @@ import { SectionCard } from "@/components/profile/fields/FormFields";
 import { PhoneFields, deriveWhatsappMode, type WhatsappMode } from "@/components/profile/fields/BasicInfoFields";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useProfile } from "@/hooks/useProfile";
+import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { markCredentialsUpdated } from "@/lib/signupMode";
 
 /**
