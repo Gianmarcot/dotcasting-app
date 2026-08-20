@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { SIGNUP_MODE_METADATA_KEY, type SignupMode } from "@/lib/signupMode";
 
 type UserRole = "talent" | "owner" | "admin" | "editor";
 
@@ -10,9 +11,14 @@ interface AuthContextType {
   userRole: UserRole | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    options?: { signupMode?: SignupMode }
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
