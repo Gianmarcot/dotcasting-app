@@ -14,21 +14,25 @@ import {
 export interface BasicInfoStepState extends BasicInfoValue {
   whatsapp_prefix: string;
   whatsapp_number: string;
+  terms_accepted: boolean;
 }
 
 export const BasicInfoStep = ({
   value,
   errors,
   whatsappError,
+  termsError,
   onChange,
   onWhatsappModeChange,
 }: {
   value: BasicInfoStepState;
   errors: BasicInfoErrors;
   whatsappError?: string | null;
+  termsError?: string | null;
   onChange: (patch: Partial<BasicInfoStepState>) => void;
   onWhatsappModeChange: (mode: WhatsappMode) => void;
 }) => (
+
 
   <div className="space-y-8">
     <NameFields
