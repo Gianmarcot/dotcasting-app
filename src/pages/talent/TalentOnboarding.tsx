@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { useUploadMedia } from "@/hooks/useTalentMedia";
+import { useGuardianBootstrap } from "@/hooks/useGuardianBootstrap";
 import { Surface } from "@/components/ui/surface";
 import {
   AlertDialog,
