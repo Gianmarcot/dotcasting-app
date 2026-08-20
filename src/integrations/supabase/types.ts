@@ -758,6 +758,51 @@ export type Database = {
           },
         ]
       }
+      guardians: {
+        Row: {
+          age_confirmed: boolean
+          birth_date: string | null
+          contact_email: string | null
+          created_at: string
+          first_name: string | null
+          last_name: string | null
+          phone_number: string | null
+          phone_prefix: string | null
+          updated_at: string
+          user_id: string
+          whatsapp_number: string | null
+          whatsapp_prefix: string | null
+        }
+        Insert: {
+          age_confirmed?: boolean
+          birth_date?: string | null
+          contact_email?: string | null
+          created_at?: string
+          first_name?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          phone_prefix?: string | null
+          updated_at?: string
+          user_id: string
+          whatsapp_number?: string | null
+          whatsapp_prefix?: string | null
+        }
+        Update: {
+          age_confirmed?: boolean
+          birth_date?: string | null
+          contact_email?: string | null
+          created_at?: string
+          first_name?: string | null
+          last_name?: string | null
+          phone_number?: string | null
+          phone_prefix?: string | null
+          updated_at?: string
+          user_id?: string
+          whatsapp_number?: string | null
+          whatsapp_prefix?: string | null
+        }
+        Relationships: []
+      }
       media_ratings: {
         Row: {
           created_at: string
@@ -964,6 +1009,7 @@ export type Database = {
           fiscal_code: string | null
           gender: string | null
           gender_identity: string | null
+          guardian_user_id: string | null
           has_band: boolean | null
           has_car: boolean | null
           has_minor_children: boolean | null
@@ -1028,6 +1074,7 @@ export type Database = {
           fiscal_code?: string | null
           gender?: string | null
           gender_identity?: string | null
+          guardian_user_id?: string | null
           has_band?: boolean | null
           has_car?: boolean | null
           has_minor_children?: boolean | null
@@ -1092,6 +1139,7 @@ export type Database = {
           fiscal_code?: string | null
           gender?: string | null
           gender_identity?: string | null
+          guardian_user_id?: string | null
           has_band?: boolean | null
           has_car?: boolean | null
           has_minor_children?: boolean | null
@@ -1542,6 +1590,7 @@ export type Database = {
         Args: { p_password: string; p_selected: string[]; p_token: string }
         Returns: Json
       }
+      convert_guardian_profile_to_adult: { Args: never; Returns: Json }
       get_casting_client_password_status: {
         Args: { p_casting_id: string }
         Returns: boolean
