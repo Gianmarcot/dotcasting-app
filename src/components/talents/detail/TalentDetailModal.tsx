@@ -28,6 +28,15 @@ interface TalentDetailModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+/** etichette brevi per la striscia video */
+const VIDEO_LABELS: Record<string, string> = {
+  intro_video: "Presentazione",
+  showreel: "Showreel",
+  other_videos: "Altri video",
+};
+
+const getVideoLabel = (category: string) => VIDEO_LABELS[category] ?? "Video";
+
 const LABEL = "text-[13px] leading-tight text-[#686868]";
 const VALUE = "mt-[2px] text-[15px] leading-snug text-[#1a1a1a]";
 
