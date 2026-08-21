@@ -26,7 +26,7 @@ const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 
 export const useTalentMediaByProfileIdEditable = (profileId: string | null | undefined) => {
   return useQuery({
-    queryKey: ["talent-media", profileId],
+    queryKey: ["talent-media", profileId, "full"],
     queryFn: async () => {
       if (!profileId) return [];
 
