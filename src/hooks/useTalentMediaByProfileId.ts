@@ -8,6 +8,7 @@ export interface TalentMedia {
   title: string | null;
   thumbnail_url: string | null;
   sort_order: number;
+  category: string;
 }
 
 export const useTalentMediaByProfileId = (profileId: string | null) => {
