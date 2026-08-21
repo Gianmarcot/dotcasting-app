@@ -65,6 +65,16 @@ export const TalentDetailModal = ({
     [media]
   );
 
+  const videos = useMemo(
+    () => (media ?? []).filter((m) => m.media_type === "video"),
+    [media]
+  );
+
+  const activeVideo = useMemo(
+    () => videos.find((v) => v.id === activeVideoId) ?? null,
+    [videos, activeVideoId]
+  );
+
   const { fullName, location, sections } = useMemo(
     () => buildTalentDetail(profile as Record<string, unknown> | null, attrs as Record<string, unknown> | null),
     [profile, attrs]
