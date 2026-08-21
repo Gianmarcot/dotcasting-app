@@ -84,13 +84,18 @@ export const TalentDetailModal = ({
     if (onIndexChange) onIndexChange(next);
     else setLocalIndex(next);
     setPhotoIndex(0);
+    setActiveVideoId(null);
     scrollRef.current?.scrollTo({ top: 0 });
     containerRef.current?.scrollTo({ top: 0 });
   };
 
-  useEffect(() => setPhotoIndex(0), [profileId]);
+  useEffect(() => {
+    setPhotoIndex(0);
+    setActiveVideoId(null);
+  }, [profileId]);
   useEffect(() => {
     if (open) setLocalIndex(index);
+    else setActiveVideoId(null);
   }, [open, index]);
 
   const prevPhoto = () => setPhotoIndex((i) => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
