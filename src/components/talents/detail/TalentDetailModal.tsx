@@ -93,6 +93,7 @@ export const TalentDetailModal = ({
     if (onIndexChange) onIndexChange(next);
     else setLocalIndex(next);
     setPhotoIndex(0);
+    setView("photo");
     setActiveVideoId(null);
     scrollRef.current?.scrollTo({ top: 0 });
     containerRef.current?.scrollTo({ top: 0 });
@@ -100,33 +101,50 @@ export const TalentDetailModal = ({
 
   useEffect(() => {
     setPhotoIndex(0);
+    setView("photo");
     setActiveVideoId(null);
   }, [profileId]);
   useEffect(() => {
     if (open) setLocalIndex(index);
-    else setActiveVideoId(null);
+    else {
+      setView("photo");
+      setActiveVideoId(null);
+    }
   }, [open, index]);
+
+  // entrando nella vista video seleziona il primo video; uscendo mette in pausa
+  useEffect(() => {
+    if (view === "video") {
+      if (!activeVideoId && videos.length) setActiveVideoId(videos[0].id);
+    } else {
+      videoRef.current?.pause();
+    }
+  }, [view, videos, activeVideoId]);
 
   const prevPhoto = () => setPhotoIndex((i) => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
   const nextPhoto = () => setPhotoIndex((i) => (photos.length ? (i + 1) % photos.length : 0));
+
+  const stepVideo = (delta: number) => {
+    if (!videos.length) return;
+    const cur = videos.findIndex((v) => v.id === activeVideoId);
+    const next = ((cur < 0 ? 0 : cur) + delta + videos.length) % videos.length;
+    setActiveVideoId(videos[next].id);
+  };
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      // con un video aperto le frecce controllano la riproduzione
-      if (activeVideo) {
-        const el = videoRef.current;
-        if (!el) return;
-        el.currentTime = Math.max(0, Math.min(el.duration || Infinity, el.currentTime + (e.key === "ArrowRight" ? 5 : -5)));
-        return;
-      }
-      if (e.key === "ArrowLeft") prevPhoto();
-      if (e.key === "ArrowRight") nextPhoto();
+      const delta = e.key === "ArrowRight" ? 1 : -1;
+      // le frecce agiscono sulla vista attiva
+      if (view === "video") stepVideo(delta);
+      else if (delta > 0) nextPhoto();
+      else prevPhoto();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length, activeVideoId]);
+  }, [open, photos.length, videos, activeVideoId, view]);
+
 
   const hasNavigation = profileIds.length > 1;
 
