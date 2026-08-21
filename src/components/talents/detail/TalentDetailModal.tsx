@@ -230,18 +230,33 @@ export const TalentDetailModal = ({
             >
               {view === "video" ? (
                 activeVideo ? (
-                  <video
-                    ref={videoRef}
-                    key={activeVideo.id}
-                    src={activeVideo.url}
-                    poster={activeVideo.thumbnail_url ?? undefined}
-                    controls
-                    preload="none"
-                    playsInline
-                    className="max-h-full max-w-full rounded-lg bg-black object-contain"
-                    aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
-                  />
+                  <div
+                    className="h-full max-h-full w-full max-w-full"
+                    style={{ aspectRatio: String(videoAspect[activeVideo.id] ?? 2 / 3) }}
+                  >
+                    <video
+                      ref={videoRef}
+                      key={activeVideo.id}
+                      src={activeVideo.url}
+                      poster={activeVideo.thumbnail_url ?? undefined}
+                      controls
+                      // senza miniatura carichiamo solo i metadati per mostrare il primo fotogramma
+                      preload={activeVideo.thumbnail_url ? "none" : "metadata"}
+                      playsInline
+                      onLoadedMetadata={(e) => {
+                        const el = e.currentTarget;
+                        if (!el.videoWidth || !el.videoHeight) return;
+                        const ratio = el.videoWidth / el.videoHeight;
+                        setVideoAspect((prev) =>
+                          prev[activeVideo.id] === ratio ? prev : { ...prev, [activeVideo.id]: ratio }
+                        );
+                      }}
+                      className="h-full w-full rounded-lg bg-black object-contain"
+                      aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
+                    />
+                  </div>
                 ) : (
+
                   <p className="text-sm text-muted-foreground">Nessun video disponibile</p>
                 )
               ) : (
