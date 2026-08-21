@@ -231,9 +231,10 @@ export const TalentDetailModal = ({
               {view === "video" ? (
                 activeVideo ? (
                   <div
-                    className="h-full max-h-full w-full max-w-full"
+                    className="h-full max-w-full"
                     style={{ aspectRatio: String(videoAspect[activeVideo.id] ?? 2 / 3) }}
                   >
+
                     <video
                       ref={videoRef}
                       key={activeVideo.id}
