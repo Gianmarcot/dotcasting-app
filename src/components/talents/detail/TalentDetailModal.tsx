@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { MinorBadge } from "@/components/talents/MinorBadge";
-import { ArrowLeft, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { useProfileById } from "@/hooks/useProfileById";
@@ -58,6 +58,7 @@ export const TalentDetailModal = ({
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [view, setView] = useState<"photo" | "video">("photo");
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
