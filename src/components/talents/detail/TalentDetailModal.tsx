@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { MinorBadge } from "@/components/talents/MinorBadge";
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { useProfileById } from "@/hooks/useProfileById";
