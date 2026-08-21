@@ -87,12 +87,20 @@ export const TalentDetailModal = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      // con un video aperto le frecce controllano la riproduzione
+      if (activeVideo) {
+        const el = videoRef.current;
+        if (!el) return;
+        el.currentTime = Math.max(0, Math.min(el.duration || Infinity, el.currentTime + (e.key === "ArrowRight" ? 5 : -5)));
+        return;
+      }
       if (e.key === "ArrowLeft") prevPhoto();
       if (e.key === "ArrowRight") nextPhoto();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length]);
+  }, [open, photos.length, activeVideoId]);
 
   const hasNavigation = profileIds.length > 1;
 
