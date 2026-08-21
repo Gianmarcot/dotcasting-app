@@ -12,7 +12,8 @@ export interface TalentMedia {
 
 export const useTalentMediaByProfileId = (profileId: string | null) => {
   return useQuery({
-    queryKey: ["talent-media", profileId],
+    // select ridotta: cache separata dagli hook che leggono tutte le colonne.
+    queryKey: ["talent-media", profileId, "lite"],
     queryFn: async () => {
       if (!profileId) return [];
 
