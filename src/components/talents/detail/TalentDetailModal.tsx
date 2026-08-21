@@ -48,8 +48,10 @@ export const TalentDetailModal = ({
   const [localIndex, setLocalIndex] = useState(index);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
