@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { MinorBadge } from "@/components/talents/MinorBadge";
-import { ArrowLeft, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { useProfileById } from "@/hooks/useProfileById";
@@ -58,6 +58,7 @@ export const TalentDetailModal = ({
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+  const [view, setView] = useState<"photo" | "video">("photo");
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -93,6 +94,7 @@ export const TalentDetailModal = ({
     if (onIndexChange) onIndexChange(next);
     else setLocalIndex(next);
     setPhotoIndex(0);
+    setView("photo");
     setActiveVideoId(null);
     scrollRef.current?.scrollTo({ top: 0 });
     containerRef.current?.scrollTo({ top: 0 });
@@ -100,33 +102,50 @@ export const TalentDetailModal = ({
 
   useEffect(() => {
     setPhotoIndex(0);
+    setView("photo");
     setActiveVideoId(null);
   }, [profileId]);
   useEffect(() => {
     if (open) setLocalIndex(index);
-    else setActiveVideoId(null);
+    else {
+      setView("photo");
+      setActiveVideoId(null);
+    }
   }, [open, index]);
+
+  // entrando nella vista video seleziona il primo video; uscendo mette in pausa
+  useEffect(() => {
+    if (view === "video") {
+      if (!activeVideoId && videos.length) setActiveVideoId(videos[0].id);
+    } else {
+      videoRef.current?.pause();
+    }
+  }, [view, videos, activeVideoId]);
 
   const prevPhoto = () => setPhotoIndex((i) => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
   const nextPhoto = () => setPhotoIndex((i) => (photos.length ? (i + 1) % photos.length : 0));
+
+  const stepVideo = (delta: number) => {
+    if (!videos.length) return;
+    const cur = videos.findIndex((v) => v.id === activeVideoId);
+    const next = ((cur < 0 ? 0 : cur) + delta + videos.length) % videos.length;
+    setActiveVideoId(videos[next].id);
+  };
 
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      // con un video aperto le frecce controllano la riproduzione
-      if (activeVideo) {
-        const el = videoRef.current;
-        if (!el) return;
-        el.currentTime = Math.max(0, Math.min(el.duration || Infinity, el.currentTime + (e.key === "ArrowRight" ? 5 : -5)));
-        return;
-      }
-      if (e.key === "ArrowLeft") prevPhoto();
-      if (e.key === "ArrowRight") nextPhoto();
+      const delta = e.key === "ArrowRight" ? 1 : -1;
+      // le frecce agiscono sulla vista attiva
+      if (view === "video") stepVideo(delta);
+      else if (delta > 0) nextPhoto();
+      else prevPhoto();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length, activeVideoId]);
+  }, [open, photos.length, videos, activeVideoId, view]);
+
 
   const hasNavigation = profileIds.length > 1;
 
@@ -153,35 +172,64 @@ export const TalentDetailModal = ({
             labels={{ prev: "Talent precedente", next: "Talent successivo", close: "Chiudi dettaglio" }}
           />
 
-          {/* METÀ SINISTRA — carosello foto + striscia video, non scorre */}
-          <div className="relative flex shrink-0 flex-col items-center justify-center bg-[#f4f0ec] py-10 lg:h-full lg:w-1/2 lg:py-0">
+          {/* METÀ SINISTRA — tre fasce fisse: selettore, media, navigazione */}
+          <div className="relative flex shrink-0 flex-col items-center justify-center gap-6 bg-[#f4f0ec] py-10 lg:h-full lg:w-1/2 lg:py-0">
+            {/* fascia 1 — selettore foto/video */}
+            {videos.length > 0 && (
+              <div
+                role="radiogroup"
+                aria-label="Tipo di media"
+                className="flex items-center gap-1 rounded-[100px] bg-[#ece5de] p-1"
+                onKeyDown={(e) => {
+                  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+                  e.preventDefault();
+                  setView(view === "photo" ? "video" : "photo");
+                }}
+              >
+                {(["photo", "video"] as const).map((v) => {
+                  const isActive = view === v;
+                  const Icon = v === "photo" ? Camera : Play;
+                  const count = v === "photo" ? photos.length : videos.length;
+                  return (
+                    <button
+                      key={v}
+                      type="button"
+                      role="radio"
+                      aria-checked={isActive}
+                      tabIndex={isActive ? 0 : -1}
+                      onClick={() => setView(v)}
+                      className={cn(
+                        "flex h-12 items-center gap-[10px] rounded-[58px] pl-6 pr-7 text-[15px] font-medium text-[#1a1a1a] transition-colors duration-200 motion-reduce:transition-none",
+                        isActive ? "bg-white" : "bg-transparent"
+                      )}
+                    >
+                      <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                      <span>
+                        {v === "photo" ? "Foto" : "Video"} · {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* fascia 2 — area del media, altezza fissa */}
             <div
-              className="relative flex flex-col items-center"
+              className="flex h-[min(60vh,120vw)] w-full items-center justify-center px-10 lg:h-[min(66vh,50vw)]"
               role="group"
               aria-roledescription="carosello"
               aria-label={
-                photos.length ? `Foto ${photoIndex + 1} di ${photos.length}` : "Nessuna foto disponibile"
+                view === "video"
+                  ? activeVideo
+                    ? getVideoLabel(activeVideo.category)
+                    : "Nessun video disponibile"
+                  : photos.length
+                    ? `Foto ${photoIndex + 1} di ${photos.length}`
+                    : "Nessuna foto disponibile"
               }
             >
-              {activeVideo && (
-                <button
-                  type="button"
-                  onClick={() => setActiveVideoId(null)}
-                  className="mb-4 flex items-center gap-2 self-start text-[14px] text-[#1a1a1a] opacity-70 transition-opacity hover:opacity-100 motion-reduce:transition-none"
-                >
-                  <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
-                  Torna alle foto
-                </button>
-              )}
-
-              <div
-                className={cn(
-                  "overflow-hidden rounded-lg w-[min(90vw,calc(75vh*2/3))] max-w-[60%] lg:w-[min(40vw,calc(100vh*2/3))]",
-                  activeVideo ? "bg-black" : "bg-black/5"
-                )}
-                style={{ aspectRatio: "2 / 3" }}
-              >
-                {activeVideo ? (
+              {view === "video" ? (
+                activeVideo ? (
                   <video
                     ref={videoRef}
                     key={activeVideo.id}
@@ -190,69 +238,73 @@ export const TalentDetailModal = ({
                     controls
                     preload="none"
                     playsInline
-                    className="h-full w-full object-contain"
+                    className="max-h-full max-w-full rounded-lg bg-black object-contain"
                     aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
                   />
-                ) : photos.length > 0 ? (
-                  <div
-                    key={profileId ?? "empty"}
-                    className="flex h-full w-full motion-reduce:!transition-none"
-                    style={{
-                      transform: `translateX(-${photoIndex * 100}%)`,
-                      transitionProperty: "transform",
-                      transitionDuration: "800ms",
-                      transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
-                    }}
-                  >
+                ) : (
+                  <p className="text-sm text-muted-foreground">Nessun video disponibile</p>
+                )
+              ) : (
+                <div className="h-full overflow-hidden rounded-lg bg-black/5" style={{ aspectRatio: "2 / 3" }}>
+                  {photos.length > 0 ? (
+                    <div
+                      key={profileId ?? "empty"}
+                      className="flex h-full w-full motion-reduce:!transition-none"
+                      style={{
+                        transform: `translateX(-${photoIndex * 100}%)`,
+                        transitionProperty: "transform",
+                        transitionDuration: "800ms",
+                        transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
+                      }}
+                    >
+                      {photos.map((url, i) => (
+                        <img
+                          key={url + i}
+                          src={url}
+                          alt={`${fullName} — foto ${i + 1} di ${photos.length}`}
+                          className="h-full w-full shrink-0 object-cover"
+                          aria-hidden={i !== photoIndex}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-muted-foreground">
+                      Nessuna foto disponibile
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* fascia 3 — navigazione: pallini (foto) o anteprime (video) */}
+            <div className="flex min-h-[64px] items-start justify-center">
+              {view === "photo" ? (
+                photos.length > 1 ? (
+                  <div className="flex items-center justify-center gap-2 pt-3">
                     {photos.map((url, i) => (
-                      <img
+                      <button
                         key={url + i}
-                        src={url}
-                        alt={`${fullName} — foto ${i + 1} di ${photos.length}`}
-                        className="h-full w-full shrink-0 object-cover"
-                        aria-hidden={i !== photoIndex}
+                        type="button"
+                        onClick={() => setPhotoIndex(i)}
+                        aria-label={`Vai alla foto ${i + 1}`}
+                        aria-current={i === photoIndex}
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
+                          i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
+                        )}
                       />
                     ))}
                   </div>
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center px-6 text-center text-sm text-muted-foreground">
-                    Nessuna foto disponibile
-                  </div>
-                )}
-              </div>
-
-              {/* indicatori */}
-              {!activeVideo && photos.length > 1 && (
-                <div className="mt-6 flex items-center justify-center gap-2">
-                  {photos.map((url, i) => (
-                    <button
-                      key={url + i}
-                      type="button"
-                      onClick={() => setPhotoIndex(i)}
-                      aria-label={`Vai alla foto ${i + 1}`}
-                      aria-current={i === photoIndex}
-                      className={cn(
-                        "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
-                        i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
-                      )}
-                    />
-                  ))}
-                </div>
-              )}
-              <p className="sr-only" aria-live="polite">
-                {photos.length ? `Foto ${photoIndex + 1} di ${photos.length}` : ""}
-              </p>
-
-              {/* striscia video */}
-              {videos.length > 0 && (
-                <div className="mt-6 flex items-start justify-center gap-3">
+                ) : null
+              ) : (
+                <div className="flex items-start justify-center gap-3">
                   {videos.map((v) => {
                     const isActive = v.id === activeVideoId;
                     return (
                       <button
                         key={v.id}
                         type="button"
-                        onClick={() => setActiveVideoId(isActive ? null : v.id)}
+                        onClick={() => setActiveVideoId(v.id)}
                         aria-pressed={isActive}
                         className="group w-[84px] shrink-0 text-left"
                       >
@@ -287,8 +339,12 @@ export const TalentDetailModal = ({
               )}
             </div>
 
+            <p className="sr-only" aria-live="polite">
+              {view === "photo" && photos.length ? `Foto ${photoIndex + 1} di ${photos.length}` : ""}
+            </p>
+
             {/* frecce foto ai bordi della metà sinistra */}
-            {!activeVideo && photos.length > 1 && (
+            {view === "photo" && photos.length > 1 && (
               <>
                 <button
                   type="button"
@@ -309,6 +365,7 @@ export const TalentDetailModal = ({
               </>
             )}
           </div>
+
 
           {/* METÀ DESTRA — dettagli, scorre */}
           <div ref={scrollRef} className="min-w-0 w-full flex-1 bg-white lg:h-full lg:w-1/2 lg:shrink-0 lg:overflow-y-auto">
