@@ -59,6 +59,7 @@ export const TalentDetailModal = ({
   const [wizardOpen, setWizardOpen] = useState(false);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [view, setView] = useState<"photo" | "video">("photo");
+  const [videoAspect, setVideoAspect] = useState<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -230,18 +231,34 @@ export const TalentDetailModal = ({
             >
               {view === "video" ? (
                 activeVideo ? (
-                  <video
-                    ref={videoRef}
-                    key={activeVideo.id}
-                    src={activeVideo.url}
-                    poster={activeVideo.thumbnail_url ?? undefined}
-                    controls
-                    preload="none"
-                    playsInline
-                    className="max-h-full max-w-full rounded-lg bg-black object-contain"
-                    aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
-                  />
+                  <div
+                    className="h-full max-w-full"
+                    style={{ aspectRatio: String(videoAspect[activeVideo.id] ?? 2 / 3) }}
+                  >
+
+                    <video
+                      ref={videoRef}
+                      key={activeVideo.id}
+                      src={activeVideo.url}
+                      poster={activeVideo.thumbnail_url ?? undefined}
+                      controls
+                      // senza miniatura carichiamo solo i metadati per mostrare il primo fotogramma
+                      preload={activeVideo.thumbnail_url ? "none" : "metadata"}
+                      playsInline
+                      onLoadedMetadata={(e) => {
+                        const el = e.currentTarget;
+                        if (!el.videoWidth || !el.videoHeight) return;
+                        const ratio = el.videoWidth / el.videoHeight;
+                        setVideoAspect((prev) =>
+                          prev[activeVideo.id] === ratio ? prev : { ...prev, [activeVideo.id]: ratio }
+                        );
+                      }}
+                      className="h-full w-full rounded-lg object-contain"
+                      aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
+                    />
+                  </div>
                 ) : (
+
                   <p className="text-sm text-muted-foreground">Nessun video disponibile</p>
                 )
               ) : (
