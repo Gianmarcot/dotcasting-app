@@ -32,7 +32,9 @@ export const useTalentMedia = () => {
   const { data: profile } = useProfile();
 
   return useQuery({
-    queryKey: ["talent-media", profile?.id],
+    // Il suffisso evita la collisione con le varianti "lite"/"full" degli altri
+    // hook: chiavi identiche condividerebbero la cache con select diverse.
+    queryKey: ["talent-media", profile?.id, "own"],
     queryFn: async () => {
       if (!profile?.id) return [];
 
