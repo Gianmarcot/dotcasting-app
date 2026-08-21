@@ -9,7 +9,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { MinorBadge } from "@/components/talents/MinorBadge";
-import { ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { useProfileById } from "@/hooks/useProfileById";
@@ -27,6 +27,15 @@ interface TalentDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+/** etichette brevi per la striscia video */
+const VIDEO_LABELS: Record<string, string> = {
+  intro_video: "Presentazione",
+  showreel: "Showreel",
+  other_videos: "Altri video",
+};
+
+const getVideoLabel = (category: string) => VIDEO_LABELS[category] ?? "Video";
 
 const LABEL = "text-[13px] leading-tight text-[#686868]";
 const VALUE = "mt-[2px] text-[15px] leading-snug text-[#1a1a1a]";
@@ -48,8 +57,10 @@ export const TalentDetailModal = ({
   const [localIndex, setLocalIndex] = useState(index);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
@@ -63,6 +74,16 @@ export const TalentDetailModal = ({
     [media]
   );
 
+  const videos = useMemo(
+    () => (media ?? []).filter((m) => m.media_type === "video"),
+    [media]
+  );
+
+  const activeVideo = useMemo(
+    () => videos.find((v) => v.id === activeVideoId) ?? null,
+    [videos, activeVideoId]
+  );
+
   const { fullName, location, sections } = useMemo(
     () => buildTalentDetail(profile as Record<string, unknown> | null, attrs as Record<string, unknown> | null),
     [profile, attrs]
@@ -72,13 +93,18 @@ export const TalentDetailModal = ({
     if (onIndexChange) onIndexChange(next);
     else setLocalIndex(next);
     setPhotoIndex(0);
+    setActiveVideoId(null);
     scrollRef.current?.scrollTo({ top: 0 });
     containerRef.current?.scrollTo({ top: 0 });
   };
 
-  useEffect(() => setPhotoIndex(0), [profileId]);
+  useEffect(() => {
+    setPhotoIndex(0);
+    setActiveVideoId(null);
+  }, [profileId]);
   useEffect(() => {
     if (open) setLocalIndex(index);
+    else setActiveVideoId(null);
   }, [open, index]);
 
   const prevPhoto = () => setPhotoIndex((i) => (photos.length ? (i - 1 + photos.length) % photos.length : 0));
@@ -87,12 +113,20 @@ export const TalentDetailModal = ({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      // con un video aperto le frecce controllano la riproduzione
+      if (activeVideo) {
+        const el = videoRef.current;
+        if (!el) return;
+        el.currentTime = Math.max(0, Math.min(el.duration || Infinity, el.currentTime + (e.key === "ArrowRight" ? 5 : -5)));
+        return;
+      }
       if (e.key === "ArrowLeft") prevPhoto();
       if (e.key === "ArrowRight") nextPhoto();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length]);
+  }, [open, photos.length, activeVideoId]);
 
   const hasNavigation = profileIds.length > 1;
 
@@ -119,7 +153,7 @@ export const TalentDetailModal = ({
             labels={{ prev: "Talent precedente", next: "Talent successivo", close: "Chiudi dettaglio" }}
           />
 
-          {/* METÀ SINISTRA — carosello, non scorre */}
+          {/* METÀ SINISTRA — carosello foto + striscia video, non scorre */}
           <div className="relative flex shrink-0 flex-col items-center justify-center bg-[#f4f0ec] py-10 lg:h-full lg:w-1/2 lg:py-0">
             <div
               className="relative flex flex-col items-center"
@@ -129,11 +163,37 @@ export const TalentDetailModal = ({
                 photos.length ? `Foto ${photoIndex + 1} di ${photos.length}` : "Nessuna foto disponibile"
               }
             >
+              {activeVideo && (
+                <button
+                  type="button"
+                  onClick={() => setActiveVideoId(null)}
+                  className="mb-4 flex items-center gap-2 self-start text-[14px] text-[#1a1a1a] opacity-70 transition-opacity hover:opacity-100 motion-reduce:transition-none"
+                >
+                  <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+                  Torna alle foto
+                </button>
+              )}
+
               <div
-                className="overflow-hidden rounded-lg bg-black/5 w-[min(90vw,calc(75vh*2/3))] max-w-[60%] lg:w-[min(40vw,calc(100vh*2/3))]"
+                className={cn(
+                  "overflow-hidden rounded-lg w-[min(90vw,calc(75vh*2/3))] max-w-[60%] lg:w-[min(40vw,calc(100vh*2/3))]",
+                  activeVideo ? "bg-black" : "bg-black/5"
+                )}
                 style={{ aspectRatio: "2 / 3" }}
               >
-                {photos.length > 0 ? (
+                {activeVideo ? (
+                  <video
+                    ref={videoRef}
+                    key={activeVideo.id}
+                    src={activeVideo.url}
+                    poster={activeVideo.thumbnail_url ?? undefined}
+                    controls
+                    preload="none"
+                    playsInline
+                    className="h-full w-full object-contain"
+                    aria-label={`${fullName} — ${getVideoLabel(activeVideo.category)}`}
+                  />
+                ) : photos.length > 0 ? (
                   <div
                     key={profileId ?? "empty"}
                     className="flex h-full w-full motion-reduce:!transition-none"
@@ -162,7 +222,7 @@ export const TalentDetailModal = ({
               </div>
 
               {/* indicatori */}
-              {photos.length > 1 && (
+              {!activeVideo && photos.length > 1 && (
                 <div className="mt-6 flex items-center justify-center gap-2">
                   {photos.map((url, i) => (
                     <button
@@ -182,10 +242,53 @@ export const TalentDetailModal = ({
               <p className="sr-only" aria-live="polite">
                 {photos.length ? `Foto ${photoIndex + 1} di ${photos.length}` : ""}
               </p>
+
+              {/* striscia video */}
+              {videos.length > 0 && (
+                <div className="mt-6 flex items-start justify-center gap-3">
+                  {videos.map((v) => {
+                    const isActive = v.id === activeVideoId;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => setActiveVideoId(isActive ? null : v.id)}
+                        aria-pressed={isActive}
+                        className="group w-[84px] shrink-0 text-left"
+                      >
+                        <div
+                          className={cn(
+                            "relative overflow-hidden rounded-lg bg-black/10 ring-offset-2 ring-offset-[#f4f0ec] transition-all duration-200 motion-reduce:transition-none",
+                            isActive ? "ring-2 ring-[#1a1a1a]" : "ring-0 group-hover:ring-1 group-hover:ring-[#1a1a1a]/30"
+                          )}
+                          style={{ aspectRatio: "16 / 10" }}
+                        >
+                          {v.thumbnail_url && (
+                            <img
+                              src={v.thumbnail_url}
+                              alt=""
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          )}
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/85 text-[#1a1a1a]">
+                              <Play className="h-3.5 w-3.5" strokeWidth={1.5} />
+                            </span>
+                          </span>
+                        </div>
+                        <p className="mt-1.5 text-[12px] leading-tight text-[#686868]">
+                          {getVideoLabel(v.category)}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* frecce foto ai bordi della metà sinistra */}
-            {photos.length > 1 && (
+            {!activeVideo && photos.length > 1 && (
               <>
                 <button
                   type="button"
