@@ -111,7 +111,7 @@ const MediaStrip = ({
               className={cn(
                 "flex items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80",
                 ratio,
-                tileClass
+                activeTileClass
               )}
             >
               + {remaining} {kind === "photo" ? "foto" : "video"}
