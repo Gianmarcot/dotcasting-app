@@ -12,6 +12,8 @@ import { MinorBadge } from "@/components/talents/MinorBadge";
 import { Camera, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
+import { PillTabs } from "@/components/ui/pill-tabs";
+
 import { useProfileById } from "@/hooks/useProfileById";
 import { useTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
 import { useTalentMediaByProfileId } from "@/hooks/useTalentMediaByProfileId";
