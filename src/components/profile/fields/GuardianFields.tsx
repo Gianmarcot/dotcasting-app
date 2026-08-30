@@ -1,6 +1,5 @@
 import { GroupLabel, ProfileCheckbox } from "@/components/profile/fields/FormFields";
-import { FloatingInput } from "@/components/ui/field";
-import { useAuth } from "@/contexts/AuthContext";
+import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
 import {
   BirthDateFields,
   NameFields,
@@ -8,6 +7,7 @@ import {
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
 import { isAdultBirthDate } from "@/lib/guardianship";
+
 
 
 /* --------------------------------------------------------------------------
