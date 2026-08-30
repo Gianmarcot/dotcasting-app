@@ -15,6 +15,9 @@ const TILE_GAP = 16;
 const MOBILE_COLS = 3;
 
 const tileClass = "w-[min(140px,calc((100%_-_32px)/3))] flex-shrink-0";
+// Quando previewCount è fisso, il tile occupa 1/previewCount del contenitore (senza cap di 140px).
+const previewTileClass = (count: number) =>
+  `w-[calc((100%_-_${(count - 1) * TILE_GAP}px)/${count})] flex-shrink-0`;
 
 /** Striscia di anteprime con contatore "+ N" e pulsante di apertura della modale. */
 const MediaStrip = ({
@@ -36,6 +39,7 @@ const MediaStrip = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
   const ratio = kind === "photo" ? "aspect-[2/3]" : "aspect-square";
+  const activeTileClass = previewCount != null ? previewTileClass(previewCount) : tileClass;
 
   useEffect(() => {
     if (previewCount != null) return;
@@ -78,7 +82,7 @@ const MediaStrip = ({
       {items.length > 0 ? (
         <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
           {shown.map((item) => (
-            <div key={item.id} className={cn("relative", tileClass)}>
+            <div key={item.id} className={cn("relative", activeTileClass)}>
               {kind === "photo" ? (
                 <img
                   src={item.url}
@@ -107,7 +111,7 @@ const MediaStrip = ({
               className={cn(
                 "flex items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80",
                 ratio,
-                tileClass
+                activeTileClass
               )}
             >
               + {remaining} {kind === "photo" ? "foto" : "video"}
