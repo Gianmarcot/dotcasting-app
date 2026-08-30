@@ -187,7 +187,7 @@ export const TalentOnboarding = () => {
       birth_date: basic.birth_date || null,
       gender: basic.gender || null,
       gender_identity: basic.gender_identity || null,
-      contact_email: basic.contact_email.trim() || null,
+      // contact_email non viene scritta: la propaga il database dall'account.
       phone_prefix: basic.phone_prefix,
       phone_number: basic.phone_number.trim() || null,
       whatsapp_prefix: whatsappMode === "none" ? null : whatsappPrefixToSave,
