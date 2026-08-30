@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { Camera, Play } from "lucide-react";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
+import { PillTabs } from "@/components/ui/pill-tabs";
+
 
 import {
   Bell,
@@ -916,7 +919,24 @@ const StatusDot = ({
   </div>
 );
 
+const PillTabsDemo = () => {
+  const [view, setView] = useState<"photo" | "video">("photo");
+  return (
+    <PillTabs<"photo" | "video">
+      ariaLabel="Tipo di media"
+      value={view}
+      onChange={(next) => setView(next)}
+
+      options={[
+        { value: "photo" as const, label: "Foto", icon: Camera, count: 12 },
+        { value: "video" as const, label: "Video", icon: Play, count: 3 },
+      ]}
+    />
+  );
+};
+
 const PatternsSection = () => (
+
   <Section
     id="patterns"
     title="Pattern dotCasting"
@@ -994,6 +1014,11 @@ const PatternsSection = () => (
         <ModalNavBar showNavigation prevDisabled onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
       </div>
     </SubBlock>
+
+    <SubBlock title="PillTabs" source="src/components/ui/pill-tabs.tsx">
+      <PillTabsDemo />
+    </SubBlock>
+
 
 
 
