@@ -54,6 +54,28 @@ export const validateGuardian = (value: GuardianValue): GuardianErrors => {
 export const isGuardianValid = (value: GuardianValue) =>
   Object.keys(validateGuardian(value)).length === 0;
 
+/**
+ * Email in sola lettura: coincide sempre con l'email di accesso dell'account,
+ * ed è il database a propagarla su `profiles.contact_email`.
+ */
+const ReadOnlyAccountEmail = () => {
+  const { user } = useAuth();
+  return (
+    <div>
+      <FloatingInput
+        label="Email di contatto"
+        type="email"
+        value={user?.email ?? ""}
+        disabled
+        onChange={() => undefined}
+      />
+      <p className="mt-2 text-[13px] text-field-label">
+        Coincide con l'email di accesso. Si aggiorna dalla pagina dei dati di accesso.
+      </p>
+    </div>
+  );
+};
+
 
 export const GuardianFields = ({
   value,
