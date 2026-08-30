@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, KeyRound, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
 import { FloatingInput } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { SectionCard } from "@/components/profile/fields/FormFields";
