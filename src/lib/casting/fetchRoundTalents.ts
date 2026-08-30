@@ -171,7 +171,10 @@ export function mapToTalent(p: DbProfile): Talent {
     disponibilita_viaggio: travelToText(p.travel_availability),
     // Profilo tutelato: i contatti si risolvono al tutore. I renderer (PDF e
     // card web) restano puri e non sanno nulla della tutela.
-    email: (isTutelato ? g.contact_email : p.contact_email) ?? null,
+    // Su un profilo tutelato l'account è del tutore: profiles.contact_email
+    // contiene già la sua email (propagata dal database).
+    email: (isTutelato ? (g.contact_email ?? p.contact_email) : p.contact_email) ?? null,
+
     telefono: isTutelato
       ? formatPhone(g.phone_prefix, g.phone_number)
       : phone(p.phone_prefix, p.phone_number),
