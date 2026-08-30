@@ -92,76 +92,24 @@ export const TalentSettings = () => {
             <Label>Email</Label>
             <Input value={user?.email || ""} disabled />
             <p className="text-xs text-muted-foreground">
-              L'email non può essere modificata
+              L'email di accesso si modifica dalla pagina dei dati di accesso.
             </p>
           </div>
 
           <Separator />
 
-          {isChangingPassword ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Password attuale</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                  }
-                  placeholder="Inserisci la password corrente"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Nuova password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                  }
-                  placeholder="Minimo 8 caratteri"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Conferma nuova password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsChangingPassword(false)}
-                  disabled={isLoading}
-                >
-                  Annulla
-                </Button>
-                <Button onClick={handlePasswordChange} disabled={isLoading}>
-                  {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Salva password
-                </Button>
-              </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Email e password</p>
+              <p className="text-sm text-muted-foreground">
+                Aggiorna le credenziali di accesso al tuo account
+              </p>
             </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Password</p>
-                <p className="text-sm text-muted-foreground">
-                  Modifica la tua password di accesso
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => setIsChangingPassword(true)}>
-                Cambia password
-              </Button>
-            </div>
-          )}
+            <Button variant="outline" onClick={() => navigate("/talent/aggiorna-accesso")}>
+              Aggiorna i dati di accesso
+            </Button>
+          </div>
+
         </CardContent>
       </Card>
 
