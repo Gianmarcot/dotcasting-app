@@ -15,9 +15,6 @@ const TILE_GAP = 16;
 const MOBILE_COLS = 3;
 
 const tileClass = "w-[min(140px,calc((100%_-_32px)/3))] flex-shrink-0";
-// Quando previewCount è fisso, il tile occupa 1/previewCount del contenitore (senza cap di 140px).
-const previewTileClass = (count: number) =>
-  `w-[calc((100%_-_${(count - 1) * TILE_GAP}px)/${count})] flex-shrink-0`;
 
 /** Striscia di anteprime con contatore "+ N" e pulsante di apertura della modale. */
 const MediaStrip = ({
@@ -26,23 +23,18 @@ const MediaStrip = ({
   emptyLabel,
   buttonLabel,
   onOpen,
-  previewCount,
 }: {
   items: TalentMedia[];
   kind: "photo" | "video";
   emptyLabel: string;
   buttonLabel: string;
   onOpen: () => void;
-  /** Numero fisso di anteprime da mostrare (ignora il calcolo dinamico di capacity). */
-  previewCount?: number;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
   const ratio = kind === "photo" ? "aspect-[2/3]" : "aspect-square";
-  const activeTileClass = previewCount != null ? previewTileClass(previewCount) : tileClass;
 
   useEffect(() => {
-    if (previewCount != null) return;
     const el = containerRef.current;
     if (!el) return;
 
@@ -66,14 +58,9 @@ const MediaStrip = ({
       if (ro) ro.disconnect();
       else window.removeEventListener("resize", update);
     };
-  }, [items.length, previewCount]);
+  }, [items.length]);
 
-  const shownCount =
-    previewCount != null
-      ? Math.min(previewCount, items.length)
-      : items.length <= capacity
-        ? items.length
-        : Math.max(1, capacity - 1);
+  const shownCount = items.length <= capacity ? items.length : Math.max(1, capacity - 1);
   const shown = items.slice(0, shownCount);
   const remaining = items.length - shownCount;
 
@@ -82,7 +69,7 @@ const MediaStrip = ({
       {items.length > 0 ? (
         <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
           {shown.map((item) => (
-            <div key={item.id} className={cn("relative", activeTileClass)}>
+            <div key={item.id} className={cn("relative", tileClass)}>
               {kind === "photo" ? (
                 <img
                   src={item.url}
@@ -111,7 +98,7 @@ const MediaStrip = ({
               className={cn(
                 "flex items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80",
                 ratio,
-                activeTileClass
+                tileClass
               )}
             >
               + {remaining} {kind === "photo" ? "foto" : "video"}
@@ -188,7 +175,6 @@ export const MediaCard = () => {
         emptyLabel="Non hai ancora caricato nessun video."
         buttonLabel="Tutti i video"
         onOpen={() => setVideosOpen(true)}
-        previewCount={3}
       />
 
       <MediaGalleryModal
