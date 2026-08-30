@@ -177,42 +177,17 @@ export const TalentDetailModal = ({
           <div className="relative flex shrink-0 flex-col items-center justify-center gap-6 bg-[#f4f0ec] py-10 lg:h-full lg:w-1/2 lg:py-0">
             {/* fascia 1 — selettore foto/video */}
             {videos.length > 0 && (
-              <div
-                role="radiogroup"
-                aria-label="Tipo di media"
-                className="flex items-center gap-1 rounded-[100px] bg-[#ece5de] p-1"
-                onKeyDown={(e) => {
-                  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-                  e.preventDefault();
-                  setView(view === "photo" ? "video" : "photo");
-                }}
-              >
-                {(["photo", "video"] as const).map((v) => {
-                  const isActive = view === v;
-                  const Icon = v === "photo" ? Camera : Play;
-                  const count = v === "photo" ? photos.length : videos.length;
-                  return (
-                    <button
-                      key={v}
-                      type="button"
-                      role="radio"
-                      aria-checked={isActive}
-                      tabIndex={isActive ? 0 : -1}
-                      onClick={() => setView(v)}
-                      className={cn(
-                        "flex h-12 items-center gap-[10px] rounded-[58px] pl-6 pr-7 text-[15px] font-medium text-[#1a1a1a] transition-colors duration-200 motion-reduce:transition-none",
-                        isActive ? "bg-white" : "bg-transparent"
-                      )}
-                    >
-                      <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
-                      <span>
-                        {v === "photo" ? "Foto" : "Video"} · {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              <PillTabs
+                ariaLabel="Tipo di media"
+                value={view}
+                onChange={(next) => setView(next)}
+                options={[
+                  { value: "photo" as const, label: "Foto", icon: Camera, count: photos.length },
+                  { value: "video" as const, label: "Video", icon: Play, count: videos.length },
+                ]}
+              />
             )}
+
 
             {/* fascia 2 — area del media, altezza fissa */}
             <div
