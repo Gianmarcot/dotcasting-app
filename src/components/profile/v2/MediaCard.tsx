@@ -15,6 +15,9 @@ const TILE_GAP = 16;
 const MOBILE_COLS = 3;
 
 const tileClass = "w-[min(140px,calc((100%_-_32px)/3))] flex-shrink-0";
+// Quando previewCount è fisso, il tile occupa 1/previewCount del contenitore (senza cap di 140px).
+const previewTileClass = (count: number) =>
+  `w-[calc((100%_-_${(count - 1) * TILE_GAP}px)/${count})] flex-shrink-0`;
 
 /** Striscia di anteprime con contatore "+ N" e pulsante di apertura della modale. */
 const MediaStrip = ({
