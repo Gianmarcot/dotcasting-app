@@ -16,6 +16,7 @@ import {
   getPendingEmail,
   markCredentialsUpdated,
   markEmailChangePending,
+  needsCredentialsUpdate,
 } from "@/lib/signupMode";
 
 /**
@@ -58,6 +59,8 @@ const TalentUpdateAccess = () => {
       void clearEmailChangePending();
     }
   }, [user, pendingEmail]);
+
+  const fromGuardianship = needsCredentialsUpdate(user, profile?.guardian_user_id ?? null);
 
   const passwordError =
     password && password.length < 8 ? "Almeno 8 caratteri" : undefined;
@@ -132,8 +135,9 @@ const TalentUpdateAccess = () => {
 
       <SectionCard icon={<KeyRound strokeWidth={1} />} title="Aggiorna i dati di accesso">
         <p className="text-[15px] text-field-label">
-          Il profilo era gestito da un genitore o tutore: email, telefono e password attuali sono
-          i suoi, e conosce anche la password. Aggiornali per essere l'unico a poter accedere.
+          {fromGuardianship
+            ? "Il profilo era gestito da un genitore o tutore: email, telefono e password attuali sono i suoi, e conosce anche la password. Aggiornali per essere l'unico a poter accedere."
+            : "Cambia l'email di accesso, il telefono o la password. Il nuovo indirizzo diventa attivo solo dopo la conferma dal link che ti inviamo."}
         </p>
 
         <div>
@@ -195,7 +199,7 @@ const TalentUpdateAccess = () => {
             size="lg"
             onClick={() => navigate("/talent/profile")}
           >
-            Lo faccio dopo
+            {fromGuardianship ? "Lo faccio dopo" : "Annulla"}
           </Button>
           <Button type="button" size="lg" disabled={pending} onClick={() => void submit()}>
             Salva e continua

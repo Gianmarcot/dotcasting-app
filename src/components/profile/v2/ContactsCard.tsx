@@ -110,7 +110,7 @@ export const ContactsCard = () => {
       ) : (
         <>
       {/* Email in sola lettura: coincide con l'email dell'account. */}
-      <AccountEmailField />
+      <AccountEmailField manageLink />
 
 
       <PhoneFields
