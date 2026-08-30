@@ -920,7 +920,7 @@ const StatusDot = ({
 );
 
 const PillTabsDemo = () => {
-  const [view, setView] = React.useState<"photo" | "video">("photo");
+  const [view, setView] = useState<"photo" | "video">("photo");
   return (
     <PillTabs
       ariaLabel="Tipo di media"
