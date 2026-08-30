@@ -104,7 +104,7 @@ export const GuardianFields = ({
         </div>
       </div>
 
-      <ReadOnlyAccountEmail />
+      <AccountEmailField />
 
 
       <PhoneFields
