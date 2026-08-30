@@ -99,12 +99,9 @@ export const ContactsCard = () => {
         <GuardianContactsBox guardianUserId={guardianUserId} />
       ) : (
         <>
-      <FieldSlot name="contact_email">
-        <ContactEmailField
-          value={str("p", "contact_email")}
-          onChange={(v) => set("p", "contact_email", v)}
-        />
-      </FieldSlot>
+      {/* Email in sola lettura: coincide con l'email dell'account. */}
+      <AccountEmailField />
+
 
       <PhoneFields
         value={phoneValue}
