@@ -183,7 +183,6 @@ export const TalentOnboarding = () => {
         gender_identity: basic.gender_identity || null,
         guardian_user_id: user?.id ?? null,
         age_confirmed: isAdultBirthDate(basic.birth_date),
-        onboarding_completed: true,
       });
       setBasicSaved(true);
       return;
@@ -202,7 +201,6 @@ export const TalentOnboarding = () => {
       whatsapp_number: whatsappMode === "none" ? null : whatsappNumberToSave,
 
       age_confirmed: true,
-      onboarding_completed: true,
     });
     setBasicSaved(true);
   };
@@ -213,15 +211,18 @@ export const TalentOnboarding = () => {
     setRolesDirty(false);
   };
 
+  // Ultimo step: carica la foto (obbligatoria) e chiude l'onboarding.
   const savePhoto = async () => {
-    if (!photoFile) return;
-    const media = await uploadMedia.mutateAsync({
-      file: photoFile,
-      mediaType: "photo",
-      category: "main_photos",
-    });
-    if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
-    setPhotoFile(null);
+    if (photoFile) {
+      const media = await uploadMedia.mutateAsync({
+        file: photoFile,
+        mediaType: "photo",
+        category: "main_photos",
+      });
+      if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
+      setPhotoFile(null);
+    }
+    await updateProfile.mutateAsync({ onboarding_completed: true });
   };
 
   const saveCurrentStep = async () => {
@@ -229,6 +230,7 @@ export const TalentOnboarding = () => {
     if (step === 2) return saveRoles();
     return savePhoto();
   };
+
 
   /* -------------------------------- azioni -------------------------------- */
 
