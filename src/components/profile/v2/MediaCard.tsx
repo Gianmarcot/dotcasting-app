@@ -23,18 +23,22 @@ const MediaStrip = ({
   emptyLabel,
   buttonLabel,
   onOpen,
+  previewCount,
 }: {
   items: TalentMedia[];
   kind: "photo" | "video";
   emptyLabel: string;
   buttonLabel: string;
   onOpen: () => void;
+  /** Numero fisso di anteprime da mostrare (ignora il calcolo dinamico di capacity). */
+  previewCount?: number;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
   const ratio = kind === "photo" ? "aspect-[2/3]" : "aspect-square";
 
   useEffect(() => {
+    if (previewCount != null) return;
     const el = containerRef.current;
     if (!el) return;
 
@@ -58,9 +62,14 @@ const MediaStrip = ({
       if (ro) ro.disconnect();
       else window.removeEventListener("resize", update);
     };
-  }, [items.length]);
+  }, [items.length, previewCount]);
 
-  const shownCount = items.length <= capacity ? items.length : Math.max(1, capacity - 1);
+  const shownCount =
+    previewCount != null
+      ? Math.min(previewCount, items.length)
+      : items.length <= capacity
+        ? items.length
+        : Math.max(1, capacity - 1);
   const shown = items.slice(0, shownCount);
   const remaining = items.length - shownCount;
 
@@ -175,6 +184,7 @@ export const MediaCard = () => {
         emptyLabel="Non hai ancora caricato nessun video."
         buttonLabel="Tutti i video"
         onOpen={() => setVideosOpen(true)}
+        previewCount={3}
       />
 
       <MediaGalleryModal
