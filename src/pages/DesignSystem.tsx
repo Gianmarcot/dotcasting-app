@@ -916,7 +916,23 @@ const StatusDot = ({
   </div>
 );
 
+const PillTabsDemo = () => {
+  const [view, setView] = React.useState<"photo" | "video">("photo");
+  return (
+    <PillTabs
+      ariaLabel="Tipo di media"
+      value={view}
+      onChange={setView}
+      options={[
+        { value: "photo" as const, label: "Foto", icon: Camera, count: 12 },
+        { value: "video" as const, label: "Video", icon: Play, count: 3 },
+      ]}
+    />
+  );
+};
+
 const PatternsSection = () => (
+
   <Section
     id="patterns"
     title="Pattern dotCasting"
