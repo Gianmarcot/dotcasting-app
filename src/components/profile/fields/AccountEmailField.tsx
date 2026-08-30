@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { FloatingInput } from "@/components/ui/field";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -7,7 +8,14 @@ import { useAuth } from "@/contexts/AuthContext";
  * il client non la scrive mai. Su un profilo tutelato l'account è del tutore,
  * quindi questo è già il suo indirizzo.
  */
-export const AccountEmailField = ({ note = true }: { note?: boolean }) => {
+export const AccountEmailField = ({
+  note = true,
+  manageLink = false,
+}: {
+  note?: boolean;
+  /** Mostra il link alla pagina dove si cambia l'email di accesso. */
+  manageLink?: boolean;
+}) => {
   const { user } = useAuth();
 
   return (
@@ -21,7 +29,14 @@ export const AccountEmailField = ({ note = true }: { note?: boolean }) => {
       />
       {note && (
         <p className="mt-2 text-[13px] text-field-label">
-          Coincide con l'email di accesso. Si aggiorna dalla pagina dei dati di accesso.
+          Coincide con l'email di accesso.{" "}
+          {manageLink ? (
+            <Link to="/talent/aggiorna-accesso" className="dc-link-action">
+              Modifica email o password
+            </Link>
+          ) : (
+            "Si aggiorna dalla pagina dei dati di accesso."
+          )}
         </p>
       )}
     </div>
