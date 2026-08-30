@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export type PillTabOption<T extends string> = {
   value: T;
   label: string;
-  icon?: ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon?: ComponentType<{ className?: string; strokeWidth?: number | string }>;
   count?: number;
 };
 
