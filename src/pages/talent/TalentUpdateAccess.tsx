@@ -259,7 +259,7 @@ const TalentUpdateAccess = () => {
           </>
         )}
       </SectionCard>
-    </Surface>
+    </div>
   );
 };
 
