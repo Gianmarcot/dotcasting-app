@@ -1,4 +1,6 @@
 import { GroupLabel, ProfileCheckbox } from "@/components/profile/fields/FormFields";
+import { FloatingInput } from "@/components/ui/field";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   BirthDateFields,
   NameFields,
@@ -6,6 +8,7 @@ import {
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
 import { isAdultBirthDate } from "@/lib/guardianship";
+
 
 /* --------------------------------------------------------------------------
  * Campi del tutore legale / genitore. Scrivono su `guardians`: sono gli unici
