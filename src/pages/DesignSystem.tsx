@@ -922,10 +922,11 @@ const StatusDot = ({
 const PillTabsDemo = () => {
   const [view, setView] = useState<"photo" | "video">("photo");
   return (
-    <PillTabs
+    <PillTabs<"photo" | "video">
       ariaLabel="Tipo di media"
       value={view}
-      onChange={setView}
+      onChange={(next) => setView(next)}
+
       options={[
         { value: "photo" as const, label: "Foto", icon: Camera, count: 12 },
         { value: "video" as const, label: "Video", icon: Play, count: 3 },
