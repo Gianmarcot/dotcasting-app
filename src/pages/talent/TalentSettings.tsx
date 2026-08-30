@@ -1,71 +1,19 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Bell, Eye, Trash2, Loader2 } from "lucide-react";
+import { Shield, Bell, Eye, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const TalentSettings = () => {
   const { user } = useAuth();
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handlePasswordChange = async () => {
-    if (!passwordForm.currentPassword) {
-      toast.error("Inserisci la password attuale");
-      return;
-    }
-    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("Le password non coincidono");
-      return;
-    }
-    if (passwordForm.newPassword.length < 8) {
-      toast.error("La password deve avere almeno 8 caratteri");
-      return;
-    }
-    if (!user?.email) {
-      toast.error("Sessione non valida, effettua di nuovo l'accesso");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Re-authenticate to verify the current password before allowing the change.
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
-        password: passwordForm.currentPassword,
-      });
-      if (signInError) {
-        toast.error("La password attuale non è corretta");
-        setIsLoading(false);
-        return;
-      }
-
-      const { error } = await supabase.auth.updateUser({
-        password: passwordForm.newPassword,
-      });
-
-      if (error) throw error;
-
-      toast.success("Password aggiornata con successo!");
-      setIsChangingPassword(false);
-      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    } catch (error: any) {
-      toast.error(error.message || "Errore durante l'aggiornamento della password");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="space-y-6 animate-fade-up max-w-3xl">
@@ -92,76 +40,24 @@ export const TalentSettings = () => {
             <Label>Email</Label>
             <Input value={user?.email || ""} disabled />
             <p className="text-xs text-muted-foreground">
-              L'email non può essere modificata
+              L'email di accesso si modifica dalla pagina dei dati di accesso.
             </p>
           </div>
 
           <Separator />
 
-          {isChangingPassword ? (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPassword">Password attuale</Label>
-                <Input
-                  id="currentPassword"
-                  type="password"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, currentPassword: e.target.value })
-                  }
-                  placeholder="Inserisci la password corrente"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Nuova password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, newPassword: e.target.value })
-                  }
-                  placeholder="Minimo 8 caratteri"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Conferma nuova password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })
-                  }
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsChangingPassword(false)}
-                  disabled={isLoading}
-                >
-                  Annulla
-                </Button>
-                <Button onClick={handlePasswordChange} disabled={isLoading}>
-                  {isLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Salva password
-                </Button>
-              </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium">Email e password</p>
+              <p className="text-sm text-muted-foreground">
+                Aggiorna le credenziali di accesso al tuo account
+              </p>
             </div>
-          ) : (
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Password</p>
-                <p className="text-sm text-muted-foreground">
-                  Modifica la tua password di accesso
-                </p>
-              </div>
-              <Button variant="outline" onClick={() => setIsChangingPassword(true)}>
-                Cambia password
-              </Button>
-            </div>
-          )}
+            <Button variant="outline" onClick={() => navigate("/talent/aggiorna-accesso")}>
+              Aggiorna i dati di accesso
+            </Button>
+          </div>
+
         </CardContent>
       </Card>
 
