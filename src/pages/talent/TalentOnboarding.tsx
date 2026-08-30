@@ -361,6 +361,7 @@ export const TalentOnboarding = () => {
             {step === 2 && (
               <RolesStep
                 selected={roles}
+                error={roles.length === 0 ? "Seleziona almeno un ruolo per continuare" : null}
                 onToggle={(role) => {
                   setRolesDirty(true);
                   setRoles((prev) =>
@@ -372,15 +373,19 @@ export const TalentOnboarding = () => {
             {step === 3 && (
               <PhotoStep
                 previewUrl={photoPreview ?? profile?.profile_photo_url ?? null}
-                error={photoError}
+                error={
+                  photoError ??
+                  (photoValid ? null : "Carica una foto profilo per continuare")
+                }
                 onSelectFile={handlePhoto}
               />
             )}
           </OnboardingCard>
         </div>
 
-        <OnboardingFooter onLater={step > 1 ? handleLater : undefined} />
+        <OnboardingFooter />
       </div>
+
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
         <AlertDialogContent>
