@@ -8,9 +8,11 @@ import {
 export const RolesStep = ({
   selected,
   onToggle,
+  error,
 }: {
   selected: string[];
   onToggle: (role: string) => void;
+  error?: string | null;
 }) => (
   <div>
     {TALENT_ROLE_GROUPS.map((group, index) => (
@@ -29,5 +31,7 @@ export const RolesStep = ({
         </div>
       </div>
     ))}
+    {error && <p className="mt-6 text-xs text-destructive">{error}</p>}
   </div>
 );
+
