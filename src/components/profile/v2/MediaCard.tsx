@@ -184,6 +184,7 @@ export const MediaCard = () => {
         emptyLabel="Non hai ancora caricato nessun video."
         buttonLabel="Tutti i video"
         onOpen={() => setVideosOpen(true)}
+        previewCount={3}
       />
 
       <MediaGalleryModal
