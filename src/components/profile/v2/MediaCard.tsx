@@ -39,6 +39,7 @@ const MediaStrip = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [capacity, setCapacity] = useState(3);
   const ratio = kind === "photo" ? "aspect-[2/3]" : "aspect-square";
+  const activeTileClass = previewCount != null ? previewTileClass(previewCount) : tileClass;
 
   useEffect(() => {
     if (previewCount != null) return;
