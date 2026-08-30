@@ -995,6 +995,11 @@ const PatternsSection = () => (
       </div>
     </SubBlock>
 
+    <SubBlock title="PillTabs" source="src/components/ui/pill-tabs.tsx">
+      <PillTabsDemo />
+    </SubBlock>
+
+
 
 
 
