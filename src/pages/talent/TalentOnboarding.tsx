@@ -147,8 +147,7 @@ export const TalentOnboarding = () => {
   const whatsappNumberToSave =
     (whatsappMode === "same" ? basic.phone_number : basic.whatsapp_number).trim() || null;
 
-  const stepDirty =
-    step === 1 ? basicTouched && !basicSaved : step === 2 ? rolesDirty : !!photoFile;
+  const photoValid = !!photoFile || !!profile?.profile_photo_url;
 
 
   /* ------------------------------- salvataggi ------------------------------ */
