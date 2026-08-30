@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { Camera, Play } from "lucide-react";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
+import { PillTabs } from "@/components/ui/pill-tabs";
+
 
 import {
   Bell,
