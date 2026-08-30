@@ -92,7 +92,6 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
   const handleSave = async () => {
     try {
       const updates = {
-        contact_email: formData.contactEmail || null,
         phone_prefix: formData.phonePrefix,
         phone_number: formData.phoneNumber || null,
         whatsapp_prefix: formData.whatsappPrefix,
@@ -157,14 +156,18 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
         {/* Contact Email */}
         <div className="space-y-2">
           <Label>Email di contatto</Label>
+          {/* Sola lettura: coincide con l'email dell'account, propagata dal database. */}
           <Input
             name="contactEmail"
             type="email"
             value={formData.contactEmail}
-            onChange={handleChange}
-            disabled={!isEditing}
+            readOnly
+            disabled
             placeholder="nome@email.com"
           />
+          <p className="text-xs text-muted-foreground">
+            Coincide con l'email di accesso dell'account.
+          </p>
         </div>
 
         {/* Phone */}
