@@ -98,11 +98,8 @@ export const GuardianFields = ({
         </div>
       </div>
 
-      <ContactEmailField
-        value={value.contact_email}
-        error={errors.contact_email}
-        onChange={(v) => onChange({ contact_email: v })}
-      />
+      <ReadOnlyAccountEmail />
+
 
       <PhoneFields
         value={{
