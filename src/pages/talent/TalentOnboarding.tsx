@@ -251,8 +251,10 @@ export const TalentOnboarding = () => {
     }
   };
 
+  // Finché l'onboarding non è concluso non esiste un profilo utilizzabile:
+  // uscire significa disconnettersi.
   const leave = async () => {
-    if (step === 1 && !basicSaved && !profile?.onboarding_completed) {
+    if (!profile?.onboarding_completed) {
       await supabase.auth.signOut();
       navigate("/auth", { replace: true });
       return;
@@ -260,23 +262,9 @@ export const TalentOnboarding = () => {
     navigate("/talent/profile", { replace: true });
   };
 
-  const handleExit = () => {
-    if (stepDirty) setExitOpen(true);
-    else void leave();
-  };
+  const handleExit = () => setExitOpen(true);
 
-  const handleLater = async () => {
-    setSaving(true);
-    try {
-      await saveCurrentStep();
-      navigate("/talent/profile", { replace: true });
-    } catch (error) {
-      console.error("Onboarding save error:", error);
-      toast.error("Errore nel salvataggio. Riprova.");
-    } finally {
-      setSaving(false);
-    }
-  };
+
 
   const handlePhoto = (file: File) => {
     if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
