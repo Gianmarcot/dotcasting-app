@@ -13,6 +13,8 @@ export type MediaCategory = typeof MEDIA_CATEGORIES[number]["key"];
 
 export const PHOTO_CATEGORIES = MEDIA_CATEGORIES.filter((c) => c.type === "photo");
 
+export const VIDEO_CATEGORIES = MEDIA_CATEGORIES.filter((c) => c.type === "video");
+
 export const getCategoryLabel = (key: string) =>
   MEDIA_CATEGORIES.find((c) => c.key === key)?.label ?? key;
 
