@@ -116,7 +116,7 @@ export const OnboardingCard = ({
 );
 
 
-export const OnboardingFooter = ({ onLater }: { onLater?: () => void }) => (
+export const OnboardingFooter = ({ onLater }: { onLater?: () => void } = {}) => (
   <div className="flex h-16 items-center justify-center">
     {onLater && (
       <button

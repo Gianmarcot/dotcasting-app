@@ -147,8 +147,7 @@ export const TalentOnboarding = () => {
   const whatsappNumberToSave =
     (whatsappMode === "same" ? basic.phone_number : basic.whatsapp_number).trim() || null;
 
-  const stepDirty =
-    step === 1 ? basicTouched && !basicSaved : step === 2 ? rolesDirty : !!photoFile;
+  const photoValid = !!photoFile || !!profile?.profile_photo_url;
 
 
   /* ------------------------------- salvataggi ------------------------------ */
@@ -183,7 +182,6 @@ export const TalentOnboarding = () => {
         gender_identity: basic.gender_identity || null,
         guardian_user_id: user?.id ?? null,
         age_confirmed: isAdultBirthDate(basic.birth_date),
-        onboarding_completed: true,
       });
       setBasicSaved(true);
       return;
@@ -202,7 +200,6 @@ export const TalentOnboarding = () => {
       whatsapp_number: whatsappMode === "none" ? null : whatsappNumberToSave,
 
       age_confirmed: true,
-      onboarding_completed: true,
     });
     setBasicSaved(true);
   };
@@ -213,15 +210,18 @@ export const TalentOnboarding = () => {
     setRolesDirty(false);
   };
 
+  // Ultimo step: carica la foto (obbligatoria) e chiude l'onboarding.
   const savePhoto = async () => {
-    if (!photoFile) return;
-    const media = await uploadMedia.mutateAsync({
-      file: photoFile,
-      mediaType: "photo",
-      category: "main_photos",
-    });
-    if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
-    setPhotoFile(null);
+    if (photoFile) {
+      const media = await uploadMedia.mutateAsync({
+        file: photoFile,
+        mediaType: "photo",
+        category: "main_photos",
+      });
+      if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
+      setPhotoFile(null);
+    }
+    await updateProfile.mutateAsync({ onboarding_completed: true });
   };
 
   const saveCurrentStep = async () => {
@@ -229,6 +229,7 @@ export const TalentOnboarding = () => {
     if (step === 2) return saveRoles();
     return savePhoto();
   };
+
 
   /* -------------------------------- azioni -------------------------------- */
 
@@ -249,8 +250,10 @@ export const TalentOnboarding = () => {
     }
   };
 
+  // Finché l'onboarding non è concluso non esiste un profilo utilizzabile:
+  // uscire significa disconnettersi.
   const leave = async () => {
-    if (step === 1 && !basicSaved && !profile?.onboarding_completed) {
+    if (!profile?.onboarding_completed) {
       await supabase.auth.signOut();
       navigate("/auth", { replace: true });
       return;
@@ -258,23 +261,9 @@ export const TalentOnboarding = () => {
     navigate("/talent/profile", { replace: true });
   };
 
-  const handleExit = () => {
-    if (stepDirty) setExitOpen(true);
-    else void leave();
-  };
+  const handleExit = () => setExitOpen(true);
 
-  const handleLater = async () => {
-    setSaving(true);
-    try {
-      await saveCurrentStep();
-      navigate("/talent/profile", { replace: true });
-    } catch (error) {
-      console.error("Onboarding save error:", error);
-      toast.error("Errore nel salvataggio. Riprova.");
-    } finally {
-      setSaving(false);
-    }
-  };
+
 
   const handlePhoto = (file: File) => {
     if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
@@ -328,7 +317,11 @@ export const TalentOnboarding = () => {
             title={cardProps.title}
             subtitle={cardProps.subtitle}
             nextLabel={cardProps.nextLabel}
-            nextDisabled={step === 1 && !basicValid}
+            nextDisabled={
+              (step === 1 && !basicValid) ||
+              (step === 2 && roles.length === 0) ||
+              (step === 3 && !photoValid)
+            }
             loading={saving}
             onBack={step > 1 ? () => setStep(step - 1) : undefined}
             onNext={goNext}
@@ -367,6 +360,7 @@ export const TalentOnboarding = () => {
             {step === 2 && (
               <RolesStep
                 selected={roles}
+                error={roles.length === 0 ? "Seleziona almeno un ruolo per continuare" : null}
                 onToggle={(role) => {
                   setRolesDirty(true);
                   setRoles((prev) =>
@@ -378,15 +372,19 @@ export const TalentOnboarding = () => {
             {step === 3 && (
               <PhotoStep
                 previewUrl={photoPreview ?? profile?.profile_photo_url ?? null}
-                error={photoError}
+                error={
+                  photoError ??
+                  (photoValid ? null : "Carica una foto profilo per continuare")
+                }
                 onSelectFile={handlePhoto}
               />
             )}
           </OnboardingCard>
         </div>
 
-        <OnboardingFooter onLater={step > 1 ? handleLater : undefined} />
+        <OnboardingFooter />
       </div>
+
 
       <AlertDialog open={exitOpen} onOpenChange={setExitOpen}>
         <AlertDialogContent>
