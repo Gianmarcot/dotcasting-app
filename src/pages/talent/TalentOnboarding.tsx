@@ -105,17 +105,11 @@ export const TalentOnboarding = () => {
   // Stato delle spunte WhatsApp (dedotto dal componente condiviso).
   const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>("same");
 
-  // Dati del tutore (solo in modalità tutore): email precompilata con quella
-  // di accesso e modificabile.
+  // Dati del tutore (solo in modalità tutore). L'email non è raccolta: è
+  // quella dell'account, propagata dal database su profiles.contact_email.
   const [guardian, setGuardian] = useState<GuardianValue>(EMPTY_GUARDIAN);
-  const [guardianEmailInit, setGuardianEmailInit] = useState(false);
   const [guardianWhatsappMode, setGuardianWhatsappMode] = useState<WhatsappMode>("same");
 
-  useEffect(() => {
-    if (!isGuardianMode || guardianEmailInit || !user?.email) return;
-    setGuardianEmailInit(true);
-    setGuardian((prev) => (prev.contact_email ? prev : { ...prev, contact_email: user.email! }));
-  }, [isGuardianMode, guardianEmailInit, user?.email]);
 
   const guardianErrors: GuardianErrors = useMemo(
     () => (isGuardianMode ? validateGuardian(guardian) : {}),
