@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, KeyRound, Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Surface } from "@/components/ui/surface";
 import { FloatingInput } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { SectionCard } from "@/components/profile/fields/FormFields";
@@ -136,7 +135,7 @@ const TalentUpdateAccess = () => {
   };
 
   return (
-    <Surface variant="base" className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
+    <div className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
       <button
         type="button"
         onClick={() => navigate("/talent/profile")}
@@ -259,7 +258,7 @@ const TalentUpdateAccess = () => {
           </>
         )}
       </SectionCard>
-    </Surface>
+    </div>
   );
 };
 
