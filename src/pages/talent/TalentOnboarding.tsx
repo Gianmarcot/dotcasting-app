@@ -161,7 +161,7 @@ export const TalentOnboarding = () => {
         last_name: guardian.last_name.trim(),
         birth_date: guardian.birth_date || null,
         age_confirmed: isAdultBirthDate(guardian.birth_date),
-        contact_email: guardian.contact_email.trim() || null,
+        // contact_email non viene scritta: la propaga il database.
         phone_prefix: guardian.phone_prefix,
         phone_number: guardian.phone_number.trim() || null,
         whatsapp_prefix: guardianWhatsappMode === "none" ? null : guardianWhatsappPrefix,
