@@ -11,13 +11,13 @@ import {
   SectionCard,
 } from "@/components/profile/fields/FormFields";
 import {
-  ContactEmailField,
   PhoneFields,
   type PhoneValue,
-
 } from "@/components/profile/fields/BasicInfoFields";
+import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
 
 import { FieldSlot, useProfileForm } from "./ProfileFormContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useGuardian } from "@/hooks/useGuardian";
 import { formatPhone, guardianFullName } from "@/lib/guardianship";
 
@@ -45,12 +45,18 @@ const prefixOptions = PHONE_PREFIXES.map((p) => ({
 }));
 
 /** Contatti del tutore in sola lettura: su un profilo tutelato non si modificano qui. */
-const GuardianContactsBox = ({ guardianUserId }: { guardianUserId: string }) => {
+const GuardianContactsBox = ({
+  guardianUserId,
+  accountEmail,
+}: {
+  guardianUserId: string;
+  accountEmail?: string | null;
+}) => {
   const { data: guardian } = useGuardian(guardianUserId);
   const rows: { label: string; value: string }[] = [];
   const name = guardianFullName(guardian);
   if (name) rows.push({ label: "Tutore", value: name });
-  if (guardian?.contact_email) rows.push({ label: "Email", value: guardian.contact_email });
+  if (accountEmail) rows.push({ label: "Email", value: accountEmail });
   const tel = formatPhone(guardian?.phone_prefix, guardian?.phone_number);
   if (tel) rows.push({ label: "Telefono", value: tel });
   const wa = formatPhone(guardian?.whatsapp_prefix, guardian?.whatsapp_number);
@@ -81,6 +87,7 @@ const GuardianContactsBox = ({ guardianUserId }: { guardianUserId: string }) => 
 };
 
 export const ContactsCard = () => {
+  const { user } = useAuth();
   const { str, set, setMany, obj, profileRow } = useProfileForm();
   const guardianUserId = profileRow?.guardian_user_id ?? null;
 
@@ -96,7 +103,10 @@ export const ContactsCard = () => {
   return (
     <SectionCard icon={<Mail strokeWidth={1} />} title="Contatti">
       {guardianUserId ? (
-        <GuardianContactsBox guardianUserId={guardianUserId} />
+        <GuardianContactsBox
+          guardianUserId={guardianUserId}
+          accountEmail={str("p", "contact_email") || user?.email || null}
+        />
       ) : (
         <>
       {/* Email in sola lettura: coincide con l'email dell'account. */}
