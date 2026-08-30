@@ -43,3 +43,44 @@ export const markCredentialsUpdated = async () => {
     data: { [CREDENTIALS_UPDATED_METADATA_KEY]: new Date().toISOString() },
   });
 };
+
+/* --------------------------------------------------------------------------
+ * Cambio email in attesa di conferma.
+ * `auth.updateUser({ email })` non cambia l'indirizzo subito: diventa effettivo
+ * solo dopo il click sul link inviato al nuovo indirizzo. Teniamo traccia della
+ * richiesta sui metadati dell'account, così lo stato sopravvive a un
+ * ricaricamento della pagina.
+ * ------------------------------------------------------------------------ */
+
+export const PENDING_EMAIL_METADATA_KEY = "pending_email";
+export const PENDING_EMAIL_REQUESTED_AT_METADATA_KEY = "pending_email_requested_at";
+
+/** Indirizzo richiesto e non ancora confermato, oppure null. */
+export const getPendingEmail = (user: User | null | undefined): string | null => {
+  const pending = user?.user_metadata?.[PENDING_EMAIL_METADATA_KEY];
+  if (typeof pending !== "string" || !pending.trim()) return null;
+  // Confermato: l'email dell'account coincide già con quella richiesta.
+  if (user?.email && user.email.toLowerCase() === pending.toLowerCase()) return null;
+  return pending;
+};
+
+export const markEmailChangePending = async (email: string) => {
+  const { supabase } = await import("@/integrations/supabase/client");
+  await supabase.auth.updateUser({
+    data: {
+      [PENDING_EMAIL_METADATA_KEY]: email,
+      [PENDING_EMAIL_REQUESTED_AT_METADATA_KEY]: new Date().toISOString(),
+    },
+  });
+};
+
+export const clearEmailChangePending = async () => {
+  const { supabase } = await import("@/integrations/supabase/client");
+  await supabase.auth.updateUser({
+    data: {
+      [PENDING_EMAIL_METADATA_KEY]: null,
+      [PENDING_EMAIL_REQUESTED_AT_METADATA_KEY]: null,
+    },
+  });
+};
+
