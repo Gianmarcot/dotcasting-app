@@ -199,7 +199,7 @@ const TalentUpdateAccess = () => {
             size="lg"
             onClick={() => navigate("/talent/profile")}
           >
-            Lo faccio dopo
+            {fromGuardianship ? "Lo faccio dopo" : "Annulla"}
           </Button>
           <Button type="button" size="lg" disabled={pending} onClick={() => void submit()}>
             Salva e continua
