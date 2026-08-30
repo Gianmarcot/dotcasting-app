@@ -1,7 +1,6 @@
 import { GroupLabel, ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import {
   BirthDateFields,
-  ContactEmailField,
   NameFields,
   PhoneFields,
   type WhatsappMode,
@@ -12,13 +11,15 @@ import { isAdultBirthDate } from "@/lib/guardianship";
  * Campi del tutore legale / genitore. Scrivono su `guardians`: sono gli unici
  * contatti di un profilo tutelato. Riusano gli stessi gruppi di campi del
  * profilo talent: nessun form nuovo.
+ *
+ * Nessun campo email: l'email del tutore è quella dell'account, propagata dal
+ * database su `profiles.contact_email`. Il client non la scrive mai.
  * ------------------------------------------------------------------------ */
 
 export interface GuardianValue {
   first_name: string;
   last_name: string;
   birth_date: string;
-  contact_email: string;
   phone_prefix: string;
   phone_number: string;
   whatsapp_prefix: string;
@@ -31,14 +32,11 @@ export const EMPTY_GUARDIAN: GuardianValue = {
   first_name: "",
   last_name: "",
   birth_date: "",
-  contact_email: "",
   phone_prefix: "+39",
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
 };
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const validateGuardian = (value: GuardianValue): GuardianErrors => {
   const errors: GuardianErrors = {};
@@ -47,9 +45,6 @@ export const validateGuardian = (value: GuardianValue): GuardianErrors => {
   if (!value.birth_date) errors.birth_date = "Inserisci la data di nascita del tutore";
   else if (!isAdultBirthDate(value.birth_date))
     errors.birth_date = "Il tutore deve essere maggiorenne";
-  if (!value.contact_email.trim()) errors.contact_email = "Inserisci un'email di contatto";
-  else if (!EMAIL_RE.test(value.contact_email.trim()))
-    errors.contact_email = "Inserisci un'email valida";
   if (!value.phone_number.trim()) errors.phone_number = "Inserisci un numero di telefono";
   else if (value.phone_number.replace(/\D/g, "").length < 6)
     errors.phone_number = "Numero di telefono non valido";
@@ -58,6 +53,7 @@ export const validateGuardian = (value: GuardianValue): GuardianErrors => {
 
 export const isGuardianValid = (value: GuardianValue) =>
   Object.keys(validateGuardian(value)).length === 0;
+
 
 export const GuardianFields = ({
   value,
