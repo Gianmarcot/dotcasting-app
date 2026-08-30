@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, KeyRound } from "lucide-react";
 import { toast } from "sonner";
@@ -11,7 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
-import { markCredentialsUpdated } from "@/lib/signupMode";
+import {
+  clearEmailChangePending,
+  getPendingEmail,
+  markCredentialsUpdated,
+  markEmailChangePending,
+} from "@/lib/signupMode";
 
 /**
  * Passaggio dopo la conversione di un profilo tutelato: email, telefono e
@@ -42,6 +47,18 @@ const TalentUpdateAccess = () => {
   );
   const [pending, setPending] = useState(false);
 
+  // Cambio email in attesa di conferma: sopravvive al ricaricamento perché
+  // vive sui metadati dell'account.
+  const pendingEmail = getPendingEmail(user);
+
+  useEffect(() => {
+    // Conferma avvenuta: l'account ha la nuova email, lo stato di attesa si chiude.
+    const requested = user?.user_metadata?.pending_email;
+    if (typeof requested === "string" && requested && !pendingEmail) {
+      void clearEmailChangePending();
+    }
+  }, [user, pendingEmail]);
+
   const passwordError =
     password && password.length < 8 ? "Almeno 8 caratteri" : undefined;
   const password2Error =
@@ -51,7 +68,7 @@ const TalentUpdateAccess = () => {
     if (passwordError || password2Error) return;
     setPending(true);
     try {
-      const emailChanged = email.trim() && email.trim() !== user?.email;
+      const emailChanged = !!email.trim() && email.trim() !== user?.email;
       if (emailChanged || password) {
         const { error } = await supabase.auth.updateUser({
           ...(emailChanged ? { email: email.trim() } : {}),
@@ -59,13 +76,15 @@ const TalentUpdateAccess = () => {
         });
         if (error) throw error;
       }
+      if (emailChanged) await markEmailChangePending(email.trim());
 
       const waPrefix = whatsappMode === "same" ? phone.phone_prefix : phone.whatsapp_prefix;
       const waNumber =
         (whatsappMode === "same" ? phone.phone_number : phone.whatsapp_number).trim() || null;
 
+      // contact_email non viene scritta: la propaga il database quando il
+      // cambio dell'email dell'account viene confermato.
       await updateProfile.mutateAsync({
-        contact_email: email.trim() || null,
         phone_prefix: phone.phone_prefix,
         phone_number: phone.phone_number.trim() || null,
         whatsapp_prefix: whatsappMode === "none" ? null : waPrefix,
@@ -73,18 +92,32 @@ const TalentUpdateAccess = () => {
       });
 
       await markCredentialsUpdated();
-      toast.success(
-        emailChanged
-          ? "Dati aggiornati. Conferma la nuova email dal link che ti abbiamo inviato."
-          : "Dati di accesso aggiornati"
-      );
-      navigate("/talent/profile");
+      if (emailChanged) {
+        toast.success(
+          `Dati aggiornati. Conferma la nuova email dal link inviato a ${email.trim()}.`
+        );
+      } else {
+        toast.success("Dati di accesso aggiornati");
+        navigate("/talent/profile");
+      }
     } catch (error) {
       console.error("update access:", error);
       toast.error("Aggiornamento non riuscito. Riprova.");
     } finally {
       setPending(false);
     }
+  };
+
+  const resend = async () => {
+    if (!pendingEmail) return;
+    const { error } = await supabase.auth.updateUser({ email: pendingEmail });
+    if (error) {
+      console.error("resend email change:", error);
+      toast.error("Invio non riuscito. Riprova.");
+      return;
+    }
+    await markEmailChangePending(pendingEmail);
+    toast.success(`Link inviato di nuovo a ${pendingEmail}`);
   };
 
   return (
@@ -103,7 +136,36 @@ const TalentUpdateAccess = () => {
           i suoi, e conosce anche la password. Aggiornali per essere l'unico a poter accedere.
         </p>
 
-        <FloatingInput label="Email di accesso" type="email" value={email} onChange={setEmail} />
+        <div>
+          <FloatingInput
+            label="Email di accesso"
+            type="email"
+            value={email}
+            onChange={setEmail}
+          />
+          {pendingEmail ? (
+            <div className="mt-3 rounded-[20px] bg-field px-5 py-4">
+              <p className="text-[15px] text-foreground">
+                Cambio email in attesa di conferma.
+              </p>
+              <p className="mt-1 text-[13px] text-field-label">
+                Abbiamo inviato un link a <strong>{pendingEmail}</strong>. Fino al click resta
+                attiva <strong>{user?.email}</strong>.
+              </p>
+              <button
+                type="button"
+                className="dc-link-action mt-3 inline-block"
+                onClick={() => void resend()}
+              >
+                Invia di nuovo
+              </button>
+            </div>
+          ) : (
+            <p className="mt-2 text-[13px] text-field-label">
+              Indirizzo attualmente in vigore: <strong>{user?.email}</strong>.
+            </p>
+          )}
+        </div>
 
         <PhoneFields
           value={phone}

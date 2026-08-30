@@ -105,17 +105,11 @@ export const TalentOnboarding = () => {
   // Stato delle spunte WhatsApp (dedotto dal componente condiviso).
   const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>("same");
 
-  // Dati del tutore (solo in modalità tutore): email precompilata con quella
-  // di accesso e modificabile.
+  // Dati del tutore (solo in modalità tutore). L'email non è raccolta: è
+  // quella dell'account, propagata dal database su profiles.contact_email.
   const [guardian, setGuardian] = useState<GuardianValue>(EMPTY_GUARDIAN);
-  const [guardianEmailInit, setGuardianEmailInit] = useState(false);
   const [guardianWhatsappMode, setGuardianWhatsappMode] = useState<WhatsappMode>("same");
 
-  useEffect(() => {
-    if (!isGuardianMode || guardianEmailInit || !user?.email) return;
-    setGuardianEmailInit(true);
-    setGuardian((prev) => (prev.contact_email ? prev : { ...prev, contact_email: user.email! }));
-  }, [isGuardianMode, guardianEmailInit, user?.email]);
 
   const guardianErrors: GuardianErrors = useMemo(
     () => (isGuardianMode ? validateGuardian(guardian) : {}),
@@ -129,11 +123,13 @@ export const TalentOnboarding = () => {
 
   const errors: BasicInfoErrors = useMemo(() => {
     const all = validateBasicInfo(basic);
-    if (!isGuardianMode) return all;
-    // Il minore non ha contatti propri: nessun vincolo su email e telefono.
-    const { contact_email, phone_number, ...rest } = all;
-    return rest;
+    // L'email non è più un campo del form: arriva dall'account.
+    const { contact_email, phone_number, ...withoutContacts } = all;
+    if (isGuardianMode) return withoutContacts;
+    // Il minore non ha contatti propri; il talent adulto conserva il telefono.
+    return { ...withoutContacts, ...(phone_number ? { phone_number } : {}) };
   }, [basic, isGuardianMode]);
+
   const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
   const whatsappError =
     basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
@@ -167,7 +163,7 @@ export const TalentOnboarding = () => {
         last_name: guardian.last_name.trim(),
         birth_date: guardian.birth_date || null,
         age_confirmed: isAdultBirthDate(guardian.birth_date),
-        contact_email: guardian.contact_email.trim() || null,
+        // contact_email non viene scritta: la propaga il database.
         phone_prefix: guardian.phone_prefix,
         phone_number: guardian.phone_number.trim() || null,
         whatsapp_prefix: guardianWhatsappMode === "none" ? null : guardianWhatsappPrefix,
@@ -193,7 +189,7 @@ export const TalentOnboarding = () => {
       birth_date: basic.birth_date || null,
       gender: basic.gender || null,
       gender_identity: basic.gender_identity || null,
-      contact_email: basic.contact_email.trim() || null,
+      // contact_email non viene scritta: la propaga il database dall'account.
       phone_prefix: basic.phone_prefix,
       phone_number: basic.phone_number.trim() || null,
       whatsapp_prefix: whatsappMode === "none" ? null : whatsappPrefixToSave,

@@ -1,7 +1,6 @@
 import { GroupLabel, SectionDivider } from "@/components/profile/fields/FormFields";
 import {
   BirthDateFields,
-  ContactEmailField,
   GenderFields,
   NameFields,
   PhoneFields,
@@ -10,6 +9,7 @@ import {
   type BasicInfoValue,
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
+import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
 import {
   GuardianFields,
   type GuardianErrors,
@@ -86,11 +86,8 @@ export const BasicInfoStep = ({
 
       {!isGuardian && (
         <>
-          <ContactEmailField
-            value={value.contact_email}
-            error={errors.contact_email}
-            onChange={(v) => onChange({ contact_email: v })}
-          />
+          {/* Email in sola lettura: è quella dell'account, propagata dal database. */}
+          <AccountEmailField />
 
           <PhoneFields
             value={{
