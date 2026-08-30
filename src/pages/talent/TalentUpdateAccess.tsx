@@ -6,11 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { FloatingInput } from "@/components/ui/field";
 import { SectionCard } from "@/components/profile/fields/FormFields";
-import { PhoneFields, deriveWhatsappMode, type WhatsappMode } from "@/components/profile/fields/BasicInfoFields";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
-import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import {
   clearEmailChangePending,
   getPendingEmail,
@@ -20,32 +18,18 @@ import {
 } from "@/lib/signupMode";
 
 /**
- * Passaggio dopo la conversione di un profilo tutelato: email, telefono e
- * password sono ancora del genitore. Insistente ma non bloccante.
+ * Unico punto di modifica delle credenziali: email di accesso e password.
+ * Il telefono si modifica dalla pagina profilo.
  */
 const TalentUpdateAccess = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: profile } = useProfile();
-  const updateProfile = useUpdateProfile();
 
   const [email, setEmail] = useState(user?.email ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [phone, setPhone] = useState({
-    phone_prefix: profile?.phone_prefix ?? "+39",
-    phone_number: profile?.phone_number ?? "",
-    whatsapp_prefix: profile?.whatsapp_prefix ?? profile?.phone_prefix ?? "+39",
-    whatsapp_number: profile?.whatsapp_number ?? "",
-  });
-  const [whatsappMode, setWhatsappMode] = useState<WhatsappMode>(() =>
-    deriveWhatsappMode({
-      phone_prefix: profile?.phone_prefix ?? "+39",
-      phone_number: profile?.phone_number ?? "",
-      whatsapp_prefix: profile?.whatsapp_prefix ?? "+39",
-      whatsapp_number: profile?.whatsapp_number ?? "",
-    })
-  );
   const [pending, setPending] = useState(false);
 
   // Cambio email in attesa di conferma: sopravvive al ricaricamento perché
@@ -62,15 +46,38 @@ const TalentUpdateAccess = () => {
 
   const fromGuardianship = needsCredentialsUpdate(user, profile?.guardian_user_id ?? null);
 
-  const passwordError =
-    password && password.length < 8 ? "Almeno 8 caratteri" : undefined;
+  const passwordError = password && password.length < 8 ? "Almeno 8 caratteri" : undefined;
   const password2Error =
     password2 && password2 !== password ? "Le password non coincidono" : undefined;
 
   const submit = async () => {
     if (passwordError || password2Error) return;
+    if (password && password !== password2) {
+      toast.error("Conferma la nuova password");
+      return;
+    }
+    // Chi arriva dalla tutela non conosce una "propria" password attuale.
+    if (password && !fromGuardianship && !currentPassword) {
+      toast.error("Inserisci la password attuale");
+      return;
+    }
     setPending(true);
     try {
+      if (password && !fromGuardianship) {
+        if (!user?.email) {
+          toast.error("Sessione non valida, effettua di nuovo l'accesso");
+          return;
+        }
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: user.email,
+          password: currentPassword,
+        });
+        if (signInError) {
+          toast.error("La password attuale non è corretta");
+          return;
+        }
+      }
+
       const emailChanged = !!email.trim() && email.trim() !== user?.email;
       if (emailChanged || password) {
         const { error } = await supabase.auth.updateUser({
@@ -81,20 +88,10 @@ const TalentUpdateAccess = () => {
       }
       if (emailChanged) await markEmailChangePending(email.trim());
 
-      const waPrefix = whatsappMode === "same" ? phone.phone_prefix : phone.whatsapp_prefix;
-      const waNumber =
-        (whatsappMode === "same" ? phone.phone_number : phone.whatsapp_number).trim() || null;
-
-      // contact_email non viene scritta: la propaga il database quando il
-      // cambio dell'email dell'account viene confermato.
-      await updateProfile.mutateAsync({
-        phone_prefix: phone.phone_prefix,
-        phone_number: phone.phone_number.trim() || null,
-        whatsapp_prefix: whatsappMode === "none" ? null : waPrefix,
-        whatsapp_number: whatsappMode === "none" ? null : waNumber,
-      });
-
       await markCredentialsUpdated();
+      setCurrentPassword("");
+      setPassword("");
+      setPassword2("");
       if (emailChanged) {
         toast.success(
           `Dati aggiornati. Conferma la nuova email dal link inviato a ${email.trim()}.`
@@ -124,7 +121,7 @@ const TalentUpdateAccess = () => {
   };
 
   return (
-    <Surface variant="muted" className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
+    <Surface variant="base" className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
       <button
         type="button"
         onClick={() => navigate("/talent/profile")}
@@ -136,8 +133,8 @@ const TalentUpdateAccess = () => {
       <SectionCard icon={<KeyRound strokeWidth={1} />} title="Aggiorna i dati di accesso">
         <p className="text-[15px] text-field-label">
           {fromGuardianship
-            ? "Il profilo era gestito da un genitore o tutore: email, telefono e password attuali sono i suoi, e conosce anche la password. Aggiornali per essere l'unico a poter accedere."
-            : "Cambia l'email di accesso, il telefono o la password. Il nuovo indirizzo diventa attivo solo dopo la conferma dal link che ti inviamo."}
+            ? "Il profilo era gestito da un genitore o tutore: email e password attuali sono le sue. Aggiornale per essere l'unico a poter accedere."
+            : "Cambia l'email di accesso o la password. Il nuovo indirizzo diventa attivo solo dopo la conferma dal link che ti inviamo."}
         </p>
 
         <div>
@@ -149,9 +146,7 @@ const TalentUpdateAccess = () => {
           />
           {pendingEmail ? (
             <div className="mt-3 rounded-[20px] bg-field px-5 py-4">
-              <p className="text-[15px] text-foreground">
-                Cambio email in attesa di conferma.
-              </p>
+              <p className="text-[15px] text-foreground">Cambio email in attesa di conferma.</p>
               <p className="mt-1 text-[13px] text-field-label">
                 Abbiamo inviato un link a <strong>{pendingEmail}</strong>. Fino al click resta
                 attiva <strong>{user?.email}</strong>.
@@ -171,12 +166,14 @@ const TalentUpdateAccess = () => {
           )}
         </div>
 
-        <PhoneFields
-          value={phone}
-          onChange={(patch) => setPhone((prev) => ({ ...prev, ...patch }))}
-          onModeChange={setWhatsappMode}
-        />
-
+        {!fromGuardianship && (
+          <FloatingInput
+            label="Password attuale"
+            type="password"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+          />
+        )}
         <FloatingInput
           label="Nuova password"
           type="password"
