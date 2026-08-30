@@ -136,7 +136,7 @@ const TalentUpdateAccess = () => {
   };
 
   return (
-    <Surface variant="base" className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
+    <div className="mx-auto w-full max-w-[720px] px-4 pb-24 pt-8 sm:pt-16">
       <button
         type="button"
         onClick={() => navigate("/talent/profile")}
