@@ -82,7 +82,7 @@ const MediaStrip = ({
       {items.length > 0 ? (
         <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
           {shown.map((item) => (
-            <div key={item.id} className={cn("relative", tileClass)}>
+            <div key={item.id} className={cn("relative", activeTileClass)}>
               {kind === "photo" ? (
                 <img
                   src={item.url}
