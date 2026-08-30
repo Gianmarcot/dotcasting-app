@@ -49,25 +49,56 @@ Nessuna rompe qualcosa in silenzio, ma una va letta con attenzione:
 
 Unico punto semantico, non un bug: nel PDF/comp card i contatti di un profilo tutelato vanno risolti sul tutore. È già così in `fetchRoundTalents.ts`.
 
-## Passo 4 — sincronizzazione dell'email di contatto (l'unico lavoro nuovo in database)
+## Passo 4 — sincronizzazione dell'email di contatto
 
-Migrazione da presentare a parte per approvazione, **non eseguita in questo piano**:
+### Le 3 righe che il backfill sovrascriverebbe (ispezionate)
 
-1. Funzione `public.sync_profile_contact_email()`, security definer, `search_path = public`: copia `new.email` su `profiles.contact_email` dove `user_id = new.id`.
-2. Trigger su `auth.users`: `AFTER INSERT OR UPDATE OF email`. Sull'insert si accoda dopo `on_auth_user_created`, così la riga profilo esiste già.
-3. Backfill: `update public.profiles p set contact_email = u.email from auth.users u where u.id = p.user_id and coalesce(p.contact_email,'') <> u.email` — allinea le 20 righe fuori sincrono.
-4. `guardians.contact_email` viene **rimossa**: l'email del tutore è quella dell'account, che per un profilo tutelato è già in `profiles.contact_email`.
+Nessuna è un profilo tutelato:
 
-Una sola regola copre profili normali e tutelati.
+| Profilo | Nome | `contact_email` attuale | email dell'account |
+|---|---|---|---|
+| `1cf50c13-…f021a4` | Mario Rossi | mario@example.com | test-talent-onboarding@example.com |
+| `4dca73b4-…0c34d4` | Corrie Burkart | corrieburkart@gmail.com | tvaretti+burkart@gmail.com |
+| `5619f40c-…39aca42a` | Gianmarco Varetti | varetti96@gmail.com | gianmarcovaretti@gmail.com |
+
+`guardians`: una sola riga (Sonia Avanzi), `contact_email` **già identica** all'email dell'account (`gianmarcovaretti+tutore@gmail.com`). Rimuovendo la colonna non si perde nessun dato — resta comunque in attesa della tua conferma insieme al backfill.
+
+### Migrazione da eseguire ora (senza backfill, senza drop)
+
+1. `handle_new_user()` aggiornata: crea la riga profilo con `contact_email = new.email` (la riga la crea già lei, quindi nessuna dipendenza dall'ordine dei trigger).
+2. Funzione `public.sync_profile_contact_email()`, security definer, `search_path = public`: copia `new.email` su `profiles.contact_email` dove `user_id = new.id`.
+3. Trigger su `auth.users` limitato a **`AFTER UPDATE OF email`** (con `when (old.email is distinct from new.email)`). Nessun trigger su INSERT.
+
+### Rinviato alla tua conferma esplicita
+
+- Backfill delle 17 righe con `contact_email` nulla e delle 3 righe sopra.
+- `alter table public.guardians drop column contact_email`.
+
+Fino ad allora il client smette di scrivere la colonna e le righe già allineate restano tali; le 3 divergenti continuano a mostrare il valore attuale.
 
 ## Lato interfaccia — il client non scrive più quella colonna
 
 - `GuardianFields.tsx`: via il campo email e la sua validazione; l'email dell'account resta mostrata come dato in sola lettura.
 - `TalentOnboarding.tsx`: smette di inviare `contact_email` sia sul profilo sia sul tutore.
 - `ContactsCard.tsx` (profilo v2) e `ContactInfoSection.tsx`: l'email diventa sola lettura, con nota "coincide con l'email di accesso"; niente scrittura.
-- `TalentUpdateAccess.tsx`: aggiorna solo l'email dell'account (`auth.updateUser`), niente `contact_email` — la propaga il trigger.
 - `useGuardian.ts` / `GuardianCard.tsx`: rimosso `contact_email` dal payload; lettura dell'email dall'utente auth.
+
+### `TalentUpdateAccess.tsx` — stato di attesa sul cambio email
+
+`auth.updateUser({ email })` non cambia nulla subito: l'email diventa effettiva solo dopo il click sul link inviato al nuovo indirizzo. Comportamento previsto:
+
+- All'invio, l'app salva l'indirizzo richiesto nei metadati dell'account (`pending_email_requested_at` + `pending_email`), quindi lo stato sopravvive al ricaricamento della pagina e non dipende dallo stato di navigazione.
+- Il campo email mostra sempre l'**indirizzo attuale in vigore** (`user.email`) come valore in uso.
+- Sotto il campo compare un avviso: "Cambio email in attesa di conferma. Abbiamo inviato un link a *nuovo@indirizzo*: fino al click resta attiva *indirizzo attuale*." Con azione "Invia di nuovo".
+- Lo stato si chiude quando `user.email` coincide con l'indirizzo richiesto (Supabase aggiorna la sessione dopo la conferma): l'avviso spariisce e i metadati vengono ripuliti.
+- Nessuna scrittura su `profiles.contact_email`: la propaga il trigger del Passo 4 nel momento in cui l'email dell'account cambia davvero.
+
+## Le due conferme richieste
+
+- **Campo email nel profilo**: oggi è un input editabile (`ContactEmailField` in `ContactsCard.tsx`), non un campo disabilitato. Diventa sola lettura. Nota sul token: `--field-bg-disabled` **è già `grey-200`** nei contesti chiari (base e muted, `src/index.css`), quindi non serve alcuna modifica; sui contesti brand/inverse resta `brand-700` / `grey-900`, coerente.
+- **Interfaccia di conversione ai 18 anni**: **esiste già**. `MaturityNotice` invoca `convert_guardian_profile_to_adult()` ed è montata in `TalentProfileV2.tsx` insieme a `UpdateAccessNotice`, che rimanda a `/talent/aggiorna-accesso`. Nessun lavoro nuovo qui.
 
 ## Fuori scopo, confermato
 
 Liberatoria per l'uso dell'immagine, blocchi sull'invio di profili minori ai clienti, relazione molti-a-molti fra tutori e minori.
+
