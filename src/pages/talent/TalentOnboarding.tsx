@@ -318,7 +318,11 @@ export const TalentOnboarding = () => {
             title={cardProps.title}
             subtitle={cardProps.subtitle}
             nextLabel={cardProps.nextLabel}
-            nextDisabled={step === 1 && !basicValid}
+            nextDisabled={
+              (step === 1 && !basicValid) ||
+              (step === 2 && roles.length === 0) ||
+              (step === 3 && !photoValid)
+            }
             loading={saving}
             onBack={step > 1 ? () => setStep(step - 1) : undefined}
             onNext={goNext}
