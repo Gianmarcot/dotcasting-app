@@ -9,6 +9,8 @@ import { useTalentEngagements } from "@/hooks/useTalentEngagements";
 import { useCommunications } from "@/hooks/useCommunications";
 import { useCommunicationTemplates } from "@/hooks/useCommunicationTemplates";
 import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
+import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
+import { isAdultBirthDate } from "@/lib/guardianship";
 import { renderTemplate, type CommunicationTemplateType } from "@/lib/communicationTemplates";
 import type { Communication } from "@/lib/communications";
 
@@ -74,6 +76,13 @@ export const useCommunicationSync = () => {
       missingGroups.push({ label: "contatti", target: "contacts" });
     if (!profile.city || !profile.country)
       missingGroups.push({ label: "indirizzi", target: "address" });
+    // Le regole di visibilità decidono quali campi possono risultare mancanti.
+    const roles = profile.talent_categories ?? [];
+    const physicalKeys = visiblePhysicalFields({
+      roles,
+      isAdult: isAdultBirthDate(profile.birth_date),
+      gender: profile.gender,
+    });
     const measures = [
       attributes?.chest,
       attributes?.waist,
@@ -81,7 +90,9 @@ export const useCommunicationSync = () => {
       attributes?.shoulder_width,
       attributes?.neck_size,
     ].filter(Boolean);
-    if (!attributes?.height || !attributes?.weight || measures.length < 3)
+    const measuresMissing = physicalKeys.includes("chest") && measures.length < 3;
+    const heightMissing = physicalKeys.includes("height") && !attributes?.height;
+    if (heightMissing || !attributes?.weight || measuresMissing)
       missingGroups.push({ label: "misure", target: "physical" });
     if (!profile.talent_categories?.length)
       missingGroups.push({ label: "ruoli", target: "roles" });
@@ -98,7 +109,8 @@ export const useCommunicationSync = () => {
     /* --- 2. Foto insufficienti (una sola comunicazione) ---------------- */
     if (media) {
       const short: { label: string; count: number; min: number; key: string }[] = [];
-      PHOTO_CATEGORIES.forEach((cat) => {
+      const photoKeys = visiblePhotoCategories(roles);
+      PHOTO_CATEGORIES.filter((cat) => photoKeys.includes(cat.key)).forEach((cat) => {
         const min = "minRequired" in cat ? (cat.minRequired as number) : MIN_PHOTOS_FALLBACK;
         const count = media.filter((m) => m.category === cat.key).length;
         if (count < min) short.push({ label: cat.label, count, min, key: cat.key });
