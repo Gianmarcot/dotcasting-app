@@ -346,6 +346,18 @@ export const AuthPage = () => {
 
                 {isLoading ? it.common.loading : (isLogin ? it.auth.login : it.auth.signup)}
               </Button>
+
+              {isLogin && (
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {it.auth.forgotPassword}
+                  </button>
+                </div>
+              )}
             </form>
           </Surface>
 
