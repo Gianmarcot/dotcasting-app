@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
+import { Surface } from "@/components/ui/surface";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 
