@@ -7,6 +7,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Talent } from "./talentFields";
+import { isMediaCategoryVisible } from "@/lib/roleVisibility";
 import {
   formatPhone,
   isMinorBirthDate,
