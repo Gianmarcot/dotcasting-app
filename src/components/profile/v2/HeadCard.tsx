@@ -1,3 +1,4 @@
+import { PROFILE_PHOTO_CATEGORY } from "@/lib/roleVisibility";
 import { useEffect, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -87,7 +88,7 @@ export const HeadCard = () => {
             setGalleryOpen(v);
             if (!v) photoButtonRef.current?.focus();
           }}
-          initialCategory="main_photos"
+          initialCategory={PROFILE_PHOTO_CATEGORY}
         />
         <h2 className="mt-10 font-display text-xl uppercase text-foreground">
           {displayName || "Il tuo nome"}
