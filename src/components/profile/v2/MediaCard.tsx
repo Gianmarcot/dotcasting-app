@@ -135,8 +135,9 @@ const MediaStrip = ({
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
-  const { arr } = useProfileForm();
+  const { arr, bool } = useProfileForm();
   const roles = arr("p", "talent_categories");
+  const hasBand = bool("p", "has_band");
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedPhotoCategory = searchParams.get("photos");
   const requestedVideoCategory = searchParams.get("videos");
@@ -145,8 +146,8 @@ export const MediaCard = () => {
   const [initialCategory, setInitialCategory] = useState<MediaCategory>(PROFILE_PHOTO_CATEGORY);
   const [initialVideoCategory, setInitialVideoCategory] = useState<MediaCategory>("intro_video");
 
-  const photoKeys = visiblePhotoCategories(roles);
-  const videoKeys = visibleVideoCategories(roles);
+  const photoKeys = visiblePhotoCategories(roles, { hasBand });
+  const videoKeys = visibleVideoCategories(roles, { hasBand });
 
   // Deep link da una comunicazione: apre la gestione media sulla categoria indicata
   useEffect(() => {
