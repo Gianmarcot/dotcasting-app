@@ -2,6 +2,8 @@
  import { useTalentAttributes } from "./useTalentAttributes";
  import { useTalentMedia } from "./useTalentMedia";
  import { useMemo } from "react";
+import { PROFILE_PHOTO_CATEGORY, visiblePhotoCategories, visiblePhysicalFields, visibleVideoCategories } from "@/lib/roleVisibility";
+import { isAdultBirthDate } from "@/lib/guardianship";
  
  interface CompletionCheck {
    key: string;
@@ -52,15 +54,29 @@ export interface ProfileCompletionResult {
    const { data: media, isLoading: mediaLoading } = useTalentMedia();
  
    const result = useMemo(() => {
-     const checks: CompletionCheck[] = [
+     // Solo le categorie e i campi previsti dai ruoli entrano nel punteggio.
+     const roles = profile?.talent_categories ?? [];
+     const photoKeys = visiblePhotoCategories(roles);
+     const mediaKeys = [...photoKeys, ...visibleVideoCategories(roles)];
+     const physicalKeys = visiblePhysicalFields({
+       roles,
+       isAdult: isAdultBirthDate(profile?.birth_date),
+       gender: profile?.gender,
+     });
+     const visibleMedia = (media || []).filter((m) =>
+       mediaKeys.includes((m as { category?: string }).category ?? "main_photos")
+     );
+     const showPhysical = physicalKeys.length > 0;
+
+     const checks: CompletionCheck[] = ([
        {
          key: "mainPhoto",
-         label: "Foto principale (obbligatoria)",
+         label: "Foto profilo (obbligatoria)",
          anchor: "media-gallery",
          weight: 15,
          isComplete: !!(media || []).some(
-           (m) => (m as { category?: string }).category === "main_photos"
-         ),
+           (m) => (m as { category?: string }).category === PROFILE_PHOTO_CATEGORY
+         ) || !!profile?.profile_photo_url,
        },
        {
          key: "name",
@@ -95,6 +111,7 @@ export interface ProfileCompletionResult {
          label: "Misure",
          anchor: "measurements",
          weight: 10,
+         visible: physicalKeys.includes("chest"),
          isComplete: (() => {
            const measures = [
              attributes?.chest,
@@ -111,6 +128,7 @@ export interface ProfileCompletionResult {
          label: "Capelli/Occhi",
          anchor: "physical-features",
          weight: 5,
+         visible: showPhysical,
          isComplete: !!(attributes?.hair_color && attributes?.eye_color),
        },
        {
@@ -132,7 +150,8 @@ export interface ProfileCompletionResult {
          label: "Galleria Media",
          anchor: "media-gallery",
          weight: 15,
-         isComplete: !!(media && media.length >= 3),
+         visible: mediaKeys.length > 1,
+         isComplete: visibleMedia.length >= 3,
        },
        {
          key: "contact",
@@ -148,7 +167,7 @@ export interface ProfileCompletionResult {
          weight: 5,
          isComplete: !!(profile?.city && profile?.country),
        },
-     ];
+     ] as Array<CompletionCheck & { visible?: boolean }>).filter((c) => c.visible !== false);
  
      const maxScore = checks.reduce((sum, check) => sum + check.weight, 0);
      const score = checks

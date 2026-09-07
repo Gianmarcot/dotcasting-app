@@ -1,5 +1,6 @@
 import { Shirt } from "lucide-react";
 import {
+  BRA_SIZES,
   ETHNICITIES,
   EYE_COLORS,
   HAIR_COLORS,
@@ -24,6 +25,9 @@ import {
   toOptions,
 } from "@/components/profile/fields/FormFields";
 import { toNumber, useProfileForm } from "./ProfileFormContext";
+import { chestLabel, visiblePhysicalFields } from "@/lib/roleVisibility";
+import { isAdultBirthDate } from "@/lib/guardianship";
+import type { ReactNode } from "react";
 
 const MARKS = [
   { key: "has_vitiligo", label: "Vitiligine" },
@@ -34,8 +38,26 @@ const MARKS = [
   { key: "has_tattoos", label: "Tatuaggi" },
 ] as const;
 
+/** Riempie la riga a 3 colonne con celle vuote per mantenere l'allineamento. */
+const padRow = (nodes: ReactNode[]) => {
+  const filled = [...nodes];
+  while (filled.length % 3 !== 0) {
+    filled.push(<div key={`pad-${filled.length}`} className="hidden sm:block" />);
+  }
+  return filled;
+};
+
 export const PhysicalCard = () => {
-  const { str, bool, triState, set } = useProfileForm();
+  const { str, bool, triState, set, arr, obj } = useProfileForm();
+
+  const roles = arr("p", "talent_categories");
+  const gender = str("p", "gender") || null;
+  const isAdult = isAdultBirthDate(str("p", "birth_date") || null);
+  const visible = visiblePhysicalFields({ roles, isAdult, gender });
+  const show = (key: string) => visible.includes(key);
+
+  const underwear = obj<Record<string, unknown>>("a", "underwear_sizes");
+  const braSize = typeof underwear.bra === "string" ? underwear.bra : "";
 
   const measureField = (key: string, label: string) => (
     <FloatingInput
@@ -49,6 +71,7 @@ export const PhysicalCard = () => {
 
   const attrSelect = (key: string, label: string, options: readonly string[]) => (
     <FloatingSelect
+      key={key}
       label={label}
       value={str("a", key)}
       onValueChange={(v) => set("a", key, v)}
@@ -56,68 +79,77 @@ export const PhysicalCard = () => {
     />
   );
 
+  const bodyFields: ReactNode[] = [
+    ...(show("height") ? [measureField("height", "Altezza (cm)")] : []),
+    measureField("weight", "Peso (kg)"),
+    ...(show("chest") ? [measureField("chest", chestLabel(gender))] : []),
+    ...(show("waist") ? [measureField("waist", "Vita (cm)")] : []),
+    ...(show("hips") ? [measureField("hips", "Fianchi (cm)")] : []),
+    ...(show("shoulder_width")
+      ? [measureField("shoulder_width", "Larghezza spalle (cm)")]
+      : []),
+    ...(show("neck_size") ? [measureField("neck_size", "Misura collo camicia (cm)")] : []),
+  ];
+
+  const sizeFields: ReactNode[] = [
+    ...(show("jacket_size") ? [attrSelect("jacket_size", "Taglia giacca", JACKET_SIZES)] : []),
+    attrSelect("shirt_size", "Taglia maglia", SHIRT_SIZES),
+    ...(show("pants_size") ? [attrSelect("pants_size", "Taglia pantaloni", PANTS_SIZES)] : []),
+    ...(show("shoe_size") ? [attrSelect("shoe_size", "Numero scarpe", SHOE_SIZES)] : []),
+    ...(show("bra_size")
+      ? [
+          <FloatingSelect
+            key="bra_size"
+            label="Taglia reggiseno"
+            value={braSize}
+            onValueChange={(v) => set("a", "underwear_sizes", { ...underwear, bra: v })}
+            options={toOptions(BRA_SIZES)}
+          />,
+        ]
+      : []),
+  ];
+
+  const hairFields: ReactNode[] = [
+    ...(show("hair_color") ? [attrSelect("hair_color", "Colore capelli", HAIR_COLORS)] : []),
+    ...(show("eye_color") ? [attrSelect("eye_color", "Colore occhi", EYE_COLORS)] : []),
+    ...(show("hair_length") ? [attrSelect("hair_length", "Lunghezza capelli", HAIR_LENGTHS)] : []),
+    ...(show("hair_type") ? [attrSelect("hair_type", "Tipologia capelli", HAIR_TYPES)] : []),
+    ...(show("ethnicity")
+      ? [
+          <FloatingSelect
+            key="ethnicity"
+            label="Etnia"
+            value={str("p", "ethnicity")}
+            onValueChange={(v) => set("p", "ethnicity", v)}
+            options={toOptions(ETHNICITIES)}
+          />,
+        ]
+      : []),
+  ];
+
   return (
     <SectionCard icon={<Shirt strokeWidth={1} />} title="Aspetto fisico">
       <div>
         <GroupHeading>Corporatura</GroupHeading>
-        <div className="space-y-8">
-          <FieldGrid cols={3}>
-            {measureField("height", "Altezza (cm)")}
-            {measureField("weight", "Peso (kg)")}
-            {measureField("chest", "Petto (cm)")}
-          </FieldGrid>
-          <FieldGrid cols={3}>
-            {measureField("waist", "Vita (cm)")}
-            {measureField("hips", "Fianchi (cm)")}
-            {measureField("shoulder_width", "Larghezza spalle (cm)")}
-          </FieldGrid>
-          <FieldGrid cols={3}>
-            {measureField("neck_size", "Misura collo camicia (cm)")}
-            <div className="hidden sm:block" />
-            <div className="hidden sm:block" />
-          </FieldGrid>
-        </div>
+        <FieldGrid cols={3}>{padRow(bodyFields)}</FieldGrid>
       </div>
 
       <SectionDivider />
 
       <div>
         <GroupHeading>Taglie</GroupHeading>
-        <div className="space-y-8">
-          <FieldGrid cols={3}>
-            {attrSelect("jacket_size", "Taglia giacca", JACKET_SIZES)}
-            {attrSelect("shirt_size", "Taglia maglia", SHIRT_SIZES)}
-            {attrSelect("pants_size", "Taglia pantaloni", PANTS_SIZES)}
-          </FieldGrid>
-          <FieldGrid cols={3}>
-            {attrSelect("shoe_size", "Numero scarpe", SHOE_SIZES)}
-            <div className="hidden sm:block" />
-            <div className="hidden sm:block" />
-          </FieldGrid>
-        </div>
+        <FieldGrid cols={3}>{padRow(sizeFields)}</FieldGrid>
       </div>
 
-      <SectionDivider />
-
-      <div>
-        <GroupHeading>Capelli e occhi</GroupHeading>
-        <div className="space-y-8">
-          <FieldGrid cols={3}>
-            {attrSelect("hair_color", "Colore capelli", HAIR_COLORS)}
-            {attrSelect("eye_color", "Colore occhi", EYE_COLORS)}
-            {attrSelect("hair_length", "Lunghezza capelli", HAIR_LENGTHS)}
-          </FieldGrid>
-          <FieldGrid cols={2}>
-            <FloatingSelect
-              label="Etnia"
-              value={str("p", "ethnicity")}
-              onValueChange={(v) => set("p", "ethnicity", v)}
-              options={toOptions(ETHNICITIES)}
-            />
-            {attrSelect("hair_type", "Tipologia capelli", HAIR_TYPES)}
-          </FieldGrid>
-        </div>
-      </div>
+      {hairFields.length > 0 && (
+        <>
+          <SectionDivider />
+          <div>
+            <GroupHeading>Capelli e occhi</GroupHeading>
+            <FieldGrid cols={3}>{padRow(hairFields)}</FieldGrid>
+          </div>
+        </>
+      )}
 
       <SectionDivider />
 

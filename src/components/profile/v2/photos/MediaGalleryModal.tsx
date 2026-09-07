@@ -33,7 +33,17 @@ import { Button } from "@/components/ui/button";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { ImageCropModal } from "@/components/profile/ImageCropModal";
 import { cn } from "@/lib/utils";
-import { PHOTO_CATEGORIES, VIDEO_CATEGORIES, getCategoryMin } from "@/lib/mediaCategories";
+import {
+  PHOTO_CATEGORIES,
+  VIDEO_CATEGORIES,
+  getCategoryDescription,
+  getCategoryMin,
+} from "@/lib/mediaCategories";
+import {
+  PROFILE_PHOTO_CATEGORY,
+  visiblePhotoCategories,
+  visibleVideoCategories,
+} from "@/lib/roleVisibility";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import {
   useDeleteMedia,
@@ -55,8 +65,12 @@ import type { CropResult } from "@/components/profile/ImageCropModal";
 
 const UNDO_MS = 6000;
 
-/** Categorie video che ammettono un solo elemento: il nuovo sostituisce il precedente. */
-const SINGLE_SLOT_CATEGORIES: string[] = ["intro_video", "showreel"];
+/** Categorie che ammettono un solo elemento: il nuovo sostituisce il precedente. */
+const SINGLE_SLOT_CATEGORIES: string[] = [
+  PROFILE_PHOTO_CATEGORY,
+  "intro_video",
+  "showreel",
+];
 
 export type MediaKind = "photo" | "video";
 
@@ -248,7 +262,20 @@ export const MediaGalleryModal = ({
 }: MediaGalleryModalProps) => {
   const config = KIND_CONFIG[kind];
   const { data: media } = useTalentMedia();
-  const { profileRow, saveNow } = useProfileForm();
+  const { profileRow, saveNow, arr } = useProfileForm();
+  const roles = arr("p", "talent_categories");
+
+  // Solo le categorie previste dai ruoli selezionati dal talent.
+  const visibleKeys = useMemo(
+    () => (kind === "photo" ? visiblePhotoCategories(roles) : visibleVideoCategories(roles)),
+    [kind, roles.join("|")]
+  );
+  const categories = useMemo(
+    () => (kind === "photo" ? PHOTO_CATEGORIES : VIDEO_CATEGORIES).filter((c) =>
+      visibleKeys.includes(c.key)
+    ),
+    [kind, visibleKeys]
+  );
   const upload = useUploadMedia();
   const remove = useDeleteMedia();
   const saveCrops = useSaveMediaCrops();
@@ -264,8 +291,19 @@ export const MediaGalleryModal = ({
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
-    if (open && initialCategory) setCategory(initialCategory);
-  }, [open, initialCategory]);
+    if (open && initialCategory && visibleKeys.includes(initialCategory)) {
+      setCategory(initialCategory);
+    }
+  }, [open, initialCategory, visibleKeys]);
+
+  // Mai aprire (o restare) su una categoria non visibile per questo talent.
+  useEffect(() => {
+    if (!visibleKeys.length) return;
+    if (!visibleKeys.includes(category)) {
+      setCategory(visibleKeys[0] as MediaCategory);
+      setOrder([]);
+    }
+  }, [visibleKeys, category]);
 
   const items = useMemo(() => {
     const list = (media ?? []).filter(
@@ -292,17 +330,17 @@ export const MediaGalleryModal = ({
   const min = getCategoryMin(category);
   const belowMin = min !== undefined && items.length < min;
 
-  const singleSlot = kind === "video" && SINGLE_SLOT_CATEGORIES.includes(category);
+  const singleSlot = SINGLE_SLOT_CATEGORIES.includes(category);
 
-  // La prima foto principale è anche la foto profilo del talent.
-  const mainFirst = useMemo(() => {
+  // La foto profilo è una categoria a sé: la colonna profiles.profile_photo_url
+  // segue esclusivamente quella, non più la prima foto principale.
+  const avatarItem = useMemo(() => {
     if (kind !== "photo") return undefined;
-    if (category === "main_photos") return items[0];
-    return firstOf("main_photos");
+    return category === PROFILE_PHOTO_CATEGORY ? items[0] : firstOf(PROFILE_PHOTO_CATEGORY);
   }, [items, category, media, pendingDelete, kind]);
 
-  // L'avatar usa il ritaglio 1:1 quando presente, altrimenti la foto principale.
-  const mainFirstUrl = mainFirst ? getCropUrl(mainFirst, "1:1") : undefined;
+  // L'avatar usa il ritaglio 1:1 quando presente, altrimenti l'immagine caricata.
+  const avatarUrl = avatarItem ? getCropUrl(avatarItem, "1:1") : undefined;
 
   // Ogni URL viene sincronizzato una sola volta: senza questa guardia
   // l'invalidazione della query profilo rilancerebbe l'effetto all'infinito.
@@ -310,15 +348,15 @@ export const MediaGalleryModal = ({
 
   useEffect(() => {
     if (kind !== "photo") return;
-    if (!open || !mainFirstUrl || !profileRow) return;
-    if (profileRow.profile_photo_url === mainFirstUrl) {
-      syncedPhotoUrl.current = mainFirstUrl;
+    if (!open || !avatarUrl || !profileRow) return;
+    if (profileRow.profile_photo_url === avatarUrl) {
+      syncedPhotoUrl.current = avatarUrl;
       return;
     }
-    if (syncedPhotoUrl.current === mainFirstUrl) return;
-    syncedPhotoUrl.current = mainFirstUrl;
-    saveNow("p", { profile_photo_url: mainFirstUrl });
-  }, [open, mainFirstUrl, profileRow?.profile_photo_url, saveNow, kind]);
+    if (syncedPhotoUrl.current === avatarUrl) return;
+    syncedPhotoUrl.current = avatarUrl;
+    saveNow("p", { profile_photo_url: avatarUrl });
+  }, [open, avatarUrl, profileRow?.profile_photo_url, saveNow, kind]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -413,9 +451,9 @@ export const MediaGalleryModal = ({
     }
   };
 
-  /** Solo la prima foto principale (che fa da foto profilo) ha anche il ritaglio 1:1. */
+  /** Solo la foto profilo ha anche il ritaglio 1:1. */
   const isProfilePhoto = (item: TalentMedia) =>
-    kind === "photo" && category === "main_photos" && items[0]?.id === item.id;
+    kind === "photo" && category === PROFILE_PHOTO_CATEGORY && items[0]?.id === item.id;
 
   useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
@@ -441,7 +479,7 @@ export const MediaGalleryModal = ({
             {/* Selettore categorie */}
             <div className="-mx-2 overflow-x-auto px-2 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)]">
               <div className="flex min-w-max items-start gap-2 pb-2">
-                {config.categories.map((cat) => {
+                {categories.map((cat) => {
                   const active = cat.key === category;
                   const first = firstOf(cat.key);
                   const count = countFor(cat.key);
@@ -508,10 +546,13 @@ export const MediaGalleryModal = ({
 
             {/* Requisito minimo + aggiungi */}
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-h-6">
+              <div className="min-h-6 max-w-2xl space-y-2">
+                <p className="text-[15px] leading-snug text-field-label">
+                  {getCategoryDescription(category)}
+                </p>
                 {belowMin && (
                   <p className="flex items-center gap-2 text-[15px] text-[#a30a2b]">
-                    <TriangleAlert className="h-5 w-5" strokeWidth={1.5} />
+                    <TriangleAlert className="h-5 w-5 shrink-0" strokeWidth={1.5} />
                     Inserisci minimo {min} {config.unit} ({items.length}/{min}).
                   </p>
                 )}
@@ -524,7 +565,11 @@ export const MediaGalleryModal = ({
                 className="w-full sm:w-auto"
               >
                 {uploading > 0 ? <Loader2 className="animate-spin" /> : <Plus />}
-                {singleSlot && items.length > 0 ? "Sostituisci il video" : config.addLabel}
+                {singleSlot && items.length > 0
+                  ? kind === "photo"
+                    ? "Sostituisci la foto"
+                    : "Sostituisci il video"
+                  : config.addLabel}
               </Button>
             </div>
 
@@ -553,7 +598,7 @@ export const MediaGalleryModal = ({
                       ratioClass={config.tileRatio}
                       index={index}
                       total={items.length}
-                      showBadges={kind === "photo" && category === "main_photos"}
+                      showBadges={false}
                       isProfilePhoto={isProfilePhoto(item)}
                       busy={savingId === item.id}
                       onCrop={() => setCropTarget(item)}

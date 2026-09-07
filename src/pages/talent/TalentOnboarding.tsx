@@ -1,3 +1,4 @@
+import { PROFILE_PHOTO_CATEGORY } from "@/lib/roleVisibility";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Camera, Tag, User } from "lucide-react";
@@ -212,7 +213,7 @@ export const TalentOnboarding = () => {
       const media = await uploadMedia.mutateAsync({
         file: photoFile,
         mediaType: "photo",
-        category: "main_photos",
+        category: PROFILE_PHOTO_CATEGORY,
       });
       if (media?.url) await updateProfile.mutateAsync({ profile_photo_url: media.url });
       setPhotoFile(null);
