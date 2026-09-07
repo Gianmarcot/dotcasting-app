@@ -43,6 +43,7 @@ interface DbProfile {
   website_url: string | null;
   contact_email: string | null;
   guardian_user_id: string | null;
+  talent_categories: string[] | null;
   driving_licenses: string[] | null;
   travel_availability: unknown; // jsonb in DB
   // PostgREST può restituire la riga singola come array o come oggetto
@@ -233,7 +234,8 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
         id, first_name, last_name, stage_name, gender, ethnicity, birth_date,
         city, country, nationality, work_cities,
         phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
-        website_url, contact_email, guardian_user_id, driving_licenses, travel_availability,
+        website_url, contact_email, guardian_user_id, talent_categories,
+        driving_licenses, travel_availability,
         attributes:talent_attributes (
           height, weight, hair_color, eye_color, hair_length, hair_type,
           languages, abilities, shirt_size, pants_size, jacket_size,
@@ -273,7 +275,8 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
       id, first_name, last_name, stage_name, gender, ethnicity, birth_date,
       city, country, nationality, work_cities,
       phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
-      website_url, contact_email, guardian_user_id, driving_licenses, travel_availability,
+      website_url, contact_email, guardian_user_id, talent_categories,
+      driving_licenses, travel_availability,
       attributes:talent_attributes (
         height, weight, hair_color, eye_color, hair_length, hair_type,
         languages, abilities, shirt_size, pants_size, jacket_size,
