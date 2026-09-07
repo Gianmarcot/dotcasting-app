@@ -61,6 +61,7 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<AuthPage />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
             <Route path="/round/:token" element={<SharedRound />} />
             <Route path="/accept-invitation" element={<AcceptInvitation />} />
