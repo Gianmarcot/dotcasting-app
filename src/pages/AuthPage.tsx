@@ -10,6 +10,7 @@ import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 
 import { it } from "@/lib/i18n";
+import { getAuthRedirectBase } from "@/lib/appUrl";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
@@ -85,7 +86,7 @@ export const AuthPage = () => {
     }
     setIsLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${getAuthRedirectBase()}/reset-password`,
     });
     setIsLoading(false);
     if (error) {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
+import { getAuthRedirectBase } from "@/lib/appUrl";
 import { supabase } from "@/integrations/supabase/client";
 import { SIGNUP_MODE_METADATA_KEY, type SignupMode } from "@/lib/signupMode";
 
@@ -100,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     options?: { signupMode?: SignupMode }
   ) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${getAuthRedirectBase()}/`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
