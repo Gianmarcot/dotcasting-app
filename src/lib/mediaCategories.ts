@@ -44,6 +44,13 @@ export const MEDIA_CATEGORIES = [
       "Una selezione dei lavori che hai realizzato, utile a mostrare il tuo stile e la tua esperienza.",
   },
   {
+    key: "band_photos",
+    label: "Foto della tua band",
+    type: "photo" as const,
+    description:
+      "Scatti della band o del gruppo con cui suoni: foto di gruppo, live o promozionali.",
+  },
+  {
     key: "intro_video",
     label: "Video di presentazione",
     type: "video" as const,
@@ -62,6 +69,12 @@ export const MEDIA_CATEGORIES = [
     label: "Altri video",
     type: "video" as const,
     description: "Provini, scene, backstage o altro materiale video che vuoi mostrare.",
+  },
+  {
+    key: "band_videos",
+    label: "Video della tua band",
+    type: "video" as const,
+    description: "Esibizioni live, videoclip o prove della band con cui suoni.",
   },
 ] as const;
 

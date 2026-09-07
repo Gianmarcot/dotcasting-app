@@ -45,7 +45,14 @@ type CategoryRule = {
   roles?: string[];
   /** Sempre visibile, indipendentemente dai ruoli. */
   always?: boolean;
+  /** Visibile solo se il talent dichiara di avere una band. */
+  band?: boolean;
 };
+
+export interface MediaVisibilityOptions {
+  /** profiles.has_band */
+  hasBand?: boolean | null;
+}
 
 const PHOTO_RULES: CategoryRule[] = [
   { key: PROFILE_PHOTO_CATEGORY, always: true },
@@ -54,41 +61,58 @@ const PHOTO_RULES: CategoryRule[] = [
   { key: "hands", divisions: ["artistic"] },
   { key: "feet", roles: [FOOT_ROLE] },
   { key: "works", divisions: ["creative"] },
+  { key: "band_photos", band: true },
 ];
 
 const VIDEO_RULES: CategoryRule[] = [
   { key: "intro_video", divisions: ["artistic", "creative"] },
   { key: "showreel", divisions: ["artistic", "creative"] },
   { key: "other_videos", divisions: ["artistic", "creative"] },
+  { key: "band_videos", band: true },
 ];
 
-const matches = (rule: CategoryRule, roles: string[], divisions: Set<Division>) => {
+const matches = (
+  rule: CategoryRule,
+  roles: string[],
+  divisions: Set<Division>,
+  opts?: MediaVisibilityOptions
+) => {
+  if (rule.band) return !!opts?.hasBand;
   if (rule.always) return true;
   if (rule.roles?.some((r) => roles.includes(r))) return true;
   return !!rule.divisions?.some((d) => divisions.has(d));
 };
 
-const visibleKeys = (rules: CategoryRule[], roles: string[] | null | undefined) => {
+const visibleKeys = (
+  rules: CategoryRule[],
+  roles: string[] | null | undefined,
+  opts?: MediaVisibilityOptions
+) => {
   const list = roles ?? [];
   const divisions = getDivisions(list);
-  return rules.filter((rule) => matches(rule, list, divisions)).map((rule) => rule.key);
+  return rules.filter((rule) => matches(rule, list, divisions, opts)).map((rule) => rule.key);
 };
 
-export const visiblePhotoCategories = (roles: string[] | null | undefined): string[] =>
-  visibleKeys(PHOTO_RULES, roles);
+export const visiblePhotoCategories = (
+  roles: string[] | null | undefined,
+  opts?: MediaVisibilityOptions
+): string[] => visibleKeys(PHOTO_RULES, roles, opts);
 
-export const visibleVideoCategories = (roles: string[] | null | undefined): string[] =>
-  visibleKeys(VIDEO_RULES, roles);
+export const visibleVideoCategories = (
+  roles: string[] | null | undefined,
+  opts?: MediaVisibilityOptions
+): string[] => visibleKeys(VIDEO_RULES, roles, opts);
 
-export const visibleMediaCategories = (roles: string[] | null | undefined): string[] => [
-  ...visiblePhotoCategories(roles),
-  ...visibleVideoCategories(roles),
-];
+export const visibleMediaCategories = (
+  roles: string[] | null | undefined,
+  opts?: MediaVisibilityOptions
+): string[] => [...visiblePhotoCategories(roles, opts), ...visibleVideoCategories(roles, opts)];
 
 export const isMediaCategoryVisible = (
   category: string | null | undefined,
-  roles: string[] | null | undefined
-) => visibleMediaCategories(roles).includes(category ?? "main_photos");
+  roles: string[] | null | undefined,
+  opts?: MediaVisibilityOptions
+) => visibleMediaCategories(roles, opts).includes(category ?? "main_photos");
 
 /* ------------------------------ Campi fisici ------------------------------ */
 

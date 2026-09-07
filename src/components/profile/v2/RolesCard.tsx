@@ -37,10 +37,11 @@ const hasLoss = (lost: LostItems) =>
   lost.photos.length + lost.videos.length + lost.fields.length > 0;
 
 export const RolesCard = () => {
-  const { arr, set, str } = useProfileForm();
+  const { arr, set, str, bool } = useProfileForm();
   const roles = arr("p", "talent_categories");
   const gender = str("p", "gender") || null;
   const isAdult = isAdultBirthDate(str("p", "birth_date") || null);
+  const hasBand = bool("p", "has_band");
 
   const [pending, setPending] = useState<{ role: string; next: string[]; lost: LostItems } | null>(
     null
@@ -51,10 +52,10 @@ export const RolesCard = () => {
     const removed = (before: string[], after: string[]) =>
       before.filter((k) => !after.includes(k));
     return {
-      photos: removed(visiblePhotoCategories(roles), visiblePhotoCategories(next)).map(
+      photos: removed(visiblePhotoCategories(roles, { hasBand }), visiblePhotoCategories(next, { hasBand })).map(
         getCategoryLabel
       ),
-      videos: removed(visibleVideoCategories(roles), visibleVideoCategories(next)).map(
+      videos: removed(visibleVideoCategories(roles, { hasBand }), visibleVideoCategories(next, { hasBand })).map(
         getCategoryLabel
       ),
       fields: removed(

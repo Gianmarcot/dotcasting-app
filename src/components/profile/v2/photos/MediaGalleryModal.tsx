@@ -262,13 +262,16 @@ export const MediaGalleryModal = ({
 }: MediaGalleryModalProps) => {
   const config = KIND_CONFIG[kind];
   const { data: media } = useTalentMedia();
-  const { profileRow, saveNow, arr } = useProfileForm();
+  const { profileRow, saveNow, arr, bool } = useProfileForm();
   const roles = arr("p", "talent_categories");
+  const hasBand = bool("p", "has_band");
 
   // Solo le categorie previste dai ruoli selezionati dal talent.
   const visibleKeys = useMemo(
-    () => (kind === "photo" ? visiblePhotoCategories(roles) : visibleVideoCategories(roles)),
-    [kind, roles.join("|")]
+    () => (kind === "photo"
+        ? visiblePhotoCategories(roles, { hasBand })
+        : visibleVideoCategories(roles, { hasBand })),
+    [kind, roles.join("|"), hasBand]
   );
   const categories = useMemo(
     () => (kind === "photo" ? PHOTO_CATEGORIES : VIDEO_CATEGORIES).filter((c) =>
