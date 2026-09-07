@@ -13,6 +13,7 @@ import { Camera, ChevronLeft, ChevronRight, Download, Play } from "lucide-react"
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { PillTabs } from "@/components/ui/pill-tabs";
+import { visibleMediaCategories } from "@/lib/roleVisibility";
 
 import { useProfileById } from "@/hooks/useProfileById";
 import { useTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByProfileId";
@@ -73,14 +74,26 @@ export const TalentDetailModal = ({
   const { data: attrs } = useTalentAttributesByProfileId(profileId);
   const { data: media } = useTalentMediaByProfileId(profileId);
 
+  // Le categorie nascoste dai ruoli del talent non compaiono nell'anteprima.
+  const visibleCategories = useMemo(
+    () => visibleMediaCategories((profile as { talent_categories?: string[] } | null)?.talent_categories),
+    [profile]
+  );
+
+  const isVisible = (category: string | null | undefined) =>
+    visibleCategories.includes(category ?? "main_photos");
+
   const photos = useMemo(
-    () => (media ?? []).filter((m) => m.media_type === "photo").map((m) => m.url),
-    [media]
+    () =>
+      (media ?? [])
+        .filter((m) => m.media_type === "photo" && isVisible(m.category))
+        .map((m) => m.url),
+    [media, visibleCategories]
   );
 
   const videos = useMemo(
-    () => (media ?? []).filter((m) => m.media_type === "video"),
-    [media]
+    () => (media ?? []).filter((m) => m.media_type === "video" && isVisible(m.category)),
+    [media, visibleCategories]
   );
 
   const activeVideo = useMemo(
