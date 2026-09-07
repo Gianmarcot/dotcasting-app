@@ -5,7 +5,6 @@ import { useTalentMedia } from "@/hooks/useTalentMedia";
 import {
   PHOTO_CATEGORIES,
   VIDEO_CATEGORIES,
-  getCategoryDescription,
   getCategoryLabel,
 } from "@/lib/mediaCategories";
 import {
@@ -148,8 +147,6 @@ export const MediaCard = () => {
 
   const photoKeys = visiblePhotoCategories(roles);
   const videoKeys = visibleVideoCategories(roles);
-  // Le categorie foto oltre alla foto profilo, che ha un blocco dedicato.
-  const galleryPhotoKeys = photoKeys.filter((k) => k !== PROFILE_PHOTO_CATEGORY);
 
   // Deep link da una comunicazione: apre la gestione media sulla categoria indicata
   useEffect(() => {
@@ -184,11 +181,8 @@ export const MediaCard = () => {
     [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
   const all = media ?? [];
-  const profilePhoto = sorted(
-    all.filter((m) => m.media_type === "photo" && m.category === PROFILE_PHOTO_CATEGORY)
-  );
   const photos = sorted(
-    all.filter((m) => m.media_type === "photo" && galleryPhotoKeys.includes(m.category))
+    all.filter((m) => m.media_type === "photo" && photoKeys.includes(m.category))
   );
   const videos = sorted(
     all.filter((m) => m.media_type === "video" && videoKeys.includes(m.category))
@@ -201,22 +195,19 @@ export const MediaCard = () => {
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
-      <MediaStrip
-        items={profilePhoto}
-        kind="photo"
-        emptyLabel="Non hai ancora caricato la foto profilo."
-        buttonLabel="Foto profilo"
-        description={getCategoryDescription(PROFILE_PHOTO_CATEGORY)}
-        onOpen={() => openPhotos(PROFILE_PHOTO_CATEGORY)}
-      />
-
-      {galleryPhotoKeys.length > 0 && (
+      {photoKeys.length > 0 && (
         <MediaStrip
           items={photos}
           kind="photo"
           emptyLabel="Non hai ancora caricato nessuna foto."
           buttonLabel="Tutte le foto"
-          onOpen={() => openPhotos(galleryPhotoKeys[0] as MediaCategory)}
+          onOpen={() =>
+            openPhotos(
+              (photoKeys.includes(PROFILE_PHOTO_CATEGORY)
+                ? PROFILE_PHOTO_CATEGORY
+                : photoKeys[0]) as MediaCategory
+            )
+          }
         />
       )}
 
