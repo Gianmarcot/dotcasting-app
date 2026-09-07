@@ -73,9 +73,9 @@ export const TalentRolesSection = ({ externalProfileId }: TalentRolesSectionProp
   const isPending = externalProfileId ? updateExternalProfile.isPending : updateOwnProfile.isPending;
 
   const roleGroups = [
-    { key: "artistic", label: "Artistici", roles: TALENT_ROLES.artistic },
-    { key: "creative", label: "Tecnici Creativi", roles: TALENT_ROLES.creative },
-    { key: "production", label: "Produzione", roles: TALENT_ROLES.production },
+    { key: "artistic", label: "Divisione artistica", roles: TALENT_ROLES.artistic },
+    { key: "creative", label: "Divisione operativa", roles: TALENT_ROLES.creative },
+    { key: "production", label: "Divisione tecnica", roles: TALENT_ROLES.production },
   ];
 
   return (

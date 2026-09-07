@@ -4,6 +4,9 @@ import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { useTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentMedia } from "@/hooks/useTalentMedia";
+import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
+import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
+import { isAdultBirthDate } from "@/lib/guardianship";
 
 const TOTAL = 10;
 
@@ -24,7 +27,29 @@ export const ProfileStrengthCard = () => {
   const { data: media } = useTalentMedia();
   const [collapsed, setCollapsed] = useState(false);
 
-  const photos = (media ?? []).filter((m) => m.media_type === "photo");
+  // Il punteggio considera solo le categorie e i campi visibili per questi ruoli.
+  const roles = profile?.talent_categories ?? [];
+  const photoKeys = visiblePhotoCategories(roles);
+  const requiredPhotos = PHOTO_CATEGORIES.filter(
+    (c) => photoKeys.includes(c.key) && "minRequired" in c
+  );
+  const photosDone = requiredPhotos.every(
+    (c) =>
+      (media ?? []).filter((m) => m.media_type === "photo" && m.category === c.key).length >=
+      ((c as { minRequired: number }).minRequired ?? 1)
+  );
+  const physicalKeys = visiblePhysicalFields({
+    roles,
+    isAdult: isAdultBirthDate(profile?.birth_date),
+    gender: profile?.gender,
+  });
+  const measuresDone = physicalKeys.length
+    ? physicalKeys.every((k) =>
+        k === "ethnicity"
+          ? !!profile?.ethnicity
+          : !!(attributes as Record<string, unknown> | undefined)?.[k]
+      )
+    : !!attributes?.weight;
   const hasAbility = !!attributes && [
     attributes.ability_dance,
     attributes.ability_sing,
@@ -44,12 +69,8 @@ export const ProfileStrengthCard = () => {
     { key: "Contatti", section: "section-contacts", done: !!profile?.phone_number },
     { key: "Indirizzo", section: "section-address", done: !!profile?.residence_address },
     { key: "Documenti", section: "section-documents", done: !!profile?.fiscal_code },
-    { key: "Foto", section: "section-media", done: photos.length >= 4 },
-    {
-      key: "Misure",
-      section: "section-physical",
-      done: !!attributes?.height && !!attributes?.weight,
-    },
+    { key: "Foto", section: "section-media", done: photosDone },
+    { key: "Misure", section: "section-physical", done: measuresDone },
     {
       key: "Ruoli",
       section: "section-roles",

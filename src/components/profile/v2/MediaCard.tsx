@@ -2,13 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Clapperboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia } from "@/hooks/useTalentMedia";
-import { PHOTO_CATEGORIES, VIDEO_CATEGORIES, getCategoryLabel } from "@/lib/mediaCategories";
+import {
+  PHOTO_CATEGORIES,
+  VIDEO_CATEGORIES,
+  getCategoryDescription,
+  getCategoryLabel,
+} from "@/lib/mediaCategories";
+import {
+  PROFILE_PHOTO_CATEGORY,
+  visiblePhotoCategories,
+  visibleVideoCategories,
+} from "@/lib/roleVisibility";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { SectionCard } from "@/components/profile/fields/FormFields";
 import { MediaGalleryModal } from "@/components/profile/v2/photos/MediaGalleryModal";
 import type { TalentMedia } from "@/hooks/useTalentMedia";
 import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useProfileForm } from "./ProfileFormContext";
 
 const TILE_WIDTH = 140;
 const TILE_GAP = 16;
@@ -22,12 +33,14 @@ const MediaStrip = ({
   kind,
   emptyLabel,
   buttonLabel,
+  description,
   onOpen,
 }: {
   items: TalentMedia[];
   kind: "photo" | "video";
   emptyLabel: string;
   buttonLabel: string;
+  description?: string;
   onOpen: () => void;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,6 +79,9 @@ const MediaStrip = ({
 
   return (
     <div className="rounded-2xl border border-dashed border-border p-6">
+      {description && (
+        <p className="mb-6 text-[15px] leading-snug text-field-label">{description}</p>
+      )}
       {items.length > 0 ? (
         <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
           {shown.map((item) => (
@@ -120,18 +136,28 @@ const MediaStrip = ({
 
 export const MediaCard = () => {
   const { data: media } = useTalentMedia();
+  const { arr } = useProfileForm();
+  const roles = arr("p", "talent_categories");
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedPhotoCategory = searchParams.get("photos");
   const requestedVideoCategory = searchParams.get("videos");
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [videosOpen, setVideosOpen] = useState(false);
-  const [initialCategory, setInitialCategory] = useState<MediaCategory>("main_photos");
+  const [initialCategory, setInitialCategory] = useState<MediaCategory>(PROFILE_PHOTO_CATEGORY);
   const [initialVideoCategory, setInitialVideoCategory] = useState<MediaCategory>("intro_video");
+
+  const photoKeys = visiblePhotoCategories(roles);
+  const videoKeys = visibleVideoCategories(roles);
+  // Le categorie foto oltre alla foto profilo, che ha un blocco dedicato.
+  const galleryPhotoKeys = photoKeys.filter((k) => k !== PROFILE_PHOTO_CATEGORY);
 
   // Deep link da una comunicazione: apre la gestione media sulla categoria indicata
   useEffect(() => {
     if (!requestedPhotoCategory) return;
-    if (PHOTO_CATEGORIES.some((c) => c.key === requestedPhotoCategory)) {
+    if (
+      PHOTO_CATEGORIES.some((c) => c.key === requestedPhotoCategory) &&
+      photoKeys.includes(requestedPhotoCategory)
+    ) {
       setInitialCategory(requestedPhotoCategory as MediaCategory);
       setGalleryOpen(true);
     }
@@ -142,7 +168,10 @@ export const MediaCard = () => {
 
   useEffect(() => {
     if (!requestedVideoCategory) return;
-    if (VIDEO_CATEGORIES.some((c) => c.key === requestedVideoCategory)) {
+    if (
+      VIDEO_CATEGORIES.some((c) => c.key === requestedVideoCategory) &&
+      videoKeys.includes(requestedVideoCategory)
+    ) {
       setInitialVideoCategory(requestedVideoCategory as MediaCategory);
       setVideosOpen(true);
     }
@@ -151,31 +180,55 @@ export const MediaCard = () => {
     setSearchParams(next, { replace: true });
   }, [requestedVideoCategory]);
 
-  const photos = (media ?? [])
-    .filter((m) => m.media_type === "photo")
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const sorted = (list: TalentMedia[]) =>
+    [...list].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
 
-  const videos = (media ?? [])
-    .filter((m) => m.media_type === "video")
-    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  const all = media ?? [];
+  const profilePhoto = sorted(
+    all.filter((m) => m.media_type === "photo" && m.category === PROFILE_PHOTO_CATEGORY)
+  );
+  const photos = sorted(
+    all.filter((m) => m.media_type === "photo" && galleryPhotoKeys.includes(m.category))
+  );
+  const videos = sorted(
+    all.filter((m) => m.media_type === "video" && videoKeys.includes(m.category))
+  );
+
+  const openPhotos = (category: MediaCategory) => {
+    setInitialCategory(category);
+    setGalleryOpen(true);
+  };
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
       <MediaStrip
-        items={photos}
+        items={profilePhoto}
         kind="photo"
-        emptyLabel="Non hai ancora caricato nessuna foto."
-        buttonLabel="Tutte le foto"
-        onOpen={() => setGalleryOpen(true)}
+        emptyLabel="Non hai ancora caricato la foto profilo."
+        buttonLabel="Foto profilo"
+        description={getCategoryDescription(PROFILE_PHOTO_CATEGORY)}
+        onOpen={() => openPhotos(PROFILE_PHOTO_CATEGORY)}
       />
 
-      <MediaStrip
-        items={videos}
-        kind="video"
-        emptyLabel="Non hai ancora caricato nessun video."
-        buttonLabel="Tutti i video"
-        onOpen={() => setVideosOpen(true)}
-      />
+      {galleryPhotoKeys.length > 0 && (
+        <MediaStrip
+          items={photos}
+          kind="photo"
+          emptyLabel="Non hai ancora caricato nessuna foto."
+          buttonLabel="Tutte le foto"
+          onOpen={() => openPhotos(galleryPhotoKeys[0] as MediaCategory)}
+        />
+      )}
+
+      {videoKeys.length > 0 && (
+        <MediaStrip
+          items={videos}
+          kind="video"
+          emptyLabel="Non hai ancora caricato nessun video."
+          buttonLabel="Tutti i video"
+          onOpen={() => setVideosOpen(true)}
+        />
+      )}
 
       <MediaGalleryModal
         kind="photo"
@@ -183,12 +236,14 @@ export const MediaCard = () => {
         onOpenChange={setGalleryOpen}
         initialCategory={initialCategory}
       />
-      <MediaGalleryModal
-        kind="video"
-        open={videosOpen}
-        onOpenChange={setVideosOpen}
-        initialCategory={initialVideoCategory}
-      />
+      {videoKeys.length > 0 && (
+        <MediaGalleryModal
+          kind="video"
+          open={videosOpen}
+          onOpenChange={setVideosOpen}
+          initialCategory={initialVideoCategory}
+        />
+      )}
     </SectionCard>
   );
 };

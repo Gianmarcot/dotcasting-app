@@ -55,10 +55,15 @@
 };
 
 export const TALENT_ROLE_GROUPS = [
-  { key: "artistic", label: "Artistici" },
-  { key: "creative", label: "Tecnici e creativi" },
+  { key: "artistic", label: "Divisione artistica" },
+  { key: "creative", label: "Divisione operativa" },
   { key: "production", label: "Divisione tecnica" },
 ] as const;
+
+export const BRA_SIZES = [
+  "1ª (70)", "2ª (75)", "3ª (80)", "4ª (85)", "5ª (90)", "6ª (95)", "7ª (100)",
+  "A", "B", "C", "D", "E", "F",
+];
 
 export const LANGUAGE_LEVELS = [
   "Madrelingua",
