@@ -66,30 +66,32 @@ export const ResetPasswordPage = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <FloatingInput
-            label="Nuova password"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={setPassword}
-          />
-          <FloatingInput
-            label="Conferma password"
-            type="password"
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            error={
-              confirmPassword && confirmPassword !== password
-                ? "Le password non coincidono"
-                : null
-            }
-          />
-          <Button type="submit" size="lg" className="w-full" disabled={isLoading || !ready}>
-            {isLoading ? "Caricamento..." : "Aggiorna password"}
-          </Button>
-        </form>
+        <Surface variant="muted" className="rounded-3xl p-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FloatingInput
+              label="Nuova password"
+              type="password"
+              autoComplete="new-password"
+              value={password}
+              onChange={setPassword}
+            />
+            <FloatingInput
+              label="Conferma password"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              error={
+                confirmPassword && confirmPassword !== password
+                  ? "Le password non coincidono"
+                  : null
+              }
+            />
+            <Button type="submit" size="lg" className="w-full" disabled={isLoading || !ready}>
+              {isLoading ? "Caricamento..." : "Aggiorna password"}
+            </Button>
+          </form>
+        </Surface>
 
         <div className="mt-6 text-center">
           <Link to="/auth" className="text-sm text-muted-foreground hover:text-foreground">
