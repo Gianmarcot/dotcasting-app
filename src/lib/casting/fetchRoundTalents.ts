@@ -183,8 +183,10 @@ export function mapToTalent(p: DbProfile): Talent {
       : phone(p.whatsapp_prefix, p.whatsapp_number),
     is_minor: isMinorBirthDate(p.birth_date),
     sito_web: p.website_url ?? null,
+    // Una categoria nascosta dai ruoli non deve comparire in nessuna vista cliente.
     photos: (p.media ?? [])
       .filter(m => m.media_type === "photo" && (m.category ?? "main_photos") === "main_photos")
+      .filter(() => isMediaCategoryVisible("main_photos", p.talent_categories))
       .sort((x, y) => x.sort_order - y.sort_order)
       .map(m => transformPhotoUrl(m.url)),
   };
