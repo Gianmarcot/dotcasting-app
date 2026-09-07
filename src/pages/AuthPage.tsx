@@ -78,6 +78,23 @@ export const AuthPage = () => {
   const consentsValid = isLogin || (termsAccepted && ageConfirmed);
   const submitDisabled = isLoading || !consentsValid;
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Inserisci la tua email per ricevere il link di recupero");
+      return;
+    }
+    setIsLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setIsLoading(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Ti abbiamo inviato un'email per reimpostare la password.");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
