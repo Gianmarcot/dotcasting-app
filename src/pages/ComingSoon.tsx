@@ -84,29 +84,41 @@ const ComingSoon = () => {
               restare aggiornato sull'apertura della piattaforma.
             </p>
 
-            <form
-              onSubmit={handleSubmit}
-              className="mt-8 flex flex-col gap-3"
-              noValidate
-            >
-              <FloatingInput
-                label="La tua email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                value={email}
-                onChange={setEmail}
-                disabled={loading}
-              />
-              <Button
-                type="submit"
-                variant="default"
-                size="lg"
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? "Invio in corso…" : "Avvisami"}
-              </Button>
+            <form onSubmit={handleSubmit} className="mt-8" noValidate>
+              {/* Campo con pulsante integrato: stessa altezza e stesso raggio */}
+              <div className="flex h-16 w-full items-stretch gap-1 rounded-2xl bg-white p-1 text-left shadow-sm">
+                <label className="relative flex min-w-0 flex-1 flex-col justify-center px-4 text-left">
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute left-4 origin-left truncate text-left transition-all duration-150 ease-out",
+                      floating
+                        ? "top-2 text-xs font-medium text-muted-foreground"
+                        : "top-1/2 -translate-y-1/2 text-base font-normal text-muted-foreground"
+                    )}
+                  >
+                    La tua email
+                  </span>
+                  <input
+                    aria-label="La tua email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    value={email}
+                    disabled={loading}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    className="dc-autofill mt-[16px] w-full border-0 bg-transparent p-0 text-left text-base leading-[1.4] text-foreground outline-none"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="shrink-0 rounded-[0.875rem] bg-primary px-6 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {loading ? "Invio…" : "Avvisami"}
+                </button>
+              </div>
             </form>
           </div>
         </main>
