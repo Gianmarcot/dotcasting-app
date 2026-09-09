@@ -61,7 +61,7 @@ const ComingSoon = () => {
       {/* Overlay fade: più scuro in basso */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/85"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/35 via-black/30 to-black/80"
       />
 
       {/* Contenuto */}
