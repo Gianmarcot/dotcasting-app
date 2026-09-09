@@ -60,7 +60,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<AuthPage />} />
+            <Route path="/" element={<ComingSoon />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
