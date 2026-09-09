@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
 import AuthPage from "./pages/AuthPage";
+import ComingSoon from "./pages/ComingSoon";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 import CardPreview from "./dev/CardPreview";
@@ -59,7 +60,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<AuthPage />} />
+            <Route path="/" element={<ComingSoon />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />

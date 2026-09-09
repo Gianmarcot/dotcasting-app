@@ -191,16 +191,25 @@ export default {
   				to: {
   					transform: 'translateX(0)'
   				}
-  			}
-  		},
-   		animation: {
-   			'accordion-down': 'accordion-down 0.2s ease-out',
-   			'accordion-up': 'accordion-up 0.2s ease-out',
-   			'fade-in': 'fade-in 0.3s ease-out',
-   			'fade-up': 'fade-up 0.4s ease-out',
-   			'scale-fade-in': 'scale-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s both',
-   			'slide-in-left': 'slide-in-left 0.3s ease-out'
-   		}
+   			},
+   			'marquee': {
+   				from: {
+   					transform: 'translateX(0)'
+   				},
+   				to: {
+   					transform: 'translateX(-50%)'
+   				}
+   			}
+   		},
+    		animation: {
+    			'accordion-down': 'accordion-down 0.2s ease-out',
+    			'accordion-up': 'accordion-up 0.2s ease-out',
+    			'fade-in': 'fade-in 0.3s ease-out',
+    			'fade-up': 'fade-up 0.4s ease-out',
+    			'scale-fade-in': 'scale-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s both',
+    			'slide-in-left': 'slide-in-left 0.3s ease-out',
+    			'marquee': 'marquee 24s linear infinite'
+    		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
