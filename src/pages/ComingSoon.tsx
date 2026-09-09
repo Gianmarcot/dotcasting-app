@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { FloatingInput } from "@/components/ui/field";
 import { Surface } from "@/components/ui/surface";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import logoWhite from "@/assets/logo-white.png";
-import slide1 from "@/assets/auth-slide-1.jpg.asset.json";
+import cover from "@/assets/coming-soon-cover.jpg.asset.json";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
