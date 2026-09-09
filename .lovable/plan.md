@@ -14,9 +14,10 @@ Sostituire l'attuale `FloatingInput` + `Button` separati con un singolo blocco: 
 - Non modificare il componente `FloatingInput` condiviso — costruire il campo inline in `ComingSoon.tsx` con un `<input>` nativo + label flottante semplice, per avere controllo totale sul layout integrato
 
 ### 2. Sfondo
-- Sostituire `auth-slide-1` con l'immagine che l'utente invierà nel prossimo messaggio
-- L'immagine verrà caricata come asset CDN (`lovable-assets create`) e referenziata via `.asset.json`
+- Sostituire `auth-slide-1` con l'immagine caricata (due modelle su fondo terracotta, `dotc-comin-soon-cover.jpg`)
+- L'immagine viene caricata come asset CDN (`lovable-assets create`) e referenziata via `.asset.json`
 - Mantenere l'overlay fade (più scuro in basso) e tutti gli altri elementi (logo, titolo, marquee)
+- Le figure sono sul lato destro/centrale: verificare che il testo centrato resti leggibile, eventualmente rinforzare l'overlay nella parte bassa
 
 ## File coinvolti
 - `src/pages/ComingSoon.tsx` — refactor del form + swap sfondo
