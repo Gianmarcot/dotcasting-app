@@ -51,7 +51,7 @@ const ComingSoon = () => {
     >
       {/* Sfondo a pieno schermo */}
       <img
-        src={slide1.url}
+        src={cover.url}
         alt=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full object-cover"
@@ -59,7 +59,7 @@ const ComingSoon = () => {
       {/* Overlay fade: più scuro in basso */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/80"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/85"
       />
 
       {/* Contenuto */}
