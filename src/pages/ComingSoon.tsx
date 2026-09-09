@@ -11,6 +11,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ComingSoon = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const floating = focused || email !== "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
