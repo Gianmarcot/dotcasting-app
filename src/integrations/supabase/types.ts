@@ -555,6 +555,24 @@ export type Database = {
           },
         ]
       }
+      coming_soon_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
       communication_templates: {
         Row: {
           action_label: string
