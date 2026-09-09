@@ -7,7 +7,7 @@ Landing page a tutto schermo che sostituisce la home (`/`). L'attuale `AuthPage`
 Nuova tabella `public.coming_soon_emails` per raccogliere le email lasciate dai visitatori.
 
 ```sql
-CREATE TABLE public.comoming_soon_emails (
+CREATE TABLE public.coming_soon_emails (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   email text NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
