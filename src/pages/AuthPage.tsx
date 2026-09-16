@@ -223,7 +223,7 @@ export const AuthPage = () => {
       </div>
 
       {/* Right — form (no card) */}
-      <div className="flex-1 min-h-screen flex items-center justify-center p-6 md:p-12">
+      <div className="relative flex-1 min-h-screen flex items-center justify-center p-6 pb-16 md:p-12 md:pb-16">
 
         <div className="w-full max-w-sm">
           <div className="text-center mb-8">
@@ -402,16 +402,17 @@ export const AuthPage = () => {
             </button>
           </div>
 
-          <div className="mt-10 text-center">
-            <a
-              href={TERMS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
-            >
-              Termini e condizioni
-            </a>
-          </div>
+        </div>
+
+        <div className="absolute bottom-6 left-0 right-0 px-6 text-center">
+          <a
+            href={TERMS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
+          >
+            Termini e condizioni
+          </a>
         </div>
       </div>
     </div>
