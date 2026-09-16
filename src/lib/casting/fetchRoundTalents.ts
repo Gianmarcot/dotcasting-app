@@ -201,6 +201,27 @@ export function mapToTalent(p: DbProfile): Talent {
       .filter(() => isMediaCategoryVisible("main_photos", p.talent_categories))
       .sort((x, y) => x.sort_order - y.sort_order)
       .map(m => transformPhotoUrl(m.url)),
+    // Elenchi completi usati solo dal wizard PDF della scheda singola:
+    // la generazione dei round continua a leggere `photos`.
+    allPhotos: (p.media ?? [])
+      .filter(m => m.media_type === "photo")
+      .filter(m => isMediaCategoryVisible(m.category, p.talent_categories))
+      .sort((x, y) => x.sort_order - y.sort_order)
+      .map(m => ({
+        url: transformPhotoUrl(m.url),
+        category: m.category ?? "main_photos",
+        title: m.title ?? null,
+        sort_order: m.sort_order,
+      })),
+    videos: (p.media ?? [])
+      .filter(m => m.media_type === "video")
+      .filter(m => isMediaCategoryVisible(m.category, p.talent_categories))
+      .sort((x, y) => x.sort_order - y.sort_order)
+      .map(m => ({
+        url: m.url,
+        category: m.category ?? "other_videos",
+        title: m.title ?? null,
+      })),
   };
 }
 
