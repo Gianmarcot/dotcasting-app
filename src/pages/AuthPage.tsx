@@ -22,6 +22,8 @@ import slide4 from "@/assets/auth-slide-4.jpg.asset.json";
 
 const SLIDES = [slide1.url, slide2.url, slide3.url, slide4.url];
 
+const TERMS_URL = "https://www.iubenda.com/termini-e-condizioni/35556124";
+
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -326,7 +328,7 @@ export const AuthPage = () => {
                       <span className="text-[15px] text-foreground">
                         Ho letto e accetto i{" "}
                         <a
-                          href="/termini"
+                          href={TERMS_URL}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="underline"
@@ -398,6 +400,17 @@ export const AuthPage = () => {
                 </>
               )}
             </button>
+          </div>
+
+          <div className="mt-10 text-center">
+            <a
+              href={TERMS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
+            >
+              Termini e condizioni
+            </a>
           </div>
         </div>
       </div>
