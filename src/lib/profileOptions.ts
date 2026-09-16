@@ -213,9 +213,7 @@ export const PANTS_SIZES = [
   "IT 60 | EU 54"
 ];
  
- export const SHOE_SIZES = [
-   "35", "36", "37", "38", "39", "40", "41", "42", "43", "44", "45", "46", "47", "48"
- ];
+ export const SHOE_SIZES = Array.from({ length: 60 }, (_, i) => String(i + 1));
  
  export const PHONE_PREFIXES = [
    { code: "+39", country: "IT" },
