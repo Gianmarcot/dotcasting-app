@@ -186,6 +186,16 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
                 ✉ {r.value}
               </Text>
             ))}
+            {card.videoLinks?.length ? (
+              <View>
+                <View style={s.rule} />
+                {card.videoLinks.slice(0, 4).map((v) => (
+                  <Link key={v.url} src={v.url} style={s.videoLink}>
+                    ▶ {v.label}
+                  </Link>
+                ))}
+              </View>
+            ) : null}
           </View>
 
 
