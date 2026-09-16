@@ -4,8 +4,10 @@ import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { REPRESENTATION_TYPES } from "@/lib/profileOptions";
 import {
+  FieldCluster,
   FieldGrid,
   FloatingInput,
+  FloatingSelect,
   GroupLabel,
   ProfileCheckbox,
   ProfileRadioGroup,
@@ -17,6 +19,7 @@ import {
   BirthDateFields,
   GenderFields,
   NameFields,
+  PHONE_PREFIX_OPTIONS,
 } from "@/components/profile/fields/BasicInfoFields";
 import { GeoFields, type AddressValue } from "@/components/profile/fields/AddressFields";
 import { PhotoGalleryModal } from "@/components/profile/v2/photos/PhotoGalleryModal";
