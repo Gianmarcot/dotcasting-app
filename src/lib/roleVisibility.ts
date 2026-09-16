@@ -140,6 +140,7 @@ export const PHYSICAL_FIELD_LABELS: Record<string, string> = {
   hips: "Fianchi",
   shoulder_width: "Larghezza spalle",
   bra_size: "Taglia reggiseno",
+  bra_cup: "Coppa",
   neck_size: "Misura collo camicia",
 };
 

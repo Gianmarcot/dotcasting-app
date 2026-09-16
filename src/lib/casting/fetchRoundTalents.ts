@@ -21,7 +21,7 @@ interface DbAttrs {
   hair_length: string | null; hair_type: string | null;
   languages: string[] | null; abilities: string[] | null;
   shirt_size: string | null; pants_size: string | null; jacket_size: string | null;
-  underwear_sizes: string | null;
+  underwear_sizes: { bra?: string | null; cup?: string | null } | string | null;
   chest: number | null; waist: number | null; hips: number | null;
   shoulder_width: number | null; neck_size: number | null; shoe_size: number | null;
   has_tattoos: boolean | null; has_piercings: boolean | null;
