@@ -2,12 +2,7 @@ import { useMemo } from "react";
 import { IdCard } from "lucide-react";
 import { fiscalCodeCoherenceWarning, validateFiscalCode } from "@/lib/fiscalCode";
 
-import {
-  COUNTRIES,
-  NATIONALITIES,
-  VAT_ACTIVITY_TYPES,
-  VAT_REGIMES,
-} from "@/lib/profileOptions";
+import { COUNTRIES, NATIONALITIES, VAT_REGIMES } from "@/lib/profileOptions";
 import {
   FieldGrid,
   FloatingInput,
