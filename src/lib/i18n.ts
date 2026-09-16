@@ -21,7 +21,7 @@ export const it = {
     email: "Email",
     password: "Password",
     confirmPassword: "Conferma password",
-    forgotPassword: "Password dimenticata?",
+    forgotPassword: "Password dimenticata",
     noAccount: "Non hai un account?",
     hasAccount: "Hai già un account?",
     loginTitle: "Accedi al tuo account",
