@@ -48,6 +48,8 @@ export interface ResolvedCard {
   /** foto galleria, a gruppi di 3 per pagina */
   galleryPages: string[][];
   showAgencyContact: boolean;
+  /** link video cliccabili stampati sotto i contatti */
+  videoLinks?: { label: string; url: string }[];
   /** branding agenzia da app_settings (caricato a monte e passato in input) */
   agencyName?: string | null;
   agencyLogoUrl?: string | null;
