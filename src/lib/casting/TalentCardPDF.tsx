@@ -95,6 +95,13 @@ const s = StyleSheet.create({
   value: { fontFamily: SANS, color: "#F4F0EC" },
 
   contact: { fontFamily: SANS, fontSize: 6.5, marginTop: 4 },
+  videoLink: {
+    fontFamily: SANS,
+    fontSize: 6.5,
+    marginTop: 4,
+    color: "#F4F0EC",
+    textDecoration: "underline",
+  },
 
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   logoDot: {
