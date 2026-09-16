@@ -368,11 +368,11 @@ export const AuthPage = () => {
               </Button>
 
               {isLogin && (
-                <div className="text-center">
+                <div className="mt-6 text-center">
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-sm text-primary font-medium hover:underline transition-colors"
+                    className="text-sm text-ink font-medium hover:underline transition-colors"
                   >
                     {it.auth.forgotPassword}
                   </button>
@@ -391,12 +391,12 @@ export const AuthPage = () => {
               {isLogin ? (
                 <>
                   {it.auth.noAccount}{" "}
-                  <span className="text-primary font-medium hover:underline">{it.auth.signup}</span>
+                  <span className="text-ink font-medium hover:underline">{it.auth.signup}</span>
                 </>
               ) : (
                 <>
                   {it.auth.hasAccount}{" "}
-                  <span className="text-primary font-medium hover:underline">{it.auth.login}</span>
+                  <span className="text-ink font-medium hover:underline">{it.auth.login}</span>
                 </>
               )}
             </button>
