@@ -1325,6 +1325,7 @@ export type Database = {
           chest: number | null
           clothing_sizes: Json | null
           eye_color: string | null
+          food_allergies_detail: string | null
           hair_color: string | null
           hair_length: string | null
           hair_type: string | null
@@ -1351,6 +1352,7 @@ export type Database = {
           shoe_size: string | null
           shoulder_width: number | null
           skills: string[] | null
+          tattoos_detail: string | null
           underwear_sizes: Json | null
           updated_at: string
           waist: number | null
@@ -1371,6 +1373,7 @@ export type Database = {
           chest?: number | null
           clothing_sizes?: Json | null
           eye_color?: string | null
+          food_allergies_detail?: string | null
           hair_color?: string | null
           hair_length?: string | null
           hair_type?: string | null
@@ -1397,6 +1400,7 @@ export type Database = {
           shoe_size?: string | null
           shoulder_width?: number | null
           skills?: string[] | null
+          tattoos_detail?: string | null
           underwear_sizes?: Json | null
           updated_at?: string
           waist?: number | null
@@ -1417,6 +1421,7 @@ export type Database = {
           chest?: number | null
           clothing_sizes?: Json | null
           eye_color?: string | null
+          food_allergies_detail?: string | null
           hair_color?: string | null
           hair_length?: string | null
           hair_type?: string | null
@@ -1443,6 +1448,7 @@ export type Database = {
           shoe_size?: string | null
           shoulder_width?: number | null
           skills?: string[] | null
+          tattoos_detail?: string | null
           underwear_sizes?: Json | null
           updated_at?: string
           waist?: number | null
