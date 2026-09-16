@@ -96,13 +96,13 @@ export const NameFields = ({
 }) => (
   <FieldGrid cols={2}>
     <FloatingInput
-      label="Nome"
+      label="Nome completo"
       value={firstName}
       error={errors?.first_name}
       onChange={(v) => onChange({ first_name: v })}
     />
     <FloatingInput
-      label="Cognome"
+      label="Cognome completo"
       value={lastName}
       error={errors?.last_name}
       onChange={(v) => onChange({ last_name: v })}
