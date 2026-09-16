@@ -62,8 +62,9 @@ export const TALENT_ROLE_GROUPS = [
 
 export const BRA_SIZES = [
   "1ª (70)", "2ª (75)", "3ª (80)", "4ª (85)", "5ª (90)", "6ª (95)", "7ª (100)",
-  "A", "B", "C", "D", "E", "F",
 ];
+
+export const BRA_CUP_SIZES = ["A", "B", "C", "D", "E", "F"];
 
 export const LANGUAGE_LEVELS = [
   "Madrelingua",

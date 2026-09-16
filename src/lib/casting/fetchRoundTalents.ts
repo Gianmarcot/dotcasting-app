@@ -21,7 +21,7 @@ interface DbAttrs {
   hair_length: string | null; hair_type: string | null;
   languages: string[] | null; abilities: string[] | null;
   shirt_size: string | null; pants_size: string | null; jacket_size: string | null;
-  underwear_sizes: string | null;
+  underwear_sizes: { bra?: string | null; cup?: string | null } | string | null;
   chest: number | null; waist: number | null; hips: number | null;
   shoulder_width: number | null; neck_size: number | null; shoe_size: number | null;
   has_tattoos: boolean | null; has_piercings: boolean | null;
@@ -53,6 +53,16 @@ interface DbProfile {
   /** contatti del tutore, iniettati a monte per i profili tutelati */
   guardian?: GuardianContact | null;
 }
+
+/** Compone fascia + coppa (es. "3ª (80) C"); accetta anche i vecchi valori testuali. */
+const formatBraSize = (value: DbAttrs["underwear_sizes"]): string | null => {
+  if (!value) return null;
+  if (typeof value === "string") return value.trim() || null;
+  const parts = [value.bra, value.cup]
+    .map((v) => (typeof v === "string" ? v.trim() : ""))
+    .filter(Boolean);
+  return parts.length ? parts.join(" ") : null;
+};
 
 const age = (birth?: string | null) => {
   if (!birth) return null;
@@ -160,7 +170,7 @@ export function mapToTalent(p: DbProfile): Talent {
     taglia_maglia: a.shirt_size ?? null,
     taglia_pantaloni: a.pants_size ?? null,
     taglia_giacca: a.jacket_size ?? null,
-    taglia_reggiseno: a.underwear_sizes ?? null,
+    taglia_reggiseno: formatBraSize(a.underwear_sizes),
     vita_cm: a.waist ?? null,
     petto_cm: a.chest ?? null,
     fianchi_cm: a.hips ?? null,
