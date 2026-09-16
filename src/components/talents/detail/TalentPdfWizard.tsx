@@ -289,12 +289,14 @@ export const TalentPdfWizard = ({
             {talentVideos.map((v) => (
               <label
                 key={v.url}
-                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4 text-[15px] text-foreground"
+                className="grid min-w-0 cursor-pointer grid-cols-[auto_minmax(0,1fr)] items-start gap-3 overflow-hidden rounded-2xl border border-border p-4 text-[15px] text-foreground"
               >
                 <Checkbox checked={videos.includes(v.url)} onCheckedChange={() => toggleVideo(v.url)} />
-                <span className="min-w-0 flex-1 overflow-hidden">
-                  <span className="block truncate font-medium">{videoLabel(v)}</span>
-                  <span className="block w-full truncate text-sm text-muted-foreground">{v.url}</span>
+                <span className="block min-w-0 max-w-full overflow-hidden">
+                  <span className="block max-w-full truncate font-medium">{videoLabel(v)}</span>
+                  <span className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
+                    {v.url}
+                  </span>
                 </span>
               </label>
             ))}
