@@ -54,6 +54,16 @@ interface DbProfile {
   guardian?: GuardianContact | null;
 }
 
+/** Compone fascia + coppa (es. "3ª (80) C"); accetta anche i vecchi valori testuali. */
+const formatBraSize = (value: DbAttrs["underwear_sizes"]): string | null => {
+  if (!value) return null;
+  if (typeof value === "string") return value.trim() || null;
+  const parts = [value.bra, value.cup]
+    .map((v) => (typeof v === "string" ? v.trim() : ""))
+    .filter(Boolean);
+  return parts.length ? parts.join(" ") : null;
+};
+
 const age = (birth?: string | null) => {
   if (!birth) return null;
   const b = new Date(birth);
