@@ -14,7 +14,7 @@ import {
   type GuardianContact,
 } from "@/lib/guardianship";
 
-interface DbMedia { url: string; sort_order: number; media_type: string; category: string | null }
+interface DbMedia { url: string; sort_order: number; media_type: string; category: string | null; title?: string | null }
 interface DbAttrs {
   height: number | null; weight: number | null;
   hair_color: string | null; eye_color: string | null;
@@ -201,6 +201,27 @@ export function mapToTalent(p: DbProfile): Talent {
       .filter(() => isMediaCategoryVisible("main_photos", p.talent_categories))
       .sort((x, y) => x.sort_order - y.sort_order)
       .map(m => transformPhotoUrl(m.url)),
+    // Elenchi completi usati solo dal wizard PDF della scheda singola:
+    // la generazione dei round continua a leggere `photos`.
+    allPhotos: (p.media ?? [])
+      .filter(m => m.media_type === "photo")
+      .filter(m => isMediaCategoryVisible(m.category, p.talent_categories))
+      .sort((x, y) => x.sort_order - y.sort_order)
+      .map(m => ({
+        url: transformPhotoUrl(m.url),
+        category: m.category ?? "main_photos",
+        title: m.title ?? null,
+        sort_order: m.sort_order,
+      })),
+    videos: (p.media ?? [])
+      .filter(m => m.media_type === "video")
+      .filter(m => isMediaCategoryVisible(m.category, p.talent_categories))
+      .sort((x, y) => x.sort_order - y.sort_order)
+      .map(m => ({
+        url: m.url,
+        category: m.category ?? "other_videos",
+        title: m.title ?? null,
+      })),
   };
 }
 
@@ -258,7 +279,7 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
           ability_sports, ability_sports_detail,
           ability_bartender, ability_other, ability_other_detail
         ),
-        media:talent_media ( url, sort_order, media_type, category )
+        media:talent_media ( url, sort_order, media_type, category, title )
       )
     `)
     .in("id", roleTalentIds);
@@ -299,7 +320,7 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
         ability_sports, ability_sports_detail,
         ability_bartender, ability_other, ability_other_detail
       ),
-      media:talent_media ( url, sort_order, media_type, category )
+      media:talent_media ( url, sort_order, media_type, category, title )
     `)
     .eq("id", profileId)
     .maybeSingle();

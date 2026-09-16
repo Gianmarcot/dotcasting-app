@@ -15,6 +15,8 @@ export interface RoundPreset {
   photoCount?: number | null;
   /** email agenzia mostrata in footer: di norma sempre true */
   showAgencyContact?: boolean;
+  /** link video da stampare nella scheda (solo wizard PDF singolo) */
+  videoLinks?: { label: string; url: string }[];
 }
 
 // Preset di partenza, modificabili liberamente al momento della
@@ -46,6 +48,8 @@ export interface ResolvedCard {
   /** foto galleria, a gruppi di 3 per pagina */
   galleryPages: string[][];
   showAgencyContact: boolean;
+  /** link video cliccabili stampati sotto i contatti */
+  videoLinks?: { label: string; url: string }[];
   /** branding agenzia da app_settings (caricato a monte e passato in input) */
   agencyName?: string | null;
   agencyLogoUrl?: string | null;
@@ -101,6 +105,7 @@ export function resolveCard(
     coverPhotos: [talent.photos[0], talent.photos[1]],
     galleryPages: chunk(limited, 3),
     showAgencyContact: preset.showAgencyContact !== false,
+    videoLinks: preset.videoLinks?.length ? preset.videoLinks : undefined,
     agencyName: branding?.agencyName ?? null,
     agencyLogoUrl: branding?.agencyLogoUrl ?? null,
     agencyContactEmail: branding?.agencyContactEmail ?? null,

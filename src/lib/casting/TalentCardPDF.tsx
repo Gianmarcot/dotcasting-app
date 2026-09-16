@@ -8,7 +8,7 @@
 // =============================================================
 
 import React from "react";
-import { Document, Page, View, Text, Image, Font, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, Link, Font, StyleSheet } from "@react-pdf/renderer";
 import { ResolvedCard, ResolvedRow } from "./roundPreset";
 
 // --- Font ------------------------------------------------------
@@ -95,6 +95,13 @@ const s = StyleSheet.create({
   value: { fontFamily: SANS, color: "#F4F0EC" },
 
   contact: { fontFamily: SANS, fontSize: 6.5, marginTop: 4 },
+  videoLink: {
+    fontFamily: SANS,
+    fontSize: 6.5,
+    marginTop: 4,
+    color: "#F4F0EC",
+    textDecoration: "underline",
+  },
 
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   logoDot: {
@@ -179,6 +186,16 @@ export const TalentCardPDF = ({ card }: { card: ResolvedCard }) => {
                 ✉ {r.value}
               </Text>
             ))}
+            {card.videoLinks?.length ? (
+              <View>
+                <View style={s.rule} />
+                {card.videoLinks.slice(0, 4).map((v) => (
+                  <Link key={v.url} src={v.url} style={s.videoLink}>
+                    ▶ {v.label}
+                  </Link>
+                ))}
+              </View>
+            ) : null}
           </View>
 
 

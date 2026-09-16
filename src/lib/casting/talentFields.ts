@@ -49,6 +49,10 @@ export interface Talent {
   is_minor?: boolean | null;
   // --- foto
   photos: string[];
+  /** tutte le foto visibili con categoria (usato solo dal wizard PDF) */
+  allPhotos?: { url: string; category: string; title: string | null; sort_order: number }[];
+  /** video visibili con categoria (usato solo dal wizard PDF) */
+  videos?: { url: string; category: string; title: string | null }[];
 }
 
 export type FieldGroup = "anagrafica" | "fisico" | "misure" | "competenze" | "contatti";
