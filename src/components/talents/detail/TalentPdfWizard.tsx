@@ -28,7 +28,7 @@ import { TalentCardPDF } from "@/lib/casting/TalentCardPDF";
 import { fetchTalentByProfileId } from "@/lib/casting/fetchRoundTalents";
 import { fetchPhotoAsDataUrl } from "@/lib/casting/generateRound";
 import { fetchAppSettings } from "@/hooks/useAppSettings";
-import { getCategoryLabel, PHOTO_CATEGORIES, VIDEO_CATEGORIES } from "@/lib/mediaCategories";
+import { getCategoryLabel, PHOTO_CATEGORIES } from "@/lib/mediaCategories";
 
 if (!(globalThis as { Buffer?: unknown }).Buffer) {
   (globalThis as { Buffer?: unknown }).Buffer = Buffer;
