@@ -2,12 +2,7 @@ import { useMemo } from "react";
 import { IdCard } from "lucide-react";
 import { fiscalCodeCoherenceWarning, validateFiscalCode } from "@/lib/fiscalCode";
 
-import {
-  COUNTRIES,
-  NATIONALITIES,
-  VAT_ACTIVITY_TYPES,
-  VAT_REGIMES,
-} from "@/lib/profileOptions";
+import { COUNTRIES, NATIONALITIES, VAT_REGIMES } from "@/lib/profileOptions";
 import {
   FieldGrid,
   FloatingInput,
@@ -107,22 +102,21 @@ export const DocumentsCard = () => {
         />
         {hasVat && (
           <FieldGrid cols={3}>
-            <FloatingInput
-              label="Numero"
-              value={str("p", "vat_number")}
-              onChange={(v) => set("p", "vat_number", v)}
-            />
-            <FloatingSelect
-              label="Tipologia attività"
-              value={str("p", "vat_activity_type")}
-              onValueChange={(v) => set("p", "vat_activity_type", v)}
-              options={toOptions(VAT_ACTIVITY_TYPES)}
-            />
             <FloatingSelect
               label="Regime fiscale"
               value={str("p", "vat_regime")}
               onValueChange={(v) => set("p", "vat_regime", v)}
               options={toOptions(VAT_REGIMES)}
+            />
+            <FloatingInput
+              label="Tipologia attività"
+              value={str("p", "vat_activity_type")}
+              onChange={(v) => set("p", "vat_activity_type", v)}
+            />
+            <FloatingInput
+              label="Numero"
+              value={str("p", "vat_number")}
+              onChange={(v) => set("p", "vat_number", v)}
             />
           </FieldGrid>
         )}
