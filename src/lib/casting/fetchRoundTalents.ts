@@ -14,7 +14,7 @@ import {
   type GuardianContact,
 } from "@/lib/guardianship";
 
-interface DbMedia { url: string; sort_order: number; media_type: string; category: string | null }
+interface DbMedia { url: string; sort_order: number; media_type: string; category: string | null; title?: string | null }
 interface DbAttrs {
   height: number | null; weight: number | null;
   hair_color: string | null; eye_color: string | null;
