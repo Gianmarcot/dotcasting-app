@@ -178,6 +178,15 @@ export const PhysicalCard = () => {
             />
           ))}
         </CheckboxGrid>
+        {bool("a", "has_tattoos") && (
+          <div className="mt-4">
+            <FloatingInput
+              label="Quali tatuaggi hai?"
+              value={str("a", "tattoos_detail")}
+              onChange={(v) => set("a", "tattoos_detail", v)}
+            />
+          </div>
+        )}
       </div>
 
       <SectionDivider />
@@ -188,6 +197,14 @@ export const PhysicalCard = () => {
           onValueChange={(v) => set("a", "has_food_allergies", v)}
         />
       </RadioField>
+      {bool("a", "has_food_allergies") && (
+        <FloatingInput
+          label="Quali intolleranze hai?"
+          value={str("a", "food_allergies_detail")}
+          onChange={(v) => set("a", "food_allergies_detail", v)}
+        />
+      )}
+
     </SectionCard>
   );
 };
