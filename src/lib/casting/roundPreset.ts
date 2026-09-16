@@ -105,6 +105,7 @@ export function resolveCard(
     coverPhotos: [talent.photos[0], talent.photos[1]],
     galleryPages: chunk(limited, 3),
     showAgencyContact: preset.showAgencyContact !== false,
+    videoLinks: preset.videoLinks?.length ? preset.videoLinks : undefined,
     agencyName: branding?.agencyName ?? null,
     agencyLogoUrl: branding?.agencyLogoUrl ?? null,
     agencyContactEmail: branding?.agencyContactEmail ?? null,
