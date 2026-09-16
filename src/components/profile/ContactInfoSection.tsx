@@ -18,7 +18,7 @@ interface SocialLinks {
   instagram?: string;
   tiktok?: string;
   youtube?: string;
-  x?: string;
+  vimeo?: string;
   amazon?: string;
 }
 
