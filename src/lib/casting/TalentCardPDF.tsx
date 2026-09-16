@@ -8,7 +8,7 @@
 // =============================================================
 
 import React from "react";
-import { Document, Page, View, Text, Image, Font, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, Text, Image, Link, Font, StyleSheet } from "@react-pdf/renderer";
 import { ResolvedCard, ResolvedRow } from "./roundPreset";
 
 // --- Font ------------------------------------------------------
