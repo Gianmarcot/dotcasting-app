@@ -92,7 +92,7 @@ const SOCIALS: { key: string; label: string }[] = [
   { key: "facebook", label: "Facebook" },
   { key: "youtube", label: "YouTube" },
   { key: "linkedin", label: "LinkedIn" },
-  { key: "x", label: "X (Twitter)" },
+  { key: "vimeo", label: "Vimeo" },
 ];
 
 const MARKS: { key: string; label: string }[] = [
