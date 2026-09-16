@@ -163,6 +163,53 @@ export const HeadCard = () => {
             options={REPRESENTATION_TYPES}
           />
         </RadioField>
+
+        {str("p", "representation_type") === "agency" && (
+          <div className="space-y-8">
+            <h3 className="text-center font-display text-xl uppercase text-foreground">
+              Dati dell'agenzia che ti rappresenta in esclusiva
+            </h3>
+
+            <FloatingInput
+              label="Nome agenzia"
+              value={str("p", "agency_name")}
+              onChange={(v) => set("p", "agency_name", v)}
+            />
+
+            <div>
+              <GroupLabel>Telefono agenzia</GroupLabel>
+              <FieldCluster className="w-full max-w-[420px]">
+                <FloatingSelect
+                  label="Prefisso"
+                  className="w-[110px] shrink-0"
+                  value={str("p", "agency_phone_prefix")}
+                  onValueChange={(v) => set("p", "agency_phone_prefix", v)}
+                  options={PHONE_PREFIX_OPTIONS}
+                />
+                <FloatingInput
+                  label="Numero"
+                  className="flex-1"
+                  inputMode="tel"
+                  value={str("p", "agency_phone_number")}
+                  onChange={(v) => set("p", "agency_phone_number", v)}
+                />
+              </FieldCluster>
+            </div>
+
+            <FloatingInput
+              label="E-mail agenzia"
+              type="email"
+              value={str("p", "agency_email")}
+              onChange={(v) => set("p", "agency_email", v)}
+            />
+
+            <FloatingInput
+              label="Referente"
+              value={str("p", "agency_contact_person")}
+              onChange={(v) => set("p", "agency_contact_person", v)}
+            />
+          </div>
+        )}
       </div>
     </SectionCard>
   );
