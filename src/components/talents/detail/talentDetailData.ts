@@ -199,7 +199,10 @@ export const buildTalentDetail = (profile: Row | null, attrs: Row | null) => {
       .join(", "),
     true
   );
+  if (a.has_tattoos === true) push(physical, "Quali tatuaggi", a.tattoos_detail as string | null);
   push(physical, "Allergie o intolleranze alimentari", yesNo(a.has_food_allergies));
+  if (a.has_food_allergies === true)
+    push(physical, "Quali intolleranze", a.food_allergies_detail as string | null);
   if (physical.length)
     sections.push({ key: "fisico", title: "Aspetto fisico", icon: Shirt, fields: physical });
 
