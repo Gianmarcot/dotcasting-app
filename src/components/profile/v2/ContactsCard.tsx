@@ -27,7 +27,7 @@ interface SocialLinks {
   facebook?: string;
   youtube?: string;
   linkedin?: string;
-  x?: string;
+  vimeo?: string;
 }
 
 const SOCIALS: { key: keyof SocialLinks; label: string; prefix: string }[] = [
@@ -36,7 +36,7 @@ const SOCIALS: { key: keyof SocialLinks; label: string; prefix: string }[] = [
   { key: "facebook", label: "Facebook", prefix: "www.facebook.com/" },
   { key: "youtube", label: "YouTube", prefix: "www.youtube.com/@" },
   { key: "linkedin", label: "LinkedIn", prefix: "www.linkedin.com/in/" },
-  { key: "x", label: "X (Twitter)", prefix: "@" },
+  { key: "vimeo", label: "Vimeo", prefix: "vimeo.com/" },
 ];
 
 const prefixOptions = PHONE_PREFIXES.map((p) => ({
