@@ -1004,6 +1004,11 @@ export type Database = {
       profiles: {
         Row: {
           age_confirmed: boolean | null
+          agency_contact_person: string | null
+          agency_email: string | null
+          agency_name: string | null
+          agency_phone_number: string | null
+          agency_phone_prefix: string | null
           band_name: string | null
           bank_account_holder: string | null
           bank_name: string | null
@@ -1069,6 +1074,11 @@ export type Database = {
         }
         Insert: {
           age_confirmed?: boolean | null
+          agency_contact_person?: string | null
+          agency_email?: string | null
+          agency_name?: string | null
+          agency_phone_number?: string | null
+          agency_phone_prefix?: string | null
           band_name?: string | null
           bank_account_holder?: string | null
           bank_name?: string | null
@@ -1134,6 +1144,11 @@ export type Database = {
         }
         Update: {
           age_confirmed?: boolean | null
+          agency_contact_person?: string | null
+          agency_email?: string | null
+          agency_name?: string | null
+          agency_phone_number?: string | null
+          agency_phone_prefix?: string | null
           band_name?: string | null
           bank_account_holder?: string | null
           bank_name?: string | null
