@@ -279,7 +279,7 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
           ability_sports, ability_sports_detail,
           ability_bartender, ability_other, ability_other_detail
         ),
-        media:talent_media ( url, sort_order, media_type, category )
+        media:talent_media ( url, sort_order, media_type, category, title )
       )
     `)
     .in("id", roleTalentIds);
@@ -320,7 +320,7 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
         ability_sports, ability_sports_detail,
         ability_bartender, ability_other, ability_other_detail
       ),
-      media:talent_media ( url, sort_order, media_type, category )
+      media:talent_media ( url, sort_order, media_type, category, title )
     `)
     .eq("id", profileId)
     .maybeSingle();
