@@ -292,9 +292,9 @@ export const TalentPdfWizard = ({
                 className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border p-4 text-[15px] text-foreground"
               >
                 <Checkbox checked={videos.includes(v.url)} onCheckedChange={() => toggleVideo(v.url)} />
-                <span className="min-w-0">
-                  <span className="block font-medium">{videoLabel(v)}</span>
-                  <span className="block truncate text-sm text-muted-foreground">{v.url}</span>
+                <span className="min-w-0 flex-1 overflow-hidden">
+                  <span className="block truncate font-medium">{videoLabel(v)}</span>
+                  <span className="block w-full truncate text-sm text-muted-foreground">{v.url}</span>
                 </span>
               </label>
             ))}
