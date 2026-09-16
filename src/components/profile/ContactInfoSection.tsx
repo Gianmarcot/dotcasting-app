@@ -291,12 +291,12 @@ export const ContactInfoSection = ({ externalProfileId }: ContactInfoSectionProp
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs text-muted-foreground">X (Twitter)</Label>
+              <Label className="text-xs text-muted-foreground">Vimeo</Label>
               <Input
-                value={socialLinks.x || ""}
-                onChange={(e) => handleSocialChange("x", e.target.value)}
+                value={socialLinks.vimeo || ""}
+                onChange={(e) => handleSocialChange("vimeo", e.target.value)}
                 disabled={!isEditing}
-                placeholder="@username"
+                placeholder="vimeo.com/username"
               />
             </div>
           </div>
