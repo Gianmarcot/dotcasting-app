@@ -169,9 +169,7 @@ export const HeadCard = () => {
 
         {str("p", "representation_type") === "agency" && (
           <div className="space-y-8">
-            <h3 className="text-center font-display text-xl uppercase text-foreground">
-              Dati dell'agenzia che ti rappresenta in esclusiva
-            </h3>
+            <GroupHeading>Dati dell'agenzia che ti rappresenta in esclusiva</GroupHeading>
 
             <FloatingInput
               label="Nome agenzia"
@@ -199,18 +197,19 @@ export const HeadCard = () => {
               </FieldCluster>
             </div>
 
-            <FloatingInput
-              label="E-mail agenzia"
-              type="email"
-              value={str("p", "agency_email")}
-              onChange={(v) => set("p", "agency_email", v)}
-            />
-
-            <FloatingInput
-              label="Referente"
-              value={str("p", "agency_contact_person")}
-              onChange={(v) => set("p", "agency_contact_person", v)}
-            />
+            <FieldGrid cols={2}>
+              <FloatingInput
+                label="E-mail agenzia"
+                type="email"
+                value={str("p", "agency_email")}
+                onChange={(v) => set("p", "agency_email", v)}
+              />
+              <FloatingInput
+                label="Referente"
+                value={str("p", "agency_contact_person")}
+                onChange={(v) => set("p", "agency_contact_person", v)}
+              />
+            </FieldGrid>
           </div>
         )}
       </div>
