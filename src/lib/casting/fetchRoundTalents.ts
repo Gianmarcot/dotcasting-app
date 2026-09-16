@@ -160,7 +160,7 @@ export function mapToTalent(p: DbProfile): Talent {
     taglia_maglia: a.shirt_size ?? null,
     taglia_pantaloni: a.pants_size ?? null,
     taglia_giacca: a.jacket_size ?? null,
-    taglia_reggiseno: a.underwear_sizes ?? null,
+    taglia_reggiseno: formatBraSize(a.underwear_sizes),
     vita_cm: a.waist ?? null,
     petto_cm: a.chest ?? null,
     fianchi_cm: a.hips ?? null,

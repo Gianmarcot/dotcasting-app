@@ -1,5 +1,6 @@
 import { Shirt } from "lucide-react";
 import {
+  BRA_CUP_SIZES,
   BRA_SIZES,
   ETHNICITIES,
   EYE_COLORS,
@@ -58,6 +59,7 @@ export const PhysicalCard = () => {
 
   const underwear = obj<Record<string, unknown>>("a", "underwear_sizes");
   const braSize = typeof underwear.bra === "string" ? underwear.bra : "";
+  const braCup = typeof underwear.cup === "string" ? underwear.cup : "";
 
   const measureField = (key: string, label: string) => (
     <FloatingInput
@@ -104,6 +106,17 @@ export const PhysicalCard = () => {
             value={braSize}
             onValueChange={(v) => set("a", "underwear_sizes", { ...underwear, bra: v })}
             options={toOptions(BRA_SIZES)}
+          />,
+        ]
+      : []),
+    ...(show("bra_cup")
+      ? [
+          <FloatingSelect
+            key="bra_cup"
+            label="Coppa"
+            value={braCup}
+            onValueChange={(v) => set("a", "underwear_sizes", { ...underwear, cup: v })}
+            options={toOptions(BRA_CUP_SIZES)}
           />,
         ]
       : []),

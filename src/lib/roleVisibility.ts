@@ -163,7 +163,7 @@ export const visiblePhysicalFields = ({ roles, isAdult, gender }: PhysicalContex
   const fields = [...ARTISTIC_FIELDS];
   if (isAdult) {
     fields.push("chest", "waist", "hips", "shoulder_width");
-    if (gender === "F") fields.push("bra_size");
+    if (gender === "F") fields.push("bra_size", "bra_cup");
     if (gender === "M") fields.push("neck_size");
   }
   return fields;
