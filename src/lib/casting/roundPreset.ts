@@ -15,6 +15,8 @@ export interface RoundPreset {
   photoCount?: number | null;
   /** email agenzia mostrata in footer: di norma sempre true */
   showAgencyContact?: boolean;
+  /** link video da stampare nella scheda (solo wizard PDF singolo) */
+  videoLinks?: { label: string; url: string }[];
 }
 
 // Preset di partenza, modificabili liberamente al momento della
