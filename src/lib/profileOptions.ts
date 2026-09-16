@@ -173,19 +173,43 @@ export const HAIR_COLORS = [
  ];
  
 export const JACKET_SIZES = [
-  "IT 44 | EU 34", "IT 46 | EU 36", "IT 48 | EU 38",
-  "IT 50 | EU 40", "IT 52 | EU 42", "IT 54 | EU 44",
-  "IT 56 | EU 46", "IT 58 | EU 48", "IT 60 | EU 50",
-  "IT 62 | EU 52", "IT 64 | EU 54"
+  "IT 44 | EU 34", "IT 44/46 | EU 34/36",
+  "IT 46 | EU 36", "IT 46/48 | EU 36/38",
+  "IT 48 | EU 38", "IT 48/50 | EU 38/40",
+  "IT 50 | EU 40", "IT 50/52 | EU 40/42",
+  "IT 52 | EU 42", "IT 52/54 | EU 42/44",
+  "IT 54 | EU 44", "IT 54/56 | EU 44/46",
+  "IT 56 | EU 46", "IT 56/58 | EU 46/48",
+  "IT 58 | EU 48", "IT 58/60 | EU 48/50",
+  "IT 60 | EU 50", "IT 60/62 | EU 50/52",
+  "IT 62 | EU 52", "IT 62/64 | EU 52/54",
+  "IT 64 | EU 54"
 ];
 
-export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+export const SHIRT_SIZES = [
+  "XXS", "XXS/XS",
+  "XS", "XS/S",
+  "S", "S/M",
+  "M", "M/L",
+  "L", "L/XL",
+  "XL", "XL/XXL",
+  "XXL", "XXL/XXXL",
+  "XXXL"
+];
 
 export const PANTS_SIZES = [
-  "IT 38 | EU 32", "IT 40 | EU 34", "IT 42 | EU 36",
-  "IT 44 | EU 38", "IT 46 | EU 40", "IT 48 | EU 42",
-  "IT 50 | EU 44", "IT 52 | EU 46", "IT 54 | EU 48",
-  "IT 56 | EU 50", "IT 58 | EU 52", "IT 60 | EU 54"
+  "IT 38 | EU 32", "IT 38/40 | EU 32/34",
+  "IT 40 | EU 34", "IT 40/42 | EU 34/36",
+  "IT 42 | EU 36", "IT 42/44 | EU 36/38",
+  "IT 44 | EU 38", "IT 44/46 | EU 38/40",
+  "IT 46 | EU 40", "IT 46/48 | EU 40/42",
+  "IT 48 | EU 42", "IT 48/50 | EU 42/44",
+  "IT 50 | EU 44", "IT 50/52 | EU 44/46",
+  "IT 52 | EU 46", "IT 52/54 | EU 46/48",
+  "IT 54 | EU 48", "IT 54/56 | EU 48/50",
+  "IT 56 | EU 50", "IT 56/58 | EU 50/52",
+  "IT 58 | EU 52", "IT 58/60 | EU 52/54",
+  "IT 60 | EU 54"
 ];
  
  export const SHOE_SIZES = [
