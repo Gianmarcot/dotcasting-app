@@ -334,10 +334,12 @@ export const MONTHS = [
 ];
 
 export const GENDER_IDENTITIES = [
-  "Maschile",
+  "Non dichiarato",
   "Femminile",
-  "Non-binario",
-  "Altro"
+  "Maschile",
+  "Transgender",
+  "Fluido",
+  "Non binario"
 ];
 
 export const LANGUAGES = [
