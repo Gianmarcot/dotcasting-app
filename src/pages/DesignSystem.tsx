@@ -1454,13 +1454,13 @@ const ToastsSection = () => (
   >
     <SubBlock title="Varianti" source="toast() · toast.success() · toast.error()">
       <div className="flex flex-wrap gap-3">
-        <Button variant="outline" onClick={() => toast("Modifiche salvate")}>
+        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
           Toast base
         </Button>
         <Button
           variant="outline"
           onClick={() =>
-            toast("Profilo aggiornato", {
+            sonnerToast("Profilo aggiornato", {
               description: "Le modifiche sono visibili nella scheda talent.",
             })
           }
@@ -1469,24 +1469,25 @@ const ToastsSection = () => (
         </Button>
         <Button
           variant="outline"
-          onClick={() => toast.success("Invio completato")}
+          onClick={() => sonnerToast.success("Invio completato")}
         >
           Successo
         </Button>
         <Button
           variant="outline"
-          onClick={() => toast.error("Impossibile salvare le modifiche")}
+          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
         >
           Errore
         </Button>
         <Button
           variant="outline"
           onClick={() =>
-            toast("Foto eliminata", {
+            sonnerToast("Foto eliminata", {
               action: { label: "Annulla", onClick: () => {} },
             })
           }
         >
+
           Con azione
         </Button>
       </div>
