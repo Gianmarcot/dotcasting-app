@@ -1548,6 +1548,8 @@ const DesignSystemContent = () => {
             <PrimitivesSection />
             <PatternsSection />
             <BlocksSection />
+            <ToastsSection />
+
           </div>
         </div>
       </div>
