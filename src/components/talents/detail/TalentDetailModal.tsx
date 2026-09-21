@@ -168,10 +168,10 @@ export const TalentDetailModal = ({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/40 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-200 data-[state=open]:duration-300" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-foreground/30 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-[250ms] data-[state=open]:duration-[400ms] data-[state=open]:ease-[cubic-bezier(0.23,1,0.32,1)]" />
         <DialogPrimitive.Content
           ref={containerRef}
-          className="fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-white outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:duration-200 data-[state=open]:duration-300 data-[state=open]:ease-out lg:flex-row lg:overflow-hidden motion-reduce:data-[state=closed]:slide-out-to-bottom-0 motion-reduce:data-[state=open]:slide-in-from-bottom-0"
+          className="fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
