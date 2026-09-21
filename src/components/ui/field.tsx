@@ -124,8 +124,11 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     ref
   ) => {
     const [focused, setFocused] = useState(false);
+    const [revealed, setRevealed] = useState(false);
     const floating = focused || value !== "";
     const message = error || warning;
+    const isPassword = type === "password";
+    const inputType = isPassword && revealed ? "text" : type;
 
     return (
       <div className={cn("flex w-full flex-col", className)}>
