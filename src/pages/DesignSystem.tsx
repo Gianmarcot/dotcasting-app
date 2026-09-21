@@ -84,7 +84,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { TalentTile } from "@/pages/shared/TalentTile";
 import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
@@ -988,21 +987,53 @@ const PrimitivesSection = () => (
               <DropdownMenuItem>Azione due</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button
-            variant="outline"
-            onClick={() =>
-              toast({
-                title: "Toast di esempio",
-                description: "Attivato dal design system",
-              })
-            }
-          >
-            Toast
-          </Button>
         </div>
       </TooltipProvider>
     </SubBlock>
+
+    <SubBlock
+      title="Toast"
+      source="src/components/ui/sonner.tsx · top-right, fondo #0f0f0f, errore --brand-800"
+    >
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
+          Toast base
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Profilo aggiornato", {
+              description: "Le modifiche sono visibili nella scheda talent.",
+            })
+          }
+        >
+          Con descrizione
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.success("Invio completato")}
+        >
+          Successo
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
+        >
+          Errore
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Foto eliminata", {
+              action: { label: "Annulla", onClick: () => {} },
+            })
+          }
+        >
+          Con azione
+        </Button>
+      </div>
+    </SubBlock>
+
 
     <SubBlock title="Skeleton / Separator / Accordion">
       <div className="space-y-6">
@@ -1446,54 +1477,6 @@ const BlocksSection = () => (
 );
 
 
-const ToastsSection = () => (
-  <Section
-    id="toasts"
-    title="Toast"
-    caption="src/components/ui/sonner.tsx · posizione top-right, fondo #0f0f0f, errore --brand-800"
-  >
-    <SubBlock title="Varianti" source="toast() · toast.success() · toast.error()">
-      <div className="flex flex-wrap gap-3">
-        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
-          Toast base
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            sonnerToast("Profilo aggiornato", {
-              description: "Le modifiche sono visibili nella scheda talent.",
-            })
-          }
-        >
-          Con descrizione
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => sonnerToast.success("Invio completato")}
-        >
-          Successo
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
-        >
-          Errore
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            sonnerToast("Foto eliminata", {
-              action: { label: "Annulla", onClick: () => {} },
-            })
-          }
-        >
-
-          Con azione
-        </Button>
-      </div>
-    </SubBlock>
-  </Section>
-);
 
 // ---------- Page ----------
 const sections = [
@@ -1502,7 +1485,6 @@ const sections = [
   { id: "primitives", label: "Primitive shadcn" },
   { id: "patterns", label: "Pattern dotCasting" },
   { id: "blocks", label: "Blocchi complessi" },
-  { id: "toasts", label: "Toast" },
 ];
 
 
@@ -1550,7 +1532,6 @@ const DesignSystemContent = () => {
             <PrimitivesSection />
             <PatternsSection />
             <BlocksSection />
-            <ToastsSection />
 
           </div>
         </div>
