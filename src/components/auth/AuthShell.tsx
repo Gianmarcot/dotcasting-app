@@ -93,7 +93,7 @@ export const AuthShell = ({
           </Link>
         </div>
 
-        <div className="w-full max-w-[422px]">{children}</div>
+        <div className="w-full max-w-[384px]">{children}</div>
 
         <div className="absolute bottom-6 left-0 right-0 px-6 text-center">
           <a
