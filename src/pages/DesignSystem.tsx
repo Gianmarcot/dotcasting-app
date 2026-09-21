@@ -988,21 +988,53 @@ const PrimitivesSection = () => (
               <DropdownMenuItem>Azione due</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button
-            variant="outline"
-            onClick={() =>
-              toast({
-                title: "Toast di esempio",
-                description: "Attivato dal design system",
-              })
-            }
-          >
-            Toast
-          </Button>
         </div>
       </TooltipProvider>
     </SubBlock>
+
+    <SubBlock
+      title="Toast"
+      source="src/components/ui/sonner.tsx · top-right, fondo #0f0f0f, errore --brand-800"
+    >
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
+          Toast base
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Profilo aggiornato", {
+              description: "Le modifiche sono visibili nella scheda talent.",
+            })
+          }
+        >
+          Con descrizione
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.success("Invio completato")}
+        >
+          Successo
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
+        >
+          Errore
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Foto eliminata", {
+              action: { label: "Annulla", onClick: () => {} },
+            })
+          }
+        >
+          Con azione
+        </Button>
+      </div>
+    </SubBlock>
+
 
     <SubBlock title="Skeleton / Separator / Accordion">
       <div className="space-y-6">
