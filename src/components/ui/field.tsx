@@ -144,7 +144,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             {label}
           </FloatLabel>
           {/* Offset fisso: la riga del valore non si muove, si anima solo la label */}
-          <div className="mt-[18px] flex items-center gap-1">
+          <div className={cn("mt-[18px] flex items-center gap-1", isPassword && "pr-8")}>
             {prefix && (
               <span
                 className={cn(
