@@ -600,6 +600,7 @@ const FloatingFieldsShowcase = () => {
   const [nome, setNome] = useState("Gianmarco Varetti");
   const [empty, setEmpty] = useState("");
   const [cf, setCf] = useState("ABC");
+  const [pwd, setPwd] = useState("password123");
   const [bio, setBio] = useState("");
   const [citta, setCitta] = useState("Milano");
   const [day, setDay] = useState("12");
@@ -624,6 +625,13 @@ const FloatingFieldsShowcase = () => {
           onChange={() => {}}
           prefix="cm"
           inputMode="numeric"
+        />
+        <FloatingInput
+          label="Password"
+          type="password"
+          value={pwd}
+          onChange={setPwd}
+          autoComplete="new-password"
         />
         <FloatingSelect
           label="Città"

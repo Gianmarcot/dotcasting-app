@@ -1,4 +1,5 @@
 import { forwardRef, useState, type ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -124,8 +125,11 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     ref
   ) => {
     const [focused, setFocused] = useState(false);
+    const [revealed, setRevealed] = useState(false);
     const floating = focused || value !== "";
     const message = error || warning;
+    const isPassword = type === "password";
+    const inputType = isPassword && revealed ? "text" : type;
 
     return (
       <div className={cn("flex w-full flex-col", className)}>
@@ -155,7 +159,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               ref={ref}
               aria-label={label}
               aria-invalid={!!error}
-              type={type}
+              type={inputType}
               inputMode={inputMode}
               maxLength={maxLength}
               name={name}
@@ -170,6 +174,22 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               }}
               className="dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
             />
+            {isPassword && !disabled && (
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setRevealed((v) => !v)}
+                aria-label={revealed ? "Nascondi password" : "Mostra password"}
+                aria-pressed={revealed}
+                className="shrink-0 text-[var(--field-label)] transition-opacity hover:opacity-70"
+              >
+                {revealed ? (
+                  <EyeOff size={20} strokeWidth={1.5} />
+                ) : (
+                  <Eye size={20} strokeWidth={1.5} />
+                )}
+              </button>
+            )}
           </div>
         </FieldShell>
         {message && (
