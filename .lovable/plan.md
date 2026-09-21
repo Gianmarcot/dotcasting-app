@@ -15,3 +15,4 @@ Aggiungere alla barra scura di chiusura usata nelle finestre a tutto schermo una
 - Prop `showCloseLabel?: boolean`; con label attiva il contenitore usa `pl-8 pr-4` invece di `p-4`, e il close diventa un unico `button` con testo (DM Sans, `text-sm`, bianco) + icona, stessi stati hover/active esistenti.
 - `aria-label` resta su `labels.close`; il testo visibile è `aria-hidden` per evitare doppia lettura.
 - Aggiungere l'esempio della nuova variante nella sezione ModalNavBar di `src/pages/DesignSystem.tsx`.
+- Attivare la variante nelle finestre foto e video del profilo talent (`src/components/profile/v2/photos/MediaGalleryModal.tsx`), lasciando invariata la barra della scheda talent.
