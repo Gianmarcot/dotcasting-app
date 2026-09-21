@@ -465,9 +465,9 @@ export const MediaGalleryModal = ({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:duration-300 data-[state=closed]:duration-200" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:duration-[400ms] data-[state=closed]:duration-[250ms]" />
         <DialogPrimitive.Content
-          className="fixed inset-0 z-50 overflow-y-auto bg-card px-5 py-8 outline-none ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:slide-in-from-bottom-24 data-[state=closed]:slide-out-to-bottom-8 data-[state=open]:duration-[350ms] data-[state=closed]:duration-200 motion-reduce:data-[state=open]:slide-in-from-bottom-0 motion-reduce:data-[state=closed]:slide-out-to-bottom-0 sm:px-10"
+          className="fixed inset-0 z-50 overflow-y-auto bg-card px-5 py-8 outline-none ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in motion-reduce:data-[state=closed]:slide-out-to-bottom-0 sm:px-10"
           aria-describedby={undefined}
         >
           <ModalNavBar onClose={() => onOpenChange(false)} className="fixed right-8 top-8 z-10" />
