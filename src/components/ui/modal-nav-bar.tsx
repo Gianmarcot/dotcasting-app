@@ -11,6 +11,8 @@ interface ModalNavBarProps {
   prevDisabled?: boolean;
   nextDisabled?: boolean;
   labels?: { prev?: string; next?: string; close?: string };
+  /** Mostra il testo "Chiudi" accanto alla X (padding 32px lato testo, 16px lato icona) */
+  showCloseLabel?: boolean;
   /** Il posizionamento è deciso da chi usa il componente */
   className?: string;
 }
@@ -48,11 +50,13 @@ export const ModalNavBar = ({
   prevDisabled,
   nextDisabled,
   labels,
+  showCloseLabel = false,
   className,
 }: ModalNavBarProps) => (
   <div
     className={cn(
-      "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f] p-4",
+      "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f]",
+      showCloseLabel ? "py-4 pl-8 pr-4" : "p-4",
       className
     )}
   >
@@ -75,9 +79,25 @@ export const ModalNavBar = ({
         <span aria-hidden className="h-10 w-px shrink-0 bg-white/25" />
       </>
     )}
-    <CircleButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
-      <X className="h-5 w-5" strokeWidth={1.5} />
-    </CircleButton>
+    {showCloseLabel ? (
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={labels?.close ?? "Chiudi"}
+        className="flex shrink-0 items-center gap-3 text-white opacity-100 transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-50 motion-reduce:transition-none"
+      >
+        <span aria-hidden className="text-sm">
+          {labels?.close ?? "Chiudi"}
+        </span>
+        <span aria-hidden className="flex h-10 w-10 items-center justify-center">
+          <X className="h-5 w-5" strokeWidth={1.5} />
+        </span>
+      </button>
+    ) : (
+      <CircleButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
+        <X className="h-5 w-5" strokeWidth={1.5} />
+      </CircleButton>
+    )}
   </div>
 );
 
