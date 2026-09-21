@@ -9,6 +9,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 // Pages
 import AuthPage from "./pages/AuthPage";
 import ComingSoon from "./pages/ComingSoon";
+import VerifyEmailPage from "./pages/auth/VerifyEmailPage";
+import EmailConfirmedPage from "./pages/auth/EmailConfirmedPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 import CardPreview from "./dev/CardPreview";
@@ -62,6 +64,8 @@ const App = () => (
             {/* Public routes */}
             <Route path="/" element={<ComingSoon />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/verifica-email" element={<VerifyEmailPage />} />
+            <Route path="/email-confermata" element={<EmailConfirmedPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/dev/card-preview" element={<CardPreview />} />
             <Route path="/round/:token" element={<SharedRound />} />

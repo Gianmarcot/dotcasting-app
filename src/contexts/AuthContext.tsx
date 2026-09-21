@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string,
     options?: { signupMode?: SignupMode }
   ) => {
-    const redirectUrl = `${getAuthRedirectBase()}/`;
+    const redirectUrl = `${getAuthRedirectBase()}/email-confermata`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
