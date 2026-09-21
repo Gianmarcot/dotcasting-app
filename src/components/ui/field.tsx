@@ -173,6 +173,22 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               }}
               className="dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
             />
+            {isPassword && !disabled && (
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setRevealed((v) => !v)}
+                aria-label={revealed ? "Nascondi password" : "Mostra password"}
+                aria-pressed={revealed}
+                className="shrink-0 text-[var(--field-label)] transition-opacity hover:opacity-70"
+              >
+                {revealed ? (
+                  <EyeOff size={20} strokeWidth={1.5} />
+                ) : (
+                  <Eye size={20} strokeWidth={1.5} />
+                )}
+              </button>
+            )}
           </div>
         </FieldShell>
         {message && (
