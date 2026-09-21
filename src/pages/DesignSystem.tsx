@@ -1485,7 +1485,6 @@ const sections = [
   { id: "primitives", label: "Primitive shadcn" },
   { id: "patterns", label: "Pattern dotCasting" },
   { id: "blocks", label: "Blocchi complessi" },
-  { id: "toasts", label: "Toast" },
 ];
 
 
