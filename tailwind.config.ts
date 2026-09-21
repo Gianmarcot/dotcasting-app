@@ -218,7 +218,8 @@ export default {
     			'fade-up': 'fade-up 0.4s ease-out',
     			'scale-fade-in': 'scale-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s both',
     			'slide-in-left': 'slide-in-left 0.3s ease-out',
-    			'marquee': 'marquee 24s linear infinite'
+    			'marquee': 'marquee 24s linear infinite',
+    			'slide-up-panel': 'slide-up-panel 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
     		}
   	}
   },
