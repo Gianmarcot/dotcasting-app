@@ -255,6 +255,81 @@ const ColorSwatch = ({ token, label }: { token: string; label?: string }) => {
   );
 };
 
+const RawSwatch = ({ token, label }: { token: string; label?: string }) => {
+  const value = useComputedVar(token);
+  return (
+    <div className="flex flex-col gap-2">
+      <div
+        className="h-20 w-full rounded-2xl border border-border/60 shadow-sm"
+        style={{ background: value || undefined }}
+      />
+      <div className="text-xs">
+        <div className="font-medium text-foreground">{label ?? token}</div>
+        <div className="text-muted-foreground font-mono">--{token}</div>
+        <div className="text-muted-foreground font-mono">{value || "—"}</div>
+      </div>
+    </div>
+  );
+};
+
+const SurfaceFieldTokens = ({
+  surface,
+  label,
+}: {
+  surface: "base" | "muted" | "brand" | "inverse";
+  label: string;
+}) => {
+  const tokens = [
+    "surface",
+    "surface-fg",
+    "field-bg",
+    "field-bg-disabled",
+    "field-fg",
+    "field-fg-disabled",
+    "field-label",
+    "field-label-disabled",
+    "field-border",
+    "field-border-focus",
+    "field-icon",
+    "field-icon-disabled",
+    "dot-unread",
+  ];
+  const ref = useRef<HTMLDivElement>(null);
+  const [values, setValues] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!ref.current) return;
+    const cs = getComputedStyle(ref.current);
+    const next: Record<string, string> = {};
+    tokens.forEach((t) => {
+      next[t] = cs.getPropertyValue(`--${t}`).trim();
+    });
+    setValues(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div ref={ref} data-surface={surface} className="space-y-3">
+      <div className="text-xs font-display uppercase tracking-wider text-foreground">
+        {label} · data-surface="{surface}"
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {tokens.map((t) => (
+          <div key={t} className="flex flex-col gap-1.5">
+            <div
+              className="h-12 w-full rounded-xl border border-border/60"
+              style={{ background: values[t] || undefined }}
+            />
+            <div className="text-[11px] text-muted-foreground font-mono break-all">
+              --{t}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
 // ---------- Section wrapper ----------
 const Section = ({
   id,
