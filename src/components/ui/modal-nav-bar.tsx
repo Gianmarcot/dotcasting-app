@@ -50,11 +50,13 @@ export const ModalNavBar = ({
   prevDisabled,
   nextDisabled,
   labels,
+  showCloseLabel = false,
   className,
 }: ModalNavBarProps) => (
   <div
     className={cn(
-      "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f] p-4",
+      "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f]",
+      showCloseLabel ? "py-4 pl-8 pr-4" : "p-4",
       className
     )}
   >
