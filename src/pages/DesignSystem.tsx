@@ -1446,54 +1446,6 @@ const BlocksSection = () => (
 );
 
 
-const ToastsSection = () => (
-  <Section
-    id="toasts"
-    title="Toast"
-    caption="src/components/ui/sonner.tsx · posizione top-right, fondo #0f0f0f, errore --brand-800"
-  >
-    <SubBlock title="Varianti" source="toast() · toast.success() · toast.error()">
-      <div className="flex flex-wrap gap-3">
-        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
-          Toast base
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            sonnerToast("Profilo aggiornato", {
-              description: "Le modifiche sono visibili nella scheda talent.",
-            })
-          }
-        >
-          Con descrizione
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => sonnerToast.success("Invio completato")}
-        >
-          Successo
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
-        >
-          Errore
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() =>
-            sonnerToast("Foto eliminata", {
-              action: { label: "Annulla", onClick: () => {} },
-            })
-          }
-        >
-
-          Con azione
-        </Button>
-      </div>
-    </SubBlock>
-  </Section>
-);
 
 // ---------- Page ----------
 const sections = [
