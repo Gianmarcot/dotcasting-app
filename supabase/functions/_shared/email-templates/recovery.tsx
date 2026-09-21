@@ -22,24 +22,25 @@ export const RecoveryEmail = ({
   siteName,
   confirmationUrl,
 }: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
+  <Html lang="it" dir="ltr">
     <Head>
       <style>{darkModeCss}</style>
     </Head>
-    <Preview>Reset your password for {siteName}</Preview>
+    <Preview>Reimposta la password di {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
+        <Heading style={h1}>Reimposta la tua password</Heading>
         <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
+          Abbiamo ricevuto una richiesta di reimpostazione della password del tuo
+          account {siteName}. Clicca sul pulsante qui sotto per scegliere una
+          nuova password.
         </Text>
         <Button className="dm-btn" style={button} href={confirmationUrl}>
-          Reset Password
+          Reimposta password
         </Button>
         <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
+          Se non hai richiesto la reimpostazione, puoi ignorare questa email: la
+          tua password resterà invariata.
         </Text>
       </Container>
     </Body>
