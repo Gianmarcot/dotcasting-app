@@ -84,7 +84,7 @@ export const ModalNavBar = ({
         type="button"
         onClick={onClose}
         aria-label={labels?.close ?? "Chiudi"}
-        className="flex shrink-0 items-center gap-3 text-white opacity-100 transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-50 motion-reduce:transition-none"
+        className="flex shrink-0 items-center gap-2 text-white opacity-100 transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-50 motion-reduce:transition-none"
       >
         <span aria-hidden className="text-sm">
           {labels?.close ?? "Chiudi"}
