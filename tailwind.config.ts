@@ -219,7 +219,7 @@ export default {
     			'scale-fade-in': 'scale-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s both',
     			'slide-in-left': 'slide-in-left 0.3s ease-out',
     			'marquee': 'marquee 24s linear infinite',
-    			'slide-up-panel': 'slide-up-panel 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
+    			'slide-up-panel': 'slide-up-panel 0.5s cubic-bezier(0.23, 1, 0.32, 1)'
     		}
   	}
   },
