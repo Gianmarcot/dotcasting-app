@@ -11,6 +11,8 @@ interface ModalNavBarProps {
   prevDisabled?: boolean;
   nextDisabled?: boolean;
   labels?: { prev?: string; next?: string; close?: string };
+  /** Mostra il testo "Chiudi" accanto alla X (padding 32px lato testo, 16px lato icona) */
+  showCloseLabel?: boolean;
   /** Il posizionamento è deciso da chi usa il componente */
   className?: string;
 }
