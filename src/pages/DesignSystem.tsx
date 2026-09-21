@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Play } from "lucide-react";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -255,6 +255,81 @@ const ColorSwatch = ({ token, label }: { token: string; label?: string }) => {
   );
 };
 
+const RawSwatch = ({ token, label }: { token: string; label?: string }) => {
+  const value = useComputedVar(token);
+  return (
+    <div className="flex flex-col gap-2">
+      <div
+        className="h-20 w-full rounded-2xl border border-border/60 shadow-sm"
+        style={{ background: value || undefined }}
+      />
+      <div className="text-xs">
+        <div className="font-medium text-foreground">{label ?? token}</div>
+        <div className="text-muted-foreground font-mono">--{token}</div>
+        <div className="text-muted-foreground font-mono">{value || "—"}</div>
+      </div>
+    </div>
+  );
+};
+
+const SurfaceFieldTokens = ({
+  surface,
+  label,
+}: {
+  surface: "base" | "muted" | "brand" | "inverse";
+  label: string;
+}) => {
+  const tokens = [
+    "surface",
+    "surface-fg",
+    "field-bg",
+    "field-bg-disabled",
+    "field-fg",
+    "field-fg-disabled",
+    "field-label",
+    "field-label-disabled",
+    "field-border",
+    "field-border-focus",
+    "field-icon",
+    "field-icon-disabled",
+    "dot-unread",
+  ];
+  const ref = useRef<HTMLDivElement>(null);
+  const [values, setValues] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (!ref.current) return;
+    const cs = getComputedStyle(ref.current);
+    const next: Record<string, string> = {};
+    tokens.forEach((t) => {
+      next[t] = cs.getPropertyValue(`--${t}`).trim();
+    });
+    setValues(next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div ref={ref} data-surface={surface} className="space-y-3">
+      <div className="text-xs font-display uppercase tracking-wider text-foreground">
+        {label} · data-surface="{surface}"
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {tokens.map((t) => (
+          <div key={t} className="flex flex-col gap-1.5">
+            <div
+              className="h-12 w-full rounded-xl border border-border/60"
+              style={{ background: values[t] || undefined }}
+            />
+            <div className="text-[11px] text-muted-foreground font-mono break-all">
+              --{t}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+
 // ---------- Section wrapper ----------
 const Section = ({
   id,
@@ -328,13 +403,55 @@ const TokensSection = () => {
     "input",
     "ring",
     "success",
+    "success-foreground",
     "warning",
+    "warning-foreground",
     "info",
+    "info-foreground",
     "olive",
+    "olive-foreground",
     "charcoal",
+    "charcoal-foreground",
+    "bubble",
+    "whatsapp",
+    "whatsapp-foreground",
+    "input-background",
+    "profile-card",
+    "profile-strength",
+    "field",
+    "field-focus",
+    "field-label",
+    "group-label",
+    "field-disabled",
+    "field-disabled-foreground",
   ];
 
+  const sidebar = [
+    "sidebar-background",
+    "sidebar-foreground",
+    "sidebar-primary",
+    "sidebar-primary-foreground",
+    "sidebar-accent",
+    "sidebar-accent-foreground",
+    "sidebar-border",
+    "sidebar-ring",
+  ];
 
+  const primitives = [
+    "white",
+    "cream",
+    "cream-dark",
+    "grey-100",
+    "grey-200",
+    "grey-400",
+    "grey-600",
+    "grey-800",
+    "grey-900",
+    "ink",
+    "brand-600",
+    "brand-700",
+    "brand-800",
+  ];
 
   return (
     <Section
@@ -349,6 +466,35 @@ const TokensSection = () => {
           ))}
         </div>
       </SubBlock>
+
+      <SubBlock title="Sidebar" source="--sidebar-*">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {sidebar.map((t) => (
+            <ColorSwatch key={t} token={t} />
+          ))}
+        </div>
+      </SubBlock>
+
+      <SubBlock
+        title="Primitivi"
+        source="--white / --cream / --grey-* / --ink / --brand-* (mai usati diretti)"
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {primitives.map((t) => (
+            <RawSwatch key={t} token={t} />
+          ))}
+        </div>
+      </SubBlock>
+
+      <SubBlock title="Contesti di superficie" source="--field-* per data-surface">
+        <div className="space-y-8">
+          <SurfaceFieldTokens surface="base" label="Base (bianco)" />
+          <SurfaceFieldTokens surface="muted" label="Muted (cream)" />
+          <SurfaceFieldTokens surface="brand" label="Brand (bordeaux)" />
+          <SurfaceFieldTokens surface="inverse" label="Inverse (ink)" />
+        </div>
+      </SubBlock>
+
 
 
 
