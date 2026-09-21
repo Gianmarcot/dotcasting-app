@@ -625,6 +625,13 @@ const FloatingFieldsShowcase = () => {
           prefix="cm"
           inputMode="numeric"
         />
+        <FloatingInput
+          label="Password"
+          type="password"
+          value={pwd}
+          onChange={setPwd}
+          autoComplete="new-password"
+        />
         <FloatingSelect
           label="Città"
           value={citta}
