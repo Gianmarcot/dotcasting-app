@@ -79,9 +79,25 @@ export const ModalNavBar = ({
         <span aria-hidden className="h-10 w-px shrink-0 bg-white/25" />
       </>
     )}
-    <CircleButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
-      <X className="h-5 w-5" strokeWidth={1.5} />
-    </CircleButton>
+    {showCloseLabel ? (
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={labels?.close ?? "Chiudi"}
+        className="flex shrink-0 items-center gap-3 text-white opacity-100 transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-50 motion-reduce:transition-none"
+      >
+        <span aria-hidden className="text-sm">
+          {labels?.close ?? "Chiudi"}
+        </span>
+        <span aria-hidden className="flex h-10 w-10 items-center justify-center">
+          <X className="h-5 w-5" strokeWidth={1.5} />
+        </span>
+      </button>
+    ) : (
+      <CircleButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
+        <X className="h-5 w-5" strokeWidth={1.5} />
+      </CircleButton>
+    )}
   </div>
 );
 
