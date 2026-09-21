@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Play } from "lucide-react";
+import { toast as sonnerToast } from "sonner";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
@@ -1445,6 +1446,55 @@ const BlocksSection = () => (
 );
 
 
+const ToastsSection = () => (
+  <Section
+    id="toasts"
+    title="Toast"
+    caption="src/components/ui/sonner.tsx · posizione top-right, fondo #0f0f0f, errore --brand-800"
+  >
+    <SubBlock title="Varianti" source="toast() · toast.success() · toast.error()">
+      <div className="flex flex-wrap gap-3">
+        <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
+          Toast base
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Profilo aggiornato", {
+              description: "Le modifiche sono visibili nella scheda talent.",
+            })
+          }
+        >
+          Con descrizione
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.success("Invio completato")}
+        >
+          Successo
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => sonnerToast.error("Impossibile salvare le modifiche")}
+        >
+          Errore
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() =>
+            sonnerToast("Foto eliminata", {
+              action: { label: "Annulla", onClick: () => {} },
+            })
+          }
+        >
+
+          Con azione
+        </Button>
+      </div>
+    </SubBlock>
+  </Section>
+);
+
 // ---------- Page ----------
 const sections = [
   { id: "tokens", label: "Tokens" },
@@ -1452,7 +1502,9 @@ const sections = [
   { id: "primitives", label: "Primitive shadcn" },
   { id: "patterns", label: "Pattern dotCasting" },
   { id: "blocks", label: "Blocchi complessi" },
+  { id: "toasts", label: "Toast" },
 ];
+
 
 const DesignSystemContent = () => {
   useEffect(() => {
@@ -1498,6 +1550,8 @@ const DesignSystemContent = () => {
             <PrimitivesSection />
             <PatternsSection />
             <BlocksSection />
+            <ToastsSection />
+
           </div>
         </div>
       </div>
