@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Camera, Play } from "lucide-react";
+import { toast } from "sonner";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
