@@ -403,13 +403,55 @@ const TokensSection = () => {
     "input",
     "ring",
     "success",
+    "success-foreground",
     "warning",
+    "warning-foreground",
     "info",
+    "info-foreground",
     "olive",
+    "olive-foreground",
     "charcoal",
+    "charcoal-foreground",
+    "bubble",
+    "whatsapp",
+    "whatsapp-foreground",
+    "input-background",
+    "profile-card",
+    "profile-strength",
+    "field",
+    "field-focus",
+    "field-label",
+    "group-label",
+    "field-disabled",
+    "field-disabled-foreground",
   ];
 
+  const sidebar = [
+    "sidebar-background",
+    "sidebar-foreground",
+    "sidebar-primary",
+    "sidebar-primary-foreground",
+    "sidebar-accent",
+    "sidebar-accent-foreground",
+    "sidebar-border",
+    "sidebar-ring",
+  ];
 
+  const primitives = [
+    "white",
+    "cream",
+    "cream-dark",
+    "grey-100",
+    "grey-200",
+    "grey-400",
+    "grey-600",
+    "grey-800",
+    "grey-900",
+    "ink",
+    "brand-600",
+    "brand-700",
+    "brand-800",
+  ];
 
   return (
     <Section
@@ -424,6 +466,35 @@ const TokensSection = () => {
           ))}
         </div>
       </SubBlock>
+
+      <SubBlock title="Sidebar" source="--sidebar-*">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {sidebar.map((t) => (
+            <ColorSwatch key={t} token={t} />
+          ))}
+        </div>
+      </SubBlock>
+
+      <SubBlock
+        title="Primitivi"
+        source="--white / --cream / --grey-* / --ink / --brand-* (mai usati diretti)"
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {primitives.map((t) => (
+            <RawSwatch key={t} token={t} />
+          ))}
+        </div>
+      </SubBlock>
+
+      <SubBlock title="Contesti di superficie" source="--field-* per data-surface">
+        <div className="space-y-8">
+          <SurfaceFieldTokens surface="base" label="Base (bianco)" />
+          <SurfaceFieldTokens surface="muted" label="Muted (cream)" />
+          <SurfaceFieldTokens surface="brand" label="Brand (bordeaux)" />
+          <SurfaceFieldTokens surface="inverse" label="Inverse (ink)" />
+        </div>
+      </SubBlock>
+
 
 
 
