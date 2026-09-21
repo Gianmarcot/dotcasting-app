@@ -13,7 +13,7 @@ export const TERMS_URL = "https://www.iubenda.com/termini-e-condizioni/35556124"
 
 /**
  * Impaginazione condivisa delle schermate di autenticazione:
- * slider decorativo fisso a sinistra (540px), colonna di contenuto 422px
+ * slider decorativo fisso a sinistra (540px), colonna di contenuto 384px
  * centrata nello spazio rimanente, logo ancorato in alto sullo stesso asse.
  */
 export const AuthShell = ({
