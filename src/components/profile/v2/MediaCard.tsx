@@ -89,7 +89,7 @@ const MediaArea = ({
       }}
       className="flex flex-1 cursor-pointer flex-col items-center justify-between gap-8 rounded-2xl border border-dashed border-border p-8 text-center"
     >
-      <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-1 flex-col items-center justify-center gap-8">
         <p className="text-[15px] text-field-label">
           {missing ? (
             <>
@@ -106,8 +106,8 @@ const MediaArea = ({
         </p>
 
         <div className={cn("group relative", ratio)}>
-          <div className="absolute inset-0 origin-bottom rounded-xl bg-field transition-transform duration-500 ease-out [transform:rotate(-9deg)] group-hover:[transform:rotate(-24deg)_translateY(-6px)]" />
-          <div className="absolute inset-0 origin-bottom rounded-xl bg-field/80 transition-transform duration-500 ease-out [transform:rotate(6deg)] group-hover:[transform:rotate(17deg)_translateY(-4px)]" />
+          <div className="absolute inset-0 rounded-xl bg-[hsl(var(--profile-strength))] transition-transform duration-300 ease-out [transform:rotate(-7deg)] group-hover:[transform:rotate(-10deg)_translateX(-4px)]" />
+          <div className="absolute inset-0 rounded-xl bg-field/80 transition-transform duration-300 ease-out [transform:rotate(4deg)] group-hover:[transform:rotate(7deg)_translateX(4px)]" />
           <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
             {kind === "photo" ? (
               <img src={cover.url} alt="" className="h-full w-full object-cover" />
