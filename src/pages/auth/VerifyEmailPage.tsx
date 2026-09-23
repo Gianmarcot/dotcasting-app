@@ -148,7 +148,7 @@ export const VerifyEmailPage = () => {
             Controlla la tua email
           </h1>
           <p className="text-sm font-medium text-muted-foreground">
-            Abbiamo inviato un link di conferma a
+            Ti abbiamo inviato un'email a
             <br />
             <span className="select-text text-foreground">{email}</span>
             <br />
