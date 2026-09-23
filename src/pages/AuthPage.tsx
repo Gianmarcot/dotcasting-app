@@ -19,8 +19,11 @@ import { User } from "lucide-react";
 import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
 
 export const AuthPage = () => {
+  const location = useLocation();
+  const prefillEmail = ((location.state ?? {}) as { email?: string }).email ?? "";
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(prefillEmail);
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
