@@ -129,21 +129,28 @@ export const useCommunicationSync = () => {
     }
 
     /* --- 3. Documenti / passaporto ------------------------------------ */
+    const fiscalMissing =
+      profile.has_italian_fiscal_code !== false && !profile.fiscal_code;
     const passportExpiry = profile.passport_expiry ? new Date(profile.passport_expiry) : null;
     const daysToExpiry = passportExpiry
       ? Math.round((passportExpiry.getTime() - Date.now()) / 86400000)
       : null;
-    if (!profile.id_document_url || (daysToExpiry !== null && daysToExpiry < 90)) {
+    if (!profile.id_document_url || fiscalMissing || (daysToExpiry !== null && daysToExpiry < 90)) {
       const expiring = daysToExpiry !== null && daysToExpiry < 90;
+      const details = [
+        !profile.id_document_url ? "documento d'identità" : null,
+        fiscalMissing ? "codice fiscale" : null,
+        expiring
+          ? `passaporto in scadenza tra ${Math.max(daysToExpiry ?? 0, 0)} giorni`
+          : null,
+      ].filter(Boolean) as string[];
       push("documents", {
         vars: {
-          documents_detail: expiring
-            ? `passaporto in scadenza tra ${Math.max(daysToExpiry ?? 0, 0)} giorni`
-            : "documento d'identità",
+          documents_detail: details.join(", "),
         },
         payload: { target: "documents" },
         severity: expiring && (daysToExpiry ?? 0) < 30 ? "warning" : "info",
-        weight: expiring ? 2 : 1,
+        weight: (expiring ? 2 : 1) + (fiscalMissing ? 1 : 0),
       });
     }
 

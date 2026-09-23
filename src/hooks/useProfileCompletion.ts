@@ -161,6 +161,14 @@ export interface ProfileCompletionResult {
          isComplete: !!(profile?.phone_number || profile?.whatsapp_number),
        },
        {
+         key: "fiscalCode",
+         label: "Codice fiscale",
+         anchor: "documents",
+         weight: 5,
+         visible: profile?.has_italian_fiscal_code !== false,
+         isComplete: !!profile?.fiscal_code,
+       },
+       {
          key: "address",
          label: "Indirizzo",
          anchor: "address",
