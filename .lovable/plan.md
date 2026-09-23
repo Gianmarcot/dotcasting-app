@@ -3,8 +3,10 @@
 ## Cosa cambia nel primo passo dell'onboarding
 
 - Sparisce il campo **Email di contatto** (era in sola lettura e occupava spazio: l'indirizzo resta quello dell'account e si modifica dal profilo).
-- Compare un campo **"Città in cui vivi"**, testo libero, obbligatorio come gli altri dati del primo passo, subito dopo il numero di telefono. Il valore finisce nella città del profilo, quindi si ritrova già compilato nella sezione Indirizzo.
-- Nei profili tutelati (registrazione come tutore) la città viene chiesta nella sezione del minore, dove ci sono nome, data di nascita e sesso.
+- Compare un campo **"Città in cui vivi"**, obbligatorio come gli altri dati del primo passo, subito dopo il numero di telefono. Il valore finisce nella città del profilo, quindi si ritrova già compilato nella sezione Indirizzo.
+- **Perché non un campo del tutto libero**: la città dell'agenzia serve a cercare e filtrare i talent (l'elenco dei filtri è costruito dalle città salvate). Scritta a mano diventa "Milano", "milano", "MIlano", "Milano (MI)" e il filtro si spezzetta. Quindi: il campo si scrive liberamente ma **suggerisce i comuni italiani** mentre digiti; se scegli un suggerimento resta la forma corretta e uniforme.
+- Se quello che l'utente scrive non è tra i suggerimenti (vive all'estero, frazione, nome diverso) **il testo viene comunque accettato**: nessun blocco, solo una nota discreta "Città non riconosciuta: la useremo così come l'hai scritta". Niente errore rosso, niente passo bloccato.
+
 
 ## Dettagli tecnici
 
