@@ -177,6 +177,8 @@ export const TalentOnboarding = () => {
         last_name: basic.last_name.trim(),
         birth_date: basic.birth_date || null,
         gender: basic.gender || null,
+        city: basic.city.trim() || null,
+
         gender_identity: basic.gender_identity || null,
         guardian_user_id: user?.id ?? null,
         age_confirmed: isAdultBirthDate(basic.birth_date),
