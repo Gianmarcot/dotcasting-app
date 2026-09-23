@@ -256,7 +256,7 @@ export const buildTalentDetail = (profile: Row | null, attrs: Row | null) => {
   push(work, "Automobile", yesNo(p.has_car));
   push(work, "Moto", yesNo(p.has_motorbike));
   if (work.length)
-    sections.push({ key: "lavoro", title: "Lavoro e viaggi", icon: Briefcase, fields: work });
+    sections.push({ key: "lavoro", title: "Esperienza e mobilità", icon: Briefcase, fields: work });
 
   return { fullName, location, sections };
 };
