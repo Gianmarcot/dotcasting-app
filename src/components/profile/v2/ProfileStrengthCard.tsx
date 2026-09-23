@@ -169,6 +169,26 @@ export const ProfileStrengthCard = () => {
               })}
             </div>
           )}
+
+          {fiscalMissing && (
+            <NoticeBox
+              tone="warning"
+              icon={<AlertTriangle strokeWidth={1.5} />}
+              className="mt-8"
+            >
+              <span>
+                Manca il tuo codice fiscale. Senza questo dato non possiamo contrattualizzarti per un
+                lavoro: completalo per essere pronto quando arriva l'occasione.{" "}
+                <button
+                  type="button"
+                  onClick={() => focusProfileSection("section-documents")}
+                  className="underline underline-offset-2"
+                >
+                  Inserisci il codice fiscale
+                </button>
+              </span>
+            </NoticeBox>
+          )}
         </>
       )}
     </section>
