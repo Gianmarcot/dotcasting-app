@@ -60,8 +60,8 @@ export const HeadCard = () => {
       {/* Photo stack header */}
       <div className="mb-16 flex flex-col items-center">
         <div className="group relative h-[252px] w-[168px]">
-          <div className="absolute inset-0 rounded-xl bg-field transition-transform duration-300 ease-out [transform:rotate(-9deg)] group-hover:[transform:rotate(-13deg)_translateX(-4px)]" />
-          <div className="absolute inset-0 rounded-xl bg-field/80 transition-transform duration-300 ease-out [transform:rotate(6deg)] group-hover:[transform:rotate(10deg)_translateX(4px)]" />
+          <div className="absolute inset-0 origin-bottom rounded-xl bg-field transition-transform duration-500 ease-out [transform:rotate(-9deg)] group-hover:[transform:rotate(-24deg)_translateY(-6px)]" />
+          <div className="absolute inset-0 origin-bottom rounded-xl bg-field/80 transition-transform duration-500 ease-out [transform:rotate(6deg)] group-hover:[transform:rotate(17deg)_translateY(-4px)]" />
           <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
             {profileRow?.profile_photo_url ? (
               <img
