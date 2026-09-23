@@ -55,8 +55,27 @@ export const ModalNavBar = ({
   nextDisabled,
   labels,
   showCloseLabel = false,
+  showBackLabel = false,
+  backLabel = "Indietro",
   className,
-}: ModalNavBarProps) => (
+}: ModalNavBarProps) =>
+  showBackLabel ? (
+    <div className={cn("flex items-center rounded-[100px] bg-[#0f0f0f] py-4 pl-4 pr-8", className)}>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={backLabel}
+        className="flex shrink-0 items-center gap-2 text-white opacity-100 transition-opacity duration-200 ease-out hover:opacity-70 active:opacity-50 motion-reduce:transition-none"
+      >
+        <span aria-hidden className="flex h-10 w-10 items-center justify-center">
+          <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+        </span>
+        <span aria-hidden className="text-sm">
+          {backLabel}
+        </span>
+      </button>
+    </div>
+  ) : (
   <div
     className={cn(
       "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f]",
