@@ -92,7 +92,9 @@ export const TalentOnboarding = () => {
 
   // Step 1 — anagrafica: nulla viene scritto prima di "Avanti".
   const [basic, setBasic] = useState<BasicInfoStepState>(EMPTY_BASIC);
-  const [basicTouched, setBasicTouched] = useState(false);
+  // Errori mostrati solo sui campi già toccati, o su tutti dopo un "Avanti" fallito.
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+  const [showAllErrors, setShowAllErrors] = useState(false);
   const [basicSaved, setBasicSaved] = useState(false);
 
   // Step 2 — ruoli
