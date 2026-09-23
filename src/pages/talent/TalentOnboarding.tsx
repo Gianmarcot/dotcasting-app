@@ -192,6 +192,8 @@ export const TalentOnboarding = () => {
       last_name: basic.last_name.trim(),
       birth_date: basic.birth_date || null,
       gender: basic.gender || null,
+      city: basic.city.trim() || null,
+
       gender_identity: basic.gender_identity || null,
       // contact_email non viene scritta: la propaga il database dall'account.
       phone_prefix: basic.phone_prefix,
