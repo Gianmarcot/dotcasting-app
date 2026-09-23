@@ -57,10 +57,10 @@ export interface TalentWithAttributes {
   gender_identity: string | null;
   representation_type: string | null;
   has_vat_number: boolean | null;
-  has_italian_fiscal_code: boolean | null;
-  fiscal_code: string | null;
-  fiscal_code_mismatch: boolean | null;
-  fiscal_code_status: string | null;
+  has_italian_fiscal_code?: boolean | null;
+  fiscal_code?: string | null;
+  fiscal_code_mismatch?: boolean | null;
+  fiscal_code_status?: string | null;
   attributes: {
     height: number | null;
     weight: number | null;
