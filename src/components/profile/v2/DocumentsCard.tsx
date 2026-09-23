@@ -128,16 +128,19 @@ export const DocumentsCard = () => {
               value={fiscalCode}
               maxLength={16}
               onChange={(v) => set("p", "fiscal_code", v.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
-              error={fiscalError}
-              warning={fiscalWarning}
+              error={fiscalError ? " " : null}
             />
           </FieldSlot>
+          {(fiscalError || fiscalWarning) && (
+            <NoticeBox tone="warning" icon={<AlertTriangle strokeWidth={1.5} />}>
+              <p>{fiscalError ?? fiscalWarning}</p>
+            </NoticeBox>
+          )}
         </FieldGrid>
       )}
 
       {hasFiscalCode === false && (
-        <div className="flex gap-3 rounded-2xl bg-muted p-4 text-[15px] leading-relaxed text-foreground">
-          <Info className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} />
+        <NoticeBox tone="warning" icon={<Info strokeWidth={1.5} />}>
           <p>
             Senza un codice fiscale italiano puoi creare e mantenere il tuo profilo, ma non è
             possibile contrattualizzarti per un lavoro. Se la situazione cambia, o se pensi di
@@ -153,8 +156,12 @@ export const DocumentsCard = () => {
               </>
             )}
           </p>
-        </div>
+        </NoticeBox>
       )}
+
+      <SectionDivider />
+
+
 
 
       <UploadBlock
