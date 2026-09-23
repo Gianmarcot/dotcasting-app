@@ -160,7 +160,7 @@ export const ProfileStrengthCard = () => {
                     className="flex items-center gap-2 rounded-full text-left transition-opacity hover:opacity-70"
                   >
                     <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-field-label text-foreground">
-                      <Icon className="h-4 w-4" strokeWidth={1.5} />
+                      <Icon className="h-5 w-5" strokeWidth={1.5} />
                     </span>
                     <span className="text-[15px] text-foreground">{m.key}</span>
                   </button>
