@@ -1,7 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IdCard, Info } from "lucide-react";
 import { fiscalCodeMismatchFields, validateFiscalCode } from "@/lib/fiscalCode";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { hasCatastaliLoaded, loadCatastali } from "@/lib/geo/catastali";
 
 import { COUNTRIES, NATIONALITIES, VAT_REGIMES } from "@/lib/profileOptions";
 import {
@@ -33,10 +34,25 @@ export const DocumentsCard = () => {
     ? "Il codice fiscale non sembra corretto: ricontrollalo."
     : null;
 
+  /* La tabella dei codici catastali serve per verificare il luogo di nascita. */
+  const [catastaliReady, setCatastaliReady] = useState(hasCatastaliLoaded());
+  useEffect(() => {
+    if (catastaliReady) return;
+    let alive = true;
+    loadCatastali()
+      .then(() => alive && setCatastaliReady(true))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [catastaliReady]);
+
   const firstName = str("p", "first_name");
   const lastName = str("p", "last_name");
   const birthDate = str("p", "birth_date");
   const gender = str("p", "gender");
+  const birthCity = str("p", "birth_city");
+  const birthCountry = str("p", "birth_country");
 
   const mismatches = useMemo(
     () =>
@@ -46,9 +62,21 @@ export const DocumentsCard = () => {
             last_name: lastName,
             birth_date: birthDate || null,
             gender: gender || null,
+            birth_city: birthCity || null,
+            birth_country: birthCountry || null,
           })
         : [],
-    [fiscalCheck.valid, fiscalCode, firstName, lastName, birthDate, gender]
+    [
+      fiscalCheck.valid,
+      fiscalCode,
+      firstName,
+      lastName,
+      birthDate,
+      gender,
+      birthCity,
+      birthCountry,
+      catastaliReady,
+    ]
   );
 
   const fiscalWarning =
