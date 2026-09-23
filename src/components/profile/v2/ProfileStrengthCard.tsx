@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
+  AlertTriangle,
   AlignLeft,
   Calendar,
   Camera,
@@ -20,6 +21,8 @@ import { useTalentMedia } from "@/hooks/useTalentMedia";
 import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
 import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
 import { isAdultBirthDate } from "@/lib/guardianship";
+import { fiscalStatusOf } from "@/lib/fiscalStatus";
+import { NoticeBox } from "@/components/profile/fields/FormFields";
 
 const TOTAL = 10;
 
@@ -113,6 +116,8 @@ export const ProfileStrengthCard = () => {
   const score = checks.filter((c) => c.done).length;
   const missing = checks.filter((c) => !c.done).slice(0, 6);
   const emoji = score >= 9 ? "🔥" : score >= 6 ? "💪" : "🌱";
+  // Avviso solo per chi ha dichiarato di avere un CF italiano senza averlo inserito.
+  const fiscalMissing = fiscalStatusOf(profile) === "missing";
 
   return (
     <section className="rounded-[24px] bg-profile-strength p-6 sm:p-8">
@@ -163,6 +168,26 @@ export const ProfileStrengthCard = () => {
                 );
               })}
             </div>
+          )}
+
+          {fiscalMissing && (
+            <NoticeBox
+              tone="warning"
+              icon={<AlertTriangle strokeWidth={1.5} />}
+              className="mt-8"
+            >
+              <span>
+                Manca il tuo codice fiscale. Senza questo dato non possiamo contrattualizzarti per un
+                lavoro: completalo per essere pronto quando arriva l'occasione.{" "}
+                <button
+                  type="button"
+                  onClick={() => focusProfileSection("section-documents")}
+                  className="underline underline-offset-2"
+                >
+                  Inserisci il codice fiscale
+                </button>
+              </span>
+            </NoticeBox>
           )}
         </>
       )}
