@@ -116,6 +116,8 @@ export const ProfileStrengthCard = () => {
   const score = checks.filter((c) => c.done).length;
   const missing = checks.filter((c) => !c.done).slice(0, 6);
   const emoji = score >= 9 ? "🔥" : score >= 6 ? "💪" : "🌱";
+  // Avviso solo per chi ha dichiarato di avere un CF italiano senza averlo inserito.
+  const fiscalMissing = fiscalStatusOf(profile) === "missing";
 
   return (
     <section className="rounded-[24px] bg-profile-strength p-6 sm:p-8">
