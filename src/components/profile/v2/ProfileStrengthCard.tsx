@@ -22,7 +22,6 @@ import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
 import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
 import { isAdultBirthDate } from "@/lib/guardianship";
 import { fiscalStatusOf } from "@/lib/fiscalStatus";
-import { NoticeBox } from "@/components/profile/fields/FormFields";
 
 const TOTAL = 10;
 
@@ -171,11 +170,8 @@ export const ProfileStrengthCard = () => {
           )}
 
           {fiscalMissing && (
-            <NoticeBox
-              tone="warning"
-              icon={<AlertTriangle strokeWidth={1.5} />}
-              className="mt-8"
-            >
+            <div className="mt-8 flex gap-3 text-[15px] leading-relaxed text-[hsl(var(--warning))]">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={1.5} />
               <span>
                 Manca il tuo codice fiscale. Senza questo dato non possiamo contrattualizzarti per un
                 lavoro: completalo per essere pronto quando arriva l'occasione.{" "}
@@ -187,7 +183,7 @@ export const ProfileStrengthCard = () => {
                   Inserisci il codice fiscale
                 </button>
               </span>
-            </NoticeBox>
+            </div>
           )}
         </>
       )}
