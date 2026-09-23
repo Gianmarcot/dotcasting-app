@@ -30,14 +30,13 @@ export const catastaleOf = (name: string | null | undefined): string | null => {
   return cache[normalizeComuneName(name)] ?? null;
 };
 
+let codeSet: Set<string> | null = null;
+
 /** true se il codice appartiene a un comune italiano presente nel dataset. */
 export const isKnownCatastale = (code: string): boolean => {
   if (!cache) return false;
-  const upper = code.toUpperCase();
-  for (const value of Object.values(cache)) {
-    if (value === upper) return true;
-  }
-  return false;
+  if (!codeSet) codeSet = new Set(Object.values(cache));
+  return codeSet.has(code.toUpperCase());
 };
 
 export const hasCatastaliLoaded = () => cache !== null;

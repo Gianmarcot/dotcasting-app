@@ -3,6 +3,8 @@
  * Include controllo del formato e del carattere di controllo (CIN).
  */
 
+import { catastaleOf, hasCatastaliLoaded, isKnownCatastale } from "@/lib/geo/catastali";
+
 const CF_RE = /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/;
 
 const ODD: Record<string, number> = {
@@ -105,14 +107,19 @@ export interface FiscalPersonData {
   last_name?: string | null;
   birth_date?: string | null;
   gender?: string | null;
+  /** Comune di nascita (solo Italia). */
+  birth_city?: string | null;
+  /** Stato di nascita: se non italiano si attende un codice estero (Z...). */
+  birth_country?: string | null;
 }
 
 /**
  * Confronta il codice fiscale con i dati anagrafici del profilo.
  * Restituisce l'elenco dei dati che non combaciano (vuoto se tutto torna
  * o se non ci sono dati a sufficienza per il confronto).
- * Il comune di nascita non viene confrontato: richiede i codici Belfiore,
- * che non sono presenti nel dataset dei comuni usato dall'app.
+ * Il luogo di nascita viene confrontato solo quando la tabella dei codici
+ * catastali è già stata caricata (loadCatastali) e il comune è riconosciuto:
+ * i comuni soppressi mantengono codici non più in elenco e non vanno segnalati.
  */
 export const fiscalCodeMismatchFields = (
   raw: string,
@@ -141,6 +148,19 @@ export const fiscalCodeMismatchFields = (
 
   if ((person.gender === "M" || person.gender === "F") && person.gender !== decoded.gender) {
     out.push("sesso");
+  }
+
+  const placeCode = code.slice(11, 15);
+  const isForeignBorn = !!person.birth_country && !/ital/i.test(person.birth_country);
+  if (isForeignBorn) {
+    if (!placeCode.startsWith("Z")) out.push("luogo di nascita");
+  } else if (placeCode.startsWith("Z")) {
+    if (person.birth_city) out.push("luogo di nascita");
+  } else if (person.birth_city && hasCatastaliLoaded()) {
+    const expected = catastaleOf(person.birth_city);
+    if (expected && expected !== placeCode && isKnownCatastale(placeCode)) {
+      out.push("luogo di nascita");
+    }
   }
 
   return out;
