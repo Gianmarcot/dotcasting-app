@@ -37,7 +37,7 @@ export const WorkTravelCard = () => {
   const draftLabel = [draft.city, draft.province, draft.state].filter(Boolean).join(", ");
 
   return (
-    <SectionCard icon={<Briefcase strokeWidth={1} />} title="Lavoro e viaggi">
+    <SectionCard icon={<Briefcase strokeWidth={1} />} title="Esperienza e mobilità">
       <div>
         <GroupHeading>Occupazione principale</GroupHeading>
         <FloatingInput
