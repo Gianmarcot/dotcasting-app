@@ -22,7 +22,6 @@ import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
 import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
 import { isAdultBirthDate } from "@/lib/guardianship";
 import { fiscalStatusOf } from "@/lib/fiscalStatus";
-import { NoticeBox } from "@/components/profile/fields/FormFields";
 
 const TOTAL = 10;
 
