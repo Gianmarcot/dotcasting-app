@@ -125,12 +125,12 @@ export const TalentOnboarding = () => {
 
   const errors: BasicInfoErrors = useMemo(() => {
     const all = validateBasicInfo(basic);
-    // L'email non è più un campo del form: arriva dall'account.
-    const { contact_email, phone_number, ...withoutContacts } = all;
-    if (isGuardianMode) return withoutContacts;
+    const { phone_number, ...rest } = all;
+    if (isGuardianMode) return rest;
     // Il minore non ha contatti propri; il talent adulto conserva il telefono.
-    return { ...withoutContacts, ...(phone_number ? { phone_number } : {}) };
+    return { ...rest, ...(phone_number ? { phone_number } : {}) };
   }, [basic, isGuardianMode]);
+
 
   const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
   const whatsappError =
