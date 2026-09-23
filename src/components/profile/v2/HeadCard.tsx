@@ -59,9 +59,9 @@ export const HeadCard = () => {
     <SectionCard>
       {/* Photo stack header */}
       <div className="mb-16 flex flex-col items-center">
-        <div className="relative h-[252px] w-[168px]">
-          <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
-          <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
+        <div className="group relative h-[252px] w-[168px]">
+          <div className="absolute inset-0 rounded-xl bg-field transition-transform duration-300 ease-out [transform:rotate(-9deg)] group-hover:[transform:rotate(-13deg)_translateX(-4px)]" />
+          <div className="absolute inset-0 rounded-xl bg-field/80 transition-transform duration-300 ease-out [transform:rotate(6deg)] group-hover:[transform:rotate(10deg)_translateX(4px)]" />
           <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
             {profileRow?.profile_photo_url ? (
               <img

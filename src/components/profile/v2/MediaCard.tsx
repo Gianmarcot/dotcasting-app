@@ -105,9 +105,9 @@ const MediaArea = ({
           )}
         </p>
 
-        <div className={cn("relative", ratio)}>
-          <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
-          <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
+        <div className={cn("group relative", ratio)}>
+          <div className="absolute inset-0 rounded-xl bg-field transition-transform duration-300 ease-out [transform:rotate(-9deg)] group-hover:[transform:rotate(-13deg)_translateX(-4px)]" />
+          <div className="absolute inset-0 rounded-xl bg-field/80 transition-transform duration-300 ease-out [transform:rotate(6deg)] group-hover:[transform:rotate(10deg)_translateX(4px)]" />
           <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
             {kind === "photo" ? (
               <img src={cover.url} alt="" className="h-full w-full object-cover" />
