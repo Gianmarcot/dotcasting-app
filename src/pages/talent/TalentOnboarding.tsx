@@ -115,14 +115,42 @@ export const TalentOnboarding = () => {
   const [guardianWhatsappMode, setGuardianWhatsappMode] = useState<WhatsappMode>("same");
 
 
+  const markTouched = (keys: string[], prefix = "") => {
+    setShowAllErrors(false);
+    setTouched((prev) => {
+      const next = new Set(prev);
+      keys.forEach((k) => next.add(`${prefix}${k}`));
+      return next;
+    });
+  };
+
+  /** Tiene solo gli errori dei campi già toccati (tutti dopo un "Avanti" fallito). */
+  const filterVisible = <T extends Record<string, string | undefined>>(
+    all: T,
+    prefix = ""
+  ): T => {
+    if (showAllErrors) return all;
+    const out: Record<string, string | undefined> = {};
+    Object.entries(all).forEach(([key, value]) => {
+      if (touched.has(`${prefix}${key}`)) out[key] = value;
+    });
+    return out as T;
+  };
+
   const guardianErrors: GuardianErrors = useMemo(
     () => (isGuardianMode ? validateGuardian(guardian) : {}),
     [isGuardianMode, guardian]
   );
   const guardianWhatsappValid = isWhatsappValid(guardianWhatsappMode, guardian);
-  const guardianVisibleErrors: GuardianErrors = basicTouched ? guardianErrors : {};
+  const guardianVisibleErrors: GuardianErrors = filterVisible(guardianErrors, "guardian.");
+  const guardianWhatsappShown =
+    showAllErrors ||
+    touched.has("guardian.whatsapp_number") ||
+    touched.has("guardian.whatsapp_prefix");
   const guardianWhatsappError =
-    basicTouched && !guardianWhatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+    guardianWhatsappShown && !guardianWhatsappValid
+      ? "Inserisci un numero WhatsApp valido"
+      : undefined;
   const guardianValid = Object.keys(guardianErrors).length === 0 && guardianWhatsappValid;
 
   const errors: BasicInfoErrors = useMemo(() => {
@@ -135,11 +163,13 @@ export const TalentOnboarding = () => {
 
 
   const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
+  const whatsappShown =
+    showAllErrors || touched.has("whatsapp_number") || touched.has("whatsapp_prefix");
   const whatsappError =
-    basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+    whatsappShown && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
   const basicValid =
     Object.keys(errors).length === 0 && whatsappValid && (!isGuardianMode || guardianValid);
-  const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
+  const visibleErrors: BasicInfoErrors = filterVisible(errors);
 
 
   const whatsappPrefixToSave =
