@@ -76,20 +76,28 @@ export const VerifyEmailPage = () => {
     };
   }, [goOnboarding]);
 
-  const handleResend = async () => {
-    setIsBusy(true);
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email,
-      options: { emailRedirectTo: redirectTo },
-    });
-    setIsBusy(false);
-    if (error) {
-      toast.error(error.message);
+  // Invio lato server: la risposta è identica sia per un account nuovo,
+  // sia per uno già registrato (non riveliamo l'esistenza dell'indirizzo).
+  const requestEmail = async (target: string) => {
+    if (passwordRef.current) {
+      await supabase.functions.invoke("signup-request", {
+        body: { email: target, password: passwordRef.current, redirectTo },
+      });
       return;
     }
+    await supabase.auth.resend({
+      type: "signup",
+      email: target,
+      options: { emailRedirectTo: redirectTo },
+    });
+  };
+
+  const handleResend = async () => {
+    setIsBusy(true);
+    await requestEmail(email);
+    setIsBusy(false);
     setSecondsLeft(RESEND_DELAY);
-    setStatusMessage("Ti abbiamo inviato un nuovo link.");
+    setStatusMessage("Ti abbiamo inviato una nuova email.");
   };
 
   const handleChangeEmail = async () => {
@@ -99,35 +107,34 @@ export const VerifyEmailPage = () => {
 
     const { data: sessionData } = await supabase.auth.getSession();
 
-    let error: { message: string } | null = null;
     if (sessionData.session) {
-      const res = await supabase.auth.updateUser({ email: value }, { emailRedirectTo: redirectTo });
-      error = res.error;
+      const { error } = await supabase.auth.updateUser(
+        { email: value },
+        { emailRedirectTo: redirectTo }
+      );
+      if (error) {
+        setIsBusy(false);
+        toast.error(error.message);
+        return;
+      }
     } else if (passwordRef.current) {
-      const res = await supabase.auth.signUp({
-        email: value,
-        password: passwordRef.current,
-        options: { emailRedirectTo: redirectTo },
-      });
-      error = res.error;
+      await requestEmail(value);
     } else {
+      // Nessuna registrazione in corso da correggere: torna al modulo.
       setIsBusy(false);
-      navigate("/auth", { replace: true });
+      clearPendingSignupEmail();
+      navigate("/auth", { replace: true, state: { email: value } });
       return;
     }
 
     setIsBusy(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
     setEmail(value);
     setNewEmail("");
     setEditing(false);
     setSecondsLeft(RESEND_DELAY);
-    setStatusMessage("Ti abbiamo inviato il link al nuovo indirizzo.");
+    setStatusMessage("Ti abbiamo inviato un'email al nuovo indirizzo.");
   };
+
 
   const waiting = secondsLeft > 0;
 
@@ -141,7 +148,7 @@ export const VerifyEmailPage = () => {
             Controlla la tua email
           </h1>
           <p className="text-sm font-medium text-muted-foreground">
-            Abbiamo inviato un link di conferma a
+            Ti abbiamo inviato un'email a
             <br />
             <span className="select-text text-foreground">{email}</span>
             <br />

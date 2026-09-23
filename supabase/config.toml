@@ -5,3 +5,7 @@ project_id = "msgiernjqizruvrfkqwe"
     verify_jwt = false
   [functions.generate-casting]
     verify_jwt = false
+  [functions.preview-transactional-email]
+    verify_jwt = false
+  [functions.signup-request]
+    verify_jwt = false

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,8 +19,11 @@ import { User } from "lucide-react";
 import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
 
 export const AuthPage = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const prefillEmail = ((location.state ?? {}) as { email?: string }).email ?? "";
+  const [isLogin, setIsLogin] = useState(!prefillEmail);
+  const [email, setEmail] = useState(prefillEmail);
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);

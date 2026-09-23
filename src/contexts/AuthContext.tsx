@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { getAuthRedirectBase } from "@/lib/appUrl";
 import { supabase } from "@/integrations/supabase/client";
-import { SIGNUP_MODE_METADATA_KEY, type SignupMode } from "@/lib/signupMode";
+import { type SignupMode } from "@/lib/signupMode";
 
 type UserRole = "talent" | "owner" | "admin" | "editor";
 
@@ -102,14 +102,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     options?: { signupMode?: SignupMode }
   ) => {
     const redirectUrl = `${getAuthRedirectBase()}/email-confermata`;
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          [SIGNUP_MODE_METADATA_KEY]: options?.signupMode ?? "self",
-        },
+    // La decisione (nuovo account / reinvio conferma / avviso account esistente)
+    // avviene lato server: la risposta è identica in tutti i casi.
+    const { error } = await supabase.functions.invoke("signup-request", {
+      body: {
+        email,
+        password,
+        signupMode: options?.signupMode ?? "self",
+        redirectTo: redirectUrl,
       },
     });
     return { error: error ? new Error(error.message) : null };
