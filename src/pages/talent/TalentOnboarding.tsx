@@ -268,6 +268,10 @@ export const TalentOnboarding = () => {
   /* -------------------------------- azioni -------------------------------- */
 
   const goNext = async () => {
+    if (step === 1 && !basicValid) {
+      setShowAllErrors(true);
+      return;
+    }
     setSaving(true);
     try {
       await saveCurrentStep();
