@@ -59,11 +59,12 @@ const EMPTY_BASIC: BasicInfoStepState = {
   birth_date: "",
   gender: "",
   gender_identity: "",
-  contact_email: "",
+  city: "",
   phone_prefix: "+39",
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
+
 
 };
 
