@@ -13,6 +13,10 @@ interface ModalNavBarProps {
   labels?: { prev?: string; next?: string; close?: string };
   /** Mostra il testo "Chiudi" accanto alla X (padding 32px lato testo, 16px lato icona) */
   showCloseLabel?: boolean;
+  /** Variante "Indietro": freccia a sinistra + testo (padding 16px lato icona, 32px lato testo) */
+  showBackLabel?: boolean;
+  /** Etichetta della variante "Indietro" */
+  backLabel?: string;
   /** Il posizionamento è deciso da chi usa il componente */
   className?: string;
 }
