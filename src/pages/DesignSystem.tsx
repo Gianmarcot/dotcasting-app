@@ -1197,6 +1197,7 @@ const PatternsSection = () => (
       <div className="flex flex-wrap items-center gap-6">
         <ModalNavBar onClose={() => undefined} />
         <ModalNavBar showCloseLabel onClose={() => undefined} />
+        <ModalNavBar showBackLabel onClose={() => undefined} />
         <ModalNavBar showNavigation onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
         <ModalNavBar showNavigation prevDisabled onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
       </div>
