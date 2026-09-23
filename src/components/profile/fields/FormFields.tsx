@@ -61,6 +61,41 @@ export const GroupHeading = ({ children }: { children: ReactNode }) => (
   <p className="mb-8 text-base font-medium leading-5 text-group-label">{children}</p>
 );
 
+/** Riquadro informativo/di avviso: icona a sinistra, testo su più righe. */
+export const NoticeBox = ({
+  icon,
+  tone = "neutral",
+  children,
+  className,
+}: {
+  icon?: ReactNode;
+  tone?: "neutral" | "warning";
+  children: ReactNode;
+  className?: string;
+}) => (
+  <div
+    className={cn(
+      "flex gap-3 rounded-2xl p-4 text-[15px] leading-relaxed",
+      tone === "warning"
+        ? "bg-[hsl(var(--warning)/0.12)] text-[hsl(var(--warning-foreground))]"
+        : "bg-muted text-foreground",
+      className
+    )}
+  >
+    {icon && (
+      <span
+        className={cn(
+          "mt-0.5 shrink-0 [&>svg]:h-5 [&>svg]:w-5",
+          tone === "warning" && "text-[hsl(var(--warning))]"
+        )}
+      >
+        {icon}
+      </span>
+    )}
+    <div className="min-w-0">{children}</div>
+  </div>
+);
+
 /** Label + radio group: the gap between the two is always 32px. */
 export const RadioField = ({
   label,
