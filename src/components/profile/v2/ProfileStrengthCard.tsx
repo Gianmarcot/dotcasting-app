@@ -146,19 +146,22 @@ export const ProfileStrengthCard = () => {
 
           {missing.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-6">
-              {missing.map((m) => (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => focusProfileSection(m.section)}
-                  className="flex items-center gap-2 rounded-full text-left transition-opacity hover:opacity-70"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-field-label">
-                    <Plus className="h-4 w-4 text-foreground" />
-                  </span>
-                  <span className="text-[15px] text-foreground">{m.key}</span>
-                </button>
-              ))}
+              {missing.map((m) => {
+                const Icon = m.icon;
+                return (
+                  <button
+                    key={m.key}
+                    type="button"
+                    onClick={() => focusProfileSection(m.section)}
+                    className="flex items-center gap-2 rounded-full text-left transition-opacity hover:opacity-70"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-field-label text-foreground">
+                      <Icon className="h-4 w-4" strokeWidth={1.5} />
+                    </span>
+                    <span className="text-[15px] text-foreground">{m.key}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </>
