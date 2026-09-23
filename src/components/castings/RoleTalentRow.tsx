@@ -1,4 +1,21 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  FISCAL_STATUS_DESCRIPTIONS,
+  FISCAL_STATUS_LABELS,
+  fiscalStatusOf,
+  isFiscalStatusProblematic,
+} from "@/lib/fiscalStatus";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -63,8 +80,11 @@ export const RoleTalentRow = ({
   const navigate = useNavigate();
   const togglePublished = useToggleEngagementPublished();
   const isPublished = !!(rt as any).published_to_talent;
+  const [fiscalWarningOpen, setFiscalWarningOpen] = useState(false);
+  const fiscalStatus = fiscalStatusOf(rt.profile);
+  const fiscalNeedsAttention = isFiscalStatusProblematic(fiscalStatus);
 
-  const handleTogglePublished = async () => {
+  const doTogglePublished = async () => {
     try {
       await togglePublished.mutateAsync({
         id: rt.id,
@@ -82,6 +102,14 @@ export const RoleTalentRow = ({
     } catch {
       toast({ title: "Errore", variant: "destructive" });
     }
+  };
+
+  const handleTogglePublished = () => {
+    if (!isPublished && fiscalNeedsAttention) {
+      setFiscalWarningOpen(true);
+      return;
+    }
+    void doTogglePublished();
   };
   const age = getAge(rt.profile?.birth_date ?? null);
   const talentSt = (rt.talent_status || "none") as TalentStatus;
@@ -224,6 +252,24 @@ export const RoleTalentRow = ({
           </TooltipProvider>
         </div>
       </div>
+
+      <AlertDialog open={fiscalWarningOpen} onOpenChange={setFiscalWarningOpen}>
+        <AlertDialogContent onClick={stop}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{FISCAL_STATUS_LABELS[fiscalStatus]}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {FISCAL_STATUS_DESCRIPTIONS[fiscalStatus]} Puoi pubblicare comunque l'ingaggio.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogAction onClick={() => void doTogglePublished()}>
+              Pubblica comunque
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 };
