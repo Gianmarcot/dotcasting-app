@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { IdCard, Info } from "lucide-react";
+import { AlertTriangle, IdCard, Info } from "lucide-react";
 import { fiscalCodeMismatchFields, validateFiscalCode } from "@/lib/fiscalCode";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { hasCatastaliLoaded, loadCatastali } from "@/lib/geo/catastali";
