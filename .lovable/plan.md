@@ -4,7 +4,7 @@
 
 1. **Divider** tra il blocco del codice fiscale e il caricamento del documento d'identità, con lo stesso separatore già usato nelle altre parti della sezione.
 
-2. **Avvisi di incoerenza del codice fiscale** (es. "Il codice fiscale non corrisponde a luogo di nascita...") non più come piccolo testo sotto il campo, ma come riquadro d'avviso della stessa forma della nota "senza codice fiscale italiano": icona a sinistra, testo su più righe, angoli arrotondati. Anche l'errore di codice formalmente sbagliato ("non sembra corretto") usa lo stesso riquadro.
+2. **Avvisi di incoerenza del codice fiscale** (es. "Il codice fiscale non corrisponde a luogo di nascita...") non più come piccolo testo sotto il campo, ma come riquadro d'avviso della stessa forma della nota "senza codice fiscale italiano": icona a sinistra, testo su più righe, angoli arrotondati. Anche l'errore di codice formalmente sbagliato ("non sembra corretto") usa lo stesso riquadro. Il riquadro compare **a destra del campo codice fiscale** (campo nella prima colonna, avviso nella seconda); su schermi piccoli scende sotto il campo.
 
 3. **Colore avviso**: entrambi i riquadri passano al colore d'avviso del design system (giallo/ocra #C88500 in versione tenue con testo scuro), così si distinguono dal resto della pagina.
 
