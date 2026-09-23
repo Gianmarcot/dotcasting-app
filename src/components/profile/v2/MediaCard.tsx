@@ -55,8 +55,10 @@ const MediaArea = ({
   const noun = kind === "photo" ? "foto" : "video";
   const { required, covered } = requiredProgress(items, keys);
   const missing = required > 0 && covered < required;
-  const latest = items[items.length - 1];
-  const ratio = kind === "photo" ? "h-[220px] w-[168px]" : "h-[168px] w-[168px]";
+  const cover =
+    (kind === "photo" ? items.find((i) => i.category === PROFILE_PHOTO_CATEGORY) : undefined) ??
+    items[items.length - 1];
+  const ratio = kind === "photo" ? "h-[252px] w-[168px]" : "h-[168px] w-[168px]";
 
   if (items.length === 0) {
     return (
@@ -85,7 +87,7 @@ const MediaArea = ({
           onOpen();
         }
       }}
-      className="flex flex-1 cursor-pointer flex-col items-center gap-8 rounded-2xl border border-dashed border-border p-8 text-center"
+      className="flex flex-1 cursor-pointer flex-col items-center gap-8 rounded-2xl border border-dashed border-border p-8 pb-14 text-center"
     >
       <p className="text-[15px] text-field-label">
         {missing ? (
@@ -103,15 +105,15 @@ const MediaArea = ({
       </p>
 
       <div className={cn("relative", ratio)}>
-        <div className="absolute inset-0 -rotate-6 rounded-2xl bg-field" />
-        <div className="absolute inset-0 rotate-3 rounded-2xl bg-field/80" />
-        <div className="absolute inset-0 overflow-hidden rounded-2xl bg-muted">
+        <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
+        <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
+        <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
           {kind === "photo" ? (
-            <img src={latest.url} alt="" className="h-full w-full object-cover" />
+            <img src={cover.url} alt="" className="h-full w-full object-cover" />
           ) : (
             <video
-              src={latest.url}
-              poster={latest.thumbnail_url ?? undefined}
+              src={cover.url}
+              poster={cover.thumbnail_url ?? undefined}
               preload="metadata"
               muted
               playsInline
@@ -119,12 +121,16 @@ const MediaArea = ({
             />
           )}
         </div>
+        <Button
+          type="button"
+          size="lg"
+          onClick={onOpen}
+          className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
+        >
+          <Icon />
+          {buttonLabel}
+        </Button>
       </div>
-
-      <Button type="button" size="lg" iconPosition="left" onClick={onOpen}>
-        <Icon />
-        {buttonLabel}
-      </Button>
     </div>
   );
 };
