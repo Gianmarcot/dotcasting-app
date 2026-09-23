@@ -9,7 +9,7 @@ import {
   type BasicInfoValue,
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
-import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
+import { CityField } from "@/components/profile/fields/CityField";
 import {
   GuardianFields,
   type GuardianErrors,
