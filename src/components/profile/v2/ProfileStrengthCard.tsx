@@ -72,33 +72,46 @@ export const ProfileStrengthCard = () => {
     attributes.ability_other,
   ].some(Boolean);
 
-  const checks: { key: string; section: string; done: boolean }[] = [
+  const checks: { key: string; section: string; done: boolean; icon: LucideIcon }[] = [
     {
       key: "Anagrafica",
       section: "section-head",
+      icon: User,
       done: !!profile?.first_name && !!profile?.last_name,
     },
-    { key: "Data di nascita", section: "section-head", done: !!profile?.birth_date },
-    { key: "Contatti", section: "section-contacts", done: !!profile?.phone_number },
-    { key: "Indirizzo", section: "section-address", done: !!profile?.residence_address },
-    { key: "Documenti", section: "section-documents", done: !!profile?.fiscal_code },
-    { key: "Foto", section: "section-media", done: photosDone },
-    { key: "Misure", section: "section-physical", done: measuresDone },
+    { key: "Data di nascita", section: "section-head", icon: Calendar, done: !!profile?.birth_date },
+    { key: "Contatti", section: "section-contacts", icon: Phone, done: !!profile?.phone_number },
+    {
+      key: "Indirizzo",
+      section: "section-address",
+      icon: MapPin,
+      done: !!profile?.residence_address,
+    },
+    {
+      key: "Documenti",
+      section: "section-documents",
+      icon: FileText,
+      done: !!profile?.fiscal_code,
+    },
+    { key: "Foto", section: "section-media", icon: Camera, done: photosDone },
+    { key: "Misure", section: "section-physical", icon: Ruler, done: measuresDone },
     {
       key: "Ruoli",
       section: "section-roles",
+      icon: Clapperboard,
       done: (profile?.talent_categories ?? []).length > 0,
     },
-    { key: "Biografia", section: "section-bio", done: !!profile?.bio },
+    { key: "Biografia", section: "section-bio", icon: AlignLeft, done: !!profile?.bio },
     {
       key: "Competenze",
       section: "section-bio",
+      icon: Sparkles,
       done: (attributes?.languages ?? []).length > 0 || hasAbility,
     },
   ];
 
   const score = checks.filter((c) => c.done).length;
-  const missing = checks.filter((c) => !c.done).slice(0, 4);
+  const missing = checks.filter((c) => !c.done).slice(0, 6);
   const emoji = score >= 9 ? "🔥" : score >= 6 ? "💪" : "🌱";
 
   return (
