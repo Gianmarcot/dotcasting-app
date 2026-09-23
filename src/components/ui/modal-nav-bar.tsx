@@ -122,6 +122,6 @@ export const ModalNavBar = ({
       </CircleButton>
     )}
   </div>
-);
+  );
 
 export default ModalNavBar;
