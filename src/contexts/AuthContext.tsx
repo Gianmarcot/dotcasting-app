@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { getAuthRedirectBase } from "@/lib/appUrl";
 import { supabase } from "@/integrations/supabase/client";
-import { SIGNUP_MODE_METADATA_KEY, type SignupMode } from "@/lib/signupMode";
+import { type SignupMode } from "@/lib/signupMode";
 
 type UserRole = "talent" | "owner" | "admin" | "editor";
 
