@@ -97,6 +97,10 @@ const ProfileContent = () => {
           <div id="section-work" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <WorkTravelCard />
           </div>
+          <div id="section-documents" className="scroll-mt-6 rounded-[24px] transition-shadow">
+            <DocumentsCard />
+          </div>
+
         </div>
 
       </div>
