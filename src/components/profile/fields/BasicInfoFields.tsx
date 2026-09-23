@@ -236,24 +236,7 @@ export const GenderFields = ({
 
 /* ------------------------------- Contatti --------------------------------- */
 
-export const ContactEmailField = ({
-  value,
-  onChange,
-  error,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string | null;
-}) => (
-  <FloatingInput
-    label="Email di contatto"
-    type="email"
-    inputMode="email"
-    value={value}
-    error={error}
-    onChange={onChange}
-  />
-);
+
 
 /**
  * Stato dei consensi WhatsApp:
