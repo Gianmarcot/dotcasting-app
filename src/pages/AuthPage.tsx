@@ -21,7 +21,7 @@ import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
 export const AuthPage = () => {
   const location = useLocation();
   const prefillEmail = ((location.state ?? {}) as { email?: string }).email ?? "";
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(!prefillEmail);
   const [email, setEmail] = useState(prefillEmail);
 
   const [password, setPassword] = useState("");
