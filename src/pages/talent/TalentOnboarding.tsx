@@ -92,7 +92,9 @@ export const TalentOnboarding = () => {
 
   // Step 1 — anagrafica: nulla viene scritto prima di "Avanti".
   const [basic, setBasic] = useState<BasicInfoStepState>(EMPTY_BASIC);
-  const [basicTouched, setBasicTouched] = useState(false);
+  // Errori mostrati solo sui campi già toccati, o su tutti dopo un "Avanti" fallito.
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+  const [showAllErrors, setShowAllErrors] = useState(false);
   const [basicSaved, setBasicSaved] = useState(false);
 
   // Step 2 — ruoli
@@ -113,14 +115,42 @@ export const TalentOnboarding = () => {
   const [guardianWhatsappMode, setGuardianWhatsappMode] = useState<WhatsappMode>("same");
 
 
+  const markTouched = (keys: string[], prefix = "") => {
+    setShowAllErrors(false);
+    setTouched((prev) => {
+      const next = new Set(prev);
+      keys.forEach((k) => next.add(`${prefix}${k}`));
+      return next;
+    });
+  };
+
+  /** Tiene solo gli errori dei campi già toccati (tutti dopo un "Avanti" fallito). */
+  const filterVisible = <T extends Record<string, string | undefined>>(
+    all: T,
+    prefix = ""
+  ): T => {
+    if (showAllErrors) return all;
+    const out: Record<string, string | undefined> = {};
+    Object.entries(all).forEach(([key, value]) => {
+      if (touched.has(`${prefix}${key}`)) out[key] = value;
+    });
+    return out as T;
+  };
+
   const guardianErrors: GuardianErrors = useMemo(
     () => (isGuardianMode ? validateGuardian(guardian) : {}),
     [isGuardianMode, guardian]
   );
   const guardianWhatsappValid = isWhatsappValid(guardianWhatsappMode, guardian);
-  const guardianVisibleErrors: GuardianErrors = basicTouched ? guardianErrors : {};
+  const guardianVisibleErrors: GuardianErrors = filterVisible(guardianErrors, "guardian.");
+  const guardianWhatsappShown =
+    showAllErrors ||
+    touched.has("guardian.whatsapp_number") ||
+    touched.has("guardian.whatsapp_prefix");
   const guardianWhatsappError =
-    basicTouched && !guardianWhatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+    guardianWhatsappShown && !guardianWhatsappValid
+      ? "Inserisci un numero WhatsApp valido"
+      : undefined;
   const guardianValid = Object.keys(guardianErrors).length === 0 && guardianWhatsappValid;
 
   const errors: BasicInfoErrors = useMemo(() => {
@@ -133,11 +163,13 @@ export const TalentOnboarding = () => {
 
 
   const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
+  const whatsappShown =
+    showAllErrors || touched.has("whatsapp_number") || touched.has("whatsapp_prefix");
   const whatsappError =
-    basicTouched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
+    whatsappShown && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined;
   const basicValid =
     Object.keys(errors).length === 0 && whatsappValid && (!isGuardianMode || guardianValid);
-  const visibleErrors: BasicInfoErrors = basicTouched ? errors : {};
+  const visibleErrors: BasicInfoErrors = filterVisible(errors);
 
 
   const whatsappPrefixToSave =
@@ -236,6 +268,10 @@ export const TalentOnboarding = () => {
   /* -------------------------------- azioni -------------------------------- */
 
   const goNext = async () => {
+    if (step === 1 && !basicValid) {
+      setShowAllErrors(true);
+      return;
+    }
     setSaving(true);
     try {
       await saveCurrentStep();
@@ -342,7 +378,7 @@ export const TalentOnboarding = () => {
                         errors: guardianVisibleErrors,
                         whatsappError: guardianWhatsappError,
                         onChange: (patch) => {
-                          setBasicTouched(true);
+                          markTouched(Object.keys(patch), "guardian.");
                           setBasicSaved(false);
                           setGuardian((prev) => ({ ...prev, ...patch }));
                         },
@@ -351,7 +387,7 @@ export const TalentOnboarding = () => {
                     : undefined
                 }
                 onChange={(patch) => {
-                  setBasicTouched(true);
+                  markTouched(Object.keys(patch));
                   setBasicSaved(false);
                   setBasic((prev) => ({ ...prev, ...patch }));
                 }}
