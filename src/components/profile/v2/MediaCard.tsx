@@ -87,50 +87,53 @@ const MediaArea = ({
           onOpen();
         }
       }}
-      className="flex flex-1 cursor-pointer flex-col items-center gap-8 rounded-2xl border border-dashed border-border p-8 pb-14 text-center"
+      className="flex flex-1 cursor-pointer flex-col items-center justify-between gap-8 rounded-2xl border border-dashed border-border p-8 text-center"
     >
-      <p className="text-[15px] text-field-label">
-        {missing ? (
-          <>
-            <span className="text-warning">
-              {covered} di {required}
-            </span>{" "}
-            {noun} richieste
-          </>
-        ) : (
-          <>
-            {items.length} {noun}
-          </>
-        )}
-      </p>
-
-      <div className={cn("relative", ratio)}>
-        <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
-        <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
-        <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
-          {kind === "photo" ? (
-            <img src={cover.url} alt="" className="h-full w-full object-cover" />
+      <div className="flex flex-col items-center gap-8">
+        <p className="text-[15px] text-field-label">
+          {missing ? (
+            <>
+              <span className="text-warning">
+                {covered} di {required}
+              </span>{" "}
+              {noun} richieste
+            </>
           ) : (
-            <video
-              src={cover.url}
-              poster={cover.thumbnail_url ?? undefined}
-              preload="metadata"
-              muted
-              playsInline
-              className="h-full w-full bg-black object-cover"
-            />
+            <>
+              {items.length} {noun}
+            </>
           )}
+        </p>
+
+        <div className={cn("relative", ratio)}>
+          <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
+          <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
+          <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
+            {kind === "photo" ? (
+              <img src={cover.url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <video
+                src={cover.url}
+                poster={cover.thumbnail_url ?? undefined}
+                preload="metadata"
+                muted
+                playsInline
+                className="h-full w-full bg-black object-cover"
+              />
+            )}
+          </div>
         </div>
-        <Button
-          type="button"
-          size="lg"
-          onClick={onOpen}
-          className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
-        >
-          <Icon />
-          {buttonLabel}
-        </Button>
       </div>
+
+      <Button
+        type="button"
+        size="lg"
+        onClick={onOpen}
+        className="whitespace-nowrap"
+      >
+        <Icon />
+        {buttonLabel}
+      </Button>
     </div>
   );
 };
@@ -202,7 +205,7 @@ export const MediaCard = () => {
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
-      <div className="flex flex-col gap-6 md:flex-row">
+      <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
         {photoKeys.length > 0 && (
           <MediaArea
             items={photos}
