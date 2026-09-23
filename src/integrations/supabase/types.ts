@@ -1030,11 +1030,14 @@ export type Database = {
           ethnicity: string | null
           first_name: string | null
           fiscal_code: string | null
+          fiscal_code_mismatch: boolean
+          fiscal_code_status: string | null
           gender: string | null
           gender_identity: string | null
           guardian_user_id: string | null
           has_band: boolean | null
           has_car: boolean | null
+          has_italian_fiscal_code: boolean | null
           has_minor_children: boolean | null
           has_motorbike: boolean | null
           has_passport: boolean | null
@@ -1100,11 +1103,14 @@ export type Database = {
           ethnicity?: string | null
           first_name?: string | null
           fiscal_code?: string | null
+          fiscal_code_mismatch?: boolean
+          fiscal_code_status?: string | null
           gender?: string | null
           gender_identity?: string | null
           guardian_user_id?: string | null
           has_band?: boolean | null
           has_car?: boolean | null
+          has_italian_fiscal_code?: boolean | null
           has_minor_children?: boolean | null
           has_motorbike?: boolean | null
           has_passport?: boolean | null
@@ -1170,11 +1176,14 @@ export type Database = {
           ethnicity?: string | null
           first_name?: string | null
           fiscal_code?: string | null
+          fiscal_code_mismatch?: boolean
+          fiscal_code_status?: string | null
           gender?: string | null
           gender_identity?: string | null
           guardian_user_id?: string | null
           has_band?: boolean | null
           has_car?: boolean | null
+          has_italian_fiscal_code?: boolean | null
           has_minor_children?: boolean | null
           has_motorbike?: boolean | null
           has_passport?: boolean | null
