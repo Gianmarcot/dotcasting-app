@@ -1,5 +1,18 @@
 import { useState } from "react";
-import { ChevronDown, Plus } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+  AlignLeft,
+  Calendar,
+  Camera,
+  ChevronDown,
+  Clapperboard,
+  FileText,
+  MapPin,
+  Phone,
+  Ruler,
+  Sparkles,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile";
 import { useTalentAttributes } from "@/hooks/useTalentAttributes";
@@ -59,33 +72,46 @@ export const ProfileStrengthCard = () => {
     attributes.ability_other,
   ].some(Boolean);
 
-  const checks: { key: string; section: string; done: boolean }[] = [
+  const checks: { key: string; section: string; done: boolean; icon: LucideIcon }[] = [
     {
       key: "Anagrafica",
       section: "section-head",
+      icon: User,
       done: !!profile?.first_name && !!profile?.last_name,
     },
-    { key: "Data di nascita", section: "section-head", done: !!profile?.birth_date },
-    { key: "Contatti", section: "section-contacts", done: !!profile?.phone_number },
-    { key: "Indirizzo", section: "section-address", done: !!profile?.residence_address },
-    { key: "Documenti", section: "section-documents", done: !!profile?.fiscal_code },
-    { key: "Foto", section: "section-media", done: photosDone },
-    { key: "Misure", section: "section-physical", done: measuresDone },
+    { key: "Data di nascita", section: "section-head", icon: Calendar, done: !!profile?.birth_date },
+    { key: "Contatti", section: "section-contacts", icon: Phone, done: !!profile?.phone_number },
+    {
+      key: "Indirizzo",
+      section: "section-address",
+      icon: MapPin,
+      done: !!profile?.residence_address,
+    },
+    {
+      key: "Documenti",
+      section: "section-documents",
+      icon: FileText,
+      done: !!profile?.fiscal_code,
+    },
+    { key: "Foto", section: "section-media", icon: Camera, done: photosDone },
+    { key: "Misure", section: "section-physical", icon: Ruler, done: measuresDone },
     {
       key: "Ruoli",
       section: "section-roles",
+      icon: Clapperboard,
       done: (profile?.talent_categories ?? []).length > 0,
     },
-    { key: "Biografia", section: "section-bio", done: !!profile?.bio },
+    { key: "Biografia", section: "section-bio", icon: AlignLeft, done: !!profile?.bio },
     {
       key: "Competenze",
       section: "section-bio",
+      icon: Sparkles,
       done: (attributes?.languages ?? []).length > 0 || hasAbility,
     },
   ];
 
   const score = checks.filter((c) => c.done).length;
-  const missing = checks.filter((c) => !c.done).slice(0, 4);
+  const missing = checks.filter((c) => !c.done).slice(0, 6);
   const emoji = score >= 9 ? "🔥" : score >= 6 ? "💪" : "🌱";
 
   return (
@@ -120,19 +146,22 @@ export const ProfileStrengthCard = () => {
 
           {missing.length > 0 && (
             <div className="mt-8 flex flex-wrap gap-6">
-              {missing.map((m) => (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => focusProfileSection(m.section)}
-                  className="flex items-center gap-2 rounded-full text-left transition-opacity hover:opacity-70"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-field-label">
-                    <Plus className="h-4 w-4 text-foreground" />
-                  </span>
-                  <span className="text-[15px] text-foreground">{m.key}</span>
-                </button>
-              ))}
+              {missing.map((m) => {
+                const Icon = m.icon;
+                return (
+                  <button
+                    key={m.key}
+                    type="button"
+                    onClick={() => focusProfileSection(m.section)}
+                    className="flex items-center gap-2 rounded-full text-left transition-opacity hover:opacity-70"
+                  >
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full border border-dashed border-field-label text-foreground">
+                      <Icon className="h-4 w-4" strokeWidth={1.5} />
+                    </span>
+                    <span className="text-[15px] text-foreground">{m.key}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </>
