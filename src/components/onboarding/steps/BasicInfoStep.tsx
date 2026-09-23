@@ -9,7 +9,7 @@ import {
   type BasicInfoValue,
   type WhatsappMode,
 } from "@/components/profile/fields/BasicInfoFields";
-import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
+import { CityField } from "@/components/profile/fields/CityField";
 import {
   GuardianFields,
   type GuardianErrors,
@@ -84,25 +84,28 @@ export const BasicInfoStep = ({
         onChange={onChange}
       />
 
-      {!isGuardian && (
-        <>
-          {/* Email in sola lettura: è quella dell'account, propagata dal database. */}
-          <AccountEmailField />
+      <CityField
+        className="w-full max-w-[420px]"
+        value={value.city}
+        error={errors.city}
+        onChange={(v) => onChange({ city: v })}
+      />
 
-          <PhoneFields
-            value={{
-              phone_prefix: value.phone_prefix,
-              phone_number: value.phone_number,
-              whatsapp_prefix: value.whatsapp_prefix,
-              whatsapp_number: value.whatsapp_number,
-            }}
-            error={errors.phone_number}
-            whatsappError={whatsappError}
-            onChange={onChange}
-            onModeChange={onWhatsappModeChange}
-          />
-        </>
+      {!isGuardian && (
+        <PhoneFields
+          value={{
+            phone_prefix: value.phone_prefix,
+            phone_number: value.phone_number,
+            whatsapp_prefix: value.whatsapp_prefix,
+            whatsapp_number: value.whatsapp_number,
+          }}
+          error={errors.phone_number}
+          whatsappError={whatsappError}
+          onChange={onChange}
+          onModeChange={onWhatsappModeChange}
+        />
       )}
+
     </div>
   );
 

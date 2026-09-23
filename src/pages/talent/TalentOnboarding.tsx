@@ -59,11 +59,12 @@ const EMPTY_BASIC: BasicInfoStepState = {
   birth_date: "",
   gender: "",
   gender_identity: "",
-  contact_email: "",
+  city: "",
   phone_prefix: "+39",
   phone_number: "",
   whatsapp_prefix: "+39",
   whatsapp_number: "",
+
 
 };
 
@@ -124,12 +125,12 @@ export const TalentOnboarding = () => {
 
   const errors: BasicInfoErrors = useMemo(() => {
     const all = validateBasicInfo(basic);
-    // L'email non è più un campo del form: arriva dall'account.
-    const { contact_email, phone_number, ...withoutContacts } = all;
-    if (isGuardianMode) return withoutContacts;
+    const { phone_number, ...rest } = all;
+    if (isGuardianMode) return rest;
     // Il minore non ha contatti propri; il talent adulto conserva il telefono.
-    return { ...withoutContacts, ...(phone_number ? { phone_number } : {}) };
+    return { ...rest, ...(phone_number ? { phone_number } : {}) };
   }, [basic, isGuardianMode]);
+
 
   const whatsappValid = isGuardianMode ? true : isWhatsappValid(whatsappMode, basic);
   const whatsappError =
@@ -176,6 +177,8 @@ export const TalentOnboarding = () => {
         last_name: basic.last_name.trim(),
         birth_date: basic.birth_date || null,
         gender: basic.gender || null,
+        city: basic.city.trim() || null,
+
         gender_identity: basic.gender_identity || null,
         guardian_user_id: user?.id ?? null,
         age_confirmed: isAdultBirthDate(basic.birth_date),
@@ -189,7 +192,9 @@ export const TalentOnboarding = () => {
       last_name: basic.last_name.trim(),
       birth_date: basic.birth_date || null,
       gender: basic.gender || null,
+      city: basic.city.trim() || null,
       gender_identity: basic.gender_identity || null,
+
       // contact_email non viene scritta: la propaga il database dall'account.
       phone_prefix: basic.phone_prefix,
       phone_number: basic.phone_number.trim() || null,

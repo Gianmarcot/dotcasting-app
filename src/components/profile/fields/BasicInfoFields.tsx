@@ -44,7 +44,7 @@ export interface BasicInfoValue {
   birth_date: string;
   gender: string;
   gender_identity: string;
-  contact_email: string;
+  city: string;
   phone_prefix: string;
   phone_number: string;
 }
@@ -57,11 +57,9 @@ export const BASIC_INFO_REQUIRED: (keyof BasicInfoValue)[] = [
   "last_name",
   "birth_date",
   "gender",
-  "contact_email",
+  "city",
   "phone_number",
 ];
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export const validateBasicInfo = (value: BasicInfoValue): BasicInfoErrors => {
   const errors: BasicInfoErrors = {};
@@ -69,14 +67,13 @@ export const validateBasicInfo = (value: BasicInfoValue): BasicInfoErrors => {
   if (!value.last_name.trim()) errors.last_name = "Inserisci il tuo cognome";
   if (!value.birth_date) errors.birth_date = "Inserisci la tua data di nascita";
   if (!value.gender) errors.gender = "Seleziona un'opzione";
-  if (!value.contact_email.trim()) errors.contact_email = "Inserisci un'email di contatto";
-  else if (!EMAIL_RE.test(value.contact_email.trim()))
-    errors.contact_email = "Inserisci un'email valida";
+  if (!value.city.trim()) errors.city = "Inserisci la città in cui vivi";
   if (!value.phone_number.trim()) errors.phone_number = "Inserisci un numero di telefono";
   else if (value.phone_number.replace(/\D/g, "").length < 6)
     errors.phone_number = "Numero di telefono non valido";
   return errors;
 };
+
 
 export const isBasicInfoValid = (value: BasicInfoValue) =>
   Object.keys(validateBasicInfo(value)).length === 0;
@@ -239,24 +236,7 @@ export const GenderFields = ({
 
 /* ------------------------------- Contatti --------------------------------- */
 
-export const ContactEmailField = ({
-  value,
-  onChange,
-  error,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  error?: string | null;
-}) => (
-  <FloatingInput
-    label="Email di contatto"
-    type="email"
-    inputMode="email"
-    value={value}
-    error={error}
-    onChange={onChange}
-  />
-);
+
 
 /**
  * Stato dei consensi WhatsApp:
