@@ -74,6 +74,78 @@ export const decodeFiscalCode = (raw: string) => {
   return { yy, month: monthIndex + 1, day, gender };
 };
 
+/* ------------------------- Cognome, nome e coerenza ------------------------ */
+
+const clean = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+
+const consonants = (s: string) => s.replace(/[AEIOU]/g, "");
+const vowels = (s: string) => s.replace(/[^AEIOU]/g, "");
+
+export const encodeSurname = (surname: string): string | null => {
+  const s = clean(surname ?? "");
+  if (!s) return null;
+  return (consonants(s) + vowels(s) + "XXX").slice(0, 3);
+};
+
+export const encodeName = (name: string): string | null => {
+  const s = clean(name ?? "");
+  if (!s) return null;
+  const c = consonants(s);
+  if (c.length >= 4) return c[0] + c[2] + c[3];
+  return (c + vowels(s) + "XXX").slice(0, 3);
+};
+
+export interface FiscalPersonData {
+  first_name?: string | null;
+  last_name?: string | null;
+  birth_date?: string | null;
+  gender?: string | null;
+}
+
+/**
+ * Confronta il codice fiscale con i dati anagrafici del profilo.
+ * Restituisce l'elenco dei dati che non combaciano (vuoto se tutto torna
+ * o se non ci sono dati a sufficienza per il confronto).
+ * Il comune di nascita non viene confrontato: richiede i codici Belfiore,
+ * che non sono presenti nel dataset dei comuni usato dall'app.
+ */
+export const fiscalCodeMismatchFields = (
+  raw: string,
+  person: FiscalPersonData
+): string[] => {
+  const decoded = decodeFiscalCode(raw);
+  if (!decoded) return [];
+  const code = normalizeFiscalCode(raw);
+  const out: string[] = [];
+
+  const surname = encodeSurname(person.last_name ?? "");
+  if (surname && surname !== code.slice(0, 3)) out.push("cognome");
+
+  const name = encodeName(person.first_name ?? "");
+  if (name && name !== code.slice(3, 6)) out.push("nome");
+
+  if (person.birth_date) {
+    const [y, m, d] = person.birth_date.split("-").map(Number);
+    if (y && m && d) {
+      const yy = String(y % 100).padStart(2, "0");
+      if (yy !== decoded.yy || m !== decoded.month || d !== decoded.day) {
+        out.push("data di nascita");
+      }
+    }
+  }
+
+  if ((person.gender === "M" || person.gender === "F") && person.gender !== decoded.gender) {
+    out.push("sesso");
+  }
+
+  return out;
+};
+
 /**
  * Verifica la coerenza tra codice fiscale e dati anagrafici inseriti.
  * Restituisce un avviso (non bloccante) o null.
@@ -81,27 +153,16 @@ export const decodeFiscalCode = (raw: string) => {
 export const fiscalCodeCoherenceWarning = (
   raw: string,
   birthDate: string | null | undefined,
-  gender: string | null | undefined
+  gender: string | null | undefined,
+  names?: { first_name?: string | null; last_name?: string | null }
 ): string | null => {
-  const decoded = decodeFiscalCode(raw);
-  if (!decoded) return null;
-
-  const mismatches: string[] = [];
-
-  if (birthDate) {
-    const [y, m, d] = birthDate.split("-").map(Number);
-    if (y && m && d) {
-      const yy = String(y % 100).padStart(2, "0");
-      if (yy !== decoded.yy || m !== decoded.month || d !== decoded.day) {
-        mismatches.push("data di nascita");
-      }
-    }
-  }
-
-  if (gender === "M" || gender === "F") {
-    if (gender !== decoded.gender) mismatches.push("sesso");
-  }
-
+  const mismatches = fiscalCodeMismatchFields(raw, {
+    birth_date: birthDate ?? null,
+    gender: gender ?? null,
+    first_name: names?.first_name ?? null,
+    last_name: names?.last_name ?? null,
+  });
   if (mismatches.length === 0) return null;
-  return `Il codice fiscale non corrisponde a ${mismatches.join(" / ")}`;
+  return `Il codice fiscale non corrisponde a ${mismatches.join(" / ")}. Verifica il codice e gli altri dati del profilo.`;
 };
+

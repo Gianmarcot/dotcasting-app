@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Users, UserPlus, X, LayoutGrid, List, Search } from "lucide-react";
+import { FISCAL_STATUS_LABELS, type FiscalStatus } from "@/lib/fiscalStatus";
 
 type ViewMode = "board" | "portfolio";
 const VIEW_STORAGE_KEY = "owner-talents-view-mode";
@@ -54,6 +55,7 @@ const FILTER_LABELS: Record<string, string> = {
   language: "Lingua",
   hasVat: "P.IVA",
   travelAvailability: "Viaggi",
+  fiscalStatus: "Codice fiscale",
   category: "Categoria",
 };
 
@@ -89,7 +91,12 @@ export const OwnerTalents = () => {
       .map(([k, v]) => ({
         key: k,
         label: FILTER_LABELS[k] || k,
-        value: typeof v === "boolean" ? (v ? "Sì" : "No") : String(v),
+        value:
+          k === "fiscalStatus"
+            ? FISCAL_STATUS_LABELS[v as FiscalStatus]
+            : typeof v === "boolean"
+              ? (v ? "Sì" : "No")
+              : String(v),
       }));
   }, [filters]);
 

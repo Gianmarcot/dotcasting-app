@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { FiscalStatus } from "@/lib/fiscalStatus";
 
 export interface TalentFilters {
   search?: string;
@@ -35,6 +36,7 @@ export interface TalentFilters {
   language?: string;
   hasVat?: boolean;
   travelAvailability?: string;
+  fiscalStatus?: FiscalStatus;
 }
 
 export interface TalentWithAttributes {
@@ -55,6 +57,10 @@ export interface TalentWithAttributes {
   gender_identity: string | null;
   representation_type: string | null;
   has_vat_number: boolean | null;
+  has_italian_fiscal_code?: boolean | null;
+  fiscal_code?: string | null;
+  fiscal_code_mismatch?: boolean | null;
+  fiscal_code_status?: string | null;
   attributes: {
     height: number | null;
     weight: number | null;
@@ -94,6 +100,10 @@ export const useTalents = (filters: TalentFilters = {}) => {
           gender_identity,
           representation_type,
           has_vat_number,
+          has_italian_fiscal_code,
+          fiscal_code,
+          fiscal_code_mismatch,
+          fiscal_code_status,
           talent_attributes (
             height,
             weight,
@@ -141,6 +151,9 @@ export const useTalents = (filters: TalentFilters = {}) => {
       } else if (filters.hasVat === false) {
         query = query.eq("has_vat_number", false);
       }
+      if (filters.fiscalStatus) {
+        query = query.eq("fiscal_code_status", filters.fiscalStatus);
+      }
 
       const { data, error } = await query;
       if (error) throw error;
@@ -164,6 +177,10 @@ export const useTalents = (filters: TalentFilters = {}) => {
         gender_identity: profile.gender_identity,
         representation_type: profile.representation_type,
         has_vat_number: profile.has_vat_number,
+        has_italian_fiscal_code: profile.has_italian_fiscal_code,
+        fiscal_code: profile.fiscal_code,
+        fiscal_code_mismatch: profile.fiscal_code_mismatch,
+        fiscal_code_status: profile.fiscal_code_status,
         attributes: profile.talent_attributes?.[0] || null,
       }));
 
