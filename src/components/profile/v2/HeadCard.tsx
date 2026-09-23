@@ -59,10 +59,10 @@ export const HeadCard = () => {
     <SectionCard>
       {/* Photo stack header */}
       <div className="mb-16 flex flex-col items-center">
-        <div className="relative h-[220px] w-[168px]">
-          <div className="absolute inset-0 -rotate-6 rounded-2xl bg-field" />
-          <div className="absolute inset-0 rotate-3 rounded-2xl bg-field/80" />
-          <div className="absolute inset-0 overflow-hidden rounded-2xl bg-muted">
+        <div className="relative h-[252px] w-[168px]">
+          <div className="absolute inset-0 -rotate-6 rounded-xl bg-field" />
+          <div className="absolute inset-0 rotate-3 rounded-xl bg-field/80" />
+          <div className="absolute inset-0 overflow-hidden rounded-xl bg-muted">
             {profileRow?.profile_photo_url ? (
               <img
                 src={profileRow.profile_photo_url}

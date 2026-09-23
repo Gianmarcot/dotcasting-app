@@ -55,8 +55,10 @@ const MediaArea = ({
   const noun = kind === "photo" ? "foto" : "video";
   const { required, covered } = requiredProgress(items, keys);
   const missing = required > 0 && covered < required;
-  const latest = items[items.length - 1];
-  const ratio = kind === "photo" ? "h-[220px] w-[168px]" : "h-[168px] w-[168px]";
+  const cover =
+    (kind === "photo" ? items.find((i) => i.category === PROFILE_PHOTO_CATEGORY) : undefined) ??
+    items[items.length - 1];
+  const ratio = kind === "photo" ? "h-[252px] w-[168px]" : "h-[168px] w-[168px]";
 
   if (items.length === 0) {
     return (
