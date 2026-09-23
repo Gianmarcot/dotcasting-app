@@ -1309,6 +1309,21 @@ export type Database = {
           },
         ]
       }
+      signup_notice_throttle: {
+        Row: {
+          email: string
+          last_sent_at: string
+        }
+        Insert: {
+          email: string
+          last_sent_at?: string
+        }
+        Update: {
+          email?: string
+          last_sent_at?: string
+        }
+        Relationships: []
+      }
       talent_attributes: {
         Row: {
           abilities: string[] | null
@@ -1624,6 +1639,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      auth_email_state: { Args: { p_email: string }; Returns: string }
       casting_is_active: { Args: { _casting_id: string }; Returns: boolean }
       confirm_round_selection: {
         Args: { p_password: string; p_selected: string[]; p_token: string }
