@@ -378,7 +378,7 @@ export const TalentOnboarding = () => {
                         errors: guardianVisibleErrors,
                         whatsappError: guardianWhatsappError,
                         onChange: (patch) => {
-                          setBasicTouched(true);
+                          markTouched(Object.keys(patch), "guardian.");
                           setBasicSaved(false);
                           setGuardian((prev) => ({ ...prev, ...patch }));
                         },
@@ -387,7 +387,7 @@ export const TalentOnboarding = () => {
                     : undefined
                 }
                 onChange={(patch) => {
-                  setBasicTouched(true);
+                  markTouched(Object.keys(patch));
                   setBasicSaved(false);
                   setBasic((prev) => ({ ...prev, ...patch }));
                 }}
