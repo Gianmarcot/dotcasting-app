@@ -205,7 +205,7 @@ export const MediaCard = () => {
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
-      <div className="flex flex-col gap-6 md:flex-row">
+      <div className="flex flex-col gap-6 md:flex-row md:items-stretch">
         {photoKeys.length > 0 && (
           <MediaArea
             items={photos}
