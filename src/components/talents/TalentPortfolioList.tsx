@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { useTalentsMainPhotos, TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
 import { Badge } from "@/components/ui/badge";
+import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
 
 interface Props {
   talents: TalentWithAttributes[];
@@ -107,6 +108,7 @@ export const TalentPortfolioList = ({ talents, onSelectTalent }: Props) => {
           >
             <div className="w-full md:w-[180px] md:shrink-0">
               <h3 className="font-medium text-foreground truncate">{name}</h3>
+              <FiscalStatusBadge profile={t} className="mt-1" />
               <p className="text-xs text-muted-foreground mt-1">
                 {[location, age ? `${age} anni` : null].filter(Boolean).join(" · ")}
               </p>

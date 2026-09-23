@@ -16,6 +16,7 @@ import {
 import { ChevronDown } from "lucide-react";
 
 import { TalentFilters } from "@/hooks/useTalents";
+import { FISCAL_STATUS_FILTER_OPTIONS, type FiscalStatus } from "@/lib/fiscalStatus";
 import {
   GENDERS,
   GENDER_IDENTITIES,
@@ -96,7 +97,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
     aspetto: countGroup(filters, ["ethnicity", "eyeColor", "hairColor", "hairLength"]),
     misure: countGroup(filters, ["heightMin", "heightMax", "weightMin", "weightMax", "shirtSize", "shoeMin", "shoeMax", "chestMin", "chestMax", "hipsMin", "hipsMax"]),
     competenze: countGroup(filters, ["skillSearch", "language"]),
-    lavoro: countGroup(filters, ["hasVat", "travelAvailability"]),
+    lavoro: countGroup(filters, ["hasVat", "travelAvailability", "fiscalStatus"]),
   };
 
   return (
@@ -306,6 +307,21 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
               <SelectItem value="__all">Tutti</SelectItem>
               <SelectItem value="yes">Sì</SelectItem>
               <SelectItem value="no">No</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label className="text-xs text-muted-foreground mb-1 block">Codice fiscale</label>
+          <Select
+            value={filters.fiscalStatus || "__all"}
+            onValueChange={(v) => set({ fiscalStatus: v === "__all" ? undefined : (v as FiscalStatus) })}
+          >
+            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all">Tutti</SelectItem>
+              {FISCAL_STATUS_FILTER_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

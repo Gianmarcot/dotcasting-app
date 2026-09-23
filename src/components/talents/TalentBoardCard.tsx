@@ -3,6 +3,7 @@ import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
 import { Badge } from "@/components/ui/badge";
 import { MinorBadge } from "@/components/talents/MinorBadge";
+import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
 import { Image as ImageIcon, Video, FileText } from "lucide-react";
 
 export interface MaterialIndicators {
@@ -126,6 +127,7 @@ export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }:
         <div className="flex items-center gap-2">
           <div className="text-[15px] font-medium leading-tight">{name}</div>
           <MinorBadge birthDate={talent.birth_date} withIcon={false} />
+          <FiscalStatusBadge profile={talent} withIcon={false} />
         </div>
         {meta && (
           <div className="truncate text-[12px] text-white/80 mt-0.5">{meta}</div>

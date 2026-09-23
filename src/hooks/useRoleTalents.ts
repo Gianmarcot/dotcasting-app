@@ -31,6 +31,10 @@ export type RoleTalentWithProfile = Tables<"role_talents"> & {
     birth_date: string | null;
     city: string | null;
     gender: string | null;
+    has_italian_fiscal_code: boolean | null;
+    fiscal_code: string | null;
+    fiscal_code_mismatch: boolean | null;
+    fiscal_code_status: string | null;
   } | null;
 };
 
@@ -44,7 +48,8 @@ export const useRoleTalents = (roleId: string | undefined) => {
         .select(`
           *,
           profile:profiles!role_talents_profile_id_fkey(
-            id, first_name, last_name, profile_photo_url, birth_date, city, gender
+            id, first_name, last_name, profile_photo_url, birth_date, city, gender,
+            has_italian_fiscal_code, fiscal_code, fiscal_code_mismatch, fiscal_code_status
           )
         `)
         .eq("casting_role_id", roleId!)
