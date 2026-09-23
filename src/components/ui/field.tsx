@@ -127,7 +127,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
     const [focused, setFocused] = useState(false);
     const [revealed, setRevealed] = useState(false);
     const floating = focused || value !== "";
-    const message = error || warning;
+    const message = error?.trim() || warning?.trim() || null;
     const isPassword = type === "password";
     const inputType = isPassword && revealed ? "text" : type;
 
