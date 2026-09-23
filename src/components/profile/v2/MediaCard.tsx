@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import { Camera, Clapperboard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Camera, Clapperboard, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTalentMedia } from "@/hooks/useTalentMedia";
 import {
   PHOTO_CATEGORIES,
   VIDEO_CATEGORIES,
-  getCategoryLabel,
+  getCategoryMin,
 } from "@/lib/mediaCategories";
 import {
   PROFILE_PHOTO_CATEGORY,
@@ -20,115 +20,111 @@ import { useSearchParams } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useProfileForm } from "./ProfileFormContext";
 
-const TILE_WIDTH = 140;
-const TILE_GAP = 16;
-const MOBILE_COLS = 3;
+/** Somma dei minimi richiesti e di quanti sono effettivamente coperti. */
+const requiredProgress = (items: TalentMedia[], keys: string[]) => {
+  let required = 0;
+  let covered = 0;
+  keys.forEach((key) => {
+    const min = getCategoryMin(key);
+    if (!min) return;
+    required += min;
+    covered += Math.min(min, items.filter((i) => i.category === key).length);
+  });
+  return { required, covered };
+};
 
-const tileClass = "w-[min(140px,calc((100%_-_32px)/3))] flex-shrink-0";
-
-/** Striscia di anteprime con contatore "+ N" e pulsante di apertura della modale. */
-const MediaStrip = ({
+/** Area foto o video: conteggio, preview a pila e pulsante di apertura della modale. */
+const MediaArea = ({
   items,
+  keys,
   kind,
-  emptyLabel,
+  emptyTitle,
+  emptyText,
   buttonLabel,
-  description,
   onOpen,
 }: {
   items: TalentMedia[];
+  keys: string[];
   kind: "photo" | "video";
-  emptyLabel: string;
+  emptyTitle: string;
+  emptyText: string;
   buttonLabel: string;
-  description?: string;
   onOpen: () => void;
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [capacity, setCapacity] = useState(3);
-  const ratio = kind === "photo" ? "aspect-[2/3]" : "aspect-square";
+  const Icon = kind === "photo" ? Camera : Clapperboard;
+  const noun = kind === "photo" ? "foto" : "video";
+  const { required, covered } = requiredProgress(items, keys);
+  const missing = required > 0 && covered < required;
+  const latest = items[items.length - 1];
+  const ratio = kind === "photo" ? "h-[220px] w-[168px]" : "h-[168px] w-[168px]";
 
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const update = () => {
-      const width = el.clientWidth;
-      const tileWidth = Math.min(
-        TILE_WIDTH,
-        (width - (MOBILE_COLS - 1) * TILE_GAP) / MOBILE_COLS
-      );
-      const cap = Math.max(1, Math.floor((width + TILE_GAP) / (tileWidth + TILE_GAP)));
-      setCapacity(cap);
-    };
-
-    const initialTimer = setTimeout(update, 50);
-    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
-    if (ro) ro.observe(el);
-    else window.addEventListener("resize", update);
-
-    return () => {
-      clearTimeout(initialTimer);
-      if (ro) ro.disconnect();
-      else window.removeEventListener("resize", update);
-    };
-  }, [items.length]);
-
-  const shownCount = items.length <= capacity ? items.length : Math.max(1, capacity - 1);
-  const shown = items.slice(0, shownCount);
-  const remaining = items.length - shownCount;
-
-  return (
-    <div className="rounded-2xl border border-dashed border-border p-6">
-      {description && (
-        <p className="mb-6 text-[15px] leading-snug text-field-label">{description}</p>
-      )}
-      {items.length > 0 ? (
-        <div ref={containerRef} className="flex flex-nowrap gap-4 overflow-hidden">
-          {shown.map((item) => (
-            <div key={item.id} className={cn("relative", tileClass)}>
-              {kind === "photo" ? (
-                <img
-                  src={item.url}
-                  alt={getCategoryLabel(item.category)}
-                  className={cn("w-full rounded-xl object-cover", ratio)}
-                />
-              ) : (
-                <video
-                  src={item.url}
-                  poster={item.thumbnail_url ?? undefined}
-                  preload="metadata"
-                  muted
-                  playsInline
-                  className={cn("w-full rounded-xl bg-black object-cover", ratio)}
-                />
-              )}
-              <span className="absolute left-1/2 top-2 max-w-[calc(100%-16px)] -translate-x-1/2 truncate rounded-full bg-background px-3 py-1 text-xs text-foreground">
-                {getCategoryLabel(item.category)}
-              </span>
-            </div>
-          ))}
-          {remaining > 0 && (
-            <button
-              type="button"
-              onClick={onOpen}
-              className={cn(
-                "flex items-center justify-center rounded-xl bg-muted text-[15px] text-field-label hover:bg-muted/80",
-                ratio,
-                tileClass
-              )}
-            >
-              + {remaining} {kind === "photo" ? "foto" : "video"}
-            </button>
-          )}
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border p-8 text-center">
+        <Icon strokeWidth={1} className="h-8 w-8 text-field-label" />
+        <div className="space-y-1">
+          <p className="font-display text-base uppercase text-foreground">{emptyTitle}</p>
+          <p className="text-[15px] leading-snug text-field-label">{emptyText}</p>
         </div>
-      ) : (
-        <p className="py-8 text-center text-[15px] text-field-label">{emptyLabel}</p>
-      )}
-      <div className="mt-6 flex justify-center">
-        <Button type="button" size="lg" iconPosition="left" onClick={onOpen}>
-          {kind === "photo" ? <Camera /> : <Clapperboard />}
-          {buttonLabel}
+        <Button type="button" variant="secondary" size="lg" iconPosition="left" onClick={onOpen}>
+          <Upload />
+          Carica {noun}
         </Button>
       </div>
+    );
+  }
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
+      className="flex flex-1 cursor-pointer flex-col items-center gap-8 rounded-2xl border border-dashed border-border p-8 text-center"
+    >
+      <p className="text-[15px] text-field-label">
+        {missing ? (
+          <>
+            <span className="text-warning">
+              {covered} di {required}
+            </span>{" "}
+            {noun} richieste
+          </>
+        ) : (
+          <>
+            {items.length} {noun}
+          </>
+        )}
+      </p>
+
+      <div className={cn("relative", ratio)}>
+        <div className="absolute inset-0 -rotate-6 rounded-2xl bg-field" />
+        <div className="absolute inset-0 rotate-3 rounded-2xl bg-field/80" />
+        <div className="absolute inset-0 overflow-hidden rounded-2xl bg-muted">
+          {kind === "photo" ? (
+            <img src={latest.url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <video
+              src={latest.url}
+              poster={latest.thumbnail_url ?? undefined}
+              preload="metadata"
+              muted
+              playsInline
+              className="h-full w-full bg-black object-cover"
+            />
+          )}
+        </div>
+      </div>
+
+      <Button type="button" size="lg" iconPosition="left" onClick={onOpen}>
+        <Icon />
+        {buttonLabel}
+      </Button>
     </div>
   );
 };
@@ -189,38 +185,42 @@ export const MediaCard = () => {
     all.filter((m) => m.media_type === "video" && videoKeys.includes(m.category))
   );
 
-  const openPhotos = (category: MediaCategory) => {
-    setInitialCategory(category);
+  const openPhotos = () => {
+    setInitialCategory(
+      (photoKeys.includes(PROFILE_PHOTO_CATEGORY)
+        ? PROFILE_PHOTO_CATEGORY
+        : photoKeys[0]) as MediaCategory
+    );
     setGalleryOpen(true);
   };
 
   return (
     <SectionCard icon={<Camera strokeWidth={1} />} title="Galleria e media">
-      {photoKeys.length > 0 && (
-        <MediaStrip
-          items={photos}
-          kind="photo"
-          emptyLabel="Non hai ancora caricato nessuna foto."
-          buttonLabel="Tutte le foto"
-          onOpen={() =>
-            openPhotos(
-              (photoKeys.includes(PROFILE_PHOTO_CATEGORY)
-                ? PROFILE_PHOTO_CATEGORY
-                : photoKeys[0]) as MediaCategory
-            )
-          }
-        />
-      )}
+      <div className="flex flex-col gap-6 md:flex-row">
+        {photoKeys.length > 0 && (
+          <MediaArea
+            items={photos}
+            keys={photoKeys}
+            kind="photo"
+            emptyTitle="Nessuna foto"
+            emptyText="Carica le tue foto per far conoscere il tuo aspetto attuale."
+            buttonLabel="Tutte le foto"
+            onOpen={openPhotos}
+          />
+        )}
 
-      {videoKeys.length > 0 && (
-        <MediaStrip
-          items={videos}
-          kind="video"
-          emptyLabel="Non hai ancora caricato nessun video."
-          buttonLabel="Tutti i video"
-          onOpen={() => setVideosOpen(true)}
-        />
-      )}
+        {videoKeys.length > 0 && (
+          <MediaArea
+            items={videos}
+            keys={videoKeys}
+            kind="video"
+            emptyTitle="Nessun video"
+            emptyText="Carica un video di presentazione o il tuo showreel."
+            buttonLabel="Tutti i video"
+            onOpen={() => setVideosOpen(true)}
+          />
+        )}
+      </div>
 
       <MediaGalleryModal
         kind="photo"
