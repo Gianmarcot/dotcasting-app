@@ -467,12 +467,14 @@ export const MediaGalleryModal = ({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=open]:duration-[400ms] data-[state=closed]:duration-[250ms] data-[state=open]:ease-[cubic-bezier(0.23,1,0.32,1)]" />
         <DialogPrimitive.Content
-          className="fixed inset-0 z-50 overflow-y-auto bg-card px-5 py-8 outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in motion-reduce:data-[state=closed]:slide-out-to-bottom-0 sm:px-10"
+          className="fixed inset-x-0 bottom-0 top-6 z-50 overflow-y-auto rounded-t-3xl bg-card px-5 pb-8 outline-none shadow-2xl ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in motion-reduce:data-[state=closed]:slide-out-to-bottom-0 sm:px-10"
           aria-describedby={undefined}
         >
-          <ModalNavBar showCloseLabel onClose={() => onOpenChange(false)} className="fixed right-8 top-8 z-10" />
+          <div className="pointer-events-none sticky top-0 z-10 -mx-5 flex justify-end px-3 pt-8 sm:-mx-10 sm:px-8">
+            <ModalNavBar showCloseLabel onClose={() => onOpenChange(false)} className="pointer-events-auto" />
+          </div>
 
-          <div className="mx-auto mt-16 w-full max-w-[1400px] pr-20">
+          <div className="mx-auto mt-2 w-full max-w-[1400px] pr-20">
             <DialogPrimitive.Title className="font-display text-2xl uppercase tracking-wide text-foreground">
               {config.title}
             </DialogPrimitive.Title>
