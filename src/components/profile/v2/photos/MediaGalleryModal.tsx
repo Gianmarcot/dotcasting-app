@@ -548,21 +548,7 @@ export const MediaGalleryModal = ({
             </div>
 
             {/* Requisito minimo + aggiungi */}
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-12">
-              <Button
-                type="button"
-                size="lg"
-                onClick={() => fileRef.current?.click()}
-                disabled={uploading > 0}
-                className="w-full shrink-0 sm:w-auto"
-              >
-                {uploading > 0 ? <Loader2 className="animate-spin" /> : <Plus />}
-                {singleSlot && items.length > 0
-                  ? kind === "photo"
-                    ? "Sostituisci la foto"
-                    : "Sostituisci il video"
-                  : config.addLabel}
-              </Button>
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-h-6 max-w-2xl space-y-2">
                 <p className="text-[15px] leading-snug text-field-label">
                   {getCategoryDescription(category)}
@@ -574,6 +560,20 @@ export const MediaGalleryModal = ({
                   </p>
                 )}
               </div>
+              <Button
+                type="button"
+                size="lg"
+                onClick={() => fileRef.current?.click()}
+                disabled={uploading > 0}
+                className="w-full sm:w-auto"
+              >
+                {uploading > 0 ? <Loader2 className="animate-spin" /> : <Plus />}
+                {singleSlot && items.length > 0
+                  ? kind === "photo"
+                    ? "Sostituisci la foto"
+                    : "Sostituisci il video"
+                  : config.addLabel}
+              </Button>
             </div>
 
             <input
