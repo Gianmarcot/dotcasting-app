@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.auth_email_state(text) TO service_role;
