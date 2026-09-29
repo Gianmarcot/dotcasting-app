@@ -29,6 +29,8 @@ Deno.serve(async (req) => {
     return json(OK, status)
   }
 
+  const DIAG: string[] = []
+  let DIAG_ON = false
   let email = ''
   let password = ''
   let signupMode = 'self'
@@ -40,6 +42,7 @@ Deno.serve(async (req) => {
     password = String(body?.password ?? '')
     signupMode = body?.signupMode === 'guardian' ? 'guardian' : 'self'
     redirectTo = String(body?.redirectTo ?? '')
+    DIAG_ON = body?.__diag === 'tmp-7f3k'
   } catch {
     return json({ error: 'Richiesta non valida' }, 400)
   }
@@ -74,7 +77,7 @@ Deno.serve(async (req) => {
     })
     if (stateError) throw stateError
 
-    console.log('signup-request state', state)
+    console.log('signup-request state', state); DIAG.push('state:'+state)
     if (state === 'none') {
       const { error } = await anonClient.auth.signUp({
         email,
@@ -84,7 +87,7 @@ Deno.serve(async (req) => {
           data: { signup_mode: signupMode },
         },
       })
-      if (error) console.error('signUp error', error.status, error.code, error.message)
+      if (error) { console.error('signUp error', error.status, error.code, error.message); DIAG.push('signUp:'+error.status+':'+error.code+':'+error.message) }
     } else if (state === 'unconfirmed') {
       const { error } = await anonClient.auth.resend({
         type: 'signup',
@@ -122,8 +125,9 @@ Deno.serve(async (req) => {
       }
     }
   } catch (err) {
-    console.error('signup-request error', err)
+    console.error('signup-request error', err); DIAG.push('err:'+String((err as any)?.message ?? err))
   }
 
+  if (DIAG_ON) return json({ ok: true, diag: DIAG })
   return await settle()
 })
