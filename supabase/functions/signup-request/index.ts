@@ -74,8 +74,9 @@ Deno.serve(async (req) => {
     })
     if (stateError) throw stateError
 
+    console.log('signup-request state', state)
     if (state === 'none') {
-      await anonClient.auth.signUp({
+      const { error } = await anonClient.auth.signUp({
         email,
         password,
         options: {
@@ -83,12 +84,14 @@ Deno.serve(async (req) => {
           data: { signup_mode: signupMode },
         },
       })
+      if (error) console.error('signUp error', error.status, error.code, error.message)
     } else if (state === 'unconfirmed') {
-      await anonClient.auth.resend({
+      const { error } = await anonClient.auth.resend({
         type: 'signup',
         email,
         options: { emailRedirectTo },
       })
+      if (error) console.error('resend error', error.status, error.code, error.message)
     } else {
       // Account già confermato: avvisa il proprietario della casella, max 1 volta all'ora.
       const { data: row } = await admin
