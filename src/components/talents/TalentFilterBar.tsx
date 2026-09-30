@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
 import { Surface } from "@/components/ui/surface";
+import { Switch } from "@/components/ui/switch";
 
 import { TalentFilters } from "@/hooks/useTalents";
 import { FISCAL_STATUS_FILTER_OPTIONS, type FiscalStatus } from "@/lib/fiscalStatus";
@@ -60,15 +61,17 @@ interface FilterGroupProps {
 const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button variant="secondary" size="lg" className="gap-2 font-normal">
-        {label}
-        {count > 0 && (
-          <Badge className="h-5 min-w-[20px] px-1.5 text-[10px] bg-primary text-primary-foreground">
-            {count}
-          </Badge>
-        )}
-        <ChevronDown className="h-5 w-5 opacity-50" />
-      </Button>
+      <button type="button" className="dc-select-trigger w-auto gap-3 rounded-full">
+        <span className="flex items-center gap-2">
+          {label}
+          {count > 0 && (
+            <Badge className="h-5 min-w-[20px] px-1.5 text-[10px] bg-primary text-primary-foreground">
+              {count}
+            </Badge>
+          )}
+        </span>
+        <ChevronDown className="h-5 w-5" />
+      </button>
     </PopoverTrigger>
     <PopoverContent align="start" className={wide ? "w-[340px] p-4" : "w-[280px] p-4"}>
       <div className="space-y-3">
@@ -102,7 +105,8 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   };
 
   return (
-    <Surface variant="raised" className="flex flex-wrap items-center gap-2">
+    <Surface variant="raised" className="flex flex-wrap items-center gap-x-2 gap-y-2">
+
 
       {/* Ruolo */}
       <FilterGroup label="Ruolo" count={groupCounts.role}>
@@ -346,6 +350,15 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
           Reset
         </button>
       )}
+
+      {/* Solo CF validi */}
+      <label className="ml-auto flex items-center gap-3 cursor-pointer text-sm font-medium text-foreground">
+        <Switch
+          checked={!!filters.onlyValidCf}
+          onCheckedChange={(v) => set({ onlyValidCf: v || undefined })}
+        />
+        Solo CF validi
+      </label>
     </Surface>
   );
 };

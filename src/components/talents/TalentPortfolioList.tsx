@@ -1,133 +1,126 @@
 import { useMemo } from "react";
-import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
+import { useQuery } from "@tanstack/react-query";
+import { Camera, Play } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { TalentWithAttributes } from "@/hooks/useTalents";
 import { useTalentsMainPhotos, TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
-import { Badge } from "@/components/ui/badge";
-import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
+import { FiscalPill } from "@/components/talents/TalentStatusPill";
+import { buildDisplayName, buildMeta } from "@/components/talents/TalentBoardCard";
+import { cn } from "@/lib/utils";
 
 interface Props {
   talents: TalentWithAttributes[];
   onSelectTalent: (t: TalentWithAttributes) => void;
 }
 
-const buildName = (t: TalentWithAttributes) => {
-  if (t.stage_name) return t.stage_name;
-  return [t.first_name, t.last_name].filter(Boolean).join(" ") || "Senza nome";
+/** Conteggio foto/video per profilo in un'unica query. */
+const useMediaCounts = (ids: string[]) => {
+  const sorted = [...ids].sort();
+  return useQuery({
+    queryKey: ["owner-talents-media-counts", sorted],
+    enabled: sorted.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("talent_media")
+        .select("profile_id, media_type")
+        .in("profile_id", sorted);
+      if (error) throw error;
+      const map = new Map<string, { photos: number; videos: number }>();
+      (data || []).forEach((r: any) => {
+        const c = map.get(r.profile_id) || { photos: 0, videos: 0 };
+        if (r.media_type === "photo") c.photos++;
+        else if (r.media_type === "video") c.videos++;
+        map.set(r.profile_id, c);
+      });
+      return map;
+    },
+  });
 };
 
-const buildInitials = (t: TalentWithAttributes) => {
-  if (t.stage_name) {
-    const p = t.stage_name.trim().split(/\s+/);
-    return ((p[0]?.[0] || "") + (p[1]?.[0] || "")).toUpperCase();
-  }
-  return (((t.first_name?.[0] || "") + (t.last_name?.[0] || "")) || "?").toUpperCase();
-};
-
-const buildLocation = (t: TalentWithAttributes) => {
-  const isIt = !t.country || /^ita/i.test(t.country) || t.country === "IT";
-  return isIt ? (t.city || "") : [t.city, t.country].filter(Boolean).join(", ");
-};
-
-const PhotoStrip = ({
-  photos,
-  initials,
-  name,
-  onPhotoClick,
-}: {
-  photos: TalentMainPhoto[];
-  initials: string;
-  name: string;
-  onPhotoClick: () => void;
-}) => {
-  // Responsive slots: 2 mobile, 4 tablet, 6 desktop. Use max (6) for slicing; CSS hides extras.
-  const MAX = 6;
-  const visible = photos.slice(0, MAX);
-  const remaining = photos.length - visible.length;
-  const showPlus = remaining > 0;
-
-  if (photos.length === 0) {
+/** Cella anteprima; `hideBelow` nasconde le celle oltre la seconda sotto md. */
+const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }) => {
+  const renderCell = (i: number, slots: number, extraClass: string) => {
+    const p = photos[i];
+    const remaining = photos.length - slots;
+    const isLast = i === slots - 1 && remaining > 0;
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 flex-1">
-        <div
-          onClick={(e) => { e.stopPropagation(); onPhotoClick(); }}
-          className="relative bg-[#2C2C2A] rounded-md overflow-hidden flex items-center justify-center cursor-pointer"
-          style={{ aspectRatio: "3 / 4" }}
-        >
-          <span className="text-[#F1EFE8] text-2xl font-medium">{initials}</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 flex-1">
-      {visible.map((p, idx) => {
-        const isLast = idx === visible.length - 1 && showPlus;
-        return (
-          <div
-            key={p.id}
-            onClick={(e) => { e.stopPropagation(); onPhotoClick(); }}
-            className="relative rounded-md overflow-hidden bg-muted cursor-pointer"
-            style={{ aspectRatio: "3 / 4" }}
-          >
-            <img
-              src={p.thumbnail_url || p.url}
-              alt={name}
-              className="absolute inset-0 h-full w-full object-cover"
-              loading="lazy"
-            />
+      <div key={`${slots}-${i}`} className={cn("relative overflow-hidden rounded-lg", extraClass)} style={{ aspectRatio: "2 / 3" }}>
+        {p && (
+          <>
+            <img src={p.thumbnail_url || p.url} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
             {isLast && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                <span className="text-white text-lg font-medium">+{remaining}</span>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <span className="text-2xl font-medium text-white">+ {remaining}</span>
               </div>
             )}
-          </div>
-        );
-      })}
-    </div>
+          </>
+        )}
+      </div>
+    );
+  };
+  return (
+    <>
+      <div className="hidden md:grid flex-1 grid-cols-4 gap-2">
+        {[0, 1, 2, 3].map((i) => renderCell(i, 4, ""))}
+      </div>
+      <div className="grid md:hidden grid-cols-2 gap-2">
+        {[0, 1].map((i) => renderCell(i, 2, ""))}
+      </div>
+    </>
   );
 };
 
 export const TalentPortfolioList = ({ talents, onSelectTalent }: Props) => {
   const ids = useMemo(() => talents.map((t) => t.id), [talents]);
   const { data: photosMap } = useTalentsMainPhotos(ids);
+  const { data: counts } = useMediaCounts(ids);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {talents.map((t) => {
         const photos = photosMap?.get(t.id) || [];
-        const name = buildName(t);
-        const initials = buildInitials(t);
-        const location = buildLocation(t);
-        const age = calculateAge(t.birth_date);
+        const name = buildDisplayName(t);
+        const meta = buildMeta(t);
+        const c = counts?.get(t.id) || { photos: 0, videos: 0 };
 
         return (
           <div
             key={t.id}
+            role="button"
+            tabIndex={0}
             onClick={() => onSelectTalent(t)}
-            className="flex flex-col md:flex-row gap-4 bg-white rounded-2xl border-0 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
+            onKeyDown={(e) => { if (e.key === "Enter") onSelectTalent(t); }}
+            className="flex flex-col md:flex-row md:justify-between gap-6 rounded-3xl bg-white p-8 shadow-sm cursor-pointer transition-shadow hover:shadow-md"
           >
-            <div className="w-full md:w-[180px] md:shrink-0">
-              <h3 className="font-medium text-foreground truncate">{name}</h3>
-              <FiscalStatusBadge profile={t} className="mt-1" />
-              <p className="text-xs text-muted-foreground mt-1">
-                {[location, age ? `${age} anni` : null].filter(Boolean).join(" · ")}
-              </p>
-              {t.talent_categories && t.talent_categories.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {t.talent_categories.slice(0, 4).map((cat) => (
-                    <Badge key={cat} variant="secondary" className="text-[10px]">
-                      {cat}
-                    </Badge>
-                  ))}
+            <div className="flex flex-col justify-between gap-6 md:w-[260px] md:shrink-0">
+              <div className="flex flex-col items-start gap-4">
+                <div>
+                  <h3 className="font-display uppercase text-xl leading-tight text-[#1a1a1a]">{name}</h3>
+                  {meta && <p className="mt-1 text-sm text-[#686868]">{meta}</p>}
                 </div>
-              )}
+                <FiscalPill profile={t} />
+                {t.talent_categories && t.talent_categories.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {t.talent_categories.map((cat) => (
+                      <span key={cat} className="rounded-full bg-[#f4f0ec] px-3 py-1.5 text-[12px] font-medium text-[#1a1a1a]">
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                <span className="inline-flex items-center gap-[5px] rounded-full border border-[#c7c7c7] bg-white px-3 py-1.5 text-[12px] font-medium text-[#1a1a1a]">
+                  <Camera className="h-5 w-5" strokeWidth={1.5} />
+                  {c.photos} foto
+                </span>
+                <span className="inline-flex items-center gap-[5px] rounded-full border border-[#c7c7c7] bg-white px-3 py-1.5 text-[12px] font-medium text-[#1a1a1a]">
+                  <Play className="h-5 w-5" strokeWidth={1.5} />
+                  {c.videos} video
+                </span>
+              </div>
             </div>
-            <PhotoStrip
-              photos={photos}
-              initials={initials}
-              name={name}
-              onPhotoClick={() => onSelectTalent(t)}
-            />
+            <PhotoGrid photos={photos} name={name} />
           </div>
         );
       })}

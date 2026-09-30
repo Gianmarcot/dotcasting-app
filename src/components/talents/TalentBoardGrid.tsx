@@ -13,7 +13,7 @@ export const TalentBoardGrid = ({ talents, onSelectTalent }: Props) => {
   const { data: photosMap } = useTalentsMainPhotos(ids);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-[10px]">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
       {talents.map((t) => (
         <TalentBoardCard
           key={t.id}
