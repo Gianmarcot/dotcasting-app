@@ -16,11 +16,11 @@ export const ProfileSaveBar = () => {
     >
       <div
         className={cn(
-          "flex h-auto w-full items-center justify-end gap-2 rounded-full bg-charcoal p-2 shadow-2xl md:h-[80px] md:w-[min(560px,calc(100vw-2rem))] md:justify-between md:gap-4 md:py-0 md:pl-6 md:pr-4 lg:gap-6 lg:pl-8",
+          "flex h-auto w-full items-center justify-end gap-2 rounded-full bg-ink p-2 shadow-2xl md:h-[80px] md:w-[min(560px,calc(100vw-2rem))] md:justify-between md:gap-4 md:py-0 md:pl-6 md:pr-4 lg:gap-6 lg:pl-8",
           isDirty && "pointer-events-auto"
         )}
       >
-        <div className="hidden min-w-0 items-center gap-3 text-charcoal-foreground md:flex">
+        <div className="hidden min-w-0 items-center gap-3 text-cream md:flex">
           <Pencil className="h-5 w-5 shrink-0" strokeWidth={2} />
           <span className="truncate text-base">
             <span className="font-bold">{dirtyCount}</span>
