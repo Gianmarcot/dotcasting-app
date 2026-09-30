@@ -10,8 +10,8 @@ export const ProfileSaveBar = () => {
     <div
       aria-hidden={!isDirty}
       className={cn(
-        "pointer-events-none fixed left-4 right-4 top-20 z-40 transition-all duration-300 md:bottom-6 md:left-[calc(50%+8rem)] md:right-auto md:top-auto md:-translate-x-1/2",
-        isDirty ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0 md:translate-y-6"
+        "pointer-events-none fixed bottom-2 left-4 right-4 z-40 transition-all duration-300 md:bottom-6 md:left-[calc(50%+8rem)] md:right-auto md:-translate-x-1/2",
+        isDirty ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0 md:translate-y-6"
       )}
     >
       <div
