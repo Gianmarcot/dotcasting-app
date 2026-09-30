@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Search, Send, Star, Clock, X, Phone, CheckCircle } from "lucide-react";
+import { Surface } from "@/components/ui/surface";
 import { it } from "@/lib/i18n";
 import type { ApplicationStatus } from "@/hooks/useApplications";
 
@@ -39,7 +40,7 @@ export const ApplicationFilters = ({
   stats,
 }: ApplicationFiltersProps) => {
   return (
-    <div className="space-y-4">
+    <Surface variant="raised" className="space-y-4">
       {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />

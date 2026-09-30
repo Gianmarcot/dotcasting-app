@@ -172,7 +172,6 @@ export const OwnerTalents = () => {
           </ToggleGroup>
         </div>
       </Surface>
-      </div>
 
       {/* Filters row */}
       <TalentFilterBar filters={filters} onFiltersChange={setFilters} />
