@@ -6,9 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Bell, Eye, Trash2 } from "lucide-react";
+import { Shield, Bell, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
 
 export const TalentSettings = () => {
   const { user } = useAuth();
@@ -18,7 +17,7 @@ export const TalentSettings = () => {
   return (
     <div className="space-y-6 animate-fade-up max-w-3xl">
       <div>
-        <h1 className="text-[21px] text-foreground md:text-2xl">Impostazioni Account</h1>
+        <h1 className="font-display uppercase tracking-wide text-[21px] text-foreground md:text-2xl">Impostazioni Account</h1>
         <p className="text-muted-foreground mt-1">
           Gestisci le impostazioni del tuo account e le preferenze
         </p>
@@ -46,14 +45,14 @@ export const TalentSettings = () => {
 
           <Separator />
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-medium">Email e password</p>
               <p className="text-sm text-muted-foreground">
                 Aggiorna le credenziali di accesso al tuo account
               </p>
             </div>
-            <Button variant="outline" onClick={() => navigate("/talent/aggiorna-accesso")}>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate("/talent/aggiorna-accesso")}>
               Aggiorna i dati di accesso
             </Button>
           </div>
@@ -73,78 +72,44 @@ export const TalentSettings = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <p className="font-medium">Nuovi casting</p>
               <p className="text-sm text-muted-foreground">
                 Ricevi notifiche quando vengono pubblicati nuovi casting
               </p>
             </div>
-            <Switch defaultChecked />
+            <Switch defaultChecked className="shrink-0 mt-0.5" />
           </div>
           <Separator />
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <p className="font-medium">Aggiornamenti candidature</p>
               <p className="text-sm text-muted-foreground">
                 Notifiche sullo stato delle tue candidature
               </p>
             </div>
-            <Switch defaultChecked />
+            <Switch defaultChecked className="shrink-0 mt-0.5" />
           </div>
           <Separator />
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <p className="font-medium">Messaggi</p>
               <p className="text-sm text-muted-foreground">
                 Ricevi notifiche per nuovi messaggi
               </p>
             </div>
-            <Switch defaultChecked />
+            <Switch defaultChecked className="shrink-0 mt-0.5" />
           </div>
           <Separator />
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
               <p className="font-medium">Email promozionali</p>
               <p className="text-sm text-muted-foreground">
                 Suggerimenti e novità sulla piattaforma
               </p>
             </div>
-            <Switch />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Privacy */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Eye className="h-5 w-5" />
-            Privacy
-          </CardTitle>
-          <CardDescription>
-            Controlla la visibilità del tuo profilo
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Profilo pubblico</p>
-              <p className="text-sm text-muted-foreground">
-                Il tuo profilo può essere trovato dai casting director
-              </p>
-            </div>
-            <Switch defaultChecked />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Mostra età</p>
-              <p className="text-sm text-muted-foreground">
-                Mostra la tua età nel profilo pubblico
-              </p>
-            </div>
-            <Switch defaultChecked />
+            <Switch className="shrink-0 mt-0.5" />
           </div>
         </CardContent>
       </Card>
@@ -161,14 +126,14 @@ export const TalentSettings = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-medium">Elimina account</p>
               <p className="text-sm text-muted-foreground">
                 Elimina permanentemente il tuo account e tutti i dati associati
               </p>
             </div>
-            <Button variant="destructive">Elimina account</Button>
+            <Button variant="destructive" className="w-full sm:w-auto">Elimina account</Button>
           </div>
         </CardContent>
       </Card>
