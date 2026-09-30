@@ -1,10 +1,6 @@
-import { useState } from "react";
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
-import { Badge } from "@/components/ui/badge";
-import { MinorBadge } from "@/components/talents/MinorBadge";
-import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
-import { Image as ImageIcon, Video, FileText } from "lucide-react";
+import { MinorPill, FiscalPill } from "@/components/talents/TalentStatusPill";
 
 export interface MaterialIndicators {
   photos: number;
@@ -19,7 +15,7 @@ interface Props {
   materialIndicators?: MaterialIndicators;
 }
 
-const buildDisplayName = (t: TalentWithAttributes) => {
+export const buildDisplayName = (t: TalentWithAttributes) => {
   if (t.stage_name) return t.stage_name;
   const f = t.first_name?.trim() || "";
   const l = t.last_name?.trim() || "";
@@ -27,111 +23,55 @@ const buildDisplayName = (t: TalentWithAttributes) => {
   return f || l || "Senza nome";
 };
 
-const buildInitials = (t: TalentWithAttributes) => {
+export const buildInitials = (t: TalentWithAttributes) => {
   if (t.stage_name) {
     const parts = t.stage_name.trim().split(/\s+/);
-    return (parts[0]?.[0] || "") + (parts[1]?.[0] || "");
+    return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
   }
-  return ((t.first_name?.[0] || "") + (t.last_name?.[0] || "")) || "?";
+  return (((t.first_name?.[0] || "") + (t.last_name?.[0] || "")) || "?").toUpperCase();
 };
 
-const buildLocation = (t: TalentWithAttributes) => {
+export const buildMeta = (t: TalentWithAttributes) => {
   const isIt = !t.country || /^ita/i.test(t.country) || t.country === "IT";
-  return isIt ? (t.city || "") : [t.city, t.country].filter(Boolean).join(", ");
+  const location = isIt ? (t.city || "") : [t.city, t.country].filter(Boolean).join(", ");
+  const age = calculateAge(t.birth_date);
+  return [location, age ? `${age} anni` : null].filter(Boolean).join(" · ");
 };
 
-export const TalentBoardCard = ({ talent, photos, onClick, materialIndicators }: Props) => {
-  const [hover, setHover] = useState(false);
+export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
   const name = buildDisplayName(talent);
-  const initials = buildInitials(talent).toUpperCase();
-  const age = calculateAge(talent.birth_date);
-  const location = buildLocation(talent);
-  const meta = [location, age ? `${age} anni` : null].filter(Boolean).join(" · ");
-
+  const meta = buildMeta(talent);
   const main = photos[0];
-  const second = photos[1];
-  const showSecond = hover && !!second;
 
   return (
     <button
       type="button"
       onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="group relative block w-full overflow-hidden rounded-xl bg-[#2C2C2A] text-left focus:outline-none focus:ring-2 focus:ring-primary"
+      className="group relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#2C2C2A] p-4 text-left transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       style={{ aspectRatio: "2 / 3" }}
     >
       {main ? (
-        <>
-          <img
-            src={main.thumbnail_url || main.url}
-            alt={name}
-            className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
-            style={{ opacity: showSecond ? 0 : 1 }}
-            loading="lazy"
-          />
-          {second && (
-            <img
-              src={second.thumbnail_url || second.url}
-              alt={name}
-              className="absolute inset-0 h-full w-full object-cover transition-opacity duration-200 hidden md:block"
-              style={{ opacity: showSecond ? 1 : 0 }}
-              loading="lazy"
-            />
-          )}
-        </>
+        <img
+          src={main.thumbnail_url || main.url}
+          alt={name}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          loading="lazy"
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[#F1EFE8] text-5xl font-medium tracking-wide">
-            {initials}
-          </span>
+          <span className="text-[#F1EFE8] text-5xl font-medium tracking-wide">{buildInitials(talent)}</span>
         </div>
       )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent from-50% to-black/80" />
 
-      {/* Hover overlay with roles (desktop only) */}
-      {talent.talent_categories && talent.talent_categories.length > 0 && (
-        <div className="absolute inset-x-0 top-0 hidden md:flex flex-wrap gap-1 p-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-b from-black/60 to-transparent">
-          {talent.talent_categories.slice(0, 4).map((cat) => (
-            <Badge key={cat} variant="secondary" className="text-[10px] bg-white/90 text-black">
-              {cat}
-            </Badge>
-          ))}
-        </div>
-      )}
+      <div className="relative flex flex-wrap gap-1">
+        <MinorPill birthDate={talent.birth_date} />
+        <FiscalPill profile={talent} />
+      </div>
 
-      {/* Material indicators */}
-      {materialIndicators && (
-        <div className="absolute top-2 right-2 flex gap-1">
-          {materialIndicators.photos > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
-              <ImageIcon className="h-3 w-3" />
-              {materialIndicators.photos}
-            </span>
-          )}
-          {materialIndicators.videos > 0 && (
-            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
-              <Video className="h-3 w-3" />
-              {materialIndicators.videos}
-            </span>
-          )}
-          {materialIndicators.hasPdf && (
-            <span className="flex items-center gap-0.5 text-[10px] bg-black/60 text-white rounded-full px-1.5 py-0.5">
-              <FileText className="h-3 w-3" />
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Bottom fade overlay */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent px-3 pt-12 pb-2 text-white">
-        <div className="flex items-center gap-2">
-          <div className="text-[15px] font-medium leading-tight">{name}</div>
-          <MinorBadge birthDate={talent.birth_date} withIcon={false} />
-          <FiscalStatusBadge profile={talent} withIcon={false} />
-        </div>
-        {meta && (
-          <div className="truncate text-[12px] text-white/80 mt-0.5">{meta}</div>
-        )}
+      <div className="relative text-white">
+        <div className="font-display uppercase text-lg leading-tight">{name}</div>
+        {meta && <div className="mt-1 truncate text-sm">{meta}</div>}
       </div>
     </button>
   );
