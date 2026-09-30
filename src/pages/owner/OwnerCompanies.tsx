@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Surface } from "@/components/ui/surface";
 import { Plus, Search, MapPin, Film, Users, Calendar } from "lucide-react";
 import { useCompaniesWithStats, useCreateCompany, COMPANY_TYPES } from "@/hooks/useCompanies";
 import { CompanyFormDialog } from "@/components/companies/CompanyFormDialog";
@@ -78,7 +79,7 @@ export const OwnerCompanies = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
+      <Surface variant="raised" className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -109,7 +110,7 @@ export const OwnerCompanies = () => {
             <SelectItem value="castings">N. casting</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </Surface>
 
       {/* Companies list */}
       {isLoading ? (

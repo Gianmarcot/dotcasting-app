@@ -7,6 +7,7 @@ import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Surface } from "@/components/ui/surface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,7 +135,7 @@ export const OwnerTalents = () => {
       </div>
 
       {/* Toolbar: search left, count + sort + view right */}
-      <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+      <Surface variant="raised" className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
         <div className="relative w-full sm:max-w-[450px] sm:flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -170,7 +171,7 @@ export const OwnerTalents = () => {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-      </div>
+      </Surface>
 
       {/* Filters row */}
       <TalentFilterBar filters={filters} onFiltersChange={setFilters} />

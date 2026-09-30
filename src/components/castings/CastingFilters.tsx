@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { it } from "@/lib/i18n";
+import { Surface } from "@/components/ui/surface";
 import type { CastingSort } from "@/hooks/useCastings";
 
 interface CastingFiltersProps {
@@ -30,7 +31,7 @@ export const CastingFilters = ({
   onSortChange,
 }: CastingFiltersProps) => {
   return (
-    <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+    <Surface variant="raised" className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
       {/* Sinistra: stato + search */}
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-1 min-w-0">
         <Select value={status} onValueChange={onStatusChange}>
@@ -79,7 +80,7 @@ export const CastingFilters = ({
           </SelectContent>
         </Select>
       </div>
-    </div>
+    </Surface>
   );
 };
 

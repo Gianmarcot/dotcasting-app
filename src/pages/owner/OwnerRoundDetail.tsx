@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { Surface } from "@/components/ui/surface";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -301,7 +302,7 @@ export const OwnerRoundDetail = () => {
       )}
 
       <div className="space-y-5">
-        <div className="flex flex-wrap items-center gap-4">
+        <Surface variant="raised" className="flex flex-wrap items-center gap-4">
           <div className="relative flex-1 min-w-[240px] max-w-[30rem]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
@@ -324,7 +325,7 @@ export const OwnerRoundDetail = () => {
           <span className="text-sm text-muted-foreground">
             {filtered.length} di {data.talents.length} risultati
           </span>
-        </div>
+        </Surface>
 
         <div className={isShared ? "grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start" : ""}>
           <div className="min-w-0">

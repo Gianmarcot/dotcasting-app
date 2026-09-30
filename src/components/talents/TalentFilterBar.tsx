@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ChevronDown } from "lucide-react";
+import { Surface } from "@/components/ui/surface";
 
 import { TalentFilters } from "@/hooks/useTalents";
 import { FISCAL_STATUS_FILTER_OPTIONS, type FiscalStatus } from "@/lib/fiscalStatus";
@@ -101,7 +102,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <Surface variant="raised" className="flex flex-wrap items-center gap-2">
 
       {/* Ruolo */}
       <FilterGroup label="Ruolo" count={groupCounts.role}>
@@ -345,7 +346,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
           Reset
         </button>
       )}
-    </div>
+    </Surface>
   );
 };
 
