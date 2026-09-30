@@ -124,7 +124,7 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
             aria-label="Apri menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
-            className="text-foreground hover:bg-transparent"
+            className="text-foreground hover:bg-transparent [&_svg]:size-8"
           >
             <MenuIcon />
           </Button>
