@@ -171,6 +171,7 @@ export const OwnerTalents = () => {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
+      </Surface>
       </div>
 
       {/* Filters row */}
