@@ -136,7 +136,7 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
               <DrawerClose asChild>
                 <button
                   onClick={() => void signOut()}
-                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-[15px] text-destructive hover:bg-muted"
+                  className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left text-[15px] text-primary hover:bg-muted"
                 >
                   <LogOut className="h-5 w-5" strokeWidth={1.5} />
                   {it.nav.logout}
