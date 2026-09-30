@@ -7,13 +7,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/useProfile";
 import { it } from "@/lib/i18n";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerClose,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
-  DrawerTrigger,
 } from "@/components/ui/drawer";
 import logo from "@/assets/logo.png";
 
@@ -35,7 +35,20 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
   const unread = useUnreadCommunicationsCount();
   const location = useLocation();
   const [hidden, setHidden] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const lastY = useRef(0);
+  const avatarButtonRef = useRef<HTMLButtonElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleMenuOpenChange = (open: boolean) => {
+    setMenuOpen(open);
+    if (!open) {
+      window.requestAnimationFrame(() => {
+        avatarButtonRef.current?.blur();
+        menuButtonRef.current?.blur();
+      });
+    }
+  };
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -83,7 +96,16 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
       </Link>
 
       <div className="flex items-center gap-2">
-        <Link to="/talent/communications" aria-label={unread > 0 ? `Profilo, ${unread} comunicazioni non lette` : "Profilo"} className="relative h-12 w-12">
+        <Button
+          ref={avatarButtonRef}
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label={unread > 0 ? `Apri menu, ${unread} comunicazioni non lette` : "Apri menu"}
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen(true)}
+          className="relative rounded-full p-0 hover:bg-transparent"
+        >
           <Avatar className="h-12 w-12">
             <AvatarImage src={profile?.profile_photo_url || ""} className="object-cover" />
             <AvatarFallback className="dc-avatar-fallback">{initial}</AvatarFallback>
@@ -91,14 +113,21 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
           {unread > 0 && (
             <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-card" />
           )}
-        </Link>
+        </Button>
 
-        <Drawer>
-          <DrawerTrigger asChild>
-            <button aria-label="Apri menu" className="flex h-12 w-12 items-center justify-center text-foreground">
-              <MenuIcon />
-            </button>
-          </DrawerTrigger>
+        <Drawer open={menuOpen} onOpenChange={handleMenuOpenChange}>
+          <Button
+            ref={menuButtonRef}
+            type="button"
+            variant="ghost"
+            size="icon-lg"
+            aria-label="Apri menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(true)}
+            className="text-foreground hover:bg-transparent"
+          >
+            <MenuIcon />
+          </Button>
           <DrawerContent className="rounded-t-[32px]">
             <DrawerHeader>
               <DrawerTitle className="sr-only">Menu</DrawerTitle>
