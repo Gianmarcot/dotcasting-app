@@ -75,6 +75,6 @@ export const ApplicationFilters = ({
           })}
         </TabsList>
       </Tabs>
-    </div>
+    </Surface>
   );
 };

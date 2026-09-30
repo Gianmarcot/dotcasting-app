@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Surface } from "@/components/ui/surface";
 import { ArrowLeft, Plus, MapPin, Clock, Wallet, Pencil, Trash2 } from "lucide-react";
 import {
   Select,
@@ -214,7 +215,7 @@ export const OwnerCastingDetail = () => {
           )}
 
           {/* Metadata row */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <Surface variant="raised" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <Select value={currentStatus} onValueChange={handleStatusChange}>
               <SelectTrigger className="w-40 rounded-full">
                 <SelectValue />
@@ -246,7 +247,7 @@ export const OwnerCastingDetail = () => {
                 {formatDates()}
               </span>
             )}
-          </div>
+          </Surface>
         </div>
 
         <div className="flex gap-2 shrink-0">
