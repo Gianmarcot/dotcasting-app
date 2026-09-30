@@ -80,7 +80,7 @@ export const CastingFilters = ({
           </SelectContent>
         </Select>
       </div>
-    </div>
+    </Surface>
   );
 };
 
