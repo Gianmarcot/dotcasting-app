@@ -1,7 +1,7 @@
+import { useRef } from "react";
 import { Outlet, Navigate } from "react-router-dom";
 import { TalentSidebar } from "./TalentSidebar";
-import { MobileHeader } from "./MobileHeader";
-import { MobileBottomNavTalent } from "./MobileBottomNavTalent";
+import { TalentMobileNavbar } from "./TalentMobileNavbar";
 import { useOnboardingCheck } from "@/hooks/useOnboardingCheck";
 import { useOwnerSidebarWidth } from "@/hooks/useOwnerSidebarWidth";
 import { useCommunicationSync } from "@/hooks/useCommunicationSync";
@@ -9,6 +9,7 @@ import { useCommunicationSync } from "@/hooks/useCommunicationSync";
 export const TalentLayout = () => {
   const { isLoading, isOnboardingComplete } = useOnboardingCheck();
   const { width } = useOwnerSidebarWidth();
+  const scrollRef = useRef<HTMLDivElement>(null);
   useCommunicationSync();
 
   if (isLoading) {
@@ -29,20 +30,19 @@ export const TalentLayout = () => {
   return (
     <div className="min-h-screen bg-white">
       <TalentSidebar />
-      <MobileHeader variant="talent" />
+      <TalentMobileNavbar scrollRef={scrollRef} />
       <main
-        className="fixed top-0 right-0 bottom-0 left-0 p-0 pt-[52px] pb-[68px] md:p-2 md:pt-2 md:pb-2"
+        className="fixed top-0 right-0 bottom-0 left-0 p-0 md:p-2 md:pt-2 md:pb-2"
         style={{ ["--talent-sidebar-w" as any]: `${width}px` }}
       >
         <div className="h-full bg-background md:rounded-[3rem] overflow-hidden md:ml-[var(--talent-sidebar-w)]">
-          <div className="h-full overflow-y-auto overflow-x-hidden">
-            <div className="p-4 pt-4 md:p-8 md:pt-16 max-w-7xl mx-auto">
+          <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden">
+            <div className="p-4 pt-[104px] pb-[calc(1rem+env(safe-area-inset-bottom))] md:p-8 md:pt-16 max-w-7xl mx-auto">
               <Outlet />
             </div>
           </div>
         </div>
       </main>
-      <MobileBottomNavTalent />
     </div>
   );
 };

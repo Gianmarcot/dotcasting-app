@@ -46,8 +46,8 @@ const ProfileContent = () => {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="-mx-4 w-auto animate-fade-up space-y-6 pb-28 md:mx-auto md:w-full md:max-w-[1040px]">
+        <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
           <h1 className="font-display text-2xl uppercase text-foreground">Il mio profilo</h1>
           <button
             type="button"

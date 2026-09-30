@@ -30,7 +30,7 @@ export const SectionCard = ({
 }) => (
   <section
     className={cn(
-      "w-full rounded-[24px] bg-profile-card px-5 pb-8 pt-8 sm:px-8 sm:pb-12 sm:pt-[54px]",
+      "w-full rounded-none bg-profile-card px-6 pb-12 pt-[54px] md:rounded-[24px] md:px-8",
       className
     )}
   >
