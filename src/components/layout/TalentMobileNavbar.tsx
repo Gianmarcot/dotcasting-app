@@ -114,25 +114,35 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
               </div>
             </DrawerHeader>
             <div className="space-y-1 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              {navItems.map((item) => (
-                <DrawerClose asChild key={item.href}>
-                  <Link
-                    to={item.href}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[15px] hover:bg-muted",
-                      location.pathname === item.href ? "text-primary" : "text-foreground"
-                    )}
-                  >
-                    <item.icon className="h-5 w-5" strokeWidth={1.5} />
-                    <span className="flex-1">{item.label}</span>
-                    {!!item.badge && item.badge > 0 && (
-                      <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium text-primary-foreground">
-                        {item.badge > 9 ? "9+" : item.badge}
-                      </span>
-                    )}
-                  </Link>
-                </DrawerClose>
-              ))}
+              {navItems.map((item) => {
+                const active = location.pathname === item.href;
+                return (
+                  <DrawerClose asChild key={item.href}>
+                    <Link
+                      to={item.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "relative flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[15px] text-foreground hover:bg-muted",
+                        active && "font-bold"
+                      )}
+                    >
+                      {active && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary"
+                        />
+                      )}
+                      <item.icon className="h-5 w-5" strokeWidth={1.5} />
+                      <span className="flex-1">{item.label}</span>
+                      {!!item.badge && item.badge > 0 && (
+                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium text-primary-foreground">
+                          {item.badge > 9 ? "9+" : item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  </DrawerClose>
+                );
+              })}
               <DrawerClose asChild>
                 <button
                   onClick={() => void signOut()}
