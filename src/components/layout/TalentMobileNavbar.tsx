@@ -20,9 +20,12 @@ import logo from "@/assets/logo.png";
 const HIDE_AFTER = 80; // px scrolled before the bar may hide
 const DELTA = 8; // minimum movement to register a direction change
 
+/* Icona menu: geometria del file nav-hamburgher.svg (due tratti, il secondo più
+   corto e allineato a destra), colore ereditato dal testo come da regole di stile. */
 const MenuIcon = () => (
-  <svg width="28" height="12" viewBox="0 0 28 12" fill="none" aria-hidden="true">
-    <path d="M1 1h26M1 11h26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <line x1="3" y1="12" x2="29" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <line x1="11" y1="20" x2="29" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 

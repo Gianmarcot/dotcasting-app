@@ -119,7 +119,7 @@ export const ProfileStrengthCard = () => {
   const fiscalMissing = fiscalStatusOf(profile) === "missing";
 
   return (
-    <section className="rounded-none bg-profile-strength p-6 md:rounded-[24px] md:p-8">
+    <section className="-mb-6 rounded-none bg-profile-strength p-6 md:mb-0 md:rounded-[24px] md:p-8">
       <div className="flex items-center justify-between gap-4">
         <p className="text-base font-medium text-foreground">
           Forza del Profilo: {score}/{TOTAL} {emoji}
