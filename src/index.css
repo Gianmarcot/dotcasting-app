@@ -185,6 +185,25 @@
     --dot-unread: var(--brand-600);
   }
 
+  /* Campi bianchi in evidenza su sfondo cream (barre filtri admin).
+     La superficie non dipinge nulla: cambia solo il colore dei campi. */
+  [data-surface="raised"] {
+    --surface: transparent;
+    --surface-fg: var(--ink);
+    --field-bg: var(--white);
+    --field-bg-disabled: var(--grey-200);
+    --field-fg: var(--ink);
+    --field-fg-disabled: var(--grey-600);
+    --field-label: var(--grey-600);
+    --field-label-disabled: color-mix(in srgb, var(--grey-600) 60%, transparent);
+    --field-border: transparent;
+    --field-border-focus: var(--ink);
+    --field-icon: var(--field-label);
+    --field-icon-disabled: var(--field-label-disabled);
+    --dot-unread: var(--brand-600);
+  }
+
+
   [data-surface="brand"] {
     --surface: var(--brand-600);
     --surface-fg: var(--white);

@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 
 import { cn } from "@/lib/utils";
 
-export type SurfaceVariant = "base" | "muted" | "brand" | "inverse";
+export type SurfaceVariant = "base" | "muted" | "brand" | "inverse" | "raised";
 
 /**
  * Contesto di superficie: i campi (Input, Select, Textarea) leggono i token
