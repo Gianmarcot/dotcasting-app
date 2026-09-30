@@ -7,6 +7,7 @@ import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Surface } from "@/components/ui/surface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
