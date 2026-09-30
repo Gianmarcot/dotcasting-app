@@ -99,7 +99,7 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
               <MenuIcon />
             </button>
           </DrawerTrigger>
-          <DrawerContent>
+          <DrawerContent className="rounded-t-[32px]">
             <DrawerHeader>
               <DrawerTitle className="sr-only">Menu</DrawerTitle>
               <div className="flex items-center gap-3">
@@ -115,27 +115,29 @@ export const TalentMobileNavbar = ({ scrollRef }: { scrollRef: React.RefObject<H
             </DrawerHeader>
             <div className="space-y-1 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               {navItems.map((item) => {
-                const active = location.pathname === item.href;
+                const active =
+                  location.pathname === item.href || location.pathname.startsWith(item.href + "/");
                 return (
                   <DrawerClose asChild key={item.href}>
                     <Link
                       to={item.href}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "relative flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[15px] text-foreground hover:bg-muted",
-                        active && "font-bold"
+                        "flex w-full items-center gap-3 rounded-lg px-4 py-3 text-[15px]",
+                        active
+                          ? "bg-primary font-bold text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
                       )}
                     >
-                      {active && (
-                        <span
-                          aria-hidden="true"
-                          className="absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary"
-                        />
-                      )}
                       <item.icon className="h-5 w-5" strokeWidth={1.5} />
                       <span className="flex-1">{item.label}</span>
                       {!!item.badge && item.badge > 0 && (
-                        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium text-primary-foreground">
+                        <span
+                          className={cn(
+                            "inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-medium text-primary-foreground",
+                            active ? "bg-primary-foreground/25" : "bg-primary"
+                          )}
+                        >
                           {item.badge > 9 ? "9+" : item.badge}
                         </span>
                       )}
