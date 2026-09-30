@@ -46,28 +46,32 @@ const ProfileContent = () => {
 
   return (
     <>
-      <div className="-mx-4 w-auto animate-fade-up space-y-6 pb-28 md:mx-auto md:w-full md:max-w-[1040px]">
-        <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
-          <h1 className="font-display text-2xl uppercase text-foreground">Il mio profilo</h1>
-          <button
-            type="button"
-            onClick={() => setPreviewOpen(true)}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground sm:w-auto"
-          >
-            <Eye className="h-5 w-5" />
-            Visualizza preview
-          </button>
-        </header>
+      <div className="-mx-4 w-auto animate-fade-up pb-28 md:mx-auto md:w-full md:max-w-[1040px]">
+        <div className="space-y-6">
+          <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
+            <h1 className="font-display text-2xl uppercase text-foreground">Il mio profilo</h1>
+            <button
+              type="button"
+              onClick={() => setPreviewOpen(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground sm:w-auto"
+            >
+              <Eye className="h-5 w-5" />
+              Visualizza preview
+            </button>
+          </header>
 
+          <MaturityNotice
+            birthDate={profileRow?.birth_date}
+            guardianUserId={guardianUserId}
+          />
+          <UpdateAccessNotice show={needsCredentialsUpdate(user, guardianUserId)} />
+        </div>
 
-        <MaturityNotice
-          birthDate={profileRow?.birth_date}
-          guardianUserId={guardianUserId}
-        />
-        <UpdateAccessNotice show={needsCredentialsUpdate(user, guardianUserId)} />
-
-        <ProfileStrengthCard />
-        <div key={resetKey} className="space-y-6">
+        {/* Forza del Profilo e sezioni: su mobile il box forza è attaccato alla
+            prima sezione, su desktop lo spazio torna 24px. */}
+        <div className="mt-6 md:space-y-6">
+          <ProfileStrengthCard />
+          <div key={resetKey} className="space-y-6">
           <div id="section-head" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <HeadCard />
           </div>
@@ -100,9 +104,8 @@ const ProfileContent = () => {
           <div id="section-documents" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <DocumentsCard />
           </div>
-
+          </div>
         </div>
-
       </div>
 
       <ProfileSaveBar />
