@@ -89,7 +89,7 @@ export const TalentCastingDetail = () => {
     <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
       <BackLink onClick={() => navigate("/talent/applications")} />
 
-      <h1 className="mt-6 font-display uppercase text-2xl md:text-3xl tracking-wide text-[#1a1a1a]">
+      <h1 className="mt-6 font-display uppercase text-[21px] tracking-wide text-[#1a1a1a] md:text-3xl">
         {engagement.title}
       </h1>
       {engagement.clientName && (

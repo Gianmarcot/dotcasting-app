@@ -49,7 +49,7 @@ const ProfileContent = () => {
       <div className="-mx-4 w-auto animate-fade-up pb-28 md:mx-auto md:w-full md:max-w-[1040px]">
         <div className="space-y-6">
           <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
-            <h1 className="font-display text-2xl uppercase text-foreground">Il mio profilo</h1>
+            <h1 className="font-display text-[21px] uppercase text-foreground md:text-2xl">Il mio profilo</h1>
             <button
               type="button"
               onClick={() => setPreviewOpen(true)}

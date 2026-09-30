@@ -38,7 +38,7 @@ export const TalentCastings = () => {
     <div className="mx-auto w-full max-w-[1040px] animate-fade-up space-y-6 pb-28">
       {/* Header + persistent notice */}
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-        <h1 className="font-display uppercase text-2xl tracking-wide text-[#1a1a1a]">
+        <h1 className="font-display uppercase text-[21px] tracking-wide text-[#1a1a1a] md:text-2xl">
           I miei casting
         </h1>
         <PersistentNotice />
