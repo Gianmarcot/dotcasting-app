@@ -276,7 +276,7 @@ const SurfaceFieldTokens = ({
   surface,
   label,
 }: {
-  surface: "base" | "muted" | "brand" | "inverse";
+  surface: "base" | "muted" | "brand" | "inverse" | "raised";
   label: string;
 }) => {
   const tokens = [
@@ -490,6 +490,7 @@ const TokensSection = () => {
         <div className="space-y-8">
           <SurfaceFieldTokens surface="base" label="Base (bianco)" />
           <SurfaceFieldTokens surface="muted" label="Muted (cream)" />
+          <SurfaceFieldTokens surface="raised" label="Raised (campi bianchi su cream)" />
           <SurfaceFieldTokens surface="brand" label="Brand (bordeaux)" />
           <SurfaceFieldTokens surface="inverse" label="Inverse (ink)" />
         </div>
