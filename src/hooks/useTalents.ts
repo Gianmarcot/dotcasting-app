@@ -37,6 +37,7 @@ export interface TalentFilters {
   hasVat?: boolean;
   travelAvailability?: string;
   fiscalStatus?: FiscalStatus;
+  onlyValidCf?: boolean;
 }
 
 export interface TalentWithAttributes {
@@ -154,6 +155,9 @@ export const useTalents = (filters: TalentFilters = {}) => {
       if (filters.fiscalStatus) {
         query = query.eq("fiscal_code_status", filters.fiscalStatus);
       }
+      if (filters.onlyValidCf) {
+        query = query.eq("fiscal_code_status", "ok");
+      }
 
       const { data, error } = await query;
       if (error) throw error;
@@ -188,13 +192,19 @@ export const useTalents = (filters: TalentFilters = {}) => {
       let filtered = talents;
 
       if (filters.search) {
-        const s = filters.search.toLowerCase();
-        filtered = filtered.filter(
-          (t) =>
-            t.first_name?.toLowerCase().includes(s) ||
-            t.last_name?.toLowerCase().includes(s) ||
-            t.city?.toLowerCase().includes(s)
-        );
+        // Ricerca per parola chiave: ogni termine deve comparire in almeno un campo
+        const terms = filters.search.toLowerCase().split(/\s+/).filter(Boolean);
+        filtered = filtered.filter((t) => {
+          const haystack = [
+            t.first_name, t.last_name, t.stage_name, t.city, t.country,
+            t.nationality, t.bio, t.gender_identity,
+            ...(t.talent_categories || []),
+            ...(t.attributes?.skills || []),
+            ...(t.attributes?.languages || []),
+            t.attributes?.hair_color, t.attributes?.eye_color,
+          ].filter(Boolean).join(" ").toLowerCase();
+          return terms.every((term) => haystack.includes(term));
+        });
       }
 
       if (filters.skills && filters.skills.length > 0) {
