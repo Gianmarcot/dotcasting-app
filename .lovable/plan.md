@@ -28,7 +28,7 @@ La regola generale dei titoli dell'app non viene toccata: il 21px vale solo per 
 - `src/pages/talent/TalentCommunications.tsx` — già `text-[21px]`, nessuna modifica
 - `src/components/layout/TalentMobileNavbar.tsx`:
   - voce attiva: `text-primary` rimosso, resta `text-foreground` + `font-bold` (peso 700 di DM Sans, presente tra i font locali, quindi niente grassetto "falso")
-  - pallino: `<span aria-hidden>` con `absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary` dentro la riga resa `relative`,渲染 solo sulla voce attiva; le altre righe non cambiano
+  - pallino: `<span aria-hidden>` con `absolute left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-primary` dentro la riga resa `relative`, mostrato solo sulla voce attiva; le altre righe non cambiano
   - "Esci": `text-destructive` → `text-primary` (rosso brand)
 - Nessuna modifica al database, alle regole di accesso o alla regola globale `h1` in `src/index.css`
 
