@@ -37,7 +37,7 @@ export const ProfileSaveBar = () => {
             disabled={isSaving}
             variant="ghost"
             size="lg"
-            className="flex-1 text-charcoal-foreground/70 hover:bg-transparent hover:text-charcoal-foreground md:flex-none"
+            className="flex-1 text-cream/70 hover:bg-transparent hover:text-cream md:flex-none"
           >
             Annulla
           </Button>
