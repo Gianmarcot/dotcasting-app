@@ -63,6 +63,9 @@ export const TalentDetailModal = ({
   variant = "fullscreen",
   footer,
 }: TalentDetailModalProps) => {
+  const hasNavigation = profileIds.length > 1;
+  const isSide = variant === "side";
+
   const [localIndex, setLocalIndex] = useState(index);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -135,9 +138,6 @@ export const TalentDetailModal = ({
       setActiveVideoId(null);
     }
   }, [open, index]);
-
-  const hasNavigation = profileIds.length > 1;
-  const isSide = variant === "side";
 
   // La barra azioni è fissa in basso e può cambiare altezza (pulsanti su più righe):
   // la misuriamo e la mettiamo in --dc-bar-h così media e dati le riservano spazio.
