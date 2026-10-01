@@ -8,8 +8,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
-import { MinorBadge } from "@/components/talents/MinorBadge";
-import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
+import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
 import { Camera, ChevronLeft, ChevronRight, Download, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
@@ -93,8 +92,7 @@ export const TalentDetailModal = ({
   const photos = useMemo(
     () =>
       (media ?? [])
-        .filter((m) => m.media_type === "photo" && isVisible(m.category))
-        .map((m) => m.url),
+        .filter((m) => m.media_type === "photo" && isVisible(m.category)),
     [media, visibleCategories]
   );
 
@@ -182,7 +180,7 @@ export const TalentDetailModal = ({
           className={cn(
             "fixed z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=closed]:animate-out data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in",
             isSide
-              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[40vw] sm:min-w-[440px] sm:max-w-none"
+              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[760px] sm:max-w-full"
               : "inset-0 data-[state=open]:animate-slide-up-panel data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
           )}
           aria-label={`Dettaglio di ${fullName}`}
@@ -231,7 +229,7 @@ export const TalentDetailModal = ({
             <div
               className={cn(
                 "flex w-full items-center justify-center px-10",
-                isSide ? "min-h-0 flex-1" : "h-[min(60vh,120vw)] lg:h-[min(66vh,50vw)]"
+                isSide ? "min-h-0 flex-1 px-20" : "h-[min(60vh,120vw)] lg:h-[min(66vh,50vw)]"
               )}
               role="group"
               aria-roledescription="carosello"
@@ -278,7 +276,13 @@ export const TalentDetailModal = ({
                   <p className="text-sm text-muted-foreground">Nessun video disponibile</p>
                 )
               ) : (
-                <div className="h-full overflow-hidden rounded-lg bg-black/5" style={{ aspectRatio: "2 / 3" }}>
+                <div
+                  className={cn(
+                    "h-full overflow-hidden rounded-lg bg-black/5",
+                    isSide && "max-w-[calc(100%-32px)]"
+                  )}
+                  style={{ aspectRatio: "2 / 3" }}
+                >
                   {photos.length > 0 ? (
                     <div
                       key={profileId ?? "empty"}
@@ -290,10 +294,10 @@ export const TalentDetailModal = ({
                         transitionTimingFunction: "cubic-bezier(0.22, 1, 0.36, 1)",
                       }}
                     >
-                      {photos.map((url, i) => (
+                      {photos.map((photo, i) => (
                         <img
-                          key={url + i}
-                          src={url}
+                          key={photo.id}
+                          src={photo.url}
                           alt={`${fullName} — foto ${i + 1} di ${photos.length}`}
                           className="h-full w-full shrink-0 object-cover"
                           aria-hidden={i !== photoIndex}
@@ -309,28 +313,48 @@ export const TalentDetailModal = ({
               )}
             </div>
 
-            {/* fascia 3 — navigazione: pallini (foto) o anteprime (video) */}
-            <div className="flex min-h-[64px] items-start justify-center">
+            {/* fascia 3 — navigazione: miniature nel drawer, pallini foto nella fullscreen */}
+            <div className={cn("flex min-h-[64px] w-full items-start justify-center", isSide && "overflow-hidden px-10")}>
               {view === "photo" ? (
                 photos.length > 1 ? (
-                  <div className="flex items-center justify-center gap-2 pt-3">
-                    {photos.map((url, i) => (
-                      <button
-                        key={url + i}
-                        type="button"
-                        onClick={() => setPhotoIndex(i)}
-                        aria-label={`Vai alla foto ${i + 1}`}
-                        aria-current={i === photoIndex}
-                        className={cn(
-                          "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
-                          i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
-                        )}
-                      />
-                    ))}
-                  </div>
+                  isSide ? (
+                    <div className="flex max-w-full items-start gap-3 overflow-x-auto px-1 pb-2 pt-1">
+                      {photos.map((photo, i) => (
+                        <button
+                          key={photo.id}
+                          type="button"
+                          onClick={() => setPhotoIndex(i)}
+                          aria-label={`Vai alla foto ${i + 1}`}
+                          aria-current={i === photoIndex}
+                          className={cn(
+                            "h-[64px] w-[48px] shrink-0 overflow-hidden rounded-md ring-offset-2 ring-offset-[#f4f0ec] transition-all duration-200 motion-reduce:transition-none",
+                            i === photoIndex ? "ring-2 ring-[#1a1a1a]" : "ring-0 opacity-60 hover:opacity-100"
+                          )}
+                        >
+                          <img src={photo.thumbnail_url ?? photo.url} alt="" className="h-full w-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 pt-3">
+                      {photos.map((photo, i) => (
+                        <button
+                          key={photo.id}
+                          type="button"
+                          onClick={() => setPhotoIndex(i)}
+                          aria-label={`Vai alla foto ${i + 1}`}
+                          aria-current={i === photoIndex}
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none",
+                            i === photoIndex ? "scale-125 bg-[#1a1a1a]" : "bg-[#1a1a1a]/20 hover:bg-[#1a1a1a]/40"
+                          )}
+                        />
+                      ))}
+                    </div>
+                  )
                 ) : null
               ) : (
-                <div className="flex items-start justify-center gap-3">
+                <div className={cn("flex max-w-full items-start gap-3", isSide && "overflow-x-auto px-1 pb-2")}>
                   {videos.map((v) => {
                     const isActive = v.id === activeVideoId;
                     return (
@@ -411,7 +435,7 @@ export const TalentDetailModal = ({
             <div
               className={cn(
                 "min-w-0 w-full px-6 pb-24 pt-24",
-                isSide ? "sm:px-10 sm:pb-16 sm:pt-20" : "lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]"
+                isSide ? "pb-44 sm:px-10 sm:pt-20" : "lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]"
               )}
             >
               <Button
@@ -430,10 +454,10 @@ export const TalentDetailModal = ({
                 {fullName}
               </h2>
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <MinorBadge
+                <MinorPill
                   birthDate={(profile as { birth_date?: string | null } | null)?.birth_date}
                 />
-                <FiscalStatusBadge profile={profile} />
+                <FiscalPill profile={profile} />
               </div>
               {location && <p className="mt-2 text-[15px] text-[#686868]">{location}</p>}
 
@@ -481,9 +505,9 @@ export const TalentDetailModal = ({
                 </section>
               ))}
 
-              {isSide && footer}
             </div>
           </div>
+          {isSide && footer}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
 

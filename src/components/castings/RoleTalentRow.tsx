@@ -119,7 +119,7 @@ export const RoleTalentRow = ({
   const showResendInvite = talentSt === "invited";
 
   const open = () => {
-    if (rt.profile?.id) navigate(`/owner/talents/${rt.profile.id}/view`);
+    if (rt.profile?.id) navigate(`/owner/talents/${rt.profile.id}/edit`);
   };
 
   const stop = (e: React.MouseEvent | React.KeyboardEvent) => e.stopPropagation();
