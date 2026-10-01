@@ -64,6 +64,7 @@ export const TalentDetailModal = ({
   onOpenChange,
   variant = "fullscreen",
   footer,
+  showAllMedia = false,
 }: TalentDetailModalProps) => {
   const hasNavigation = profileIds.length > 1;
   const isSide = variant === "side";
