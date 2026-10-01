@@ -43,7 +43,7 @@ export const AgencyAvatar = ({
     <img
       src={logoUrl}
       alt={name || "Agenzia"}
-      className="h-10 w-10 shrink-0 rounded-full object-cover"
+      className="h-10 w-10 shrink-0 rounded-full object-cover object-[50%_25%]"
     />
   ) : (
     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground">
