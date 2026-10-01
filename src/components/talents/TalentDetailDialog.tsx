@@ -23,6 +23,7 @@ import {
   User,
   Ruler,
   Scale,
+  Eye,
   Palette,
   Languages,
   Sparkles,
