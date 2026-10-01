@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState } from "react";
-import { createPortal } from "react-dom";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, X, PanelRightOpen, PanelRightClose } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
@@ -72,11 +72,23 @@ export const MediaLightbox = ({
   // Guard for SSR environments
   if (typeof document === "undefined") return null;
 
-  return createPortal(
-    <div
-      className="fixed inset-0 z-[9999] bg-black flex"
+  // Rendered as its own Radix dialog layer so that, when opened above another
+  // modal (gallery, profile preview), it becomes the topmost layer: pointer
+  // events and focus (stars, tags, notes textarea) are not blocked or stolen
+  // by the underlying dialog's focus trap.
+  return (
+    <DialogPrimitive.Root open onOpenChange={(o) => { if (!o) onClose(); }}>
+    <DialogPrimitive.Portal>
+    <DialogPrimitive.Content
+      aria-describedby={undefined}
+      onEscapeKeyDown={(e) => e.preventDefault()}
+      onPointerDownOutside={(e) => e.preventDefault()}
+      onInteractOutside={(e) => e.preventDefault()}
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      className="pointer-events-auto fixed inset-0 z-[9999] bg-black flex outline-none"
       onClick={onClose}
     >
+      <DialogPrimitive.Title className="sr-only">{currentMedia.title || "Media"}</DialogPrimitive.Title>
       {/* Main content area */}
       <div className={cn(
         "flex-1 relative flex items-center justify-center",
@@ -191,7 +203,8 @@ export const MediaLightbox = ({
           />
         </div>
       )}
-    </div>,
-    document.body
+    </DialogPrimitive.Content>
+    </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };
