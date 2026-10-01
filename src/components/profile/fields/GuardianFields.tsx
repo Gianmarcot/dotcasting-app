@@ -65,12 +65,14 @@ export const GuardianFields = ({
   value,
   errors,
   whatsappError,
+  email,
   onChange,
   onWhatsappModeChange,
 }: {
   value: GuardianValue;
   errors: GuardianErrors;
   whatsappError?: string | null;
+  email?: string | null;
   onChange: (patch: Partial<GuardianValue>) => void;
   onWhatsappModeChange: (mode: WhatsappMode) => void;
 }) => {
@@ -104,7 +106,7 @@ export const GuardianFields = ({
         </div>
       </div>
 
-      <AccountEmailField />
+      <AccountEmailField manageLink={!email} value={email} />
 
 
       <PhoneFields

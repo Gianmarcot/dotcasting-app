@@ -81,6 +81,7 @@ export const GuardianCard = ({ guardianUserId }: { guardianUserId: string }) => 
       <GuardianFields
         value={value}
         errors={touched ? errors : {}}
+        email={row?.contact_email}
         whatsappError={touched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined}
         onChange={(patch) => {
           setTouched(true);
