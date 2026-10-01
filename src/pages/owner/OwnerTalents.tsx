@@ -169,6 +169,9 @@ export const OwnerTalents = () => {
             <ToggleGroupItem value="portfolio" aria-label="Vista Portfolio" className="h-12 w-12 p-0 rounded-full data-[state=on]:bg-white data-[state=on]:shadow-sm hover:bg-white/60 data-[state=on]:hover:bg-white">
               <List className="h-5 w-5" />
             </ToggleGroupItem>
+            <ToggleGroupItem value="compact" aria-label="Vista compatta" className="h-12 w-12 p-0 rounded-full data-[state=on]:bg-white data-[state=on]:shadow-sm hover:bg-white/60 data-[state=on]:hover:bg-white">
+              <ListChecks className="h-5 w-5" />
+            </ToggleGroupItem>
           </ToggleGroup>
         </div>
       </Surface>
@@ -221,6 +224,8 @@ export const OwnerTalents = () => {
           </div>
         ) : viewMode === "board" ? (
           <TalentBoardGrid talents={sortedTalents} onSelectTalent={handleSelectTalent} />
+        ) : viewMode === "compact" ? (
+          <TalentCompactList talents={sortedTalents} onSelectTalent={handleSelectTalent} />
         ) : (
           <TalentPortfolioList talents={sortedTalents} onSelectTalent={handleSelectTalent} />
         )}
