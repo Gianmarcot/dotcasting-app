@@ -29,19 +29,20 @@ export const useGuardian = (guardianUserId?: string | null) => {
   });
 };
 
-export const useUpdateGuardian = () => {
+export const useUpdateGuardian = (targetUserId?: string | null) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
   return useMutation({
     mutationFn: async (updates: GuardianUpdate) => {
       if (!user?.id) throw new Error("User not authenticated");
-      const { error } = await supabase
-        .from("guardians")
-        .upsert(
-          { ...updates, user_id: user.id, updated_at: new Date().toISOString() },
-          { onConflict: "user_id" }
-        );
+      const guardianUserId = targetUserId ?? user.id;
+      const payload = { ...updates, updated_at: new Date().toISOString() };
+      const { error } = targetUserId
+        ? await supabase.from("guardians").update(payload).eq("user_id", guardianUserId)
+        : await supabase
+            .from("guardians")
+            .upsert({ ...payload, user_id: guardianUserId }, { onConflict: "user_id" });
       if (error) throw error;
     },
     onSuccess: () => {

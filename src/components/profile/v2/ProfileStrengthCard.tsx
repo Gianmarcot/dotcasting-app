@@ -15,13 +15,12 @@ import {
   User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useProfile } from "@/hooks/useProfile";
-import { useTalentAttributes } from "@/hooks/useTalentAttributes";
 import { useTalentMedia } from "@/hooks/useTalentMedia";
 import { PHOTO_CATEGORIES } from "@/lib/mediaCategories";
 import { visiblePhotoCategories, visiblePhysicalFields } from "@/lib/roleVisibility";
 import { isAdultBirthDate } from "@/lib/guardianship";
 import { fiscalStatusOf } from "@/lib/fiscalStatus";
+import { useProfileForm } from "./ProfileFormContext";
 
 const TOTAL = 10;
 
@@ -37,9 +36,8 @@ export const focusProfileSection = (sectionId: string) => {
 };
 
 export const ProfileStrengthCard = () => {
-  const { data: profile } = useProfile();
-  const { data: attributes } = useTalentAttributes();
-  const { data: media } = useTalentMedia();
+  const { profileRow: profile, attributesRow: attributes } = useProfileForm();
+  const { data: media } = useTalentMedia(profile?.id);
   const [collapsed, setCollapsed] = useState(false);
 
   // Il punteggio considera solo le categorie e i campi visibili per questi ruoli.

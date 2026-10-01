@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface MediaRating {
   id: string;
@@ -36,30 +37,33 @@ export const ALL_SUGGESTED_TAGS = [
 
 // Hook to get rating for a single media
 export const useMediaRating = (mediaId: string | null) => {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["media-rating", mediaId],
+    queryKey: ["media-rating", mediaId, user?.id],
     queryFn: async () => {
-      if (!mediaId) return null;
+      if (!mediaId || !user?.id) return null;
 
       const { data, error } = await supabase
         .from("media_ratings")
         .select("*")
         .eq("media_id", mediaId)
+        .eq("owner_user_id", user.id)
         .maybeSingle();
 
       if (error) throw error;
       return data as MediaRating | null;
     },
-    enabled: !!mediaId,
+    enabled: !!mediaId && !!user?.id,
   });
 };
 
 // Hook to get all ratings for a profile's media
 export const useMediaRatingsForProfile = (profileId: string | null) => {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ["media-ratings-profile", profileId],
+    queryKey: ["media-ratings-profile", profileId, user?.id],
     queryFn: async () => {
-      if (!profileId) return [];
+      if (!profileId || !user?.id) return [];
 
       // First get all media IDs for this profile
       const { data: mediaItems, error: mediaError } = await supabase
@@ -76,12 +80,13 @@ export const useMediaRatingsForProfile = (profileId: string | null) => {
       const { data: ratings, error: ratingsError } = await supabase
         .from("media_ratings")
         .select("*")
-        .in("media_id", mediaIds);
+        .in("media_id", mediaIds)
+        .eq("owner_user_id", user.id);
 
       if (ratingsError) throw ratingsError;
       return (ratings || []) as MediaRating[];
     },
-    enabled: !!profileId,
+    enabled: !!profileId && !!user?.id,
   });
 };
 

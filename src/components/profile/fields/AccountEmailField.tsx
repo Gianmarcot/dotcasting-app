@@ -11,10 +11,12 @@ import { useAuth } from "@/contexts/AuthContext";
 export const AccountEmailField = ({
   note = true,
   manageLink = false,
+  value,
 }: {
   note?: boolean;
   /** Mostra il link alla pagina dove si cambia l'email di accesso. */
   manageLink?: boolean;
+  value?: string | null;
 }) => {
   const { user } = useAuth();
 
@@ -23,7 +25,7 @@ export const AccountEmailField = ({
       <FloatingInput
         label="Email di contatto"
         type="email"
-        value={user?.email ?? ""}
+        value={value ?? user?.email ?? ""}
         disabled
         onChange={() => undefined}
       />

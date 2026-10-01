@@ -88,7 +88,7 @@ const GuardianContactsBox = ({
 
 export const ContactsCard = () => {
   const { user } = useAuth();
-  const { str, set, setMany, obj, profileRow } = useProfileForm();
+  const { str, set, setMany, obj, profileRow, isAdminMode } = useProfileForm();
   const guardianUserId = profileRow?.guardian_user_id ?? null;
 
   const socials = obj<SocialLinks>("p", "social_links");
@@ -110,7 +110,7 @@ export const ContactsCard = () => {
       ) : (
         <>
       {/* Email in sola lettura: coincide con l'email dell'account. */}
-      <AccountEmailField manageLink />
+      <AccountEmailField manageLink={!isAdminMode} value={isAdminMode ? str("p", "contact_email") : undefined} />
 
 
       <PhoneFields

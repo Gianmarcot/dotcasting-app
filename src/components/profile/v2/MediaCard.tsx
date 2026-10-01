@@ -139,8 +139,8 @@ const MediaArea = ({
 };
 
 export const MediaCard = () => {
-  const { data: media } = useTalentMedia();
-  const { arr, bool } = useProfileForm();
+  const { arr, bool, profileRow, isAdminMode } = useProfileForm();
+  const { data: media } = useTalentMedia(profileRow?.id);
   const roles = arr("p", "talent_categories");
   const hasBand = bool("p", "has_band");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -151,8 +151,12 @@ export const MediaCard = () => {
   const [initialCategory, setInitialCategory] = useState<MediaCategory>(PROFILE_PHOTO_CATEGORY);
   const [initialVideoCategory, setInitialVideoCategory] = useState<MediaCategory>("intro_video");
 
-  const photoKeys = visiblePhotoCategories(roles, { hasBand });
-  const videoKeys = visibleVideoCategories(roles, { hasBand });
+  const photoKeys = isAdminMode
+    ? PHOTO_CATEGORIES.map((category) => category.key)
+    : visiblePhotoCategories(roles, { hasBand });
+  const videoKeys = isAdminMode
+    ? VIDEO_CATEGORIES.map((category) => category.key)
+    : visibleVideoCategories(roles, { hasBand });
 
   // Deep link da una comunicazione: apre la gestione media sulla categoria indicata
   useEffect(() => {

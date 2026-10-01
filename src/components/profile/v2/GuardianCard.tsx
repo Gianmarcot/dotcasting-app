@@ -24,7 +24,7 @@ import { isAdultBirthDate } from "@/lib/guardianship";
  */
 export const GuardianCard = ({ guardianUserId }: { guardianUserId: string }) => {
   const { data: row } = useGuardian(guardianUserId);
-  const updateGuardian = useUpdateGuardian();
+  const updateGuardian = useUpdateGuardian(guardianUserId);
 
   const [value, setValue] = useState<GuardianValue>(EMPTY_GUARDIAN);
   const [touched, setTouched] = useState(false);
@@ -81,6 +81,7 @@ export const GuardianCard = ({ guardianUserId }: { guardianUserId: string }) => 
       <GuardianFields
         value={value}
         errors={touched ? errors : {}}
+        email={row?.contact_email}
         whatsappError={touched && !whatsappValid ? "Inserisci un numero WhatsApp valido" : undefined}
         onChange={(patch) => {
           setTouched(true);

@@ -8,6 +8,7 @@ import {
   Crop as CropIcon,
   Loader2,
   Plus,
+  Star,
   Trash2,
   TriangleAlert,
 } from "lucide-react";
@@ -62,6 +63,8 @@ import {
   type CropRatio,
 } from "@/lib/media/crops";
 import type { CropResult } from "@/components/profile/ImageCropModal";
+import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
+import { useMediaRatingsForProfile } from "@/hooks/useMediaRatings";
 
 const UNDO_MS = 6000;
 
@@ -126,6 +129,8 @@ const MediaTile = ({
   onCrop,
   onDelete,
   onMove,
+  onRate,
+  isRated,
 }: {
   media: TalentMedia;
   kind: MediaKind;
@@ -138,6 +143,8 @@ const MediaTile = ({
   onCrop: () => void;
   onDelete: () => void;
   onMove: (delta: -1 | 1) => void;
+  onRate?: () => void;
+  isRated?: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: media.id,
@@ -154,22 +161,22 @@ const MediaTile = ({
         ratioClass,
         isDragging && "z-10 opacity-70 ring-2 ring-primary"
       )}
-      {...attributes}
-      {...listeners}
     >
-      {kind === "photo" ? (
-        <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
-      ) : (
-        <video
-          src={media.url}
-          poster={media.thumbnail_url ?? undefined}
-          preload="metadata"
-          controls
-          playsInline
-          className="h-full w-full bg-black object-contain"
-          onPointerDown={(e) => e.stopPropagation()}
-        />
-      )}
+      <div className="absolute inset-0" {...attributes} {...listeners}>
+        {kind === "photo" ? (
+          <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
+        ) : (
+          <video
+            src={media.url}
+            poster={media.thumbnail_url ?? undefined}
+            preload="metadata"
+            controls
+            playsInline
+            className="h-full w-full bg-black object-contain"
+            onPointerDown={(e) => e.stopPropagation()}
+          />
+        )}
+      </div>
 
       {(badge || isProfilePhoto) && (
         <div className="pointer-events-none absolute inset-x-2 bottom-2 flex flex-wrap items-center gap-1">
@@ -204,6 +211,24 @@ const MediaTile = ({
       {/* Controlli: sempre visibili su touch, in hover su desktop */}
       <div className="absolute inset-x-2 top-2 flex justify-between opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
         <div className="flex gap-1">
+          {onRate && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Valuta immagine"
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                onRate();
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") onRate();
+              }}
+              className="h-8 w-8 rounded-full bg-background/90 text-foreground"
+            >
+              <Star className={cn("h-4 w-4", isRated && "fill-current")} />
+            </Button>
+          )}
           <button
             type="button"
             aria-label="Sposta indietro"
@@ -261,17 +286,22 @@ export const MediaGalleryModal = ({
   kind = "photo",
 }: MediaGalleryModalProps) => {
   const config = KIND_CONFIG[kind];
-  const { data: media } = useTalentMedia();
-  const { profileRow, saveNow, arr, bool } = useProfileForm();
+  const { profileRow, saveNow, arr, bool, isAdminMode } = useProfileForm();
+  const { data: media } = useTalentMedia(profileRow?.id);
+  const { data: mediaRatings = [] } = useMediaRatingsForProfile(
+    isAdminMode ? profileRow?.id ?? null : null
+  );
   const roles = arr("p", "talent_categories");
   const hasBand = bool("p", "has_band");
 
   // Solo le categorie previste dai ruoli selezionati dal talent.
   const visibleKeys = useMemo(
-    () => (kind === "photo"
+    () => isAdminMode
+      ? (kind === "photo" ? PHOTO_CATEGORIES : VIDEO_CATEGORIES).map((category) => category.key)
+      : (kind === "photo"
         ? visiblePhotoCategories(roles, { hasBand })
         : visibleVideoCategories(roles, { hasBand })),
-    [kind, roles.join("|"), hasBand]
+    [kind, roles.join("|"), hasBand, isAdminMode]
   );
   const categories = useMemo(
     () => (kind === "photo" ? PHOTO_CATEGORIES : VIDEO_CATEGORIES).filter((c) =>
@@ -279,7 +309,7 @@ export const MediaGalleryModal = ({
     ),
     [kind, visibleKeys]
   );
-  const upload = useUploadMedia();
+  const upload = useUploadMedia(profileRow?.id, profileRow?.user_id);
   const remove = useDeleteMedia();
   const saveCrops = useSaveMediaCrops();
   const reorder = useUpdateMediaOrder();
@@ -290,6 +320,11 @@ export const MediaGalleryModal = ({
   const [pendingDelete, setPendingDelete] = useState<string[]>([]);
   const [cropTarget, setCropTarget] = useState<TalentMedia | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [ratingTargetId, setRatingTargetId] = useState<string | null>(null);
+  const ratedIds = useMemo(
+    () => new Set(mediaRatings.filter((rating) => rating.rating !== null).map((rating) => rating.media_id)),
+    [mediaRatings]
+  );
   const fileRef = useRef<HTMLInputElement>(null);
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -609,6 +644,8 @@ export const MediaGalleryModal = ({
                       onCrop={() => setCropTarget(item)}
                       onDelete={() => handleDelete(item)}
                       onMove={(delta) => move(index, delta)}
+                      onRate={isAdminMode && kind === "photo" ? () => setRatingTargetId(item.id) : undefined}
+                      isRated={ratedIds.has(item.id)}
                     />
                   ))}
 
@@ -642,6 +679,26 @@ export const MediaGalleryModal = ({
                 </div>
               </SortableContext>
             </DndContext>
+
+            {isAdminMode && kind === "photo" && ratingTargetId && (
+              <div className="mx-auto mb-16 max-w-xl rounded-2xl bg-field p-6">
+                <MediaRatingPanel
+                  mediaId={ratingTargetId}
+                  currentIndex={items.findIndex((item) => item.id === ratingTargetId)}
+                  totalCount={items.length}
+                  ratedCount={items.filter((item) => ratedIds.has(item.id)).length}
+                  isCurrentRated={ratedIds.has(ratingTargetId)}
+                  onPrevious={() => {
+                    const index = items.findIndex((item) => item.id === ratingTargetId);
+                    setRatingTargetId(items[(index - 1 + items.length) % items.length]?.id ?? null);
+                  }}
+                  onNext={() => {
+                    const index = items.findIndex((item) => item.id === ratingTargetId);
+                    setRatingTargetId(items[(index + 1) % items.length]?.id ?? null);
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {cropTarget && kind === "photo" && (
