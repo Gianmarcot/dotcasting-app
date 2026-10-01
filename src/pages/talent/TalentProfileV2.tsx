@@ -34,7 +34,7 @@ import { MaturityNotice, UpdateAccessNotice } from "@/components/profile/v2/Matu
 import { useAuth } from "@/contexts/AuthContext";
 import { needsCredentialsUpdate } from "@/lib/signupMode";
 
-export const ProfileContent = ({ adminMode = false }: { adminMode?: boolean }) => {
+const ProfileContentInner = ({ adminMode = false }: { adminMode?: boolean }) => {
   const { isLoading, isDirty, resetKey, profileRow } = useProfileForm();
   const { pendingHref, confirmLeave, cancelLeave } = useUnsavedGuard(isDirty);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -211,10 +211,18 @@ export const ProfileContent = ({ adminMode = false }: { adminMode?: boolean }) =
   );
 };
 
-export const TalentProfileV2 = () => (
-  <ProfileFormProvider>
-    <ProfileContent />
+export const ProfileContent = ({
+  adminMode = false,
+  externalProfileId,
+}: {
+  adminMode?: boolean;
+  externalProfileId?: string;
+}) => (
+  <ProfileFormProvider externalProfileId={externalProfileId}>
+    <ProfileContentInner adminMode={adminMode} />
   </ProfileFormProvider>
 );
+
+export const TalentProfileV2 = () => <ProfileContent />;
 
 export default TalentProfileV2;
