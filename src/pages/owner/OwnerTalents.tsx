@@ -4,6 +4,7 @@ import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from 
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentBoardGrid } from "@/components/talents/TalentBoardGrid";
 import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
+import { TalentCompactList } from "@/components/talents/TalentCompactList";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { CreateTalentDialog } from "@/components/talents/CreateTalentDialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,10 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, UserPlus, X, LayoutGrid, List, Search } from "lucide-react";
+import { Users, UserPlus, X, LayoutGrid, List, ListChecks, Search } from "lucide-react";
 import { FISCAL_STATUS_LABELS, type FiscalStatus } from "@/lib/fiscalStatus";
 
-type ViewMode = "board" | "portfolio";
+type ViewMode = "board" | "portfolio" | "compact";
 const VIEW_STORAGE_KEY = "owner-talents-view-mode";
 
 // Human-readable labels for filter chips
@@ -69,7 +70,7 @@ export const OwnerTalents = () => {
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window === "undefined") return "board";
     const saved = window.localStorage.getItem(VIEW_STORAGE_KEY);
-    return saved === "portfolio" ? "portfolio" : "board";
+    return saved === "portfolio" || saved === "compact" ? saved : "board";
   });
 
   useEffect(() => {
