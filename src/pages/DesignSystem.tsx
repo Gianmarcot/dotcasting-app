@@ -1256,7 +1256,7 @@ const BlocksSection = () => (
       source="src/components/castings/CastingRow.tsx"
     >
       <div>
-        <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b border-border/60">
+        <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground">
           <span />
           <span>Titolo</span>
           <span>Selezione</span>
@@ -1291,7 +1291,7 @@ const BlocksSection = () => (
           return (
           <div
             key={c.title}
-            className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 h-20 border-b border-border/40 hover:bg-muted/50 cursor-pointer transition-colors"
+            className="group grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 h-20 rounded-lg hover:bg-muted/30 cursor-pointer transition-colors"
           >
             <span className="inline-flex items-center justify-center rounded-full p-1.5 text-amber-400">
               <Star size={16} fill="currentColor" strokeWidth={2} />
@@ -1308,14 +1308,15 @@ const BlocksSection = () => (
                     <Avatar
                       key={i}
                       size="md"
-                      className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
+                      style={{ zIndex: shown - i }}
+                      className={cn("ring-2 ring-white", i > 0 && "-ml-3")}
                     >
                       <AvatarImage src={`https://i.pravatar.cc/96?img=${i + 10}`} />
                       <AvatarFallback>?</AvatarFallback>
                     </Avatar>
                   ))}
                   {extra > 0 && (
-                    <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-background bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
+                    <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-white bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center z-[0]">
                       +{extra}
                     </div>
                   )}
