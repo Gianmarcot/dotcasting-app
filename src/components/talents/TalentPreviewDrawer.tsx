@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Send } from "lucide-react";
+import { Pencil, Send } from "lucide-react";
 import { TalentWithAttributes } from "@/hooks/useTalents";
 import { InviteTalentDialog } from "@/components/invitations/InviteTalentDialog";
 import { TalentDetailModal } from "@/components/talents/detail/TalentDetailModal";
@@ -33,26 +33,27 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
         onOpenChange={onOpenChange}
         variant="side"
         footer={
-          <div className="mt-16 border-t border-divider pt-8 flex flex-col gap-3">
+          <div className="fixed bottom-0 right-0 z-[90] flex w-full flex-col gap-3 border-t border-divider bg-white px-6 py-5 sm:w-[760px] sm:max-w-full sm:flex-row sm:px-10">
             <Button
               variant="outline"
               size="lg"
               iconPosition="left"
+              className="flex-1"
               onClick={() => {
                 onOpenChange(false);
-                navigate(`/owner/talents/${talent.id}/view`);
+                navigate(`/owner/talents/${talent.id}/edit`);
               }}
             >
-              <ExternalLink className="h-5 w-5" />
-              Apri profilo completo
+              <Pencil className="h-5 w-5" />
+              Modifica profilo
             </Button>
             {extraAction ? (
-              <Button size="lg" iconPosition="left" variant="secondary" onClick={extraAction.onClick}>
+              <Button className="flex-1" size="lg" iconPosition="left" variant="secondary" onClick={extraAction.onClick}>
                 {extraAction.icon}
                 <span>{extraAction.label}</span>
               </Button>
             ) : null}
-            <Button size="lg" iconPosition="left" onClick={() => setInviteOpen(true)}>
+            <Button className="flex-1" size="lg" iconPosition="left" onClick={() => setInviteOpen(true)}>
               <Send className="h-5 w-5" />
               Aggiungi a un casting
             </Button>

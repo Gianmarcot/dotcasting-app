@@ -23,7 +23,6 @@ import {
   User,
   Ruler,
   Scale,
-  Eye,
   Palette,
   Languages,
   Sparkles,
@@ -169,17 +168,6 @@ export const TalentDetailDialog = ({
             >
               <Pencil className="h-4 w-4 mr-2" />
               Modifica
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                onOpenChange(false);
-                navigate(`/owner/talents/${talent.id}/view`);
-              }}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Visualizza profilo
             </Button>
             <Button
               variant="outline"

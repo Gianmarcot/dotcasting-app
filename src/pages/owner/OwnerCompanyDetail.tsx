@@ -286,7 +286,7 @@ export const OwnerCompanyDetail = () => {
                     <div
                       key={t.id}
                       className="flex items-center gap-2 bg-muted/50 rounded-full pl-1 pr-3 py-1 cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => navigate(`/owner/talents/${t.id}/view`)}
+                      onClick={() => navigate(`/owner/talents/${t.id}/edit`)}
                     >
                       <Avatar className="h-7 w-7">
                         <AvatarImage src={t.profile_photo_url || ""} />

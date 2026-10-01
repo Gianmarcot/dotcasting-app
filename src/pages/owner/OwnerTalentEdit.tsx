@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, AlertCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfileById } from "@/hooks/useProfileById";
@@ -101,10 +101,6 @@ const OwnerTalentEdit = () => {
             {displayName}
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={() => navigate(`/owner/talents/${profileId}/view`)}>
-          <Eye className="h-4 w-4 mr-2" />
-          Visualizza profilo
-        </Button>
         {!isPublished && (
           <Button size="sm" onClick={handlePublish} disabled={publishing}>
             <CheckCircle2 className="h-4 w-4 mr-2" />
