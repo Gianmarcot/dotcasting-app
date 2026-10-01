@@ -63,8 +63,8 @@ import {
   type CropRatio,
 } from "@/lib/media/crops";
 import type { CropResult } from "@/components/profile/ImageCropModal";
-import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { useMediaRatingsForProfile } from "@/hooks/useMediaRatings";
+import { MediaLightbox } from "@/components/profile/MediaLightbox";
 
 const UNDO_MS = 6000;
 
@@ -130,6 +130,7 @@ const MediaTile = ({
   onDelete,
   onMove,
   onRate,
+  onOpen,
   isRated,
 }: {
   media: TalentMedia;
@@ -144,6 +145,7 @@ const MediaTile = ({
   onDelete: () => void;
   onMove: (delta: -1 | 1) => void;
   onRate?: () => void;
+  onOpen?: () => void;
   isRated?: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -162,7 +164,13 @@ const MediaTile = ({
         isDragging && "z-10 opacity-70 ring-2 ring-primary"
       )}
     >
-      <div className="absolute inset-0" {...attributes} {...listeners}>
+      <div
+        className="absolute inset-0 cursor-pointer"
+        onClick={onOpen}
+        aria-label={kind === "photo" ? "Apri foto a tutto schermo" : undefined}
+        {...attributes}
+        {...listeners}
+      >
         {kind === "photo" ? (
           <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
         ) : (
@@ -320,9 +328,13 @@ export const MediaGalleryModal = ({
   const [pendingDelete, setPendingDelete] = useState<string[]>([]);
   const [cropTarget, setCropTarget] = useState<TalentMedia | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
-  const [ratingTargetId, setRatingTargetId] = useState<string | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const ratedIds = useMemo(
     () => new Set(mediaRatings.filter((rating) => rating.rating !== null).map((rating) => rating.media_id)),
+    [mediaRatings]
+  );
+  const ratingsMap = useMemo(
+    () => new Map(mediaRatings.map((rating) => [rating.media_id, rating])),
     [mediaRatings]
   );
   const fileRef = useRef<HTMLInputElement>(null);
@@ -644,7 +656,8 @@ export const MediaGalleryModal = ({
                       onCrop={() => setCropTarget(item)}
                       onDelete={() => handleDelete(item)}
                       onMove={(delta) => move(index, delta)}
-                      onRate={isAdminMode && kind === "photo" ? () => setRatingTargetId(item.id) : undefined}
+                      onOpen={kind === "photo" ? () => setLightboxIndex(index) : undefined}
+                      onRate={isAdminMode && kind === "photo" ? () => setLightboxIndex(index) : undefined}
                       isRated={ratedIds.has(item.id)}
                     />
                   ))}
@@ -680,25 +693,6 @@ export const MediaGalleryModal = ({
               </SortableContext>
             </DndContext>
 
-            {isAdminMode && kind === "photo" && ratingTargetId && (
-              <div className="mx-auto mb-16 max-w-xl rounded-2xl bg-field p-6">
-                <MediaRatingPanel
-                  mediaId={ratingTargetId}
-                  currentIndex={items.findIndex((item) => item.id === ratingTargetId)}
-                  totalCount={items.length}
-                  ratedCount={items.filter((item) => ratedIds.has(item.id)).length}
-                  isCurrentRated={ratedIds.has(ratingTargetId)}
-                  onPrevious={() => {
-                    const index = items.findIndex((item) => item.id === ratingTargetId);
-                    setRatingTargetId(items[(index - 1 + items.length) % items.length]?.id ?? null);
-                  }}
-                  onNext={() => {
-                    const index = items.findIndex((item) => item.id === ratingTargetId);
-                    setRatingTargetId(items[(index + 1) % items.length]?.id ?? null);
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           {cropTarget && kind === "photo" && (
@@ -713,6 +707,16 @@ export const MediaGalleryModal = ({
               isSaving={savingId === cropTarget.id}
               onClose={() => setCropTarget(null)}
               onSave={handleCropSave}
+            />
+          )}
+          {lightboxIndex !== null && kind === "photo" && items.length > 0 && (
+            <MediaLightbox
+              media={items}
+              currentIndex={lightboxIndex}
+              onClose={() => setLightboxIndex(null)}
+              onNavigate={setLightboxIndex}
+              isOwnerView={isAdminMode}
+              ratingsMap={ratingsMap}
             />
           )}
         </DialogPrimitive.Content>

@@ -26,6 +26,7 @@ interface InviteTalentDialogProps {
   onOpenChange: (open: boolean) => void;
   talentUserId: string;
   talentName: string;
+  elevated?: boolean;
 }
 
 export const InviteTalentDialog = ({
@@ -33,6 +34,7 @@ export const InviteTalentDialog = ({
   onOpenChange,
   talentUserId,
   talentName,
+  elevated = false,
 }: InviteTalentDialogProps) => {
   const [selectedCastingId, setSelectedCastingId] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -58,7 +60,10 @@ export const InviteTalentDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        overlayClassName={elevated ? "z-[100]" : undefined}
+        className={elevated ? "z-[110] sm:max-w-md" : "sm:max-w-md"}
+      >
         <DialogHeader>
           <DialogTitle>Invita {talentName}</DialogTitle>
           <DialogDescription>
@@ -73,7 +78,7 @@ export const InviteTalentDialog = ({
               <SelectTrigger>
                 <SelectValue placeholder="Seleziona un casting..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className={elevated ? "z-[120]" : undefined}>
                 {castingsLoading ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-4 w-4 animate-spin" />

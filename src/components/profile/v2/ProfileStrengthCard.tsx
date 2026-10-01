@@ -35,10 +35,10 @@ export const focusProfileSection = (sectionId: string) => {
   }, 1600);
 };
 
-export const ProfileStrengthCard = () => {
+export const ProfileStrengthCard = ({ initiallyCollapsed = false }: { initiallyCollapsed?: boolean }) => {
   const { profileRow: profile, attributesRow: attributes } = useProfileForm();
   const { data: media } = useTalentMedia(profile?.id);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(initiallyCollapsed);
 
   // Il punteggio considera solo le categorie e i campi visibili per questi ruoli.
   const roles = profile?.talent_categories ?? [];

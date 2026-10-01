@@ -50,16 +50,19 @@ export const MediaLightbox = ({
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!["Escape", "ArrowLeft", "ArrowRight"].includes(e.key)) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") handlePrevious();
       if (e.key === "ArrowRight") handleNext();
     };
 
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown, true);
     document.body.style.overflow = "hidden";
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
       document.body.style.overflow = "";
     };
   }, [onClose, handlePrevious, handleNext]);

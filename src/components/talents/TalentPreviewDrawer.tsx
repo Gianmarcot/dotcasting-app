@@ -33,10 +33,10 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
         onOpenChange={onOpenChange}
         variant="side"
         showAllMedia
+        isOwnerView
         footer={
           <>
             <Button
-              variant="outline"
               size="lg"
               iconPosition="left"
               className="flex-1"
@@ -54,7 +54,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
                 <span>{extraAction.label}</span>
               </Button>
             ) : null}
-            <Button className="flex-1" size="lg" iconPosition="left" onClick={() => setInviteOpen(true)}>
+            <Button className="flex-1" size="lg" iconPosition="left" variant="secondary" onClick={() => setInviteOpen(true)}>
               <Send className="h-5 w-5" />
               Aggiungi a un casting
             </Button>
@@ -67,6 +67,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
         onOpenChange={setInviteOpen}
         talentUserId={talent.user_id}
         talentName={name}
+        elevated
       />
     </>
   );
