@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * Colonne condivise tra intestazioni e righe. Le colonne opzionali spariscono
  * sotto il rispettivo breakpoint e la griglia si restringe di un binario.
  */
-const GRID =
+export const TALENT_COMPACT_GRID =
   "grid grid-cols-[minmax(180px,1fr)_20px] sm:grid-cols-[minmax(200px,1fr)_180px_20px] md:grid-cols-[minmax(200px,1fr)_180px_132px_20px] lg:grid-cols-[minmax(220px,1fr)_180px_132px_260px_20px] items-center gap-4";
 
 /** Pill contatore: identica a quella della vista portfolio, senza la parola. */

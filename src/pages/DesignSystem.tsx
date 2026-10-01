@@ -92,6 +92,7 @@ import type { CastingSort } from "@/hooks/useCastings";
 import { TalentBoardCard } from "@/components/talents/TalentBoardCard";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
+import { TalentCompactRow, TALENT_COMPACT_GRID } from "@/components/talents/TalentCompactList";
 
 const CastingFiltersDemo = () => {
   const [status, setStatus] = useState("all");
