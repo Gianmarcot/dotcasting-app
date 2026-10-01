@@ -142,7 +142,7 @@ export const OwnerCastings = () => {
         ) : castings && castings.length > 0 ? (
           <div>
             {/* Column header */}
-            <div className="grid grid-cols-[32px_1fr_180px_140px_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground">
+            <div className="grid grid-cols-[32px_minmax(200px,2fr)_minmax(160px,1.5fr)_minmax(120px,1fr)_120px] items-center gap-4 px-4 py-2 text-sm font-medium text-muted-foreground">
               <span />
               <span>Titolo</span>
               <span>Selezione</span>
