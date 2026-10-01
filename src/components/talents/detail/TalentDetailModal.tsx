@@ -185,10 +185,6 @@ export const TalentDetailModal = ({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, photos.length, videos, activeVideoId, view]);
 
-
-  const hasNavigation = profileIds.length > 1;
-  const isSide = variant === "side";
-
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
