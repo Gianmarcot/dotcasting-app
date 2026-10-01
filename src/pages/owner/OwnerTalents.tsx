@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, UserPlus, X, LayoutGrid, List, ListChecks, Search } from "lucide-react";
+import { Users, UserPlus, X, LayoutGrid, List, Rows3, Search } from "lucide-react";
 import { FISCAL_STATUS_LABELS, type FiscalStatus } from "@/lib/fiscalStatus";
 
 type ViewMode = "board" | "portfolio" | "compact";
@@ -167,10 +167,10 @@ export const OwnerTalents = () => {
               <LayoutGrid className="h-5 w-5" />
             </ToggleGroupItem>
             <ToggleGroupItem value="portfolio" aria-label="Vista Portfolio" className="h-12 w-12 p-0 rounded-full data-[state=on]:bg-white data-[state=on]:shadow-sm hover:bg-white/60 data-[state=on]:hover:bg-white">
-              <List className="h-5 w-5" />
+              <Rows3 className="h-5 w-5" />
             </ToggleGroupItem>
             <ToggleGroupItem value="compact" aria-label="Vista compatta" className="h-12 w-12 p-0 rounded-full data-[state=on]:bg-white data-[state=on]:shadow-sm hover:bg-white/60 data-[state=on]:hover:bg-white">
-              <ListChecks className="h-5 w-5" />
+              <List className="h-5 w-5" />
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
