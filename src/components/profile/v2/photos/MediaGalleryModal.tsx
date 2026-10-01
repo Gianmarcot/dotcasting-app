@@ -63,7 +63,6 @@ import {
   type CropRatio,
 } from "@/lib/media/crops";
 import type { CropResult } from "@/components/profile/ImageCropModal";
-import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { useMediaRatingsForProfile } from "@/hooks/useMediaRatings";
 import { MediaLightbox } from "@/components/profile/MediaLightbox";
 
