@@ -10,3 +10,4 @@
 
 - Admin page content is capped at `max-w-[1600px]` on a wrapper that also carries `@container` (`OwnerLayout`). Responsive layouts inside admin pages choose column counts with container variants (`@[1280px]:grid-cols-5`, `@[960px]:grid-cols-4`) instead of viewport breakpoints. Why: the sidebar and the width cap make the viewport a poor proxy for the space a page actually has.
 - Container-query utilities need the `@tailwindcss/container-queries` plugin, registered in `tailwind.config.ts`; Tailwind 3.4 core never emits `container-type`, so `@container` and `@[…]:` variants silently do nothing without it.
+- Talent profile previews share one detail implementation with layout variants: fullscreen uses side-by-side media/data, while side drawers stack a `100dvh` media section above auto-height data. Why: profile content and media behavior must remain identical across talent and admin previews.
