@@ -161,22 +161,22 @@ const MediaTile = ({
         ratioClass,
         isDragging && "z-10 opacity-70 ring-2 ring-primary"
       )}
-      {...attributes}
-      {...listeners}
     >
-      {kind === "photo" ? (
-        <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
-      ) : (
-        <video
-          src={media.url}
-          poster={media.thumbnail_url ?? undefined}
-          preload="metadata"
-          controls
-          playsInline
-          className="h-full w-full bg-black object-contain"
-          onPointerDown={(e) => e.stopPropagation()}
-        />
-      )}
+      <div className="absolute inset-0" {...attributes} {...listeners}>
+        {kind === "photo" ? (
+          <img src={media.url} alt="" className="h-full w-full select-none object-cover" draggable={false} />
+        ) : (
+          <video
+            src={media.url}
+            poster={media.thumbnail_url ?? undefined}
+            preload="metadata"
+            controls
+            playsInline
+            className="h-full w-full bg-black object-contain"
+            onPointerDown={(e) => e.stopPropagation()}
+          />
+        )}
+      </div>
 
       {(badge || isProfilePhoto) && (
         <div className="pointer-events-none absolute inset-x-2 bottom-2 flex flex-wrap items-center gap-1">
