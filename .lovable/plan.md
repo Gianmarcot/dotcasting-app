@@ -33,7 +33,7 @@ La sidebar admin si può allargare o restringere, quindi lo spazio reale per il 
 
 - La vista a lista compatta e le altre pagine admin (casting, candidature, aziende, round, target, comunicazioni, impostazioni): nessuna modifica, se non la larghezza maggiore del contenitore.
 - I controlli con una misura propria (per esempio il campo di ricerca del database talenti, fermo a 800px, o la barra di ricerca di un round): sono scelte di leggibilità del singolo elemento, non il limite della pagina.
-- Le pagine del talent e la pagina del design system, che hanno contenitori独立 propri.
+- Le pagine del talent e la pagina del design system, che hanno contenitori propri indipendenti.
 
 ## Verifica
 
