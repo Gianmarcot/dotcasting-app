@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { Eye } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Eye } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { TalentDetailModal } from "@/components/talents/detail/TalentDetailModal";
 import {
   AlertDialog,
@@ -29,12 +34,43 @@ import { MaturityNotice, UpdateAccessNotice } from "@/components/profile/v2/Matu
 import { useAuth } from "@/contexts/AuthContext";
 import { needsCredentialsUpdate } from "@/lib/signupMode";
 
-const ProfileContent = () => {
+export const ProfileContent = ({ adminMode = false }: { adminMode?: boolean }) => {
   const { isLoading, isDirty, resetKey, profileRow } = useProfileForm();
   const { pendingHref, confirmLeave, cancelLeave } = useUnsavedGuard(isDirty);
   const [previewOpen, setPreviewOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [publishing, setPublishing] = useState(false);
   const guardianUserId = profileRow?.guardian_user_id ?? null;
+  const displayName = [profileRow?.first_name, profileRow?.last_name].filter(Boolean).join(" ");
+  const isPublished = !!profileRow?.onboarding_completed;
+
+  const publish = async () => {
+    if (!profileRow) return;
+    const missing: string[] = [];
+    if (!profileRow.first_name) missing.push("Nome");
+    if (!profileRow.last_name) missing.push("Cognome");
+    if (!profileRow.talent_categories?.length) missing.push("Almeno un ruolo");
+    if (missing.length) {
+      toast.error(`Campi mancanti: ${missing.join(", ")}`);
+      return;
+    }
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ onboarding_completed: true })
+        .eq("id", profileRow.id);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["profile", profileRow.id] });
+      toast.success("Profilo pubblicato");
+    } catch {
+      toast.error("Errore nella pubblicazione del profilo");
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -44,27 +80,65 @@ const ProfileContent = () => {
     );
   }
 
+  if (!profileRow) {
+    return (
+      <div className="py-12 text-center">
+        <p className="text-muted-foreground">Profilo non trovato</p>
+        {adminMode && (
+          <Button variant="outline" size="lg" onClick={() => navigate("/owner/talents")} className="mt-4">
+            Torna al Database talenti
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="-mx-4 w-auto animate-fade-up pb-28 md:mx-auto md:w-full md:max-w-[1040px]">
         <div className="space-y-6">
           <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
-            <h1 className="font-display text-[21px] uppercase text-foreground md:text-2xl">Il mio profilo</h1>
-            <button
-              type="button"
-              onClick={() => setPreviewOpen(true)}
-              className="flex h-12 w-full items-center justify-center gap-2 rounded-full border border-border bg-background px-5 text-[15px] text-foreground sm:w-auto"
-            >
-              <Eye className="h-5 w-5" />
-              Visualizza preview
-            </button>
+            <div>
+              {adminMode && (
+                <Button variant="ghost" size="sm" onClick={() => navigate("/owner/talents")} className="mb-2 px-0">
+                  <ArrowLeft />
+                  Database talenti
+                </Button>
+              )}
+              <h1 className="font-display text-[21px] uppercase text-foreground md:text-2xl">
+                {adminMode ? "Modifica profilo" : "Il mio profilo"}
+              </h1>
+              {adminMode && displayName && <p className="mt-1 text-[15px] text-field-label">{displayName}</p>}
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              {adminMode && !isPublished && (
+                <Button size="lg" onClick={() => void publish()} disabled={publishing}>
+                  <CheckCircle2 />
+                  {publishing ? "Pubblicazione..." : "Pubblica profilo"}
+                </Button>
+              )}
+              <Button variant="outline" size="lg" onClick={() => setPreviewOpen(true)}>
+                <Eye />
+                Visualizza preview
+              </Button>
+            </div>
           </header>
 
-          <MaturityNotice
-            birthDate={profileRow?.birth_date}
-            guardianUserId={guardianUserId}
-          />
-          <UpdateAccessNotice show={needsCredentialsUpdate(user, guardianUserId)} />
+          {adminMode && !isPublished && (
+            <div className="dc-card flex items-start gap-3 border-l-4 border-l-warning p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-warning" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground">Profilo in attesa di pubblicazione</p>
+                <p className="mt-1 text-muted-foreground">Compila almeno nome, cognome e un ruolo per pubblicarlo.</p>
+              </div>
+            </div>
+          )}
+          {!adminMode && (
+            <>
+              <MaturityNotice birthDate={profileRow.birth_date} guardianUserId={guardianUserId} />
+              <UpdateAccessNotice show={needsCredentialsUpdate(user, guardianUserId)} />
+            </>
+          )}
         </div>
 
         {/* Forza del Profilo e sezioni: su mobile il box forza è attaccato alla
@@ -115,6 +189,7 @@ const ProfileContent = () => {
           profileIds={[profileRow.id]}
           open={previewOpen}
           onOpenChange={setPreviewOpen}
+          showAllMedia={adminMode}
         />
       )}
 

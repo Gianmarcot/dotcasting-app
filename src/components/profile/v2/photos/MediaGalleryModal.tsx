@@ -8,6 +8,7 @@ import {
   Crop as CropIcon,
   Loader2,
   Plus,
+  Star,
   Trash2,
   TriangleAlert,
 } from "lucide-react";
@@ -63,6 +64,7 @@ import {
 } from "@/lib/media/crops";
 import type { CropResult } from "@/components/profile/ImageCropModal";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
+import { useMediaRatingsForProfile } from "@/hooks/useMediaRatings";
 
 const UNDO_MS = 6000;
 
@@ -128,6 +130,7 @@ const MediaTile = ({
   onDelete,
   onMove,
   onRate,
+  isRated,
 }: {
   media: TalentMedia;
   kind: MediaKind;
@@ -141,6 +144,7 @@ const MediaTile = ({
   onDelete: () => void;
   onMove: (delta: -1 | 1) => void;
   onRate?: () => void;
+  isRated?: boolean;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: media.id,
@@ -215,7 +219,7 @@ const MediaTile = ({
               onClick={onRate}
               className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground"
             >
-              <Star className="h-4 w-4" />
+              <Star className={cn("h-4 w-4", isRated && "fill-current")} />
             </button>
           )}
           <button
@@ -277,6 +281,9 @@ export const MediaGalleryModal = ({
   const config = KIND_CONFIG[kind];
   const { profileRow, saveNow, arr, bool, isAdminMode } = useProfileForm();
   const { data: media } = useTalentMedia(profileRow?.id);
+  const { data: mediaRatings = [] } = useMediaRatingsForProfile(
+    isAdminMode ? profileRow?.id ?? null : null
+  );
   const roles = arr("p", "talent_categories");
   const hasBand = bool("p", "has_band");
 
@@ -307,6 +314,10 @@ export const MediaGalleryModal = ({
   const [cropTarget, setCropTarget] = useState<TalentMedia | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [ratingTargetId, setRatingTargetId] = useState<string | null>(null);
+  const ratedIds = useMemo(
+    () => new Set(mediaRatings.filter((rating) => rating.rating !== null).map((rating) => rating.media_id)),
+    [mediaRatings]
+  );
   const fileRef = useRef<HTMLInputElement>(null);
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
@@ -627,6 +638,7 @@ export const MediaGalleryModal = ({
                       onDelete={() => handleDelete(item)}
                       onMove={(delta) => move(index, delta)}
                       onRate={isAdminMode && kind === "photo" ? () => setRatingTargetId(item.id) : undefined}
+                      isRated={ratedIds.has(item.id)}
                     />
                   ))}
 
@@ -667,7 +679,8 @@ export const MediaGalleryModal = ({
                   mediaId={ratingTargetId}
                   currentIndex={items.findIndex((item) => item.id === ratingTargetId)}
                   totalCount={items.length}
-                  ratedCount={0}
+                  ratedCount={items.filter((item) => ratedIds.has(item.id)).length}
+                  isCurrentRated={ratedIds.has(ratingTargetId)}
                   onPrevious={() => {
                     const index = items.findIndex((item) => item.id === ratingTargetId);
                     setRatingTargetId(items[(index - 1 + items.length) % items.length]?.id ?? null);
