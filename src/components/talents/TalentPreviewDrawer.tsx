@@ -33,7 +33,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
         onOpenChange={onOpenChange}
         variant="side"
         footer={
-          <div className="fixed bottom-0 right-0 z-[90] flex w-full flex-col gap-3 border-t border-divider bg-white px-6 py-5 sm:w-[760px] sm:max-w-full sm:flex-row sm:px-10">
+          <>
             <Button
               variant="outline"
               size="lg"
@@ -57,7 +57,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
               <Send className="h-5 w-5" />
               Aggiungi a un casting
             </Button>
-          </div>
+          </>
         }
       />
 
