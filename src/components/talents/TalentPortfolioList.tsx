@@ -78,7 +78,11 @@ export const TalentPortfolioList = ({ talents, onSelectTalent }: Props) => {
   return (
     <div className="flex flex-col gap-4">
       {talents.map((t) => {
-        const photos = photosMap?.get(t.id) || [];
+        const mainPhotos = photosMap?.get(t.id) || [];
+        // Fallback: talent senza "foto principali" mostra almeno la foto profilo
+        const photos = (mainPhotos.length === 0 && t.profile_photo_url
+          ? [{ url: t.profile_photo_url, thumbnail_url: null } as unknown as TalentMainPhoto]
+          : mainPhotos);
         const name = buildDisplayName(t);
         const meta = buildMeta(t);
         const c = counts?.get(t.id) || { photos: 0, videos: 0 };
