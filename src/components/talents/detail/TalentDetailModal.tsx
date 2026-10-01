@@ -94,19 +94,23 @@ export const TalentDetailModal = ({
     [profile]
   );
 
+  // Lato agenzia (showAllMedia) si vedono tutti i media; altrimenti valgono
+  // le regole di visibilità legate ai ruoli del talent (vista talent).
   const isVisible = (category: string | null | undefined) =>
-    visibleCategories.includes(category ?? "main_photos");
+    showAllMedia || visibleCategories.includes(category ?? "main_photos");
 
   const photos = useMemo(
     () =>
       (media ?? [])
         .filter((m) => m.media_type === "photo" && isVisible(m.category)),
-    [media, visibleCategories]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [media, visibleCategories, showAllMedia]
   );
 
   const videos = useMemo(
     () => (media ?? []).filter((m) => m.media_type === "video" && isVisible(m.category)),
-    [media, visibleCategories]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [media, visibleCategories, showAllMedia]
   );
 
   const activeVideo = useMemo(
