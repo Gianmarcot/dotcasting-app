@@ -182,7 +182,7 @@ export const TalentDetailModal = ({
           className={cn(
             "fixed z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=closed]:animate-out data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in",
             isSide
-              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[40vw] sm:min-w-[440px] sm:max-w-none sm:rounded-l-[2.5rem]"
+              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[40vw] sm:min-w-[440px] sm:max-w-none"
               : "inset-0 data-[state=open]:animate-slide-up-panel data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
           )}
           aria-label={`Dettaglio di ${fullName}`}
