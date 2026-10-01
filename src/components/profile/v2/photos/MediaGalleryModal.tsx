@@ -218,7 +218,10 @@ const MediaTile = ({
               size="icon"
               aria-label="Valuta immagine"
               onPointerDown={(e) => e.stopPropagation()}
-              onClick={onRate}
+              onClick={(event) => {
+                event.stopPropagation();
+                onRate();
+              }}
               className="h-8 w-8 rounded-full bg-background/90 text-foreground"
             >
               <Star className={cn("h-4 w-4", isRated && "fill-current")} />
