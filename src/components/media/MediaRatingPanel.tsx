@@ -183,7 +183,7 @@ export const MediaRatingPanel = ({
 
       <div className="flex items-center gap-2 text-sm font-medium text-foreground">
         <Star className="h-4 w-4" />
-        Valutazione Owner
+        Valutazione agenzia
       </div>
 
       {/* Rating */}
@@ -220,16 +220,16 @@ export const MediaRatingPanel = ({
         onClick={handleSave}
         disabled={!hasChanges || isSaving}
         className="w-full"
-        size="sm"
+        size="lg"
       >
         {isSaving ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="animate-spin" />
             Salvataggio...
           </>
         ) : (
           <>
-            <Save className="h-4 w-4 mr-2" />
+            <Save />
             Salva valutazione
           </>
         )}

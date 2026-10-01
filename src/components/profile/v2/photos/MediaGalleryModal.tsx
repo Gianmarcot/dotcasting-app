@@ -212,15 +212,17 @@ const MediaTile = ({
       <div className="absolute inset-x-2 top-2 flex justify-between opacity-100 transition-opacity md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100">
         <div className="flex gap-1">
           {onRate && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               aria-label="Valuta immagine"
               onPointerDown={(e) => e.stopPropagation()}
               onClick={onRate}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-foreground"
+              className="h-8 w-8 rounded-full bg-background/90 text-foreground"
             >
               <Star className={cn("h-4 w-4", isRated && "fill-current")} />
-            </button>
+            </Button>
           )}
           <button
             type="button"

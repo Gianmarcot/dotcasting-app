@@ -243,7 +243,7 @@ export const ProfileFormProvider = ({
     const found: Record<string, string> = {};
     const birthDate = draft.p.birth_date as string | null;
     const age = calcAge(birthDate);
-    if (birthDate && age !== null && age < 18) {
+    if (birthDate && age !== null && age < 18 && !draft.p.guardian_user_id) {
       found.birth_date = "Devi avere almeno 18 anni";
     }
     const email = (draft.p.contact_email as string | null) ?? "";

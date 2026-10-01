@@ -37,12 +37,12 @@ export const useUpdateGuardian = (targetUserId?: string | null) => {
     mutationFn: async (updates: GuardianUpdate) => {
       if (!user?.id) throw new Error("User not authenticated");
       const guardianUserId = targetUserId ?? user.id;
-      const { error } = await supabase
-        .from("guardians")
-        .upsert(
-          { ...updates, user_id: guardianUserId, updated_at: new Date().toISOString() },
-          { onConflict: "user_id" }
-        );
+      const payload = { ...updates, updated_at: new Date().toISOString() };
+      const { error } = targetUserId
+        ? await supabase.from("guardians").update(payload).eq("user_id", guardianUserId)
+        : await supabase
+            .from("guardians")
+            .upsert({ ...payload, user_id: guardianUserId }, { onConflict: "user_id" });
       if (error) throw error;
     },
     onSuccess: () => {
