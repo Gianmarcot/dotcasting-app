@@ -1368,6 +1368,30 @@ const BlocksSection = () => (
     </SubBlock>
 
     <SubBlock
+      title="TalentCompactRow"
+      source="src/components/talents/TalentCompactList.tsx"
+    >
+      <div className="dc-card overflow-hidden p-6">
+        <div className={cn(TALENT_COMPACT_GRID, "px-4 py-2 text-sm font-medium text-muted-foreground")}>
+          <span>Talento</span>
+          <span className="hidden sm:block">Città / età</span>
+          <span className="hidden md:block">Media</span>
+          <span className="hidden lg:block">Etichette</span>
+          <span />
+        </div>
+        {MOCK_COMPACT_ROWS.map((row) => (
+          <TalentCompactRow
+            key={row.talent.id}
+            talent={row.talent}
+            photoUrl={row.photoUrl}
+            counts={row.counts}
+            onSelect={() => {}}
+          />
+        ))}
+      </div>
+    </SubBlock>
+
+    <SubBlock
       title="Casting role row (rounds table)"
       source="src/components/castings/rounds/RoleRoundRow.tsx"
     >
