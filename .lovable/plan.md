@@ -16,7 +16,7 @@ prima:  px-4 h-20 border-b border-border/40 last:border-b-0 hover:bg-muted/30
 dopo:   px-4 h-20 rounded-lg hover:bg-muted/30
 ```
 
-- rimosse le Classi `border-b border-border/40 last:border-b-0` (nessun divisore
+- rimossi i bordi inferiori `border-b border-border/40 last:border-b-0` (nessun
   tra righe, nemmeno sotto l'ultima);
 - aggiunta `rounded-lg`, che nel progetto vale esattamente 8px (il token
   `--radius` è `0.5rem` e `rounded-lg` è mappato su di esso). Applicandola in
