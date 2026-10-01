@@ -1,9 +1,8 @@
 import { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Camera, Play } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { TalentWithAttributes } from "@/hooks/useTalents";
 import { useTalentsMainPhotos, TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
+import { useTalentsMediaCounts } from "@/hooks/useTalentsMediaCounts";
 import { FiscalPill } from "@/components/talents/TalentStatusPill";
 import { buildDisplayName, buildMeta } from "@/components/talents/TalentBoardCard";
 import { cn } from "@/lib/utils";
@@ -12,30 +11,6 @@ interface Props {
   talents: TalentWithAttributes[];
   onSelectTalent: (t: TalentWithAttributes) => void;
 }
-
-/** Conteggio foto/video per profilo in un'unica query. */
-const useMediaCounts = (ids: string[]) => {
-  const sorted = [...ids].sort();
-  return useQuery({
-    queryKey: ["owner-talents-media-counts", sorted],
-    enabled: sorted.length > 0,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("talent_media")
-        .select("profile_id, media_type")
-        .in("profile_id", sorted);
-      if (error) throw error;
-      const map = new Map<string, { photos: number; videos: number }>();
-      (data || []).forEach((r: any) => {
-        const c = map.get(r.profile_id) || { photos: 0, videos: 0 };
-        if (r.media_type === "photo") c.photos++;
-        else if (r.media_type === "video") c.videos++;
-        map.set(r.profile_id, c);
-      });
-      return map;
-    },
-  });
-};
 
 /** Cella anteprima; `hideBelow` nasconde le celle oltre la seconda sotto md. */
 const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }) => {
@@ -73,7 +48,7 @@ const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }
 export const TalentPortfolioList = ({ talents, onSelectTalent }: Props) => {
   const ids = useMemo(() => talents.map((t) => t.id), [talents]);
   const { data: photosMap } = useTalentsMainPhotos(ids);
-  const { data: counts } = useMediaCounts(ids);
+  const { data: counts } = useTalentsMediaCounts(ids);
 
   return (
     <div className="flex flex-col gap-4">

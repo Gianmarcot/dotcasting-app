@@ -92,6 +92,7 @@ import type { CastingSort } from "@/hooks/useCastings";
 import { TalentBoardCard } from "@/components/talents/TalentBoardCard";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
+import { TalentCompactRow, TALENT_COMPACT_GRID } from "@/components/talents/TalentCompactList";
 
 const CastingFiltersDemo = () => {
   const [status, setStatus] = useState("all");
@@ -194,6 +195,33 @@ const MOCK_DB_TALENTS: Array<{
       { url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=80", thumbnail_url: null },
     ],
     materials: { photos: 4, videos: 0, hasPdf: false },
+  },
+];
+
+/** Campioni per la riga compatta: minore con CF mancante, adulto in regola, adulto senza CF italiano. */
+const MOCK_COMPACT_ROWS: Array<{
+  talent: TalentWithAttributes;
+  photoUrl: string;
+  counts: { photos: number; videos: number };
+}> = [
+  {
+    talent: { ...MOCK_DB_TALENTS[0].talent, birth_date: "2010-05-14", fiscal_code: null },
+    photoUrl: MOCK_DB_TALENTS[0].photos[0].url,
+    counts: { photos: 8, videos: 2 },
+  },
+  {
+    talent: {
+      ...MOCK_DB_TALENTS[1].talent,
+      has_italian_fiscal_code: true,
+      fiscal_code: "MRABNC90A01H501U",
+    },
+    photoUrl: MOCK_DB_TALENTS[1].photos[0].url,
+    counts: { photos: 6, videos: 3 },
+  },
+  {
+    talent: { ...MOCK_DB_TALENTS[2].talent, has_italian_fiscal_code: false },
+    photoUrl: MOCK_DB_TALENTS[2].photos[0].url,
+    counts: { photos: 9, videos: 1 },
   },
 ];
 
@@ -1336,6 +1364,30 @@ const BlocksSection = () => (
           </div>
           );
         })}
+      </div>
+    </SubBlock>
+
+    <SubBlock
+      title="TalentCompactRow"
+      source="src/components/talents/TalentCompactList.tsx"
+    >
+      <div className="dc-card overflow-hidden p-6">
+        <div className={cn(TALENT_COMPACT_GRID, "px-4 py-2 text-sm font-medium text-muted-foreground")}>
+          <span>Talento</span>
+          <span className="hidden sm:block">Città / età</span>
+          <span className="hidden md:block">Media</span>
+          <span className="hidden lg:block">Etichette</span>
+          <span />
+        </div>
+        {MOCK_COMPACT_ROWS.map((row) => (
+          <TalentCompactRow
+            key={row.talent.id}
+            talent={row.talent}
+            photoUrl={row.photoUrl}
+            counts={row.counts}
+            onSelect={() => {}}
+          />
+        ))}
       </div>
     </SubBlock>
 
