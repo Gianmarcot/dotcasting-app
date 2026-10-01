@@ -5,7 +5,7 @@
 // profilo (un solo talent) sia da liste di talent (con frecce).
 // =============================================================
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
@@ -72,7 +72,7 @@ export const TalentDetailModal = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
+  const barObserver = useRef<ResizeObserver | null>(null);
   const [barHeight, setBarHeight] = useState(0);
 
   const currentIndex = onIndexChange ? index : localIndex;
@@ -141,16 +141,21 @@ export const TalentDetailModal = ({
 
   // La barra azioni è fissa in basso e può cambiare altezza (pulsanti su più righe):
   // la misuriamo e la mettiamo in --dc-bar-h così media e dati le riservano spazio.
-  useEffect(() => {
-    if (!isSide || !footer || !open) return;
-    const el = barRef.current;
-    if (!el) return;
-    const measure = () => setBarHeight(el.getBoundingClientRect().height);
+  // Serve un ref callback perché il Portal monta i figli solo dopo un effetto proprio:
+  // al primo commit la barra non è ancora nel DOM.
+  const setBarRef = useCallback((node: HTMLDivElement | null) => {
+    barObserver.current?.disconnect();
+    barObserver.current = null;
+    if (!node) {
+      setBarHeight(0);
+      return;
+    }
+    const measure = () => setBarHeight(node.getBoundingClientRect().height);
     measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [isSide, footer, open]);
+    observer.observe(node);
+    barObserver.current = observer;
+  }, []);
 
   // entrando nella vista video seleziona il primo video; uscendo mette in pausa
   useEffect(() => {
@@ -526,7 +531,7 @@ export const TalentDetailModal = ({
           </div>
           {isSide && footer ? (
             <div
-              ref={barRef}
+              ref={setBarRef}
               className="fixed bottom-0 right-0 z-[90] flex w-full flex-col gap-3 border-t border-divider bg-white px-6 py-5 sm:w-[900px] sm:max-w-full sm:flex-row sm:flex-wrap sm:px-10"
             >
               {footer}
