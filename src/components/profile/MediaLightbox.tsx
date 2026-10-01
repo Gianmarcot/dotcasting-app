@@ -59,11 +59,9 @@ export const MediaLightbox = ({
     };
 
     document.addEventListener("keydown", handleKeyDown, true);
-    document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
-      document.body.style.overflow = "";
     };
   }, [onClose, handlePrevious, handleNext]);
 
