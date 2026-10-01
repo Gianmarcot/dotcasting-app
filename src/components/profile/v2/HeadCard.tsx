@@ -28,7 +28,7 @@ import { FieldSlot, calcAge, useProfileForm } from "./ProfileFormContext";
 
 
 export const HeadCard = () => {
-  const { str, bool, set, setMany, saveNow, profileRow } = useProfileForm();
+  const { str, bool, set, setMany, profileRow, isAdminMode } = useProfileForm();
   const photoButtonRef = useRef<HTMLButtonElement>(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
 
@@ -83,7 +83,7 @@ export const HeadCard = () => {
             className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap"
           >
             <Camera />
-            Le mie foto
+            {isAdminMode ? "Foto del talent" : "Le mie foto"}
           </Button>
         </div>
         <PhotoGalleryModal

@@ -14,11 +14,17 @@ import { validateFiscalCode } from "@/lib/fiscalCode";
 
 import { useProfile } from "@/hooks/useProfile";
 import { useUpdateProfile, type ProfileUpdate } from "@/hooks/useUpdateProfile";
+import { useProfileById } from "@/hooks/useProfileById";
+import { useUpdateProfileById } from "@/hooks/useUpdateProfileById";
 import {
   useTalentAttributes,
   useUpdateTalentAttributes,
   type AttributesUpdate,
 } from "@/hooks/useTalentAttributes";
+import {
+  useTalentAttributesByProfileId,
+  useUpdateTalentAttributesByProfileId,
+} from "@/hooks/useTalentAttributesByProfileId";
 
 export type Scope = "p" | "a";
 type Values = Record<string, unknown>;
@@ -118,6 +124,7 @@ interface ProfileFormContextValue {
   resetKey: number;
   errors: Record<string, string>;
   registerField: (name: string) => (el: HTMLDivElement | null) => void;
+  isAdminMode: boolean;
 }
 
 const ProfileFormCtx = createContext<ProfileFormContextValue | null>(null);
@@ -130,11 +137,25 @@ export const useProfileForm = () => {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
-  const { data: profileRow, isLoading } = useProfile();
-  const { data: attributesRow } = useTalentAttributes();
-  const updateProfile = useUpdateProfile();
-  const updateAttributes = useUpdateTalentAttributes();
+export const ProfileFormProvider = ({
+  children,
+  externalProfileId,
+}: {
+  children: ReactNode;
+  externalProfileId?: string;
+}) => {
+  const ownProfile = useProfile();
+  const externalProfile = useProfileById(externalProfileId);
+  const ownAttributes = useTalentAttributes();
+  const externalAttributes = useTalentAttributesByProfileId(externalProfileId);
+  const updateOwnProfile = useUpdateProfile();
+  const updateExternalProfile = useUpdateProfileById();
+  const updateOwnAttributes = useUpdateTalentAttributes();
+  const updateExternalAttributes = useUpdateTalentAttributesByProfileId();
+  const isAdminMode = !!externalProfileId;
+  const profileRow = isAdminMode ? externalProfile.data : ownProfile.data;
+  const attributesRow = isAdminMode ? externalAttributes.data : ownAttributes.data;
+  const isLoading = isAdminMode ? externalProfile.isLoading : ownProfile.isLoading;
 
   const [baseline, setBaseline] = useState<{ p: Values; a: Values }>({ p: {}, a: {} });
   const [draft, setDraft] = useState<{ p: Values; a: Values }>({ p: {}, a: {} });
@@ -267,10 +288,24 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       if (Object.keys(profilePatch).length > 0) {
-        await updateProfile.mutateAsync(profilePatch as ProfileUpdate);
+        if (externalProfileId) {
+          await updateExternalProfile.mutateAsync({
+            profileId: externalProfileId,
+            updates: profilePatch as ProfileUpdate,
+          });
+        } else {
+          await updateOwnProfile.mutateAsync(profilePatch as ProfileUpdate);
+        }
       }
       if (Object.keys(attributesPatch).length > 0) {
-        await updateAttributes.mutateAsync(attributesPatch as AttributesUpdate);
+        if (externalProfileId) {
+          await updateExternalAttributes.mutateAsync({
+            profileId: externalProfileId,
+            attributes: attributesPatch as AttributesUpdate,
+          });
+        } else {
+          await updateOwnAttributes.mutateAsync(attributesPatch as AttributesUpdate);
+        }
       }
       setBaseline(draft);
       toast.success("Profilo salvato");
@@ -279,7 +314,7 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
       toast.error("Errore durante il salvataggio");
       return false;
     }
-  }, [dirtyKeys, draft, focusFirstError, updateAttributes, updateProfile, validate]);
+  }, [dirtyKeys, draft, externalProfileId, focusFirstError, updateExternalAttributes, updateExternalProfile, updateOwnAttributes, updateOwnProfile, validate]);
 
   const reset = useCallback(() => {
     setDraft(baseline);
@@ -289,12 +324,29 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
 
   const saveNow = useCallback(
     (scope: Scope, patch: Values) => {
-      const mutation = scope === "p" ? updateProfile : updateAttributes;
-      mutation.mutate(patch as ProfileUpdate & AttributesUpdate, {
-        onError: () => toast.error("Errore durante il salvataggio"),
-      });
+      if (scope === "p") {
+        if (externalProfileId) {
+          updateExternalProfile.mutate(
+            { profileId: externalProfileId, updates: patch as ProfileUpdate },
+            { onError: () => toast.error("Errore durante il salvataggio") }
+          );
+        } else {
+          updateOwnProfile.mutate(patch as ProfileUpdate, {
+            onError: () => toast.error("Errore durante il salvataggio"),
+          });
+        }
+      } else if (externalProfileId) {
+        updateExternalAttributes.mutate(
+          { profileId: externalProfileId, attributes: patch as AttributesUpdate },
+          { onError: () => toast.error("Errore durante il salvataggio") }
+        );
+      } else {
+        updateOwnAttributes.mutate(patch as AttributesUpdate, {
+          onError: () => toast.error("Errore durante il salvataggio"),
+        });
+      }
     },
-    [updateAttributes, updateProfile]
+    [externalProfileId, updateExternalAttributes, updateExternalProfile, updateOwnAttributes, updateOwnProfile]
   );
 
   const value: ProfileFormContextValue = {
@@ -312,12 +364,17 @@ export const ProfileFormProvider = ({ children }: { children: ReactNode }) => {
     saveNow,
     dirtyCount: dirtyKeys.length,
     isDirty,
-    isSaving: updateProfile.isPending || updateAttributes.isPending,
+    isSaving:
+      updateOwnProfile.isPending ||
+      updateExternalProfile.isPending ||
+      updateOwnAttributes.isPending ||
+      updateExternalAttributes.isPending,
     save,
     reset,
     resetKey,
     errors,
     registerField,
+    isAdminMode,
   };
 
   return <ProfileFormCtx.Provider value={value}>{children}</ProfileFormCtx.Provider>;

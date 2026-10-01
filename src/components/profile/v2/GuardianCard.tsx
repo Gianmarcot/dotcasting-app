@@ -24,7 +24,7 @@ import { isAdultBirthDate } from "@/lib/guardianship";
  */
 export const GuardianCard = ({ guardianUserId }: { guardianUserId: string }) => {
   const { data: row } = useGuardian(guardianUserId);
-  const updateGuardian = useUpdateGuardian();
+  const updateGuardian = useUpdateGuardian(guardianUserId);
 
   const [value, setValue] = useState<GuardianValue>(EMPTY_GUARDIAN);
   const [touched, setTouched] = useState(false);
