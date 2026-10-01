@@ -26,7 +26,7 @@ Aggiungo una terza vista al Database talenti: un elenco di righe alte 80px, una 
 
 ## Come viene scelta la vista
 
-- Il selettore di vista in alto a destra ganha un terzo pulsante, per ultimo, con l'icona a righe con pallini e nome "Vista compatta"; stesso stile dei due attuali (cerchio 48px, bianco con ombra quando attivo).
+- Il selettore di vista in alto a destra guadagna un terzo pulsante, per ultimo, con l'icona a righe con pallini e nome "Vista compatta"; stesso stile dei due attuali (cerchio 48px, bianco con ombra quando attivo).
 - La scelta resta salvata tra le visite, come oggi.
 - Ricerca, filtri, ordinamento e conteggio risultati funzionano identici anche nella nuova vista.
 
