@@ -33,6 +33,8 @@ interface TalentDetailModalProps {
   variant?: "fullscreen" | "side";
   /** azioni aggiuntive mostrate in fondo alla variante laterale */
   footer?: ReactNode;
+  /** lato agenzia: mostra tutti i media, senza i filtri di visibilità legati ai ruoli del talent */
+  showAllMedia?: boolean;
 }
 
 /** etichette brevi per la striscia video */
@@ -62,6 +64,7 @@ export const TalentDetailModal = ({
   onOpenChange,
   variant = "fullscreen",
   footer,
+  showAllMedia = false,
 }: TalentDetailModalProps) => {
   const hasNavigation = profileIds.length > 1;
   const isSide = variant === "side";
@@ -91,19 +94,23 @@ export const TalentDetailModal = ({
     [profile]
   );
 
+  // Lato agenzia (showAllMedia) si vedono tutti i media; altrimenti valgono
+  // le regole di visibilità legate ai ruoli del talent (vista talent).
   const isVisible = (category: string | null | undefined) =>
-    visibleCategories.includes(category ?? "main_photos");
+    showAllMedia || visibleCategories.includes(category ?? "main_photos");
 
   const photos = useMemo(
     () =>
       (media ?? [])
         .filter((m) => m.media_type === "photo" && isVisible(m.category)),
-    [media, visibleCategories]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [media, visibleCategories, showAllMedia]
   );
 
   const videos = useMemo(
     () => (media ?? []).filter((m) => m.media_type === "video" && isVisible(m.category)),
-    [media, visibleCategories]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [media, visibleCategories, showAllMedia]
   );
 
   const activeVideo = useMemo(

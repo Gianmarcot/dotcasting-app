@@ -32,6 +32,7 @@ export const TalentPreviewDrawer = ({ talent, open, onOpenChange, extraAction }:
         open={open}
         onOpenChange={onOpenChange}
         variant="side"
+        showAllMedia
         footer={
           <>
             <Button
