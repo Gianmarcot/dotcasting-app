@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Users, UserPlus, X, LayoutGrid, List, ListChecks, Search } from "lucide-react";
+import { Users, UserPlus, X, LayoutGrid, List, Rows3, Search } from "lucide-react";
 import { FISCAL_STATUS_LABELS, type FiscalStatus } from "@/lib/fiscalStatus";
 
 type ViewMode = "board" | "portfolio" | "compact";
