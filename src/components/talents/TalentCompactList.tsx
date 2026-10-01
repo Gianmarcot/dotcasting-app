@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
  * sotto il rispettivo breakpoint e la griglia si restringe di un binario.
  */
 export const TALENT_COMPACT_GRID =
-  "grid grid-cols-[minmax(180px,1fr)_20px] sm:grid-cols-[minmax(200px,1fr)_180px_20px] md:grid-cols-[minmax(200px,1fr)_180px_132px_20px] lg:grid-cols-[minmax(220px,1fr)_180px_132px_260px_20px] items-center gap-4";
+  "grid grid-cols-[minmax(180px,1fr)_20px] sm:grid-cols-[minmax(200px,2fr)_minmax(160px,1.5fr)_20px] md:grid-cols-[minmax(200px,2fr)_minmax(160px,1.5fr)_minmax(132px,1fr)_20px] lg:grid-cols-[minmax(220px,2fr)_minmax(160px,1.5fr)_minmax(132px,1fr)_minmax(200px,1.5fr)_20px] items-center gap-4";
 
 /** Pill contatore: identica a quella della vista portfolio, senza la parola. */
 const countPill =
