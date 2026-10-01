@@ -217,10 +217,12 @@ const MediaTile = ({
               variant="ghost"
               size="icon"
               aria-label="Valuta immagine"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(event) => {
+              onPointerDown={(event) => {
                 event.stopPropagation();
                 onRate();
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") onRate();
               }}
               className="h-8 w-8 rounded-full bg-background/90 text-foreground"
             >
