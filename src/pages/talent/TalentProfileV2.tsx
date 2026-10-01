@@ -100,7 +100,7 @@ const ProfileContentInner = ({ adminMode = false }: { adminMode?: boolean }) => 
           <header className="flex flex-col gap-6 px-6 pb-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:px-0 md:pb-0">
             <div>
               {adminMode && (
-                <Button variant="ghost" size="sm" onClick={() => navigate("/owner/talents")} className="mb-2 px-0">
+                <Button variant="ghost" size="sm" onClick={() => navigate("/owner/talents")} className="mb-4">
                   <ArrowLeft />
                   Database talenti
                 </Button>
@@ -144,7 +144,7 @@ const ProfileContentInner = ({ adminMode = false }: { adminMode?: boolean }) => 
         {/* Forza del Profilo e sezioni: su mobile il box forza è attaccato alla
             prima sezione, su desktop lo spazio torna 24px. */}
         <div className="mt-6 md:space-y-6">
-          <ProfileStrengthCard />
+          <ProfileStrengthCard initiallyCollapsed={adminMode} />
           <div key={resetKey} className="space-y-6">
           <div id="section-head" className="scroll-mt-6 rounded-[24px] transition-shadow">
             <HeadCard />
@@ -190,6 +190,7 @@ const ProfileContentInner = ({ adminMode = false }: { adminMode?: boolean }) => 
           open={previewOpen}
           onOpenChange={setPreviewOpen}
           showAllMedia={adminMode}
+          isOwnerView={adminMode}
         />
       )}
 

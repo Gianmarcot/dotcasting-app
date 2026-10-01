@@ -20,6 +20,8 @@ import { useTalentAttributesByProfileId } from "@/hooks/useTalentAttributesByPro
 import { useTalentMediaByProfileId } from "@/hooks/useTalentMediaByProfileId";
 import { buildTalentDetail, type DetailField } from "./talentDetailData";
 import { TalentPdfWizard } from "./TalentPdfWizard";
+import { MediaLightbox } from "@/components/profile/MediaLightbox";
+import { useMediaRatingsForProfile } from "@/hooks/useMediaRatings";
 
 interface TalentDetailModalProps {
   /** elenco dei talent navigabili: un solo id = variante senza frecce */
@@ -35,6 +37,8 @@ interface TalentDetailModalProps {
   footer?: ReactNode;
   /** lato agenzia: mostra tutti i media, senza i filtri di visibilità legati ai ruoli del talent */
   showAllMedia?: boolean;
+  /** abilita nel lightbox gli strumenti privati di valutazione dell'agenzia */
+  isOwnerView?: boolean;
 }
 
 /** etichette brevi per la striscia video */
@@ -65,6 +69,7 @@ export const TalentDetailModal = ({
   variant = "fullscreen",
   footer,
   showAllMedia = false,
+  isOwnerView = false,
 }: TalentDetailModalProps) => {
   const hasNavigation = profileIds.length > 1;
   const isSide = variant === "side";
@@ -80,6 +85,7 @@ export const TalentDetailModal = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const barObserver = useRef<ResizeObserver | null>(null);
   const [barHeight, setBarHeight] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
@@ -87,6 +93,11 @@ export const TalentDetailModal = ({
   const { data: profile } = useProfileById(profileId);
   const { data: attrs } = useTalentAttributesByProfileId(profileId);
   const { data: media } = useTalentMediaByProfileId(profileId);
+  const { data: mediaRatings = [] } = useMediaRatingsForProfile(isOwnerView ? profileId : null);
+  const ratingsMap = useMemo(
+    () => new Map(mediaRatings.map((rating) => [rating.media_id, rating])),
+    [mediaRatings]
+  );
 
   // Le categorie nascoste dai ruoli del talent non compaiono nell'anteprima.
   const visibleCategories = useMemo(
@@ -184,7 +195,7 @@ export const TalentDetailModal = ({
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || lightboxIndex !== null) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
       const delta = e.key === "ArrowRight" ? 1 : -1;
@@ -195,7 +206,7 @@ export const TalentDetailModal = ({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, photos.length, videos, activeVideoId, view]);
+  }, [open, photos.length, videos, activeVideoId, view, lightboxIndex]);
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -304,7 +315,10 @@ export const TalentDetailModal = ({
                   <p className="text-sm text-muted-foreground">Nessun video disponibile</p>
                 )
               ) : (
-                <div
+                <button
+                  type="button"
+                  onClick={() => photos.length > 0 && setLightboxIndex(photoIndex)}
+                  aria-label={photos.length > 0 ? `Apri foto ${photoIndex + 1} a tutto schermo` : undefined}
                   className={cn(
                     "h-full overflow-hidden rounded-lg bg-black/5",
                     isSide && "max-w-[calc(100%-32px)]"
@@ -337,7 +351,7 @@ export const TalentDetailModal = ({
                       Nessuna foto disponibile
                     </div>
                   )}
-                </div>
+                </button>
               )}
             </div>
 
@@ -553,6 +567,16 @@ export const TalentDetailModal = ({
         open={wizardOpen}
         onOpenChange={setWizardOpen}
       />
+      {lightboxIndex !== null && photos.length > 0 && (
+        <MediaLightbox
+          media={photos}
+          currentIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={setLightboxIndex}
+          isOwnerView={isOwnerView}
+          ratingsMap={ratingsMap}
+        />
+      )}
     </DialogPrimitive.Root>
   );
 };
