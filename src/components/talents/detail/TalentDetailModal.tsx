@@ -5,7 +5,7 @@
 // profilo (un solo talent) sia da liste di talent (con frecce).
 // =============================================================
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { MinorBadge } from "@/components/talents/MinorBadge";
@@ -30,6 +30,10 @@ interface TalentDetailModalProps {
   onIndexChange?: (index: number) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** fullscreen per la preview talent, side per il drawer del database */
+  variant?: "fullscreen" | "side";
+  /** azioni aggiuntive mostrate in fondo alla variante laterale */
+  footer?: ReactNode;
 }
 
 /** etichette brevi per la striscia video */
@@ -57,6 +61,8 @@ export const TalentDetailModal = ({
   onIndexChange,
   open,
   onOpenChange,
+  variant = "fullscreen",
+  footer,
 }: TalentDetailModalProps) => {
   const [localIndex, setLocalIndex] = useState(index);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -165,6 +171,7 @@ export const TalentDetailModal = ({
 
 
   const hasNavigation = profileIds.length > 1;
+  const isSide = variant === "side";
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -172,14 +179,22 @@ export const TalentDetailModal = ({
         <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-foreground/30 data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:duration-[250ms] data-[state=open]:duration-[400ms] data-[state=open]:ease-[cubic-bezier(0.23,1,0.32,1)]" />
         <DialogPrimitive.Content
           ref={containerRef}
-          className="fixed inset-0 z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
+          className={cn(
+            "fixed z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=closed]:animate-out data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in",
+            isSide
+              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[40vw] sm:min-w-[440px] sm:max-w-none sm:rounded-l-[2.5rem]"
+              : "inset-0 data-[state=open]:animate-slide-up-panel data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
+          )}
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
 
           {/* barra di navigazione fissa in alto a destra */}
           <ModalNavBar
-            className="fixed right-8 top-8 z-[90] animate-fade-in motion-reduce:animate-none"
+            className={cn(
+              "fixed right-8 top-8 z-[90] animate-fade-in motion-reduce:animate-none",
+              isSide && "right-6 top-6"
+            )}
             showNavigation={hasNavigation}
             prevDisabled={currentIndex <= 0}
             nextDisabled={currentIndex >= profileIds.length - 1}
@@ -190,7 +205,14 @@ export const TalentDetailModal = ({
           />
 
           {/* METÀ SINISTRA — tre fasce fisse: selettore, media, navigazione */}
-          <div className="relative flex shrink-0 flex-col items-center justify-center gap-6 bg-[#f4f0ec] py-10 lg:h-full lg:w-1/2 lg:py-0">
+          <div
+            className={cn(
+              "relative flex shrink-0 flex-col items-center justify-center gap-6 bg-[#f4f0ec]",
+              isSide
+                ? "h-[100dvh] min-h-[100dvh] w-full px-0 py-10"
+                : "py-10 lg:h-full lg:w-1/2 lg:py-0"
+            )}
+          >
             {/* fascia 1 — selettore foto/video */}
             {videos.length > 0 && (
               <PillTabs
@@ -207,7 +229,10 @@ export const TalentDetailModal = ({
 
             {/* fascia 2 — area del media, altezza fissa */}
             <div
-              className="flex h-[min(60vh,120vw)] w-full items-center justify-center px-10 lg:h-[min(66vh,50vw)]"
+              className={cn(
+                "flex w-full items-center justify-center px-10",
+                isSide ? "min-h-0 flex-1" : "h-[min(60vh,120vw)] lg:h-[min(66vh,50vw)]"
+              )}
               role="group"
               aria-roledescription="carosello"
               aria-label={
@@ -376,8 +401,19 @@ export const TalentDetailModal = ({
 
 
           {/* METÀ DESTRA — dettagli, scorre */}
-          <div ref={scrollRef} className="min-w-0 w-full flex-1 bg-white lg:h-full lg:w-1/2 lg:shrink-0 lg:overflow-y-auto">
-            <div className="min-w-0 w-full px-6 pb-24 pt-24 lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]">
+          <div
+            ref={scrollRef}
+            className={cn(
+              "min-w-0 w-full bg-white",
+              isSide ? "h-auto shrink-0 overflow-visible" : "flex-1 lg:h-full lg:w-1/2 lg:shrink-0 lg:overflow-y-auto"
+            )}
+          >
+            <div
+              className={cn(
+                "min-w-0 w-full px-6 pb-24 pt-24",
+                isSide ? "sm:px-10 sm:pb-16 sm:pt-20" : "lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]"
+              )}
+            >
               <Button
                 type="button"
                 variant="secondary"
@@ -444,6 +480,8 @@ export const TalentDetailModal = ({
                   )}
                 </section>
               ))}
+
+              {isSide && footer}
             </div>
           </div>
         </DialogPrimitive.Content>
