@@ -435,8 +435,9 @@ export const TalentDetailModal = ({
             <div
               className={cn(
                 "min-w-0 w-full px-6 pb-24 pt-24",
-                isSide ? "pb-44 sm:px-10 sm:pt-20" : "lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]"
+                isSide ? "sm:px-10 sm:pt-20" : "lg:pl-[100px] lg:pr-[96px] lg:pt-[147px]"
               )}
+              style={isSide ? { paddingBottom: "calc(var(--dc-bar-h, 0px) + 40px)" } : undefined}
             >
               <Button
                 type="button"
