@@ -148,8 +148,8 @@ export const OwnerCastingRoleDetail = () => {
         </div>
 
         <div className="flex gap-2 shrink-0">
-          <Button size="md" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
-            <Plus className="h-4 w-4" />
+          <Button size="lg" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
+            <Plus />
             Aggiungi talent
           </Button>
         </div>

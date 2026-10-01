@@ -72,8 +72,8 @@ export const OwnerCompanies = () => {
             {companies ? `${companies.length} aziende` : "Caricamento..."}
           </p>
         </div>
-        <Button onClick={() => setFormOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => setFormOpen(true)} size="lg" iconPosition="left">
+          <Plus />
           Nuova Azienda
         </Button>
       </div>

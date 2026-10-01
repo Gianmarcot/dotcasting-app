@@ -19,7 +19,7 @@ export const OwnerLayout = () => {
           className="h-full bg-background overflow-hidden md:ml-[var(--owner-sidebar-w)]"
         >
           <div className="h-full overflow-y-auto overflow-x-hidden">
-            <div className="p-4 pt-4 md:p-8 md:pt-16 max-w-7xl mx-auto">
+            <div className="@container p-4 pt-4 md:p-8 md:pt-16 max-w-[1600px] mx-auto">
               <Outlet />
             </div>
           </div>

@@ -20,8 +20,8 @@ export const OwnerDashboard = () => {
           <h1 className="text-2xl text-foreground">{it.backoffice.dashboard}</h1>
           <p className="text-muted-foreground mt-1">Cosa devi fare adesso</p>
         </div>
-        <Button onClick={() => navigate("/owner/castings")}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => navigate("/owner/castings")} size="lg" iconPosition="left">
+          <Plus />
           {it.backoffice.createCasting}
         </Button>
       </div>

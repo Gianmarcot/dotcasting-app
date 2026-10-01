@@ -123,12 +123,12 @@ export const OwnerTalents = () => {
     : `${count} di ${totalCount ?? count} risultati`;
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="flex flex-col gap-6 animate-fade-up">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="font-display uppercase text-2xl text-foreground">Database talenti</h1>
-        <Button size="md" iconPosition="left" onClick={() => setCreateDialogOpen(true)}>
-          <UserPlus className="h-5 w-5" />
+        <Button size="lg" iconPosition="left" onClick={() => setCreateDialogOpen(true)}>
+          <UserPlus />
           Nuovo talent
         </Button>
       </div>
@@ -198,8 +198,8 @@ export const OwnerTalents = () => {
         </div>
       )}
 
-      {/* Content */}
-      <div>
+      {/* Content: 48px dal blocco filtri (24px di gap + 24px) */}
+      <div className="mt-6">
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
