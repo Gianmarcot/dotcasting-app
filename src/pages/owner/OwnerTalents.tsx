@@ -136,7 +136,7 @@ export const OwnerTalents = () => {
       <div className="space-y-4">
       {/* Toolbar: search left, count + sort + view right */}
       <Surface variant="raised" className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
-        <div className="relative w-full lg:max-w-[800px] lg:flex-1">
+        <div className="relative w-full sm:max-w-[450px] sm:flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder="Cerca per parola chiave"
