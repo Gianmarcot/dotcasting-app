@@ -33,6 +33,8 @@ interface TalentDetailModalProps {
   variant?: "fullscreen" | "side";
   /** azioni aggiuntive mostrate in fondo alla variante laterale */
   footer?: ReactNode;
+  /** lato agenzia: mostra tutti i media, senza i filtri di visibilità legati ai ruoli del talent */
+  showAllMedia?: boolean;
 }
 
 /** etichette brevi per la striscia video */
