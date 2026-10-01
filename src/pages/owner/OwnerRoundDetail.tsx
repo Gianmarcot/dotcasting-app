@@ -230,13 +230,13 @@ export const OwnerRoundDetail = () => {
         <div className="flex items-center gap-3">
           {isShared ? (
             <>
-              <Button variant="secondary" size="md" onClick={copyLink}>
+              <Button variant="secondary" size="lg" onClick={copyLink}>
                 <LinkIcon />
                 Copia Link
               </Button>
               <Button
                 variant="secondary"
-                size="md"
+                size="lg"
                 onClick={() => setRegenOpen(true)}
                 disabled={regen.isPending}
               >
@@ -248,7 +248,7 @@ export const OwnerRoundDetail = () => {
             <>
               <Button
                 variant="secondary"
-                size="md"
+                size="lg"
                 onClick={() => setEditOpen(true)}
                 disabled={regen.isPending}
               >
@@ -257,14 +257,14 @@ export const OwnerRoundDetail = () => {
               </Button>
               <Button
                 variant="secondary"
-                size="md"
+                size="lg"
                 onClick={() => setRegenOpen(true)}
                 disabled={regen.isPending || data.talents.length === 0}
               >
                 {regen.isPending ? <Loader2 className="animate-spin" /> : <RotateCcw />}
                 Rigenera PDF
               </Button>
-              <Button size="md" onClick={doShare} disabled={share.isPending}>
+              <Button size="lg" onClick={doShare} disabled={share.isPending}>
                 <Share2 />
                 Condividi
               </Button>

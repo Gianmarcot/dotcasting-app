@@ -115,8 +115,8 @@ export const OwnerCastings = () => {
         <h1 className="text-2xl text-foreground">
           {favoritesOnly ? "Casting preferiti" : it.backoffice.castings}
         </h1>
-        <Button onClick={handleCreate} size="md" iconPosition="left">
-          <Plus className="h-4 w-4" />
+        <Button onClick={handleCreate} size="lg" iconPosition="left">
+          <Plus />
           {it.backoffice.createCasting}
         </Button>
       </div>

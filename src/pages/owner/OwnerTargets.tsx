@@ -87,8 +87,10 @@ export const OwnerTargets = () => {
               <Button
                 onClick={() => setCreateDialogOpen(true)}
                 className="shrink-0"
+                size="lg"
+                iconPosition="left"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus />
                 Nuovo Target
               </Button>
             )}

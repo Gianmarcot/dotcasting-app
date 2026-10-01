@@ -179,11 +179,11 @@ export const OwnerCompanyDetail = () => {
           </div>
         </div>
         <div className="flex gap-2 shrink-0">
-          <Button variant="outline" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4 mr-2" /> Modifica
+          <Button variant="outline" size="lg" iconPosition="left" onClick={() => setEditOpen(true)}>
+            <Pencil /> Modifica
           </Button>
-          <Button onClick={() => setCastingFormOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Nuovo casting
+          <Button size="lg" iconPosition="left" onClick={() => setCastingFormOpen(true)}>
+            <Plus /> Nuovo casting
           </Button>
         </div>
       </div>

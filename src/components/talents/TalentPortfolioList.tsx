@@ -12,9 +12,14 @@ interface Props {
   onSelectTalent: (t: TalentWithAttributes) => void;
 }
 
-/** Cella anteprima; `hideBelow` nasconde le celle oltre la seconda sotto md. */
+/** Cella anteprima; sotto md ne mostra 2, oltre 1280px di larghezza disponibile 5. */
 const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }) => {
-  const renderCell = (i: number, slots: number, extraClass: string) => {
+  const renderCell = (
+    i: number,
+    slots: number,
+    extraClass = "",
+    overlayClass = "",
+  ) => {
     const p = photos[i];
     const remaining = photos.length - slots;
     const isLast = i === slots - 1 && remaining > 0;
@@ -24,7 +29,7 @@ const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }
           <>
             <img src={p.thumbnail_url || p.url} alt={name} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
             {isLast && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <div className={cn("absolute inset-0 flex items-center justify-center bg-black/50", overlayClass)}>
                 <span className="text-2xl font-medium text-white">+ {remaining}</span>
               </div>
             )}
@@ -35,8 +40,12 @@ const PhotoGrid = ({ photos, name }: { photos: TalentMainPhoto[]; name: string }
   };
   return (
     <>
-      <div className="hidden md:grid flex-1 grid-cols-4 gap-2">
-        {[0, 1, 2, 3].map((i) => renderCell(i, 4, ""))}
+      {/* 4 celle di base, 5 quando la riga ha almeno 1280px di larghezza */}
+      <div className="hidden md:grid flex-1 grid-cols-4 @[1280px]:grid-cols-5 gap-2">
+        {[0, 1, 2, 3].map((i) =>
+          renderCell(i, 4, "", i === 3 ? "@[1280px]:hidden" : "")
+        )}
+        {renderCell(4, 5, "hidden @[1280px]:block")}
       </div>
       <div className="grid md:hidden grid-cols-2 gap-2">
         {[0, 1].map((i) => renderCell(i, 2, ""))}
@@ -69,7 +78,7 @@ export const TalentPortfolioList = ({ talents, onSelectTalent }: Props) => {
             tabIndex={0}
             onClick={() => onSelectTalent(t)}
             onKeyDown={(e) => { if (e.key === "Enter") onSelectTalent(t); }}
-            className="flex flex-col md:flex-row md:justify-between gap-6 rounded-3xl bg-white p-8 shadow-sm cursor-pointer transition-shadow hover:shadow-md"
+            className="@container flex flex-col md:flex-row md:justify-between gap-6 rounded-3xl bg-white p-8 shadow-sm cursor-pointer transition-shadow hover:shadow-md"
           >
             <div className="flex flex-col justify-between gap-6 md:w-[260px] md:shrink-0">
               <div className="flex flex-col items-start gap-4">
