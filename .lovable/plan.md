@@ -24,9 +24,14 @@
    - Dalla preview admin, mostrare lo stesso pannello laterale nel lightbox; lato talent il rating rimane invisibile.
    - Conservare stelle, tag, note private, conteggio valutate e navigazione precedente/successiva sincronizzata con l’immagine.
 
+5. **Azioni del drawer talent**
+   - Rendere “Modifica profilo” l’azione primaria e “Aggiungi a un casting” l’azione secondaria; lasciare invariata l’eventuale terza azione contestuale.
+   - Portare la modale “Aggiungi a un casting” sopra il drawer e il suo sfondo oscurante. Attualmente la modale standard usa livello 50, mentre la preview occupa i livelli 70–90: verrà introdotta una variante di sovrapposizione esplicita senza cambiare globalmente tutte le altre modali.
+   - Mantenere aperta la preview dietro alla modale casting e ripristinarne correttamente l’interazione alla chiusura.
+
 ## Dettagli tecnici
 
 - Riutilizzare `MediaLightbox` e `MediaRatingPanel`, già predisposti per la vista agenzia con pannello laterale.
 - Passare alla preview un’opzione esplicita di modalità admin, separata da `showAllMedia`, così visibilità dei media e permessi rating restano distinti.
 - Nella galleria di gestione mantenere drag & drop sull’area dedicata e apertura lightbox tramite clic/tastiera accessibile sull’immagine.
-- Verificare desktop e mobile: intestazione, stato iniziale del pannello, apertura/chiusura lightbox, navigazione foto, rating admin e assenza rating lato talent.
+- Verificare desktop e mobile: intestazione, stato iniziale del pannello, apertura/chiusura lightbox, navigazione foto, rating admin, assenza rating lato talent e modale casting visivamente sopra il drawer.
