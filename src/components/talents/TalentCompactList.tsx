@@ -46,7 +46,7 @@ export const TalentCompactRow = ({
         if (e.key === "Enter") onSelect(talent);
       }}
       className={cn(
-        GRID,
+        TALENT_COMPACT_GRID,
         "h-20 cursor-pointer rounded-lg px-4 transition-colors hover:bg-muted/30",
       )}
     >
@@ -101,7 +101,7 @@ export const TalentCompactList = ({ talents, onSelectTalent }: Props) => {
 
   return (
     <div className="dc-card overflow-hidden p-6">
-      <div className={cn(GRID, "px-4 py-2 text-sm font-medium text-muted-foreground")}>
+      <div className={cn(TALENT_COMPACT_GRID, "px-4 py-2 text-sm font-medium text-muted-foreground")}>
         <span>Talento</span>
         <span className="hidden sm:block">Città / età</span>
         <span className="hidden md:block">Media</span>

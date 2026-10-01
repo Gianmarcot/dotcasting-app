@@ -198,6 +198,33 @@ const MOCK_DB_TALENTS: Array<{
   },
 ];
 
+/** Campioni per la riga compatta: minore con CF mancante, adulto in regola, adulto senza CF italiano. */
+const MOCK_COMPACT_ROWS: Array<{
+  talent: TalentWithAttributes;
+  photoUrl: string;
+  counts: { photos: number; videos: number };
+}> = [
+  {
+    talent: { ...MOCK_DB_TALENTS[0].talent, birth_date: "2010-05-14", fiscal_code: null },
+    photoUrl: MOCK_DB_TALENTS[0].photos[0].url,
+    counts: { photos: 8, videos: 2 },
+  },
+  {
+    talent: {
+      ...MOCK_DB_TALENTS[1].talent,
+      has_italian_fiscal_code: true,
+      fiscal_code: "MRABNC90A01H501U",
+    },
+    photoUrl: MOCK_DB_TALENTS[1].photos[0].url,
+    counts: { photos: 6, videos: 3 },
+  },
+  {
+    talent: { ...MOCK_DB_TALENTS[2].talent, has_italian_fiscal_code: false },
+    photoUrl: MOCK_DB_TALENTS[2].photos[0].url,
+    counts: { photos: 9, videos: 1 },
+  },
+];
+
 const TalentDatabaseDemo = () => {
   const [openId, setOpenId] = useState<string | null>(null);
   const active = MOCK_DB_TALENTS.find((t) => t.talent.id === openId) ?? null;
