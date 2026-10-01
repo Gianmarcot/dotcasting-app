@@ -5,7 +5,7 @@
 // profilo (un solo talent) sia da liste di talent (con frecce).
 // =============================================================
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
@@ -72,6 +72,8 @@ export const TalentDetailModal = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barHeight, setBarHeight] = useState(0);
 
   const currentIndex = onIndexChange ? index : localIndex;
   const profileId = profileIds[currentIndex] ?? null;
@@ -134,6 +136,19 @@ export const TalentDetailModal = ({
     }
   }, [open, index]);
 
+  // La barra azioni è fissa in basso e può cambiare altezza (pulsanti su più righe):
+  // la misuriamo e la mettiamo in --dc-bar-h così media e dati le riservano spazio.
+  useEffect(() => {
+    if (!isSide || !footer || !open) return;
+    const el = barRef.current;
+    if (!el) return;
+    const measure = () => setBarHeight(el.getBoundingClientRect().height);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isSide, footer, open]);
+
   // entrando nella vista video seleziona il primo video; uscendo mette in pausa
   useEffect(() => {
     if (view === "video") {
@@ -180,9 +195,10 @@ export const TalentDetailModal = ({
           className={cn(
             "fixed z-[80] flex flex-col overflow-y-auto bg-white outline-none ease-[cubic-bezier(0.23,1,0.32,1)] data-[state=closed]:animate-out data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in",
             isSide
-              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[760px] sm:max-w-full"
+              ? "inset-y-0 right-0 w-full data-[state=open]:animate-in data-[state=open]:slide-in-from-right data-[state=open]:duration-[500ms] data-[state=closed]:slide-out-to-right sm:w-[900px] sm:max-w-full"
               : "inset-0 data-[state=open]:animate-slide-up-panel data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 motion-reduce:data-[state=closed]:slide-out-to-bottom-0 lg:flex-row lg:overflow-hidden"
           )}
+          style={isSide ? ({ "--dc-bar-h": `${barHeight}px` } as CSSProperties) : undefined}
           aria-label={`Dettaglio di ${fullName}`}
         >
           <DialogPrimitive.Title className="sr-only">{fullName}</DialogPrimitive.Title>
@@ -207,9 +223,10 @@ export const TalentDetailModal = ({
             className={cn(
               "relative flex shrink-0 flex-col items-center justify-center gap-6 bg-[#f4f0ec]",
               isSide
-                ? "h-[100dvh] min-h-[100dvh] w-full px-0 py-10"
+                ? "h-[100dvh] min-h-[100dvh] w-full px-0 pt-16"
                 : "py-10 lg:h-full lg:w-1/2 lg:py-0"
             )}
+            style={isSide ? { paddingBottom: "calc(var(--dc-bar-h, 0px) + 24px)" } : undefined}
           >
             {/* fascia 1 — selettore foto/video */}
             {videos.length > 0 && (
@@ -508,7 +525,14 @@ export const TalentDetailModal = ({
 
             </div>
           </div>
-          {isSide && footer}
+          {isSide && footer ? (
+            <div
+              ref={barRef}
+              className="fixed bottom-0 right-0 z-[90] flex w-full flex-col gap-3 border-t border-divider bg-white px-6 py-5 sm:w-[900px] sm:max-w-full sm:flex-row sm:flex-wrap sm:px-10"
+            >
+              {footer}
+            </div>
+          ) : null}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
 
