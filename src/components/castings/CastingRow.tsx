@@ -79,7 +79,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
               <Avatar
                 key={t.profile?.id ?? i}
                 size="md"
-                className={cn("ring-2 ring-background", i > 0 && "-ml-3")}
+                className={cn("ring-2 ring-white", i > 0 && "-ml-3")}
               >
                 {t.profile?.profile_photo_url ? (
                   <AvatarImage src={t.profile.profile_photo_url} alt="" />
@@ -90,7 +90,7 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
               </Avatar>
             ))}
             {extra > 0 && (
-              <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-background bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
+              <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-white bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center">
                 +{extra}
               </div>
             )}
