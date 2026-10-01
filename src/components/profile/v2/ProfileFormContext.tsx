@@ -105,6 +105,7 @@ interface ProfileFormContextValue {
   isLoading: boolean;
   /** Raw server rows (used for read-only display such as photo, uploads). */
   profileRow: ReturnType<typeof useProfile>["data"];
+  attributesRow: ReturnType<typeof useTalentAttributes>["data"];
   str: (scope: Scope, key: string) => string;
   num: (scope: Scope, key: string) => string;
   bool: (scope: Scope, key: string) => boolean;
@@ -352,6 +353,7 @@ export const ProfileFormProvider = ({
   const value: ProfileFormContextValue = {
     isLoading,
     profileRow,
+    attributesRow,
     str,
     num,
     bool,

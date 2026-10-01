@@ -28,30 +28,31 @@ const MAX_MEDIA_COUNT = 100;
 const ALLOWED_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 
-export const useTalentMedia = () => {
+export const useTalentMedia = (externalProfileId?: string | null) => {
   const { data: profile } = useProfile();
+  const profileId = externalProfileId ?? profile?.id;
 
   return useQuery({
     // Il suffisso evita la collisione con le varianti "lite"/"full" degli altri
     // hook: chiavi identiche condividerebbero la cache con select diverse.
-    queryKey: ["talent-media", profile?.id, "own"],
+    queryKey: ["talent-media", profileId, "own"],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profileId) return [];
 
       const { data, error } = await supabase
         .from("talent_media")
         .select("*")
-        .eq("profile_id", profile.id)
+        .eq("profile_id", profileId)
         .order("sort_order", { ascending: true });
 
       if (error) throw error;
       return data as TalentMedia[];
     },
-    enabled: !!profile?.id,
+    enabled: !!profileId,
   });
 };
 
-export const useUploadMedia = () => {
+export const useUploadMedia = (externalProfileId?: string | null, externalUserId?: string | null) => {
   const queryClient = useQueryClient();
   const { data: profile } = useProfile();
 
@@ -67,7 +68,9 @@ export const useUploadMedia = () => {
       title?: string;
       category?: MediaCategory;
     }) => {
-      if (!profile?.id || !profile?.user_id) {
+      const profileId = externalProfileId ?? profile?.id;
+      const userId = externalUserId ?? profile?.user_id;
+      if (!profileId || !userId) {
         throw new Error("Profilo non trovato");
       }
 
@@ -92,7 +95,7 @@ export const useUploadMedia = () => {
 
       // Generate unique filename
       const fileExt = fileToUpload instanceof File ? fileToUpload.name.split(".").pop() : "jpg";
-      const fileName = `${profile.user_id}/${mediaType}/${Date.now()}.${fileExt}`;
+      const fileName = `${userId}/${mediaType}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
       const { error: uploadError } = await supabase.storage
@@ -110,7 +113,7 @@ export const useUploadMedia = () => {
       const { data: maxOrderData } = await supabase
         .from("talent_media")
         .select("sort_order")
-        .eq("profile_id", profile.id)
+        .eq("profile_id", profileId)
         .order("sort_order", { ascending: false })
         .limit(1)
         .single();
@@ -119,7 +122,7 @@ export const useUploadMedia = () => {
 
       // Insert record
       const insertData = {
-        profile_id: profile.id,
+        profile_id: profileId,
         media_type: mediaType,
         url: urlData.publicUrl,
         title: title || null,
