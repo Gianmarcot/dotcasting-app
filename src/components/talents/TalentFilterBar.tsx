@@ -1,13 +1,5 @@
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FieldCluster, FloatingInput, FloatingSelect } from "@/components/ui/field";
 import {
   Popover,
   PopoverContent,
@@ -110,238 +102,121 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
 
       {/* Ruolo */}
       <FilterGroup label="Ruolo" count={groupCounts.role}>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Ruolo talent</label>
-          <Select value={filters.talentRole || "__all"} onValueChange={(v) => set({ talentRole: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {ALL_ROLES.map((r) => (<SelectItem key={r} value={r}>{r}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Disponibilità</label>
-          <Select value={filters.availability || "__all"} onValueChange={(v) => set({ availability: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              <SelectItem value="immediate">Immediata</SelectItem>
-              <SelectItem value="flexible">Flessibile</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingSelect
+          label="Ruolo talent"
+          value={filters.talentRole || "__all"}
+          onValueChange={(v) => set({ talentRole: selectClear(v) })}
+          options={[{ value: "__all", label: "Tutti" }, ...ALL_ROLES.map((r) => ({ value: r, label: r }))]}
+        />
+        <FloatingSelect
+          label="Disponibilità"
+          value={filters.availability || "__all"}
+          onValueChange={(v) => set({ availability: selectClear(v) })}
+          options={[
+            { value: "__all", label: "Tutte" },
+            { value: "immediate", label: "Immediata" },
+            { value: "flexible", label: "Flessibile" },
+          ]}
+        />
       </FilterGroup>
 
       {/* Anagrafica */}
       <FilterGroup label="Anagrafica" count={groupCounts.anagrafica} wide>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Sesso</label>
-          <Select value={filters.gender || "__all"} onValueChange={(v) => set({ gender: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {GENDERS.map((g) => (<SelectItem key={g.value} value={g.value}>{g.label}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Età (da – a)</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.ageMin ?? ""} onChange={(e) => set({ ageMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.ageMax ?? ""} onChange={(e) => set({ ageMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Città</label>
-          <Input placeholder="Es. Milano" className="h-9 text-sm" value={filters.city || ""} onChange={(e) => set({ city: e.target.value || undefined })} />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Identità di genere</label>
-          <Select value={filters.genderIdentity || "__all"} onValueChange={(v) => set({ genderIdentity: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {GENDER_IDENTITIES.map((g) => (<SelectItem key={g} value={g}>{g}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Rappresentanza</label>
-          <Select value={filters.representationType || "__all"} onValueChange={(v) => set({ representationType: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {REPRESENTATION_TYPES.map((r) => (<SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Nazionalità</label>
-          <Select value={filters.nationality || "__all"} onValueChange={(v) => set({ nationality: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              {NATIONALITIES.map((n) => (<SelectItem key={n} value={n}>{n}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingSelect
+          label="Sesso"
+          value={filters.gender || "__all"}
+          onValueChange={(v) => set({ gender: selectClear(v) })}
+          options={[{ value: "__all", label: "Tutti" }, ...GENDERS]}
+        />
+        <FieldCluster>
+          <FloatingInput label="Età minima" type="number" inputMode="numeric" value={filters.ageMin?.toString() || ""} onChange={(v) => set({ ageMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Età massima" type="number" inputMode="numeric" value={filters.ageMax?.toString() || ""} onChange={(v) => set({ ageMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
+        <FloatingInput label="Città" value={filters.city || ""} onChange={(v) => set({ city: v || undefined })} />
+        <FloatingSelect
+          label="Identità di genere"
+          value={filters.genderIdentity || "__all"}
+          onValueChange={(v) => set({ genderIdentity: selectClear(v) })}
+          options={[{ value: "__all", label: "Tutti" }, ...GENDER_IDENTITIES.map((g) => ({ value: g, label: g }))]}
+        />
+        <FloatingSelect
+          label="Rappresentanza"
+          value={filters.representationType || "__all"}
+          onValueChange={(v) => set({ representationType: selectClear(v) })}
+          options={[{ value: "__all", label: "Tutti" }, ...REPRESENTATION_TYPES]}
+        />
+        <FloatingSelect
+          label="Nazionalità"
+          value={filters.nationality || "__all"}
+          onValueChange={(v) => set({ nationality: selectClear(v) })}
+          options={[{ value: "__all", label: "Tutte" }, ...NATIONALITIES.map((n) => ({ value: n, label: n }))]}
+        />
       </FilterGroup>
 
       {/* Aspetto */}
       <FilterGroup label="Aspetto" count={groupCounts.aspetto}>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Carnagione</label>
-          <Select value={filters.ethnicity || "__all"} onValueChange={(v) => set({ ethnicity: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              {ETHNICITIES.map((e) => (<SelectItem key={e} value={e}>{e}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Colore occhi</label>
-          <Select value={filters.eyeColor || "__all"} onValueChange={(v) => set({ eyeColor: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {EYE_COLORS.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Colore capelli</label>
-          <Select value={filters.hairColor || "__all"} onValueChange={(v) => set({ hairColor: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {HAIR_COLORS.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Lunghezza capelli</label>
-          <Select value={filters.hairLength || "__all"} onValueChange={(v) => set({ hairLength: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {HAIR_LENGTHS.map((l) => (<SelectItem key={l} value={l}>{l}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingSelect label="Carnagione" value={filters.ethnicity || "__all"} onValueChange={(v) => set({ ethnicity: selectClear(v) })} options={[{ value: "__all", label: "Tutte" }, ...ETHNICITIES.map((v) => ({ value: v, label: v }))]} />
+        <FloatingSelect label="Colore occhi" value={filters.eyeColor || "__all"} onValueChange={(v) => set({ eyeColor: selectClear(v) })} options={[{ value: "__all", label: "Tutti" }, ...EYE_COLORS.map((v) => ({ value: v, label: v }))]} />
+        <FloatingSelect label="Colore capelli" value={filters.hairColor || "__all"} onValueChange={(v) => set({ hairColor: selectClear(v) })} options={[{ value: "__all", label: "Tutti" }, ...HAIR_COLORS.map((v) => ({ value: v, label: v }))]} />
+        <FloatingSelect label="Lunghezza capelli" value={filters.hairLength || "__all"} onValueChange={(v) => set({ hairLength: selectClear(v) })} options={[{ value: "__all", label: "Tutte" }, ...HAIR_LENGTHS.map((v) => ({ value: v, label: v }))]} />
       </FilterGroup>
 
       {/* Misure */}
       <FilterGroup label="Misure" count={groupCounts.misure} wide>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Altezza (cm)</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.heightMin ?? ""} onChange={(e) => set({ heightMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.heightMax ?? ""} onChange={(e) => set({ heightMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Peso (kg)</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.weightMin ?? ""} onChange={(e) => set({ weightMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.weightMax ?? ""} onChange={(e) => set({ weightMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Taglia</label>
-          <Select value={filters.shirtSize || "__all"} onValueChange={(v) => set({ shirtSize: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              {SHIRT_SIZES.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Scarpe</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.shoeMin ?? ""} onChange={(e) => set({ shoeMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.shoeMax ?? ""} onChange={(e) => set({ shoeMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Busto (cm)</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.chestMin ?? ""} onChange={(e) => set({ chestMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.chestMax ?? ""} onChange={(e) => set({ chestMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Fianchi (cm)</label>
-          <div className="flex gap-2">
-            <Input type="number" placeholder="Min" className="h-9 text-sm" value={filters.hipsMin ?? ""} onChange={(e) => set({ hipsMin: e.target.value ? Number(e.target.value) : undefined })} />
-            <Input type="number" placeholder="Max" className="h-9 text-sm" value={filters.hipsMax ?? ""} onChange={(e) => set({ hipsMax: e.target.value ? Number(e.target.value) : undefined })} />
-          </div>
-        </div>
+        <FieldCluster>
+          <FloatingInput label="Altezza min (cm)" type="number" inputMode="numeric" value={filters.heightMin?.toString() || ""} onChange={(v) => set({ heightMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Altezza max (cm)" type="number" inputMode="numeric" value={filters.heightMax?.toString() || ""} onChange={(v) => set({ heightMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
+        <FieldCluster>
+          <FloatingInput label="Peso min (kg)" type="number" inputMode="numeric" value={filters.weightMin?.toString() || ""} onChange={(v) => set({ weightMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Peso max (kg)" type="number" inputMode="numeric" value={filters.weightMax?.toString() || ""} onChange={(v) => set({ weightMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
+        <FloatingSelect label="Taglia" value={filters.shirtSize || "__all"} onValueChange={(v) => set({ shirtSize: selectClear(v) })} options={[{ value: "__all", label: "Tutte" }, ...SHIRT_SIZES.map((v) => ({ value: v, label: v }))]} />
+        <FieldCluster>
+          <FloatingInput label="Scarpe min" type="number" inputMode="numeric" value={filters.shoeMin?.toString() || ""} onChange={(v) => set({ shoeMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Scarpe max" type="number" inputMode="numeric" value={filters.shoeMax?.toString() || ""} onChange={(v) => set({ shoeMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
+        <FieldCluster>
+          <FloatingInput label="Busto min (cm)" type="number" inputMode="numeric" value={filters.chestMin?.toString() || ""} onChange={(v) => set({ chestMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Busto max (cm)" type="number" inputMode="numeric" value={filters.chestMax?.toString() || ""} onChange={(v) => set({ chestMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
+        <FieldCluster>
+          <FloatingInput label="Fianchi min (cm)" type="number" inputMode="numeric" value={filters.hipsMin?.toString() || ""} onChange={(v) => set({ hipsMin: v ? Number(v) : undefined })} />
+          <FloatingInput label="Fianchi max (cm)" type="number" inputMode="numeric" value={filters.hipsMax?.toString() || ""} onChange={(v) => set({ hipsMax: v ? Number(v) : undefined })} />
+        </FieldCluster>
       </FilterGroup>
 
       {/* Competenze */}
       <FilterGroup label="Competenze" count={groupCounts.competenze}>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Competenza (testo libero)</label>
-          <Input placeholder="Es. recitazione" className="h-9 text-sm" value={filters.skillSearch || ""} onChange={(e) => set({ skillSearch: e.target.value || undefined })} />
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Lingua</label>
-          <Select value={filters.language || "__all"} onValueChange={(v) => set({ language: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              {LANGUAGES.map((l) => (<SelectItem key={l} value={l}>{l}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingInput label="Competenza" value={filters.skillSearch || ""} onChange={(v) => set({ skillSearch: v || undefined })} />
+        <FloatingSelect label="Lingua" value={filters.language || "__all"} onValueChange={(v) => set({ language: selectClear(v) })} options={[{ value: "__all", label: "Tutte" }, ...LANGUAGES.map((v) => ({ value: v, label: v }))]} />
       </FilterGroup>
 
       {/* Lavoro */}
       <FilterGroup label="Lavoro" count={groupCounts.lavoro}>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">P.IVA</label>
-          <Select
-            value={filters.hasVat === true ? "yes" : filters.hasVat === false ? "no" : "__all"}
-            onValueChange={(v) => set({ hasVat: v === "yes" ? true : v === "no" ? false : undefined })}
-          >
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              <SelectItem value="yes">Sì</SelectItem>
-              <SelectItem value="no">No</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Codice fiscale</label>
-          <Select
-            value={filters.fiscalStatus || "__all"}
-            onValueChange={(v) => set({ fiscalStatus: v === "__all" ? undefined : (v as FiscalStatus) })}
-          >
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutti" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutti</SelectItem>
-              {FISCAL_STATUS_FILTER_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className="text-xs text-muted-foreground mb-1 block">Disponibilità viaggi</label>
-          <Select value={filters.travelAvailability || "__all"} onValueChange={(v) => set({ travelAvailability: selectClear(v) })}>
-            <SelectTrigger className="h-9 text-sm"><SelectValue placeholder="Tutte" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all">Tutte</SelectItem>
-              <SelectItem value="local">Locale</SelectItem>
-              <SelectItem value="national">Nazionale</SelectItem>
-              <SelectItem value="international">Internazionale</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingSelect
+          label="P.IVA"
+          value={filters.hasVat === true ? "yes" : filters.hasVat === false ? "no" : "__all"}
+          onValueChange={(v) => set({ hasVat: v === "yes" ? true : v === "no" ? false : undefined })}
+          options={[{ value: "__all", label: "Tutti" }, { value: "yes", label: "Sì" }, { value: "no", label: "No" }]}
+        />
+        <FloatingSelect
+          label="Codice fiscale"
+          value={filters.fiscalStatus || "__all"}
+          onValueChange={(v) => set({ fiscalStatus: v === "__all" ? undefined : (v as FiscalStatus) })}
+          options={[{ value: "__all", label: "Tutti" }, ...FISCAL_STATUS_FILTER_OPTIONS]}
+        />
+        <FloatingSelect
+          label="Disponibilità viaggi"
+          value={filters.travelAvailability || "__all"}
+          onValueChange={(v) => set({ travelAvailability: selectClear(v) })}
+          options={[
+            { value: "__all", label: "Tutte" },
+            { value: "local", label: "Locale" },
+            { value: "national", label: "Nazionale" },
+            { value: "international", label: "Internazionale" },
+          ]}
+        />
       </FilterGroup>
 
       {/* Reset */}
