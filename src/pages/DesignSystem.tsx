@@ -1229,6 +1229,10 @@ const PatternsSection = () => (
         <ModalNavBar showNavigation onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
         <ModalNavBar showNavigation prevDisabled onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
       </div>
+      <div className="mt-4 flex flex-wrap items-center gap-6 rounded-2xl bg-ink p-6">
+        <ModalNavBar tone="light" onClose={() => undefined} />
+        <ModalNavBar tone="light" showNavigation onPrev={() => undefined} onNext={() => undefined} onClose={() => undefined} />
+      </div>
     </SubBlock>
 
     <SubBlock title="PillTabs" source="src/components/ui/pill-tabs.tsx">
