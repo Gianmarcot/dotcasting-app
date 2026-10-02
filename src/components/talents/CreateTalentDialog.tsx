@@ -23,11 +23,11 @@ import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 
 const schema = z.object({
-  email: z.string().email("Email non valida"),
-  first_name: z.string().optional(),
-  last_name: z.string().optional(),
+  email: z.string().trim().email("Email non valida").max(255, "Massimo 255 caratteri"),
+  first_name: z.string().max(100, "Massimo 100 caratteri").optional(),
+  last_name: z.string().max(100, "Massimo 100 caratteri").optional(),
   gender: z.string().optional(),
-  city: z.string().optional(),
+  city: z.string().max(120, "Massimo 120 caratteri").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;

@@ -69,6 +69,7 @@ export const InviteTalentDialog = ({
             value={selectedCastingId}
             onValueChange={setSelectedCastingId}
             disabled={castingsLoading || !castings?.length}
+            contentClassName={elevated ? "z-[120]" : undefined}
             options={(castings ?? []).map((casting) => ({
               value: casting.id,
               label: `${casting.title}${casting.company ? ` - ${casting.company.name}` : ""}`,

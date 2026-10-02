@@ -5,22 +5,20 @@ import { z } from "zod";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
-} from "@/components/ui/form";
+import { Form, FormField, FormItem } from "@/components/ui/form";
 import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { COMPANY_TYPES } from "@/hooks/useCompanies";
 import type { Tables } from "@/integrations/supabase/types";
 
 const schema = z.object({
-  name: z.string().min(1, "Il nome è obbligatorio"),
+  name: z.string().trim().min(1, "Il nome è obbligatorio").max(120, "Massimo 120 caratteri"),
   type: z.string().optional(),
-  location: z.string().optional(),
-  email: z.string().email("Email non valida").optional().or(z.literal("")),
-  website: z.string().optional(),
-  vat_number: z.string().optional(),
-  notes: z.string().optional(),
+  location: z.string().max(120, "Massimo 120 caratteri").optional(),
+  email: z.string().email("Email non valida").max(255, "Massimo 255 caratteri").optional().or(z.literal("")),
+  website: z.string().max(500, "Massimo 500 caratteri").optional(),
+  vat_number: z.string().max(32, "Massimo 32 caratteri").optional(),
+  notes: z.string().max(2000, "Massimo 2000 caratteri").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;

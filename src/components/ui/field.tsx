@@ -1,4 +1,4 @@
-import { forwardRef, useState, type ReactNode } from "react";
+import { forwardRef, useState, type KeyboardEventHandler, type ReactNode } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -98,6 +98,7 @@ interface FloatingInputProps {
   maxLength?: number;
   name?: string;
   autoComplete?: string;
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
   /** Messaggio di errore (bordo rosso + testo sotto il campo) */
   error?: string | null;
   /** Messaggio di avviso non bloccante */
@@ -119,6 +120,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
       maxLength,
       name,
       autoComplete,
+      onKeyDown,
       error,
       warning,
     },
@@ -167,6 +169,7 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               value={value}
               disabled={disabled}
               onChange={(e) => onChange(e.target.value)}
+              onKeyDown={onKeyDown}
               onFocus={() => setFocused(true)}
               onBlur={() => {
                 setFocused(false);
@@ -217,6 +220,8 @@ export const FloatingTextarea = ({
   onBlur,
   disabled,
   className,
+  maxLength,
+  error,
 }: {
   label: string;
   value: string;
@@ -224,35 +229,42 @@ export const FloatingTextarea = ({
   onBlur?: () => void;
   disabled?: boolean;
   className?: string;
+  maxLength?: number;
+  error?: string | null;
 }) => {
   const [focused, setFocused] = useState(false);
   const floating = focused || value !== "";
 
   return (
-    <FieldShell
-      filled={value !== ""}
-      focused={focused}
-      disabled={disabled}
-      as="label"
-      minHeight="min-h-36"
-      className={cn("cursor-text justify-start", className)}
-    >
-      <FloatLabel floating={floating} disabled={disabled} align="top">
-        {label}
-      </FloatLabel>
-      <textarea
-        aria-label={label}
-        value={value}
+    <div className={cn("flex w-full flex-col", className)}>
+      <FieldShell
+        filled={value !== ""}
+        focused={focused}
         disabled={disabled}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => {
-          setFocused(false);
-          onBlur?.();
-        }}
-        className="dc-autofill mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
-      />
-    </FieldShell>
+        as="label"
+        minHeight="min-h-36"
+        className={cn("cursor-text justify-start", error && "border-destructive")}
+      >
+        <FloatLabel floating={floating} disabled={disabled} align="top">
+          {label}
+        </FloatLabel>
+        <textarea
+          aria-label={label}
+          aria-invalid={!!error}
+          value={value}
+          disabled={disabled}
+          maxLength={maxLength}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            setFocused(false);
+            onBlur?.();
+          }}
+          className="dc-autofill mt-[18px] h-24 w-full resize-none border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+        />
+      </FieldShell>
+      {error?.trim() && <span className="mt-2 px-4 text-[13px] leading-[1.3] text-destructive">{error}</span>}
+    </div>
   );
 };
 
@@ -266,6 +278,7 @@ export const FloatingSelect = ({
   disabled,
   className,
   error,
+  contentClassName,
 }: {
   label: string;
   value: string;
@@ -275,6 +288,7 @@ export const FloatingSelect = ({
   className?: string;
   /** Messaggio di errore (bordo rosso + testo sotto il campo) */
   error?: string | null;
+  contentClassName?: string;
 }) => {
   const filled = value !== "";
   const selected = options.find((o) => o.value === value);
@@ -307,7 +321,7 @@ export const FloatingSelect = ({
           )}
         </SelectTrigger>
 
-        <SelectContent className="max-h-72">
+        <SelectContent className={cn("max-h-72", contentClassName)}>
           {options.map((o) => (
             <SelectItem key={o.value} value={o.value}>
               {o.label}

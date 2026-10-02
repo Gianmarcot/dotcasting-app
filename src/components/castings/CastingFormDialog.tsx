@@ -27,8 +27,8 @@ import { useCompanies } from "@/hooks/useCastings";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 
 const castingSchema = z.object({
-  title: z.string().min(1, it.validation.required),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, it.validation.required).max(160, "Massimo 160 caratteri"),
+  description: z.string().max(4000, "Massimo 4000 caratteri").optional(),
   category: z.string().optional(),
   company_id: z.string().optional(),
   locations: z.string().optional(),
