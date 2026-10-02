@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { FloatingInput } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +19,7 @@ interface TargetCriteriaFormProps {
 }
 
 export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormProps) => {
+  const [cityDraft, setCityDraft] = useState("");
   const allCategories = [
     ...TALENT_ROLES.artistic,
     ...TALENT_ROLES.creative,
@@ -135,14 +137,14 @@ export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormPro
         </div>
         <FloatingInput
           label="Aggiungi città e premi Invio"
-          value=""
-          onChange={() => {}}
+          value={cityDraft}
+          onChange={setCityDraft}
           maxLength={120}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addCity(e.currentTarget.value);
-              e.currentTarget.value = "";
+              addCity(cityDraft);
+              setCityDraft("");
             }
           }}
         />
