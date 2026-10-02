@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { FloatingTextarea } from "@/components/ui/field";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
@@ -170,15 +170,7 @@ export const NewThreadDialog = ({
 
           {/* Message */}
           {selectedUserId && (
-            <div className="space-y-2">
-              <Label>Messaggio (opzionale)</Label>
-              <Textarea
-                placeholder="Scrivi un messaggio iniziale..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                rows={3}
-              />
-            </div>
+            <FloatingTextarea label="Messaggio (opzionale)" value={message} onChange={setMessage} />
           )}
         </div>
 

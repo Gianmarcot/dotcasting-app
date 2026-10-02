@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -147,59 +146,36 @@ export const BroadcastDialog = ({
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-3">
-              <Select
+              <FloatingSelect
+                label="Casting"
                 value={castingId ?? ""}
                 onValueChange={(v) => {
                   setCastingId(v);
                   setRoleId(null);
                   setRoundId(null);
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Casting" />
-                </SelectTrigger>
-                <SelectContent>
-                  {castings.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={castings.map((c) => ({ value: c.id, label: c.title }))}
+              />
 
-              <Select
+              <FloatingSelect
+                label="Ruolo"
                 value={roleId ?? ""}
                 onValueChange={(v) => {
                   setRoleId(v);
                   setRoundId(null);
                 }}
                 disabled={!castingId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Ruolo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                options={roles.map((r) => ({ value: r.id, label: r.name }))}
+              />
 
               {source === "round" && (
-                <Select value={roundId ?? ""} onValueChange={setRoundId} disabled={!roleId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Invio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {rounds.map((r) => (
-                      <SelectItem key={r.id} value={r.id}>
-                        {r.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FloatingSelect
+                  label="Invio"
+                  value={roundId ?? ""}
+                  onValueChange={setRoundId}
+                  disabled={!roleId}
+                  options={rounds.map((r) => ({ value: r.id, label: r.label }))}
+                />
               )}
             </div>
           )}
@@ -228,24 +204,9 @@ export const BroadcastDialog = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Titolo (opzionale)</Label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Es. Convocazione set del 12 settembre"
-            />
-          </div>
+          <FloatingInput label="Titolo (opzionale)" value={title} onChange={setTitle} maxLength={160} />
 
-          <div className="space-y-2">
-            <Label>Testo della comunicazione</Label>
-            <Textarea
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              rows={4}
-              placeholder="Scrivi il messaggio…"
-            />
-          </div>
+          <FloatingTextarea label="Testo della comunicazione" value={body} onChange={setBody} />
 
           <ActionAttachPopover value={action} onChange={setAction} />
         </div>
