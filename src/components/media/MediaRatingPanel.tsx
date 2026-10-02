@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Star, Save, Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Star, Loader2, ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -43,10 +43,38 @@ export const MediaRatingPanel = ({
   const [rating, setRating] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [hasChanges, setHasChanges] = useState(false);
+  const [savedOnce, setSavedOnce] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  type Pending = { mediaId: string; rating: number | null; tags: string[]; notes: string };
+  const pendingRef = useRef<Pending | null>(null);
 
-  // Sync state with existing rating
+  const persist = useCallback(
+    (data: Pending) => {
+      saveRating(
+        { mediaId: data.mediaId, rating: data.rating, tags: data.tags, notes: data.notes || null },
+        {
+          onSuccess: () => {
+            setSavedOnce(true);
+            onSaved?.();
+          },
+          onError: () => toast.error("Errore nel salvataggio della valutazione"),
+        }
+      );
+    },
+    [saveRating, onSaved]
+  );
+
+  const flush = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+    const pending = pendingRef.current;
+    pendingRef.current = null;
+    if (pending) persist(pending);
+  }, [persist]);
+
+  // Sync state with existing rating (skip while a note edit is pending)
   useEffect(() => {
+    if (pendingRef.current?.mediaId === mediaId) return;
     if (existingRating) {
       setRating(existingRating.rating);
       setTags(existingRating.tags || []);
@@ -56,44 +84,37 @@ export const MediaRatingPanel = ({
       setTags([]);
       setNotes("");
     }
-    setHasChanges(false);
   }, [existingRating, mediaId]);
+
+  // Flush pending note when switching media or unmounting
+  useEffect(() => {
+    setSavedOnce(false);
+    return () => flush();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaId]);
 
   const handleRatingChange = (newRating: number | null) => {
     setRating(newRating);
-    setHasChanges(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    pendingRef.current = null;
+    persist({ mediaId, rating: newRating, tags, notes });
   };
 
   const handleTagsChange = (newTags: string[]) => {
     setTags(newTags);
-    setHasChanges(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    pendingRef.current = null;
+    persist({ mediaId, rating, tags: newTags, notes });
   };
 
   const handleNotesChange = (newNotes: string) => {
     setNotes(newNotes);
-    setHasChanges(true);
+    pendingRef.current = { mediaId, rating, tags, notes: newNotes };
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(flush, 800);
   };
 
-  const handleSave = () => {
-    saveRating(
-      {
-        mediaId,
-        rating,
-        tags,
-        notes: notes || null,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Valutazione salvata");
-          setHasChanges(false);
-          onSaved?.();
-        },
-        onError: () => {
-          toast.error("Errore nel salvataggio");
-        },
-      }
-    );
-  };
+  const status = isSaving ? "Salvataggio…" : savedOnce ? "Salvato" : null;
 
   if (isLoading) {
     return (
@@ -112,19 +133,7 @@ export const MediaRatingPanel = ({
             onChange={handleRatingChange}
             size="md"
           />
-          {hasChanges && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="h-7 px-2"
-            >
-              {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
+          {status && <span className="text-xs text-muted-foreground">{status}</span>}
             </Button>
           )}
         </div>
@@ -211,29 +220,12 @@ export const MediaRatingPanel = ({
           onChange={(e) => handleNotesChange(e.target.value)}
           placeholder="Aggiungi note personali su questa immagine..."
           rows={3}
+          onBlur={flush}
           className="text-sm resize-none"
         />
       </div>
 
-      {/* Save button */}
-      <Button
-        onClick={handleSave}
-        disabled={!hasChanges || isSaving}
-        className="w-full"
-        size="lg"
-      >
-        {isSaving ? (
-          <>
-            <Loader2 className="animate-spin" />
-            Salvataggio...
-          </>
-        ) : (
-          <>
-            <Save />
-            Salva valutazione
-          </>
-        )}
-      </Button>
+      <p className="h-4 text-xs text-muted-foreground" aria-live="polite">{status}</p>
     </div>
   );
 };
