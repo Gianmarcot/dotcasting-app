@@ -2,7 +2,6 @@ import { useEffect, useCallback, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { PanelRightOpen, PanelRightClose } from "lucide-react";
 import { ModalNavBar, ModalNavButton } from "@/components/ui/modal-nav-bar";
-import { Button } from "@/components/ui/button";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { cn } from "@/lib/utils";
 import { type MediaRating } from "@/hooks/useMediaRatings";
