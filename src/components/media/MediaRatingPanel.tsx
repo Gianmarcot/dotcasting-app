@@ -134,8 +134,6 @@ export const MediaRatingPanel = ({
             size="md"
           />
           {status && <span className="text-xs text-muted-foreground">{status}</span>}
-            </Button>
-          )}
         </div>
         <MediaTagEditor
           tags={tags}
