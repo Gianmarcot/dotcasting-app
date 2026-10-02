@@ -54,8 +54,12 @@ export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
       : []),
     ...photos,
   ].filter((photo, index, all) => {
-    const source = photo.thumbnail_url || photo.url;
-    return all.findIndex((candidate) => (candidate.thumbnail_url || candidate.url) === source) === index;
+    return all.findIndex((candidate) =>
+      candidate.url === photo.url ||
+      candidate.url === photo.thumbnail_url ||
+      candidate.thumbnail_url === photo.url ||
+      (!!candidate.thumbnail_url && candidate.thumbnail_url === photo.thumbnail_url)
+    ) === index;
   });
   const main = orderedPhotos[0];
   const secondary = orderedPhotos[1];
