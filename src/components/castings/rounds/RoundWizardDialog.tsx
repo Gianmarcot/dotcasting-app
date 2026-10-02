@@ -6,15 +6,12 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -460,14 +457,7 @@ export const RoundWizardDialog = (props: Props) => {
 
   const FieldsPanel = (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <Label>Etichetta invio</Label>
-        <Input
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          placeholder="es. 1° invio - Donna 25-35"
-        />
-      </div>
+      <FloatingInput label="Etichetta invio" value={label} onChange={setLabel} maxLength={160} />
 
       <div className="space-y-2">
         <Label>Preset rapidi</Label>
@@ -506,20 +496,12 @@ export const RoundWizardDialog = (props: Props) => {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Foto extra</Label>
-          <Select
-            value={photoCountToValue(preset.photoCount)}
-            onValueChange={(v) => setPreset((p) => ({ ...p, photoCount: valueToPhotoCount(v) }))}
-          >
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {photoOptions.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <FloatingSelect
+          label="Foto extra"
+          value={photoCountToValue(preset.photoCount)}
+          onValueChange={(v) => setPreset((p) => ({ ...p, photoCount: valueToPhotoCount(v) }))}
+          options={photoOptions}
+        />
         <div className="space-y-2">
           <Label>Contatto agenzia</Label>
           <div className="flex items-center gap-2 h-10">
