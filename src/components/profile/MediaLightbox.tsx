@@ -1,6 +1,7 @@
 import { useEffect, useCallback, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ChevronLeft, ChevronRight, X, PanelRightOpen, PanelRightClose } from "lucide-react";
+import { PanelRightOpen, PanelRightClose } from "lucide-react";
+import { ModalNavBar, ModalNavButton } from "@/components/ui/modal-nav-bar";
 import { Button } from "@/components/ui/button";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { cn } from "@/lib/utils";
@@ -92,62 +93,30 @@ export const MediaLightbox = ({
         "flex-1 relative flex items-center justify-center",
         showRatingPanel && isOwnerView ? "mr-80" : ""
       )}>
-        {/* Close Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-4 right-4 z-10 h-10 w-10 text-white hover:bg-white/10"
-          onClick={onClose}
-        >
-          <X className="h-6 w-6" />
-        </Button>
-
-        {/* Rating panel toggle for owners */}
-        {isOwnerView && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-16 z-10 h-10 w-10 text-white hover:bg-white/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowRatingPanel(!showRatingPanel);
-            }}
-          >
-            {showRatingPanel ? (
-              <PanelRightClose className="h-5 w-5" />
-            ) : (
-              <PanelRightOpen className="h-5 w-5" />
-            )}
-          </Button>
-        )}
-
-        {/* Navigation Arrows */}
-        {media.length > 1 && (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 h-14 w-14 text-white hover:bg-white/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrevious();
-              }}
-            >
-              <ChevronLeft className="h-10 w-10" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 h-14 w-14 text-white hover:bg-white/10"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNext();
-              }}
-            >
-              <ChevronRight className="h-10 w-10" />
-            </Button>
-          </>
-        )}
+        <div className="absolute right-8 top-8 z-10" onClick={(e) => e.stopPropagation()}>
+          <ModalNavBar
+            tone="light"
+            showNavigation={media.length > 1}
+            onPrev={handlePrevious}
+            onNext={handleNext}
+            onClose={onClose}
+            labels={{ prev: "Media precedente", next: "Media successivo", close: "Chiudi" }}
+            leadingActions={
+              isOwnerView ? (
+                <ModalNavButton
+                  onClick={() => setShowRatingPanel(!showRatingPanel)}
+                  label={showRatingPanel ? "Chiudi valutazione" : "Apri valutazione"}
+                >
+                  {showRatingPanel ? (
+                    <PanelRightClose className="h-5 w-5" strokeWidth={1.5} />
+                  ) : (
+                    <PanelRightOpen className="h-5 w-5" strokeWidth={1.5} />
+                  )}
+                </ModalNavButton>
+              ) : undefined
+            }
+          />
+        </div>
 
         {/* Media Content - Full screen */}
         <div
@@ -171,13 +140,13 @@ export const MediaLightbox = ({
         </div>
 
         {/* Counter */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white/70 bg-black/50 px-3 py-1 rounded-full">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-sm text-white bg-white/[0.08] px-3 py-1 rounded-full">
           {currentIndex + 1} / {media.length}
         </div>
 
         {/* Title */}
         {currentMedia.title && (
-          <div className="absolute bottom-14 left-1/2 -translate-x-1/2 text-white font-medium bg-black/50 px-4 py-1 rounded-full">
+          <div className="absolute bottom-14 left-1/2 -translate-x-1/2 text-white font-medium bg-white/[0.08] px-4 py-1 rounded-full">
             {currentMedia.title}
           </div>
         )}

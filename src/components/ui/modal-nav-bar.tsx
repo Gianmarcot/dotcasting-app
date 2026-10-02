@@ -15,9 +15,13 @@ interface ModalNavBarProps {
   showCloseLabel?: boolean;
   /** Il posizionamento è deciso da chi usa il componente */
   className?: string;
+  /** dark = fondo ink (default); light = fondo bianco 8% per superfici scure */
+  tone?: "dark" | "light";
+  /** Pulsanti extra (ModalNavButton) mostrati prima delle frecce */
+  leadingActions?: React.ReactNode;
 }
 
-const CircleButton = ({
+export const ModalNavButton = ({
   onClick,
   disabled,
   label,
@@ -52,30 +56,39 @@ export const ModalNavBar = ({
   labels,
   showCloseLabel = false,
   className,
+  tone = "dark",
+  leadingActions,
 }: ModalNavBarProps) => (
   <div
     className={cn(
-      "flex items-center gap-2 rounded-[100px] bg-ink",
+      "flex items-center gap-2 rounded-[100px]",
+      tone === "light" ? "bg-white/[0.08]" : "bg-ink",
       showCloseLabel ? "py-2 pl-6 pr-2" : "p-2",
       className
     )}
   >
+    {leadingActions && (
+      <>
+        {leadingActions}
+        <span aria-hidden className="-mx-[0.5px] h-10 w-px shrink-0 bg-white/25" />
+      </>
+    )}
     {showNavigation && (
       <>
-        <CircleButton
+        <ModalNavButton
           onClick={onPrev}
           disabled={prevDisabled}
           label={labels?.prev ?? "Elemento precedente"}
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
-        </CircleButton>
-        <CircleButton
+        </ModalNavButton>
+        <ModalNavButton
           onClick={onNext}
           disabled={nextDisabled}
           label={labels?.next ?? "Elemento successivo"}
         >
           <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
-        </CircleButton>
+        </ModalNavButton>
         <span aria-hidden className="-mx-[0.5px] h-10 w-px shrink-0 bg-white/25" />
       </>
     )}
@@ -94,9 +107,9 @@ export const ModalNavBar = ({
         </span>
       </button>
     ) : (
-      <CircleButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
+      <ModalNavButton onClick={onClose} label={labels?.close ?? "Chiudi"}>
         <X className="h-5 w-5" strokeWidth={1.5} />
-      </CircleButton>
+      </ModalNavButton>
     )}
   </div>
 );
