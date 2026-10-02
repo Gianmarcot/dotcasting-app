@@ -233,6 +233,7 @@ export const OwnerTalents = () => {
 
       <TalentPreviewDrawer
         talent={selectedTalent}
+        talents={sortedTalents}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />
