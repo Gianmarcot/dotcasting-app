@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useState } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { PanelRightOpen, PanelRightClose } from "lucide-react";
+import { ArrowLeft, ArrowRight, PanelRightOpen, PanelRightClose } from "lucide-react";
 import { ModalNavBar, ModalNavButton } from "@/components/ui/modal-nav-bar";
 import { MediaRatingPanel } from "@/components/media/MediaRatingPanel";
 import { cn } from "@/lib/utils";
@@ -92,12 +92,29 @@ export const MediaLightbox = ({
         "flex-1 relative flex items-center justify-center",
         showRatingPanel && isOwnerView ? "mr-80" : ""
       )}>
+        {media.length > 1 && (
+          <>
+            <div
+              className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/[0.08] p-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ModalNavButton onClick={handlePrevious} label="Media precedente">
+                <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+              </ModalNavButton>
+            </div>
+            <div
+              className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/[0.08] p-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ModalNavButton onClick={handleNext} label="Media successivo">
+                <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
+              </ModalNavButton>
+            </div>
+          </>
+        )}
         <div className="absolute right-8 top-8 z-10" onClick={(e) => e.stopPropagation()}>
           <ModalNavBar
             tone="light"
-            showNavigation={media.length > 1}
-            onPrev={handlePrevious}
-            onNext={handleNext}
             onClose={onClose}
             labels={{ prev: "Media precedente", next: "Media successivo", close: "Chiudi" }}
             leadingActions={
