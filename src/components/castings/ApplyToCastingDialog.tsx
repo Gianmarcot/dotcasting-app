@@ -9,8 +9,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { FloatingTextarea } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Building2, Banknote, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,13 +124,10 @@ export const ApplyToCastingDialog = ({ open, onOpenChange, casting }: ApplyToCas
 
           {/* Cover Note */}
           <div className="space-y-2">
-            <Label htmlFor="coverNote">Messaggio di presentazione (opzionale)</Label>
-            <Textarea
-              id="coverNote"
-              placeholder="Presentati brevemente e spiega perché sei interessato a questo casting..."
+            <FloatingTextarea
+              label="Messaggio di presentazione (opzionale)"
               value={coverNote}
-              onChange={(e) => setCoverNote(e.target.value)}
-              rows={4}
+              onChange={setCoverNote}
             />
             <p className="text-xs text-muted-foreground">
               Un breve messaggio può aiutarti a distinguerti dagli altri candidati.

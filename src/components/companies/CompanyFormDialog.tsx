@@ -5,26 +5,20 @@ import { z } from "zod";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Form, FormField, FormItem } from "@/components/ui/form";
+import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { COMPANY_TYPES } from "@/hooks/useCompanies";
 import type { Tables } from "@/integrations/supabase/types";
 
 const schema = z.object({
-  name: z.string().min(1, "Il nome è obbligatorio"),
+  name: z.string().trim().min(1, "Il nome è obbligatorio").max(120, "Massimo 120 caratteri"),
   type: z.string().optional(),
-  location: z.string().optional(),
-  email: z.string().email("Email non valida").optional().or(z.literal("")),
-  website: z.string().optional(),
-  vat_number: z.string().optional(),
-  notes: z.string().optional(),
+  location: z.string().max(120, "Massimo 120 caratteri").optional(),
+  email: z.string().email("Email non valida").max(255, "Massimo 255 caratteri").optional().or(z.literal("")),
+  website: z.string().max(500, "Massimo 500 caratteri").optional(),
+  vat_number: z.string().max(32, "Massimo 32 caratteri").optional(),
+  notes: z.string().max(2000, "Massimo 2000 caratteri").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -66,70 +60,35 @@ export const CompanyFormDialog = ({ company, open, onOpenChange, onSubmit, isSub
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField control={form.control} name="name" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome *</FormLabel>
-                <FormControl><Input placeholder="Es. Fashion Brand Srl" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormItem><FloatingInput label="Nome *" value={field.value} onChange={field.onChange} error={form.formState.errors.name?.message} maxLength={120} /></FormItem>
             )} />
 
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="type" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Settore</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      {COMPANY_TYPES.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingSelect label="Settore" value={field.value ?? ""} onValueChange={field.onChange} options={COMPANY_TYPES} /></FormItem>
               )} />
 
               <FormField control={form.control} name="location" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sede</FormLabel>
-                  <FormControl><Input placeholder="Es. Milano" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label="Sede" value={field.value ?? ""} onChange={field.onChange} maxLength={120} /></FormItem>
               )} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField control={form.control} name="email" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl><Input type="email" placeholder="info@azienda.it" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label="Email" type="email" inputMode="email" value={field.value ?? ""} onChange={field.onChange} error={form.formState.errors.email?.message} maxLength={255} /></FormItem>
               )} />
 
               <FormField control={form.control} name="website" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Sito Web</FormLabel>
-                  <FormControl><Input placeholder="https://..." {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label="Sito web" inputMode="url" value={field.value ?? ""} onChange={field.onChange} maxLength={500} /></FormItem>
               )} />
             </div>
 
             <FormField control={form.control} name="vat_number" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Partita IVA</FormLabel>
-                <FormControl><Input placeholder="IT12345678901" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormItem><FloatingInput label="Partita IVA" value={field.value ?? ""} onChange={field.onChange} maxLength={32} /></FormItem>
             )} />
 
             <FormField control={form.control} name="notes" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Note interne</FormLabel>
-                <FormControl><Textarea placeholder="Note opzionali..." className="min-h-20" {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
+              <FormItem><FloatingTextarea label="Note interne" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
             )} />
 
             <div className="flex justify-end gap-3 pt-4">

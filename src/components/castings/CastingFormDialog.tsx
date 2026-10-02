@@ -17,26 +17,17 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { it } from "@/lib/i18n";
 import { useCompanies } from "@/hooks/useCastings";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 
 const castingSchema = z.object({
-  title: z.string().min(1, it.validation.required),
-  description: z.string().optional(),
+  title: z.string().trim().min(1, it.validation.required).max(160, "Massimo 160 caratteri"),
+  description: z.string().max(4000, "Massimo 4000 caratteri").optional(),
   category: z.string().optional(),
   company_id: z.string().optional(),
   locations: z.string().optional(),
@@ -240,13 +231,7 @@ export const CastingFormDialog = ({
               control={form.control}
               name="title"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{it.casting.title} *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Es. Modella per Campagna Beauty" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label={`${it.casting.title} *`} value={field.value} onChange={field.onChange} error={form.formState.errors.title?.message} maxLength={160} /></FormItem>
               )}
             />
 
@@ -254,17 +239,7 @@ export const CastingFormDialog = ({
               control={form.control}
               name="description"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{it.casting.description}</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Descrivi il casting, i requisiti e le aspettative..."
-                      className="min-h-24"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingTextarea label={it.casting.description} value={field.value ?? ""} onChange={field.onChange} /></FormItem>
               )}
             />
 
@@ -273,24 +248,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="category"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{it.casting.category}</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona categoria" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.value} value={cat.value}>
-                            {cat.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingSelect label={it.casting.category} value={field.value ?? ""} onValueChange={field.onChange} options={categories} /></FormItem>
                 )}
               />
 
@@ -298,24 +256,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="company_id"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Azienda Cliente</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona azienda" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {companies?.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>
-                            {company.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingSelect label="Azienda cliente" value={field.value ?? ""} onValueChange={field.onChange} options={(companies ?? []).map((company) => ({ value: company.id, label: company.name }))} /></FormItem>
                 )}
               />
             </div>
@@ -324,13 +265,7 @@ export const CastingFormDialog = ({
               control={form.control}
               name="locations"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{it.casting.locations}</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Es. Milano, Roma (separati da virgola)" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label={it.casting.locations} value={field.value ?? ""} onChange={field.onChange} maxLength={500} /></FormItem>
               )}
             />
 
@@ -339,13 +274,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="start_date"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data Inizio</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Data inizio" type="date" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
                 )}
               />
 
@@ -353,13 +282,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="end_date"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data Fine</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Data fine" type="date" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
                 )}
               />
             </div>
@@ -369,13 +292,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="compensation_amount"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Compenso</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="0" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Compenso" type="number" inputMode="decimal" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
                 )}
               />
 
@@ -383,24 +300,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="compensation_type"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tipo compenso" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {compensationTypes.map((type) => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingSelect label="Tipo compenso" value={field.value ?? ""} onValueChange={field.onChange} options={compensationTypes} /></FormItem>
                 )}
               />
 
@@ -408,22 +308,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="currency"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Valuta</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Valuta" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingSelect label="Valuta" value={field.value ?? ""} onValueChange={field.onChange} options={[{ value: "EUR", label: "EUR" }, { value: "USD", label: "USD" }, { value: "GBP", label: "GBP" }]} /></FormItem>
                 )}
               />
             </div>
@@ -436,26 +321,14 @@ export const CastingFormDialog = ({
                   control={form.control}
                   name="call_datetime"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Data e ora convocazione</FormLabel>
-                      <FormControl>
-                        <Input type="datetime-local" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <FormItem><FloatingInput label="Data e ora convocazione" type="datetime-local" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
                   name="venue_name"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome location</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Es. Superstudio" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                    <FormItem><FloatingInput label="Nome location" value={field.value ?? ""} onChange={field.onChange} maxLength={160} /></FormItem>
                   )}
                 />
               </div>
@@ -464,13 +337,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="venue_address"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Indirizzo completo</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Via Tortona, 27 — 20144, Milano" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Indirizzo completo" value={field.value ?? ""} onChange={field.onChange} maxLength={300} /></FormItem>
                 )}
               />
 
@@ -478,17 +345,7 @@ export const CastingFormDialog = ({
                 control={form.control}
                 name="talent_instructions"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Istruzioni per il talent</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        rows={3}
-                        placeholder="Cosa portare, come presentarsi, note operative."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingTextarea label="Istruzioni per il talent" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
                 )}
               />
 

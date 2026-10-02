@@ -7,16 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { useCreateCastingRole, useUpdateCastingRole } from "@/hooks/useCastingRoles";
 import { toast } from "@/hooks/use-toast";
 import type { Tables } from "@/integrations/supabase/types";
@@ -109,60 +100,28 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="space-y-1.5">
-            <Label>Nome ruolo *</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="es. Protagonista maschile" />
-          </div>
+          <FloatingInput label="Nome ruolo *" value={name} onChange={setName} maxLength={120} />
 
-          <div className="space-y-1.5">
-            <Label>Descrizione</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrizione del ruolo..." />
+          <FloatingTextarea label="Descrizione" value={description} onChange={setDescription} />
+
+          <div className="grid grid-cols-2 gap-3">
+            <FloatingSelect label="Sesso" value={gender} onValueChange={setGender} options={[
+              { value: "M", label: "Maschile" }, { value: "F", label: "Femminile" },
+              { value: "NB", label: "Non binario" }, { value: "any", label: "Qualsiasi" },
+            ]} />
+            <FloatingInput label="Budget (€)" type="number" inputMode="decimal" value={budget} onChange={setBudget} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Sesso</Label>
-              <Select value={gender} onValueChange={setGender}>
-                <SelectTrigger><SelectValue placeholder="Seleziona" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="M">Maschile</SelectItem>
-                  <SelectItem value="F">Femminile</SelectItem>
-                  <SelectItem value="NB">Non binario</SelectItem>
-                  <SelectItem value="any">Qualsiasi</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Budget (€)</Label>
-              <Input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="0" />
-            </div>
+            <FloatingInput label="Età minima" type="number" inputMode="numeric" value={ageMin} onChange={setAgeMin} />
+            <FloatingInput label="Età massima" type="number" inputMode="numeric" value={ageMax} onChange={setAgeMax} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Età minima</Label>
-              <Input type="number" value={ageMin} onChange={(e) => setAgeMin(e.target.value)} placeholder="18" />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Età massima</Label>
-              <Input type="number" value={ageMax} onChange={(e) => setAgeMax(e.target.value)} placeholder="35" />
-            </div>
-          </div>
+          <FloatingInput label="Luogo" value={location} onChange={setLocation} maxLength={120} />
 
-          <div className="space-y-1.5">
-            <Label>Luogo</Label>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="es. Milano" />
-          </div>
+          <FloatingInput label="Competenze richieste" value={requiredSkills} onChange={setRequiredSkills} maxLength={500} />
 
-          <div className="space-y-1.5">
-            <Label>Competenze richieste</Label>
-            <Input value={requiredSkills} onChange={(e) => setRequiredSkills(e.target.value)} placeholder="es. Recitazione, Danza, Canto (separati da virgola)" />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Note</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Note aggiuntive..." />
-          </div>
+          <FloatingTextarea label="Note" value={notes} onChange={setNotes} />
         </div>
 
         <DialogFooter>

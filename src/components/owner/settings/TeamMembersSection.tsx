@@ -3,6 +3,7 @@ import { Copy, Trash2, UserPlus, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -205,33 +206,12 @@ export const TeamMembersSection = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="invite-email">Email</Label>
-              <Input
-                id="invite-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="nome@agenzia.it"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Ruolo</Label>
-              <Select value={role} onValueChange={(v) => setRole(v as any)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="owner">Owner — accesso completo ai contenuti</SelectItem>
-                  <SelectItem value="admin">
-                    Admin — accesso completo e gestione team
-                  </SelectItem>
-                  <SelectItem value="editor">
-                    Editor — gestione contenuti, niente team né eliminazione account
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <FloatingInput label="Email" type="email" inputMode="email" value={email} onChange={setEmail} maxLength={255} />
+            <FloatingSelect label="Ruolo" value={role} onValueChange={(v) => setRole(v as TeamRole)} options={[
+              { value: "owner", label: "Owner — accesso completo ai contenuti" },
+              { value: "admin", label: "Admin — accesso completo e gestione team" },
+              { value: "editor", label: "Editor — gestione contenuti, niente team né eliminazione account" },
+            ]} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)}>

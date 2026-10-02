@@ -7,9 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { FloatingInput, FloatingTextarea } from "@/components/ui/field";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateTarget, useUpdateTarget, type TargetCriteria, type CastingTarget } from "@/hooks/useTargets";
 import { TargetCriteriaForm } from "./TargetCriteriaForm";
@@ -112,25 +110,8 @@ export const CreateTargetDialog = ({
 
         {step === "info" ? (
           <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome del Target *</Label>
-              <Input
-                id="name"
-                placeholder="Es. Modella 20-25 anni bionda"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Descrizione (opzionale)</Label>
-              <Textarea
-                id="description"
-                placeholder="Descrivi brevemente il profilo ideale..."
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
+            <FloatingInput label="Nome del target *" value={name} onChange={setName} maxLength={120} />
+            <FloatingTextarea label="Descrizione (opzionale)" value={description} onChange={setDescription} />
           </div>
         ) : (
           <TargetCriteriaForm criteria={criteria} onChange={setCriteria} />

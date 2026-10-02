@@ -6,3 +6,4 @@
 - [x] Rifinire intestazione admin e stato iniziale della forza profilo
 - [x] Integrare lightbox e rating nelle preview e nella gestione foto
 - [x] Correggere gerarchia e sovrapposizione delle azioni nel drawer talent
+- [x] Uniformare i campi delle modali allo standard floating label del profilo talent

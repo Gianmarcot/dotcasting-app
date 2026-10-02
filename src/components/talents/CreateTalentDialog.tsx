@@ -18,26 +18,16 @@ import {
   Form,
   FormField,
   FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const schema = z.object({
-  email: z.string().email("Email non valida"),
-  first_name: z.string().optional(),
-  last_name: z.string().optional(),
+  email: z.string().trim().email("Email non valida").max(255, "Massimo 255 caratteri"),
+  first_name: z.string().max(100, "Massimo 100 caratteri").optional(),
+  last_name: z.string().max(100, "Massimo 100 caratteri").optional(),
   gender: z.string().optional(),
-  city: z.string().optional(),
+  city: z.string().max(120, "Massimo 120 caratteri").optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -114,13 +104,7 @@ export const CreateTalentDialog = ({
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="email@esempio.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <FormItem><FloatingInput label="Email *" type="email" inputMode="email" value={field.value} onChange={field.onChange} error={form.formState.errors.email?.message} maxLength={255} /></FormItem>
               )}
             />
 
@@ -129,26 +113,14 @@ export const CreateTalentDialog = ({
                 control={form.control}
                 name="first_name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Nome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Nome" value={field.value ?? ""} onChange={field.onChange} maxLength={100} /></FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="last_name"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cognome</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Cognome" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Cognome" value={field.value ?? ""} onChange={field.onChange} maxLength={100} /></FormItem>
                 )}
               />
             </div>
@@ -158,39 +130,17 @@ export const CreateTalentDialog = ({
                 control={form.control}
                 name="gender"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Genere</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleziona" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="male">Uomo</SelectItem>
-                        <SelectItem value="female">Donna</SelectItem>
-                        <SelectItem value="non-binary">Non binario</SelectItem>
-                        <SelectItem value="other">Altro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingSelect label="Genere" value={field.value ?? ""} onValueChange={field.onChange} options={[
+                    { value: "male", label: "Uomo" }, { value: "female", label: "Donna" },
+                    { value: "non-binary", label: "Non binario" }, { value: "other", label: "Altro" },
+                  ]} /></FormItem>
                 )}
               />
               <FormField
                 control={form.control}
                 name="city"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Città</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Città" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <FormItem><FloatingInput label="Città" value={field.value ?? ""} onChange={field.onChange} maxLength={120} /></FormItem>
                 )}
               />
             </div>

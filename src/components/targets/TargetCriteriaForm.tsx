@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { FloatingInput } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
@@ -18,6 +19,7 @@ interface TargetCriteriaFormProps {
 }
 
 export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormProps) => {
+  const [cityDraft, setCityDraft] = useState("");
   const allCategories = [
     ...TALENT_ROLES.artistic,
     ...TALENT_ROLES.creative,
@@ -78,20 +80,20 @@ export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormPro
       <div className="space-y-2">
         <Label className="text-sm font-medium">Età</Label>
         <div className="flex items-center gap-2">
-          <Input
+          <FloatingInput
+            label="Età minima"
             type="number"
-            placeholder="Min"
-            className="w-24"
-            value={criteria.age_min ?? ""}
-            onChange={(e) => updateCriteria("age_min", e.target.value ? Number(e.target.value) : undefined)}
+            inputMode="numeric"
+            value={criteria.age_min?.toString() ?? ""}
+            onChange={(value) => updateCriteria("age_min", value ? Number(value) : undefined)}
           />
           <span className="text-muted-foreground">-</span>
-          <Input
+          <FloatingInput
+            label="Età massima"
             type="number"
-            placeholder="Max"
-            className="w-24"
-            value={criteria.age_max ?? ""}
-            onChange={(e) => updateCriteria("age_max", e.target.value ? Number(e.target.value) : undefined)}
+            inputMode="numeric"
+            value={criteria.age_max?.toString() ?? ""}
+            onChange={(value) => updateCriteria("age_max", value ? Number(value) : undefined)}
           />
           <span className="text-sm text-muted-foreground">anni</span>
         </div>
@@ -101,20 +103,20 @@ export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormPro
       <div className="space-y-2">
         <Label className="text-sm font-medium">Altezza</Label>
         <div className="flex items-center gap-2">
-          <Input
+          <FloatingInput
+            label="Altezza minima"
             type="number"
-            placeholder="Min"
-            className="w-24"
-            value={criteria.height_min ?? ""}
-            onChange={(e) => updateCriteria("height_min", e.target.value ? Number(e.target.value) : undefined)}
+            inputMode="numeric"
+            value={criteria.height_min?.toString() ?? ""}
+            onChange={(value) => updateCriteria("height_min", value ? Number(value) : undefined)}
           />
           <span className="text-muted-foreground">-</span>
-          <Input
+          <FloatingInput
+            label="Altezza massima"
             type="number"
-            placeholder="Max"
-            className="w-24"
-            value={criteria.height_max ?? ""}
-            onChange={(e) => updateCriteria("height_max", e.target.value ? Number(e.target.value) : undefined)}
+            inputMode="numeric"
+            value={criteria.height_max?.toString() ?? ""}
+            onChange={(value) => updateCriteria("height_max", value ? Number(value) : undefined)}
           />
           <span className="text-sm text-muted-foreground">cm</span>
         </div>
@@ -133,13 +135,16 @@ export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormPro
             </Badge>
           ))}
         </div>
-        <Input
-          placeholder="Aggiungi città e premi Invio..."
+        <FloatingInput
+          label="Aggiungi città e premi Invio"
+          value={cityDraft}
+          onChange={setCityDraft}
+          maxLength={120}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              addCity(e.currentTarget.value);
-              e.currentTarget.value = "";
+              addCity(cityDraft);
+              setCityDraft("");
             }
           }}
         />
