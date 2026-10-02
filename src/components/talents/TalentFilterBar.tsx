@@ -65,7 +65,11 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
         <ChevronDown className="h-5 w-5" />
       </button>
     </PopoverTrigger>
-    <PopoverContent align="start" className={wide ? "w-[340px] p-4" : "w-[280px] p-4"}>
+    <PopoverContent
+      align="start"
+      data-surface="raised"
+      className={wide ? "w-[340px] rounded-2xl border-0 shadow-md p-4" : "w-[280px] rounded-2xl border-0 shadow-md p-4"}
+    >
       <div className="space-y-3">
         {children}
       </div>
