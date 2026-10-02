@@ -1221,7 +1221,7 @@ const PatternsSection = () => (
 
     <SubBlock
       title="ModalNavBar"
-      source="src/components/ui/modal-nav-bar.tsx · 72x72 / 176x72"
+      source="src/components/ui/modal-nav-bar.tsx · 56x56 / 160x56"
     >
       <div className="flex flex-wrap items-center gap-6">
         <ModalNavBar onClose={() => undefined} />

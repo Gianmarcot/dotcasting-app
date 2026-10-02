@@ -7,3 +7,4 @@
 - [x] Integrare lightbox e rating nelle preview e nella gestione foto
 - [x] Correggere gerarchia e sovrapposizione delle azioni nel drawer talent
 - [x] Uniformare i campi delle modali allo standard floating label del profilo talent
+- [x] Allineare ModalNavBar al design aggiornato (padding 8px, 56x56 / 160x56, fondo #1a1a1a)
