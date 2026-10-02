@@ -14,13 +14,6 @@ import { Input } from "@/components/ui/input";
 import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useCastings } from "@/hooks/useCastings";
 import { useCastingRoles } from "@/hooks/useCastingRoles";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
