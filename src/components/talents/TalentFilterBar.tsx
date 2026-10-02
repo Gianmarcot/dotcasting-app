@@ -66,9 +66,10 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
         <ChevronDown className="h-5 w-5" />
       </button>
     </PopoverTrigger>
+    {/* Pannello bianco: i campi restano in superficie base (color crema),
+        così si leggono staccati dal fondo bianco del menu. */}
     <PopoverContent
       align="start"
-      data-surface="raised"
       className={cn(
         "rounded-2xl border-0 shadow-md p-4 max-w-[calc(100vw-32px)]",
         wide ? "w-[460px]" : "w-[280px]"
