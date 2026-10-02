@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModalNavBarProps {
-  /** Mostra i pulsanti precedente/successivo. Se false → variante corta 72x72 */
+  /** Mostra i pulsanti precedente/successivo. Se false → variante corta 56x56 */
   showNavigation?: boolean;
   onPrev?: () => void;
   onNext?: () => void;
@@ -11,7 +11,7 @@ interface ModalNavBarProps {
   prevDisabled?: boolean;
   nextDisabled?: boolean;
   labels?: { prev?: string; next?: string; close?: string };
-  /** Mostra il testo "Chiudi" accanto alla X (padding 32px lato testo, 16px lato icona) */
+  /** Mostra il testo "Chiudi" accanto alla X (padding 24px lato testo, 8px lato icona) */
   showCloseLabel?: boolean;
   /** Il posizionamento è deciso da chi usa il componente */
   className?: string;
@@ -55,8 +55,8 @@ export const ModalNavBar = ({
 }: ModalNavBarProps) => (
   <div
     className={cn(
-      "flex items-center gap-3 rounded-[100px] bg-[#0f0f0f]",
-      showCloseLabel ? "py-4 pl-8 pr-4" : "p-4",
+      "flex items-center gap-2 rounded-[100px] bg-ink",
+      showCloseLabel ? "py-2 pl-6 pr-2" : "p-2",
       className
     )}
   >
@@ -76,7 +76,7 @@ export const ModalNavBar = ({
         >
           <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
         </CircleButton>
-        <span aria-hidden className="h-10 w-px shrink-0 bg-white/25" />
+        <span aria-hidden className="-mx-[0.5px] h-10 w-px shrink-0 bg-white/25" />
       </>
     )}
     {showCloseLabel ? (
