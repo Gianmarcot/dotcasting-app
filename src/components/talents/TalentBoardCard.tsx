@@ -41,7 +41,24 @@ export const buildMeta = (t: TalentWithAttributes) => {
 export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
   const name = buildDisplayName(talent);
   const meta = buildMeta(talent);
-  const main = photos[0];
+  const profilePhoto = talent.profile_photo_url?.trim() || null;
+  const orderedPhotos = [
+    ...(profilePhoto
+      ? [{
+          id: `profile-${talent.id}`,
+          profile_id: talent.id,
+          url: profilePhoto,
+          thumbnail_url: null,
+          sort_order: -1,
+        } satisfies TalentMainPhoto]
+      : []),
+    ...photos,
+  ].filter((photo, index, all) => {
+    const source = photo.thumbnail_url || photo.url;
+    return all.findIndex((candidate) => (candidate.thumbnail_url || candidate.url) === source) === index;
+  });
+  const main = orderedPhotos[0];
+  const secondary = orderedPhotos[1];
 
   return (
     <button
@@ -51,12 +68,22 @@ export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
       style={{ aspectRatio: "2 / 3" }}
     >
       {main ? (
-        <img
-          src={main.thumbnail_url || main.url}
-          alt={name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-          loading="lazy"
-        />
+        <>
+          <img
+            src={main.thumbnail_url || main.url}
+            alt={name}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+          {secondary && (
+            <img
+              src={secondary.thumbnail_url || secondary.url}
+              alt={`Seconda foto di ${name}`}
+              className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              loading="lazy"
+            />
+          )}
+        </>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-[#F1EFE8] text-5xl font-medium tracking-wide">{buildInitials(talent)}</span>
