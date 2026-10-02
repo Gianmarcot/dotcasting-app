@@ -68,7 +68,10 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
     <PopoverContent
       align="start"
       data-surface="raised"
-      className={wide ? "w-[340px] rounded-2xl border-0 shadow-md p-4" : "w-[280px] rounded-2xl border-0 shadow-md p-4"}
+      className={cn(
+        "rounded-2xl border-0 shadow-md p-4 max-w-[calc(100vw-32px)]",
+        wide ? "w-[460px]" : "w-[280px]"
+      )}
     >
       <div className="space-y-3">
         {children}
