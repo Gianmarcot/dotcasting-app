@@ -7,6 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Tables } from "@/integrations/supabase/types";
+import type { RoleTalentWithProfile } from "@/hooks/useRoleTalents";
+import { TalentAvatarStack } from "@/components/talents/TalentAvatarStack";
 import { cn } from "@/lib/utils";
 
 export interface RoleCounts {
@@ -19,12 +21,14 @@ interface Props {
   role: Tables<"casting_roles">;
   castingId: string;
   counts: RoleCounts;
+  /** Talent in shortlist al ruolo, nell'ordine in cui vanno mostrati. */
+  talents: RoleTalentWithProfile[];
   roundsCount?: number;
   onEditRole: (role: Tables<"casting_roles">) => void;
 }
 
 /** Riga ruolo nella scheda "Ruoli" del dettaglio casting. */
-export const RoleCard = ({ role, castingId, counts, onEditRole }: Props) => {
+export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props) => {
   const navigate = useNavigate();
   const openRole = () => navigate(`/owner/castings/${castingId}/${role.id}`);
   const hasConfirmed = counts.confirmed > 0;
@@ -41,14 +45,29 @@ export const RoleCard = ({ role, castingId, counts, onEditRole }: Props) => {
           openRole();
         }
       }}
-      className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+      className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto]"
     >
-      <div className="flex min-w-0 items-center gap-4">
+      {/* Nome ruolo */}
+      <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-4">
         <User className="h-5 w-5 shrink-0" />
         <span className="truncate text-sm font-bold leading-5 text-foreground">{role.name}</span>
       </div>
 
-      <div className="col-start-1 row-start-2 flex items-center gap-1.5 pl-9 md:col-start-2 md:row-start-1 md:pl-0">
+      {/* Shortlist: avatar dei talent + conteggio */}
+      <div className="col-start-1 row-start-2 flex items-center gap-3 pl-9 md:col-start-2 md:row-start-1 md:pl-0">
+        <TalentAvatarStack profiles={talents.map((t) => t.profile)} />
+        <span
+          className={cn(
+            "whitespace-nowrap text-sm font-medium leading-5",
+            counts.total === 0 ? "text-muted-foreground" : "text-foreground",
+          )}
+        >
+          {counts.total} in shortlist
+        </span>
+      </div>
+
+      {/* Avanzamento selezioni */}
+      <div className="col-start-1 row-start-3 flex items-center gap-1.5 pl-9 md:col-start-3 md:row-start-1 md:pl-0">
         <CheckCheck
           className={cn(
             "h-5 w-5 shrink-0",
@@ -60,7 +79,8 @@ export const RoleCard = ({ role, castingId, counts, onEditRole }: Props) => {
         </span>
       </div>
 
-      <div className="col-start-2 row-span-2 row-start-1 flex items-center justify-end gap-6 md:col-start-3 md:row-span-1">
+      {/* Azioni */}
+      <div className="col-start-2 row-span-3 row-start-1 flex items-center justify-end gap-6 md:col-start-4 md:row-span-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

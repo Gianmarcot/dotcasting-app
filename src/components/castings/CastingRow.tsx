@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +10,7 @@ import { Pencil, Trash2, ChevronRight } from "lucide-react";
 import { it } from "@/lib/i18n";
 import type { CastingWithRelations } from "@/hooks/useCastings";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
+import { TalentAvatarStack } from "@/components/talents/TalentAvatarStack";
 import { cn } from "@/lib/utils";
 
 const statusStyles: Record<string, { dot: string; text: string }> = {
@@ -26,12 +26,6 @@ interface CastingRowProps {
   onStatusChange?: (id: string, status: string) => void;
 }
 
-const getInitials = (first?: string | null, last?: string | null) => {
-  const a = first?.charAt(0) ?? "";
-  const b = last?.charAt(0) ?? "";
-  return (a + b).toUpperCase() || "?";
-};
-
 export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
   const navigate = useNavigate();
 
@@ -39,8 +33,6 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
   const status = statusStyles[casting.status || "draft"] ?? statusStyles.draft;
 
   const confirmed = casting.confirmed_talents ?? [];
-  const shown = confirmed.slice(0, 3);
-  const extra = Math.max(0, confirmed.length - shown.length);
 
   const open = () => navigate(`/owner/castings/${casting.id}`);
 
@@ -71,31 +63,10 @@ export const CastingRow = ({ casting, onEdit, onDelete }: CastingRowProps) => {
 
       {/* Selezione (avatar stack) */}
       <div className="flex items-center">
-        {shown.length === 0 ? (
+        {confirmed.length === 0 ? (
           <span className="text-sm text-muted-foreground/70">—</span>
         ) : (
-          <div className="flex items-center">
-            {shown.map((t, i) => (
-              <Avatar
-                key={t.profile?.id ?? i}
-                size="md"
-                style={{ zIndex: shown.length - i }}
-                className={cn("ring-2 ring-white", i > 0 && "-ml-3")}
-              >
-                {t.profile?.profile_photo_url ? (
-                  <AvatarImage src={t.profile.profile_photo_url} alt="" />
-                ) : null}
-                <AvatarFallback className="text-xs bg-muted">
-                  {getInitials(t.profile?.first_name, t.profile?.last_name)}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-            {extra > 0 && (
-              <div className="-ml-3 h-12 w-12 rounded-full ring-2 ring-white bg-muted text-xs font-medium text-muted-foreground flex items-center justify-center z-[0]">
-                +{extra}
-              </div>
-            )}
-          </div>
+          <TalentAvatarStack profiles={confirmed.map((t) => t.profile)} />
         )}
       </div>
 
