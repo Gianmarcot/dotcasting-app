@@ -173,7 +173,17 @@ export const HAIR_COLORS = [
    "Doppiaggio"
  ];
  
+export const KIDS_SIZES = [
+  "0-1 mese", "1-3 mesi", "3-6 mesi", "6-9 mesi", "9-12 mesi", "12-18 mesi", "18-24 mesi",
+  ...Array.from({ length: 17 }, (_, i) => `${i + 2} anni`),
+];
+
 export const JACKET_SIZES = [
+  ...KIDS_SIZES,
+  "IT 36 | EU 26", "IT 36/38 | EU 26/28",
+  "IT 38 | EU 28", "IT 38/40 | EU 28/30",
+  "IT 40 | EU 30", "IT 40/42 | EU 30/32",
+  "IT 42 | EU 32", "IT 42/44 | EU 32/34",
   "IT 44 | EU 34", "IT 44/46 | EU 34/36",
   "IT 46 | EU 36", "IT 46/48 | EU 36/38",
   "IT 48 | EU 38", "IT 48/50 | EU 38/40",
@@ -188,6 +198,7 @@ export const JACKET_SIZES = [
 ];
 
 export const SHIRT_SIZES = [
+  ...KIDS_SIZES,
   "XXS", "XXS/XS",
   "XS", "XS/S",
   "S", "S/M",
@@ -199,6 +210,8 @@ export const SHIRT_SIZES = [
 ];
 
 export const PANTS_SIZES = [
+  ...KIDS_SIZES,
+  "IT 36 | EU 30", "IT 36/38 | EU 30/32",
   "IT 38 | EU 32", "IT 38/40 | EU 32/34",
   "IT 40 | EU 34", "IT 40/42 | EU 34/36",
   "IT 42 | EU 36", "IT 42/44 | EU 36/38",
