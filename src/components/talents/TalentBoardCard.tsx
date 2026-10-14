@@ -1,5 +1,8 @@
 import { TalentWithAttributes, calculateAge } from "@/hooks/useTalents";
 import { TalentMainPhoto } from "@/hooks/useTalentsMainPhotos";
+import type { ReactNode } from "react";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { MinorPill, FiscalPill } from "@/components/talents/TalentStatusPill";
 
 export interface MaterialIndicators {
@@ -13,6 +16,10 @@ interface Props {
   photos: TalentMainPhoto[];
   onClick?: () => void;
   materialIndicators?: MaterialIndicators;
+  /** Se definito, la scheda funziona come elemento selezionabile (clic = alterna). */
+  selected?: boolean;
+  /** Etichetta aggiuntiva accanto a quelle di stato (es. compatibilità). */
+  extraBadge?: ReactNode;
 }
 
 export const buildDisplayName = (t: TalentWithAttributes) => {
@@ -38,7 +45,7 @@ export const buildMeta = (t: TalentWithAttributes) => {
   return [location, age ? `${age} anni` : null].filter(Boolean).join(" · ");
 };
 
-export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
+export const TalentBoardCard = ({ talent, photos, onClick, selected, extraBadge }: Props) => {
   const name = buildDisplayName(talent);
   const meta = buildMeta(talent);
   const profilePhoto = talent.profile_photo_url?.trim() || null;
@@ -68,7 +75,11 @@ export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
     <button
       type="button"
       onClick={onClick}
-      className="group relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#2C2C2A] p-4 text-left transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      aria-pressed={selected === undefined ? undefined : selected}
+      className={cn(
+        "group relative flex w-full flex-col justify-between overflow-hidden rounded-xl bg-[#2C2C2A] p-4 text-left transition-shadow hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        selected && "ring-[3px] ring-inset ring-primary"
+      )}
       style={{ aspectRatio: "2 / 3" }}
     >
       {main ? (
@@ -98,7 +109,14 @@ export const TalentBoardCard = ({ talent, photos, onClick }: Props) => {
       <div className="relative flex flex-wrap gap-1">
         <MinorPill birthDate={talent.birth_date} />
         <FiscalPill profile={talent} />
+        {extraBadge}
       </div>
+
+      {selected && (
+        <span className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <Check className="h-4 w-4" strokeWidth={2} />
+        </span>
+      )}
 
       <div className="relative text-white">
         <div className="font-display uppercase text-lg leading-tight">{name}</div>
