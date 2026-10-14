@@ -71,6 +71,9 @@ export const TalentPicker = ({
 }: TalentPickerProps) => {
   const [filters, setFilters] = useState<TalentFilters>({});
   const [selected, setSelected] = useState<string[]>(initialSelectedIds);
+  const [saving, setSaving] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
+
   // reset all'apertura
   useEffect(() => {
     if (open) {
