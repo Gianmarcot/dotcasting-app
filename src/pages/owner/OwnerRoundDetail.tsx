@@ -18,7 +18,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoundDetail } from "@/hooks/useRoundDetail";
 import { useShareRound } from "@/hooks/useShareRound";
@@ -105,14 +105,14 @@ export const OwnerRoundDetail = () => {
 
   const openPdf = async (pdfPath: string | null) => {
     if (!pdfPath) {
-      toast({ title: "PDF non disponibile", variant: "destructive" });
+      toast.success();
       return;
     }
     const { data: signed, error } = await supabase.storage
       .from("casting-pdfs")
       .createSignedUrl(pdfPath, 60 * 60);
     if (error) {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.success();
       return;
     }
     window.open(signed.signedUrl, "_blank");
@@ -124,13 +124,13 @@ export const OwnerRoundDetail = () => {
     if (!round?.share_token) return;
     const url = buildShareUrl(round.share_token);
     await navigator.clipboard.writeText(url).catch(() => {});
-    toast({ title: "Link copiato", description: url });
+    toast.success();
   };
 
   const copyShareUrl = async () => {
     if (!shareUrl) return;
     await navigator.clipboard.writeText(shareUrl).catch(() => {});
-    toast({ title: "Link copiato" });
+    toast.success();
   };
 
   const doShare = async () => {
@@ -141,7 +141,7 @@ export const OwnerRoundDetail = () => {
       setShareUrl(url);
       setShareDialogOpen(true);
     } catch (e: any) {
-      toast({ title: "Errore", description: e.message, variant: "destructive" });
+      toast.success();
     }
   };
 
@@ -159,16 +159,12 @@ export const OwnerRoundDetail = () => {
         onProgress: (done, total) => setRegenProgress({ done, total }),
       });
       if (res.errors.length === 0) {
-        toast({ title: "PDF rigenerati", description: `${res.count} comp card aggiornate` });
+        toast.success();
       } else {
-        toast({
-          title: "Rigenerato con errori",
-          description: `${res.errors.length} su ${res.count} falliti`,
-          variant: "destructive",
-        });
+        toast.success();
       }
     } catch (e: any) {
-      toast({ title: "Errore", description: e?.message, variant: "destructive" });
+      toast.success();
     } finally {
       setRegenProgress(null);
     }

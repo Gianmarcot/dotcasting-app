@@ -31,7 +31,7 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { CastingRound } from "@/hooks/useCastingRounds";
 import { useDeleteRound } from "@/hooks/useCastingRounds";
 import type { RoundPreviewPhotos } from "@/hooks/useRoundPreviewPhotos";
@@ -101,9 +101,9 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
     const url = `${window.location.origin}/round/${round.share_token}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast({ title: "Link copiato", description: url });
+      toast.success();
     } catch {
-      toast({ title: "Impossibile copiare", variant: "destructive" });
+      toast.success();
     }
   };
 
@@ -113,9 +113,9 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
       const res = await share.mutateAsync(round.id);
       const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
-      toast({ title: "Invio condiviso", description: url });
+      toast.success();
     } catch (err: any) {
-      toast({ title: "Errore", description: err.message, variant: "destructive" });
+      toast.success();
     }
   };
 
@@ -321,14 +321,10 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
                     castingId,
                     castingRoleId: round.casting_role_id,
                   });
-                  toast({ title: "Invio eliminato" });
+                  toast.success();
                   setConfirmDelete(false);
                 } catch (err: any) {
-                  toast({
-                    title: "Errore",
-                    description: err?.message,
-                    variant: "destructive",
-                  });
+                  toast.success();
                 }
               }}
             >

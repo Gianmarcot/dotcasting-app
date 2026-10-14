@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { compressImage } from "@/lib/media/compressImage";
 
@@ -144,17 +144,10 @@ export const useUploadMediaByProfileId = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-media", variables.profileId] });
-      toast({
-        title: "Media caricato",
-        description: "Il file è stato caricato con successo.",
-      });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Errore",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.success();
     },
   });
 };
@@ -183,17 +176,10 @@ export const useDeleteMediaByProfileId = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-media", variables.profileId] });
-      toast({
-        title: "Media eliminato",
-        description: "Il file è stato eliminato con successo.",
-      });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Errore",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.success();
     },
   });
 };

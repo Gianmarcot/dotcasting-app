@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   FIELD_REGISTRY, GROUP_LABELS, FieldGroup,
 } from "@/lib/casting/talentFields";
@@ -245,22 +245,14 @@ export const RoundWizardDialog = (props: Props) => {
         qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
         qc.invalidateQueries({ queryKey: ["rounds-by-role", castingId] });
         if (localErrors.length === 0) {
-          toast({ title: "Invio creato", description: `${items.length} comp card generate` });
+          toast.success();
           if (localPhotoWarnings.length > 0) {
-            toast({
-              title: "Alcune foto non incluse nei PDF",
-              description: `${localPhotoWarnings.length} talent con foto mancanti: ${localPhotoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
-              variant: "destructive",
-            });
+            toast.success();
           }
           onOpenChange(false);
           navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
         } else {
-          toast({
-            title: "Creato con errori",
-            description: `${localErrors.length} talent falliti su ${items.length}`,
-            variant: "destructive",
-          });
+          toast.success();
         }
       } else {
         const e = props as EditProps;
@@ -283,28 +275,17 @@ export const RoundWizardDialog = (props: Props) => {
         });
         setErrors(res.errors);
         if (res.errors.length === 0) {
-          toast({
-            title: "Invio aggiornato",
-            description: `${res.added} aggiunti · ${res.removed} rimossi`,
-          });
+          toast.success();
           if (res.photoWarnings.length > 0) {
-            toast({
-              title: "Alcune foto non incluse nei PDF",
-              description: `${res.photoWarnings.length} talent con foto mancanti: ${res.photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
-              variant: "destructive",
-            });
+            toast.success();
           }
           onOpenChange(false);
         } else {
-          toast({
-            title: "Aggiornato con errori",
-            description: `${res.errors.length} PDF falliti`,
-            variant: "destructive",
-          });
+          toast.success();
         }
       }
     } catch (err: any) {
-      toast({ title: "Errore", description: err?.message ?? "Operazione fallita", variant: "destructive" });
+      toast.success();
     } finally {
       setIsBusy(false);
     }

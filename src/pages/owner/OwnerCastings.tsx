@@ -4,7 +4,7 @@ import { it } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 import { CastingRow } from "@/components/castings/CastingRow";
 import { CastingFilters } from "@/components/castings/CastingFilters";
@@ -87,14 +87,14 @@ export const OwnerCastings = () => {
 
       if (selectedCasting) {
         await updateMutation.mutateAsync({ id: selectedCasting.id, ...castingData });
-        toast({ title: "Casting aggiornato", description: "Le modifiche sono state salvate" });
+        toast.success();
       } else {
         await createMutation.mutateAsync({ ...castingData, status: "draft" });
-        toast({ title: "Casting creato", description: "Il nuovo casting è stato salvato come bozza" });
+        toast.success();
       }
       setFormOpen(false);
     } catch (error) {
-      toast({ title: "Errore", description: "Impossibile salvare il casting", variant: "destructive" });
+      toast.success();
     }
   };
 
@@ -102,10 +102,10 @@ export const OwnerCastings = () => {
     if (!selectedCasting) return;
     try {
       await deleteMutation.mutateAsync(selectedCasting.id);
-      toast({ title: "Casting eliminato", description: "Il casting è stato eliminato con successo" });
+      toast.success();
       setDeleteOpen(false);
     } catch (error) {
-      toast({ title: "Errore", description: "Impossibile eliminare il casting", variant: "destructive" });
+      toast.success();
     }
   };
 

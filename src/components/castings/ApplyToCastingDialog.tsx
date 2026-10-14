@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, Building2, Banknote, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import type { ExploreCasting } from "@/hooks/useExploreCastings";
@@ -50,22 +50,13 @@ export const ApplyToCastingDialog = ({ open, onOpenChange, casting }: ApplyToCas
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["explore-castings"] });
       queryClient.invalidateQueries({ queryKey: ["talent-applications"] });
-      toast({
-        title: "Candidatura inviata!",
-        description: "La tua candidatura è stata inviata con successo.",
-      });
+      toast.success();
       setCoverNote("");
       onOpenChange(false);
     },
     onError: (error: any) => {
       console.error("Error applying:", error);
-      toast({
-        title: "Errore",
-        description: error.message?.includes("duplicate") 
-          ? "Ti sei già candidato a questo casting."
-          : "Impossibile inviare la candidatura. Riprova.",
-        variant: "destructive",
-      });
+      toast.success();
     },
   });
 

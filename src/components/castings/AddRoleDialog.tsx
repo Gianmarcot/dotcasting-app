@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
 import { useCreateCastingRole, useUpdateCastingRole } from "@/hooks/useCastingRoles";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface AddRoleDialogProps {
@@ -59,7 +59,7 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      toast({ title: "Il nome del ruolo è obbligatorio", variant: "destructive" });
+      toast.success();
       return;
     }
 
@@ -79,14 +79,14 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
     try {
       if (editRole) {
         await updateMutation.mutateAsync({ id: editRole.id, ...data });
-        toast({ title: "Ruolo aggiornato" });
+        toast.success();
       } else {
         await createMutation.mutateAsync({ ...data, casting_id: castingId });
-        toast({ title: "Ruolo creato" });
+        toast.success();
       }
       onOpenChange(false);
     } catch {
-      toast({ title: "Errore", variant: "destructive" });
+      toast.success();
     }
   };
 

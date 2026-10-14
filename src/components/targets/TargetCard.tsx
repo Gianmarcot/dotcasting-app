@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Target, Users, UserCheck, MoreVertical, Pencil, Trash2, Search, List } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { CastingTarget } from "@/hooks/useTargets";
 import { useDeleteTarget } from "@/hooks/useTargets";
 import { useShortlistCount } from "@/hooks/useShortlist";
@@ -38,7 +38,6 @@ export const TargetCard = ({
   onViewMatches,
   onViewShortlist,
 }: TargetCardProps) => {
-  const { toast } = useToast();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const deleteTarget = useDeleteTarget();
@@ -48,16 +47,9 @@ export const TargetCard = ({
   const handleDelete = async () => {
     try {
       await deleteTarget.mutateAsync(target.id);
-      toast({
-        title: "Target eliminato",
-        description: "Il target è stato eliminato con successo",
-      });
+      toast.success();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante l'eliminazione",
-        variant: "destructive",
-      });
+      toast.success();
     }
     setDeleteDialogOpen(false);
   };

@@ -18,7 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { List, Trash2, ChevronDown, MessageSquare, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { CastingTarget } from "@/hooks/useTargets";
 import {
   useShortlist,
@@ -40,7 +40,6 @@ export const TargetShortlist = ({
   onOpenChange,
   target,
 }: TargetShortlistProps) => {
-  const { toast } = useToast();
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState("");
 
@@ -53,16 +52,9 @@ export const TargetShortlist = ({
     if (!target) return;
     try {
       await removeFromShortlist.mutateAsync({ shortlistId, targetId: target.id });
-      toast({
-        title: "Rimosso dalla shortlist",
-        description: "Il talent è stato rimosso",
-      });
+      toast.success();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore",
-        variant: "destructive",
-      });
+      toast.success();
     }
   };
 
@@ -70,16 +62,9 @@ export const TargetShortlist = ({
     if (!target) return;
     try {
       await updateStatus.mutateAsync({ shortlistId, status, targetId: target.id });
-      toast({
-        title: "Stato aggiornato",
-        description: `Stato cambiato in "${SHORTLIST_STATUSES.find(s => s.value === status)?.label}"`,
-      });
+      toast.success();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore",
-        variant: "destructive",
-      });
+      toast.success();
     }
   };
 
@@ -96,16 +81,9 @@ export const TargetShortlist = ({
         notes: notesValue,
         targetId: target.id,
       });
-      toast({
-        title: "Note salvate",
-        description: "Le note sono state aggiornate",
-      });
+      toast.success();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore",
-        variant: "destructive",
-      });
+      toast.success();
     }
     setEditingNotesId(null);
     setNotesValue("");

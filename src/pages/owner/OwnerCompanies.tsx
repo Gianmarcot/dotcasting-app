@@ -12,7 +12,7 @@ import { Surface } from "@/components/ui/surface";
 import { Plus, Search, MapPin, Film, Users, Calendar } from "lucide-react";
 import { useCompaniesWithStats, useCreateCompany, COMPANY_TYPES } from "@/hooks/useCompanies";
 import { CompanyFormDialog } from "@/components/companies/CompanyFormDialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 
@@ -57,9 +57,9 @@ export const OwnerCompanies = () => {
     createCompany.mutate(data, {
       onSuccess: () => {
         setFormOpen(false);
-        toast({ title: "Azienda creata con successo" });
+        toast.success();
       },
-      onError: () => toast({ title: "Errore nella creazione", variant: "destructive" }),
+      onError: () => toast.success(),
     });
   };
 

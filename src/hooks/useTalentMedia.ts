@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "./useProfile";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { MediaCategory } from "@/lib/mediaCategories";
 import { compressImage } from "@/lib/media/compressImage";
 import { getVariantUrls, parseCrops, type CropRatio, type CropRect } from "@/lib/media/crops";
@@ -141,17 +141,10 @@ export const useUploadMedia = (externalProfileId?: string | null, externalUserId
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast({
-        title: "Media caricato",
-        description: "Il file è stato caricato con successo.",
-      });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Errore",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.success();
     },
   });
 };
@@ -207,10 +200,10 @@ export const useReplaceMediaFile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast({ title: "Foto aggiornata", description: "Il ritaglio è stato salvato." });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.success();
     },
   });
 };
@@ -303,10 +296,10 @@ export const useSaveMediaCrops = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast({ title: "Foto aggiornata", description: "Il ritaglio è stato salvato." });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({ title: "Errore", description: error.message, variant: "destructive" });
+      toast.success();
     },
   });
 };
@@ -334,17 +327,10 @@ export const useDeleteMedia = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast({
-        title: "Media eliminato",
-        description: "Il file è stato eliminato con successo.",
-      });
+      toast.success();
     },
     onError: (error: Error) => {
-      toast({
-        title: "Errore",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.success();
     },
   });
 };

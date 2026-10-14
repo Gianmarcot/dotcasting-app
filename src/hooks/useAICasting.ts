@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TalentWithAttributes } from "./useTalents";
 import { matchTalentsWithCriteria } from "./useTargetMatching";
@@ -48,11 +48,7 @@ export const useAICasting = () => {
 
       return data.casting as AICastingResult;
     } catch (err: any) {
-      toast({
-        title: "Errore generazione AI",
-        description: err.message || "Impossibile generare il casting",
-        variant: "destructive",
-      });
+      toast.success();
       return null;
     } finally {
       setIsGenerating(false);
@@ -123,18 +119,11 @@ export const useAICasting = () => {
 
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
 
-      toast({
-        title: "Casting creato con AI",
-        description: `"${result.title}" con ${createdRoles?.length || 0} ruoli`,
-      });
+      toast.success();
 
       return casting;
     } catch (err: any) {
-      toast({
-        title: "Errore creazione",
-        description: err.message || "Impossibile creare il casting",
-        variant: "destructive",
-      });
+      toast.success();
       return null;
     } finally {
       setIsCreating(false);

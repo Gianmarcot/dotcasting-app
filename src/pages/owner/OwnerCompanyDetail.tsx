@@ -19,7 +19,7 @@ import {
 import { CompanyFormDialog } from "@/components/companies/CompanyFormDialog";
 import { CastingFormDialog } from "@/components/castings/CastingFormDialog";
 import { useCreateCasting } from "@/hooks/useCastings";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 
@@ -91,8 +91,8 @@ export const OwnerCompanyDetail = () => {
     createNote.mutate(
       { company_id: companyId, body: noteText.trim() },
       {
-        onSuccess: () => { setNoteText(""); toast({ title: "Nota salvata" }); },
-        onError: () => toast({ title: "Errore nel salvataggio", variant: "destructive" }),
+        onSuccess: () => { setNoteText(""); toast.success(); },
+        onError: () => toast.success(),
       },
     );
   };
@@ -101,8 +101,8 @@ export const OwnerCompanyDetail = () => {
     updateCompany.mutate(
       { id: company.id, ...data },
       {
-        onSuccess: () => { setEditOpen(false); toast({ title: "Azienda aggiornata" }); },
-        onError: () => toast({ title: "Errore nell'aggiornamento", variant: "destructive" }),
+        onSuccess: () => { setEditOpen(false); toast.success(); },
+        onError: () => toast.success(),
       },
     );
   };
@@ -123,10 +123,10 @@ export const OwnerCompanyDetail = () => {
     createCasting.mutate(castingData, {
       onSuccess: (created) => {
         setCastingFormOpen(false);
-        toast({ title: "Casting creato con successo" });
+        toast.success();
         navigate(`/owner/castings/${created.id}`);
       },
-      onError: () => toast({ title: "Errore nella creazione", variant: "destructive" }),
+      onError: () => toast.success(),
     });
   };
 
@@ -139,7 +139,7 @@ export const OwnerCompanyDetail = () => {
         onSuccess: () => {
           setAddContactOpen(false);
           setNewContact({ name: "", role: "", email: "", phone: "" });
-          toast({ title: "Referente aggiunto" });
+          toast.success();
         },
       },
     );

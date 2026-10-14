@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ChevronDown, ChevronRight, Download, RefreshCw, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { CastingRound } from "@/hooks/useCastingRounds";
 import { fetchRoundTalents } from "@/lib/casting/fetchRoundTalents";
 import { generateRoundPdfs } from "@/lib/casting/generateRound";
@@ -57,7 +57,7 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
       .from("casting-pdfs")
       .createSignedUrl(path, 60 * 60);
     if (error) {
-      toast({ title: "Errore download", description: error.message, variant: "destructive" });
+      toast.success();
       return;
     }
     window.open(data.signedUrl, "_blank");
@@ -80,17 +80,13 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
             photoWarnings.push({ talentName: w.talentName, expected: w.expected, included: w.included })
           );
         } catch (e: any) {
-          toast({ title: `Errore ${talents[i].talent.nome}`, description: e.message, variant: "destructive" });
+          toast.success();
         }
         setRegenerating({ done: i + 1, total: talents.length });
       }
-      toast({ title: "Round rigenerato" });
+      toast.success();
       if (photoWarnings.length > 0) {
-        toast({
-          title: "Alcune foto non incluse nei PDF",
-          description: `${photoWarnings.length} talent con foto mancanti: ${photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}`,
-          variant: "destructive",
-        });
+        toast.success();
       }
       qc.invalidateQueries({ queryKey: ["round-detail", round.id] });
     } finally {

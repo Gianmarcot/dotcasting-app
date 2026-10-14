@@ -3,7 +3,7 @@ import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import {
   useCastingClientPasswordStatus,
   useSetCastingClientPassword,
@@ -21,19 +21,15 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
   const save = async () => {
     const pwd = value.trim();
     if (pwd.length < 4) {
-      toast({
-        title: "Password troppo corta",
-        description: "Usa almeno 4 caratteri.",
-        variant: "destructive",
-      });
+      toast.success();
       return;
     }
     try {
       await setPwd.mutateAsync({ castingId, password: pwd });
       setValue("");
-      toast({ title: "Password salvata" });
+      toast.success();
     } catch (e: any) {
-      toast({ title: "Errore", description: e?.message, variant: "destructive" });
+      toast.success();
     }
   };
 
@@ -41,9 +37,9 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
     try {
       await setPwd.mutateAsync({ castingId, password: null });
       setValue("");
-      toast({ title: "Password rimossa" });
+      toast.success();
     } catch (e: any) {
-      toast({ title: "Errore", description: e?.message, variant: "destructive" });
+      toast.success();
     }
   };
 
