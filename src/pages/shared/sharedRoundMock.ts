@@ -58,7 +58,6 @@ const makeTalent = (
     phone_number: "333 1234567",
     contact_email: `${first.toLowerCase()}@example.com`,
     driving_licenses: ["B"],
-    travel_availability: { continents: ["Europa"] },
   },
   attributes: {
     height,

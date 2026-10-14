@@ -56,7 +56,6 @@ const FILTER_LABELS: Record<string, string> = {
   skillSearch: "Competenza",
   language: "Lingua",
   hasVat: "P.IVA",
-  travelAvailability: "Viaggi",
   fiscalStatus: "Codice fiscale",
   category: "Categoria",
 };

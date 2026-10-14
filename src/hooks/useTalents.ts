@@ -35,7 +35,6 @@ export interface TalentFilters {
   skillSearch?: string;
   language?: string;
   hasVat?: boolean;
-  travelAvailability?: string;
   fiscalStatus?: FiscalStatus;
   onlyValidCf?: boolean;
 }

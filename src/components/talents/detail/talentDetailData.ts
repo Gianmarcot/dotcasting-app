@@ -102,7 +102,6 @@ const MARKS: { key: string; label: string }[] = [
   { key: "has_albinism", label: "Albinismo" },
   { key: "has_dwarfism", label: "Nanismo" },
   { key: "has_tattoos", label: "Tatuaggi" },
-  { key: "has_piercings", label: "Piercing" },
 ];
 
 const ABILITIES: { key: string; label: string; detail?: string }[] = [
