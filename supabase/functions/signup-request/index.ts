@@ -111,8 +111,8 @@ Deno.serve(async (req) => {
           await sendTemplateEmail('account-exists', email, {
             templateData: {
               siteName: 'dotCasting',
-              loginUrl: `${appBase}/auth`,
-              resetUrl: `${appBase}/auth`,
+              loginUrl: `${appBase}/auth?accesso=login&email=${encodeURIComponent(email)}`,
+              resetUrl: `${appBase}/auth?accesso=reset&email=${encodeURIComponent(email)}`,
             },
             idempotencyKey: `account-exists-${email}-${nowIso.slice(0, 13)}`,
           })

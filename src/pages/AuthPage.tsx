@@ -10,7 +10,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 import { AuthShell, TERMS_URL } from "@/components/auth/AuthShell";
-import { getPendingSignupEmail, setPendingSignupEmail } from "@/lib/pendingSignup";
+import { clearPendingSignupEmail, getPendingSignupEmail, setPendingSignupEmail } from "@/lib/pendingSignup";
 
 import { it } from "@/lib/i18n";
 import { getAuthRedirectBase } from "@/lib/appUrl";
@@ -20,9 +20,22 @@ import { ParentChildIcon } from "@/components/icons/ParentChildIcon";
 
 export const AuthPage = () => {
   const location = useLocation();
-  const prefillEmail = ((location.state ?? {}) as { email?: string }).email ?? "";
-  const [isLogin, setIsLogin] = useState(!prefillEmail);
+  // Link dall'email "Hai già un account": ?accesso=login|reset&email=...
+  const initialParams = new URLSearchParams(location.search);
+  const accessAction = initialParams.get("accesso");
+  const fromAccountExists = accessAction === "login" || accessAction === "reset";
+  if (fromAccountExists) clearPendingSignupEmail();
+  const prefillEmail =
+    ((location.state ?? {}) as { email?: string }).email ??
+    (fromAccountExists ? initialParams.get("email") ?? "" : "");
+  const [isLogin, setIsLogin] = useState(fromAccountExists || !prefillEmail);
   const [email, setEmail] = useState(prefillEmail);
+  useEffect(() => {
+    if (accessAction === "reset") {
+      toast.info("Premi «Password dimenticata» per ricevere il link e reimpostare la password.");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
