@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
@@ -356,23 +356,13 @@ const EngagementDetailsDialog = ({
   const [address, setAddress] = useState("");
   const [instructions, setInstructions] = useState("");
 
-  const handleOpen = (o: boolean) => {
-    if (o) {
-      setDt(toLocalInput(casting.call_datetime));
-      setVenue(casting.venue_name ?? "");
-      setAddress(casting.venue_address ?? "");
-      setInstructions(casting.talent_instructions ?? "");
-    }
-    onOpenChange(o);
-  };
-
-  // sincronizza i valori quando si apre dall'esterno
-  if (open && dt === "" && venue === "" && address === "" && instructions === "" && (casting.call_datetime || casting.venue_name || casting.venue_address || casting.talent_instructions)) {
+  useEffect(() => {
+    if (!open) return;
     setDt(toLocalInput(casting.call_datetime));
     setVenue(casting.venue_name ?? "");
     setAddress(casting.venue_address ?? "");
     setInstructions(casting.talent_instructions ?? "");
-  }
+  }, [open, casting]);
 
   const save = async () => {
     try {
@@ -392,7 +382,7 @@ const EngagementDetailsDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Dettagli ingaggio</DialogTitle>
