@@ -39,7 +39,7 @@ import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleCard, type RoleCounts } from "@/components/castings/rounds/RoleCard";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 import { CastingDetailsPanel } from "@/components/castings/CastingDetailsPanel";
-import { CastingSidePanel } from "@/components/castings/CastingSidePanel";
+import { CastingSidePanel, useCastingDetailsPanel } from "@/components/castings/CastingSidePanel";
 
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
@@ -55,6 +55,7 @@ export const OwnerCastingDetail = () => {
   const [editingRole, setEditingRole] = useState<Tables<"casting_roles"> | null>(null);
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const panel = useCastingDetailsPanel();
 
 
   const { data: casting, isLoading: castingLoading } = useQuery({
@@ -192,10 +193,15 @@ export const OwnerCastingDetail = () => {
         <div className="min-w-0 flex-1 space-y-8 md:pt-16">
           {/* Intestazione */}
           <div className="space-y-6">
-            <button type="button" onClick={() => navigate("/owner/castings")} className="dc-link-action">
-              <ArrowLeft className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/owner/castings")}
+              className="-ml-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
               Tutti i casting
-            </button>
+            </Button>
             <div className="flex items-center gap-3">
               <FavoriteCastingStar
                 castingId={casting.id}
@@ -203,6 +209,16 @@ export const OwnerCastingDetail = () => {
                 size={16}
               />
               <h1 className="font-display text-[21px] uppercase text-foreground">{casting.title}</h1>
+              {!panel.open && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="ml-auto hidden md:inline-flex"
+                >
+                  Modifica
+                </Button>
+              )}
             </div>
           </div>
 
@@ -240,7 +256,7 @@ export const OwnerCastingDetail = () => {
           </div>
         </div>
 
-        <CastingSidePanel>
+        <CastingSidePanel open={panel.open} wide={panel.wide} onToggle={panel.toggle}>
           <CastingDetailsPanel {...panelProps} className="h-full" />
         </CastingSidePanel>
       </div>
