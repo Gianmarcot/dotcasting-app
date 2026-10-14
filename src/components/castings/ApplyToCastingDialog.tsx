@@ -50,13 +50,15 @@ export const ApplyToCastingDialog = ({ open, onOpenChange, casting }: ApplyToCas
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["explore-castings"] });
       queryClient.invalidateQueries({ queryKey: ["talent-applications"] });
-      toast.success();
+      toast.success("Candidatura inviata!", { description: "La tua candidatura è stata inviata con successo." });
       setCoverNote("");
       onOpenChange(false);
     },
     onError: (error: any) => {
       console.error("Error applying:", error);
-      toast.success();
+      toast.error("Errore", { description: error.message?.includes("duplicate") 
+          ? "Ti sei già candidato a questo casting."
+          : "Impossibile inviare la candidatura. Riprova." });
     },
   });
 

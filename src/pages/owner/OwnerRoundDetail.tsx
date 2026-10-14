@@ -105,14 +105,14 @@ export const OwnerRoundDetail = () => {
 
   const openPdf = async (pdfPath: string | null) => {
     if (!pdfPath) {
-      toast.success();
+      toast.error("PDF non disponibile");
       return;
     }
     const { data: signed, error } = await supabase.storage
       .from("casting-pdfs")
       .createSignedUrl(pdfPath, 60 * 60);
     if (error) {
-      toast.success();
+      toast.error("Errore", { description: error.message });
       return;
     }
     window.open(signed.signedUrl, "_blank");
@@ -124,13 +124,13 @@ export const OwnerRoundDetail = () => {
     if (!round?.share_token) return;
     const url = buildShareUrl(round.share_token);
     await navigator.clipboard.writeText(url).catch(() => {});
-    toast.success();
+    toast.success("Link copiato", { description: url });
   };
 
   const copyShareUrl = async () => {
     if (!shareUrl) return;
     await navigator.clipboard.writeText(shareUrl).catch(() => {});
-    toast.success();
+    toast.success("Link copiato");
   };
 
   const doShare = async () => {
@@ -141,7 +141,7 @@ export const OwnerRoundDetail = () => {
       setShareUrl(url);
       setShareDialogOpen(true);
     } catch (e: any) {
-      toast.success();
+      toast.error("Errore", { description: e.message });
     }
   };
 
@@ -159,12 +159,12 @@ export const OwnerRoundDetail = () => {
         onProgress: (done, total) => setRegenProgress({ done, total }),
       });
       if (res.errors.length === 0) {
-        toast.success();
+        toast.success("PDF rigenerati", { description: `${res.count} comp card aggiornate` });
       } else {
-        toast.success();
+        toast.error("Rigenerato con errori", { description: `${res.errors.length} su ${res.count} falliti` });
       }
     } catch (e: any) {
-      toast.success();
+      toast.error("Errore", { description: e?.message });
     } finally {
       setRegenProgress(null);
     }

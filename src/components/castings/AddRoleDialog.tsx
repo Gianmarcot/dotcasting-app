@@ -59,7 +59,7 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      toast.success();
+      toast.error("Il nome del ruolo è obbligatorio");
       return;
     }
 
@@ -79,14 +79,14 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
     try {
       if (editRole) {
         await updateMutation.mutateAsync({ id: editRole.id, ...data });
-        toast.success();
+        toast.success("Ruolo aggiornato");
       } else {
         await createMutation.mutateAsync({ ...data, casting_id: castingId });
-        toast.success();
+        toast.success("Ruolo creato");
       }
       onOpenChange(false);
     } catch {
-      toast.success();
+      toast.error("Errore");
     }
   };
 

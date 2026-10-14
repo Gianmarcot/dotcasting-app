@@ -89,9 +89,9 @@ export const OwnerCastingRoleDetail = () => {
       for (const rt of toRemove) {
         await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
       }
-      toast.success();
+      toast.success("Shortlist aggiornata");
     } catch (e) {
-      toast.success();
+      toast.error("Errore durante il salvataggio");
       throw e;
     } finally {
       queryClient.invalidateQueries({ queryKey: ["role-talents", roleId] });
@@ -101,24 +101,24 @@ export const OwnerCastingRoleDetail = () => {
   const handleTalentStatusChange = async (rt: RoleTalentWithProfile, newStatus: TalentStatus) => {
     try {
       await updateTalentStatus.mutateAsync({ id: rt.id, talentStatus: newStatus, roleId: roleId! });
-      toast.success();
+      toast.success("Stato aggiornato");
     } catch {
-      toast.success();
+      toast.error("Errore");
     }
   };
 
   const handleCompanyStatusChange = async (rt: RoleTalentWithProfile, newStatus: CompanyStatus) => {
     try {
       await updateCompanyStatus.mutateAsync({ id: rt.id, companyStatus: newStatus, roleId: roleId! });
-      toast.success();
+      toast.success("Stato aggiornato");
     } catch {
-      toast.success();
+      toast.error("Errore");
     }
   };
 
   const handleSendInvite = async (rt: RoleTalentWithProfile) => {
     await handleTalentStatusChange(rt, "invited");
-    toast.success();
+    toast.success("Invito inviato");
   };
 
   const handleMessage = () => {
@@ -128,9 +128,9 @@ export const OwnerCastingRoleDetail = () => {
   const handleRemove = async (rt: RoleTalentWithProfile) => {
     try {
       await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
-      toast.success();
+      toast.success("Talent rimosso");
     } catch {
-      toast.success();
+      toast.error("Errore");
     }
   };
 

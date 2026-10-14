@@ -144,10 +144,10 @@ export const useUploadMediaByProfileId = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-media", variables.profileId] });
-      toast.success();
+      toast.success("Media caricato", { description: "Il file è stato caricato con successo." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };
@@ -176,10 +176,10 @@ export const useDeleteMediaByProfileId = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-media", variables.profileId] });
-      toast.success();
+      toast.success("Media eliminato", { description: "Il file è stato eliminato con successo." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };

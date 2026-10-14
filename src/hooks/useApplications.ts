@@ -127,10 +127,10 @@ export const useUpdateApplicationStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-applications"] });
-      toast.success();
+      toast.success("Stato aggiornato", { description: "Lo stato della candidatura è stato aggiornato con successo." });
     },
     onError: (error) => {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile aggiornare lo stato della candidatura." });
       console.error("Error updating application status:", error);
     },
   });

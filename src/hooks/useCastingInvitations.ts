@@ -128,10 +128,10 @@ export const useCreateInvitation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["check-invitation", variables.castingId, variables.talentUserId] });
-      toast.success();
+      toast.success("Invito inviato", { description: "Il talent è stato invitato a candidarsi per il casting." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message || "Impossibile inviare l'invito." });
     },
   });
 };
@@ -191,10 +191,12 @@ export const useRespondToInvitation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["owner-applications"] });
-      toast.success();
+      toast.success(variables.status === "accepted" ? "Invito accettato" : "Invito rifiutato", { description: variables.status === "accepted"
+            ? "La tua candidatura è stata inviata automaticamente."
+            : "Hai rifiutato l'invito." });
     },
     onError: () => {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile rispondere all'invito." });
     },
   });
 };

@@ -51,7 +51,7 @@ export const CreateTargetDialog = ({
 
   const handleNextStep = () => {
     if (!name.trim()) {
-      toast.success();
+      toast.error("Errore", { description: "Il nome del target è obbligatorio" });
       return;
     }
     setStep("criteria");
@@ -66,7 +66,7 @@ export const CreateTargetDialog = ({
           description: description.trim() || undefined,
           criteria_json: criteria,
         });
-        toast.success();
+        toast.success("Target aggiornato", { description: "Il target è stato modificato con successo" });
       } else {
         await createTarget.mutateAsync({
           casting_id: castingId,
@@ -74,11 +74,11 @@ export const CreateTargetDialog = ({
           description: description.trim() || undefined,
           criteria_json: criteria,
         });
-        toast.success();
+        toast.success("Target creato", { description: "Il nuovo target è stato creato con successo" });
       }
       handleClose();
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Si è verificato un errore durante il salvataggio" });
     }
   };
 

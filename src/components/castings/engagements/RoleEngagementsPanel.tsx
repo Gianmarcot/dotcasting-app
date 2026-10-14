@@ -116,9 +116,11 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
     setBusyId(rt.id);
     try {
       await togglePublished.mutateAsync({ id: rt.id, published, roleId });
-      toast.success();
+      toast.success(published ? "Ingaggio pubblicato al talent" : "Ingaggio nascosto al talent", { description: published
+          ? "Ora compare in \"I miei casting\" del talent con data, luogo e istruzioni."
+          : "Non è più visibile in \"I miei casting\" del talent." });
     } catch {
-      toast.success();
+      toast.error("Errore");
     } finally {
       setBusyId(null);
     }
@@ -141,9 +143,9 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
         casting,
         template,
       });
-      toast.success();
+      toast.success("Sollecito inviato", { description: "La comunicazione è di nuovo in cima, da leggere." });
     } catch (e: any) {
-      toast.success();
+      toast.error("Errore", { description: e?.message });
     } finally {
       setBusyId(null);
     }
@@ -369,10 +371,10 @@ const EngagementDetailsDialog = ({
         talent_instructions: instructions.trim() || null,
       });
       onSaved();
-      toast.success();
+      toast.success("Dettagli ingaggio aggiornati");
       onOpenChange(false);
     } catch {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile salvare" });
     }
   };
 

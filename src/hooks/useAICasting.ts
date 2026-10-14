@@ -48,7 +48,7 @@ export const useAICasting = () => {
 
       return data.casting as AICastingResult;
     } catch (err: any) {
-      toast.success();
+      toast.error("Errore generazione AI", { description: err.message || "Impossibile generare il casting" });
       return null;
     } finally {
       setIsGenerating(false);
@@ -119,11 +119,11 @@ export const useAICasting = () => {
 
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
 
-      toast.success();
+      toast.success("Casting creato con AI", { description: `"${result.title}" con ${createdRoles?.length || 0} ruoli` });
 
       return casting;
     } catch (err: any) {
-      toast.success();
+      toast.error("Errore creazione", { description: err.message || "Impossibile creare il casting" });
       return null;
     } finally {
       setIsCreating(false);

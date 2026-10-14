@@ -47,9 +47,9 @@ export const TargetCard = ({
   const handleDelete = async () => {
     try {
       await deleteTarget.mutateAsync(target.id);
-      toast.success();
+      toast.success("Target eliminato", { description: "Il target è stato eliminato con successo" });
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Si è verificato un errore durante l'eliminazione" });
     }
     setDeleteDialogOpen(false);
   };

@@ -141,10 +141,10 @@ export const useUploadMedia = (externalProfileId?: string | null, externalUserId
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast.success();
+      toast.success("Media caricato", { description: "Il file è stato caricato con successo." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };
@@ -200,10 +200,10 @@ export const useReplaceMediaFile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast.success();
+      toast.success("Foto aggiornata", { description: "Il ritaglio è stato salvato." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };
@@ -296,10 +296,10 @@ export const useSaveMediaCrops = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast.success();
+      toast.success("Foto aggiornata", { description: "Il ritaglio è stato salvato." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };
@@ -327,10 +327,10 @@ export const useDeleteMedia = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["talent-media"] });
-      toast.success();
+      toast.success("Media eliminato", { description: "Il file è stato eliminato con successo." });
     },
     onError: (error: Error) => {
-      toast.success();
+      toast.error("Errore", { description: error.message });
     },
   });
 };

@@ -59,12 +59,12 @@ export const NewThreadDialog = ({
         }
       }
 
-      toast.success();
+      toast.success("Conversazione creata", { description: "Puoi ora iniziare a messaggiare" });
       
       onThreadCreated(threadId);
       handleReset();
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile creare la conversazione" });
     } finally {
       setIsCreating(false);
     }

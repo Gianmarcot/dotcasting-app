@@ -69,12 +69,12 @@ export const TargetMatchResults = ({
         targetId: target.id,
         profileId,
       });
-      toast.success();
+      toast.success("Aggiunto alla shortlist", { description: "Il talent è stato aggiunto alla shortlist" });
     } catch (error: any) {
       if (error?.code === "23505") {
-        toast.success();
+        toast.success("Già presente", { description: "Questo talent è già nella shortlist" });
       } else {
-        toast.success();
+        toast.error("Errore", { description: "Si è verificato un errore" });
       }
     } finally {
       setAddingIds(prev => {

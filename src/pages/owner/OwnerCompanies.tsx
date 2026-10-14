@@ -57,9 +57,9 @@ export const OwnerCompanies = () => {
     createCompany.mutate(data, {
       onSuccess: () => {
         setFormOpen(false);
-        toast.success();
+        toast.success("Azienda creata con successo");
       },
-      onError: () => toast.success(),
+      onError: () => toast.error("Errore nella creazione"),
     });
   };
 

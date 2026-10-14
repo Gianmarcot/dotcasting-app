@@ -91,8 +91,8 @@ export const OwnerCompanyDetail = () => {
     createNote.mutate(
       { company_id: companyId, body: noteText.trim() },
       {
-        onSuccess: () => { setNoteText(""); toast.success(); },
-        onError: () => toast.success(),
+        onSuccess: () => { setNoteText(""); toast.success("Nota salvata"); },
+        onError: () => toast.error("Errore nel salvataggio"),
       },
     );
   };
@@ -101,8 +101,8 @@ export const OwnerCompanyDetail = () => {
     updateCompany.mutate(
       { id: company.id, ...data },
       {
-        onSuccess: () => { setEditOpen(false); toast.success(); },
-        onError: () => toast.success(),
+        onSuccess: () => { setEditOpen(false); toast.success("Azienda aggiornata"); },
+        onError: () => toast.error("Errore nell'aggiornamento"),
       },
     );
   };
@@ -123,10 +123,10 @@ export const OwnerCompanyDetail = () => {
     createCasting.mutate(castingData, {
       onSuccess: (created) => {
         setCastingFormOpen(false);
-        toast.success();
+        toast.success("Casting creato con successo");
         navigate(`/owner/castings/${created.id}`);
       },
-      onError: () => toast.success(),
+      onError: () => toast.error("Errore nella creazione"),
     });
   };
 
@@ -139,7 +139,7 @@ export const OwnerCompanyDetail = () => {
         onSuccess: () => {
           setAddContactOpen(false);
           setNewContact({ name: "", role: "", email: "", phone: "" });
-          toast.success();
+          toast.success("Referente aggiunto");
         },
       },
     );

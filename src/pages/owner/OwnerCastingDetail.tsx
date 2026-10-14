@@ -83,9 +83,9 @@ export const OwnerCastingDetail = () => {
     setStatusPopoverOpen(false);
     try {
       await updateStatus.mutateAsync({ id: castingId, status });
-      toast.success();
+      toast.success("Stato aggiornato");
     } catch {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile aggiornare lo stato" });
     }
   };
 
@@ -153,10 +153,10 @@ export const OwnerCastingDetail = () => {
         talent_instructions: (data.talent_instructions as string) || null,
         show_client_to_talent: !!data.show_client_to_talent,
       });
-      toast.success();
+      toast.success("Casting aggiornato");
       setEditDialogOpen(false);
     } catch {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile aggiornare il casting" });
     }
   };
 
@@ -282,10 +282,10 @@ export const OwnerCastingDetail = () => {
                 if (!castingId) return;
                 try {
                   await deleteCasting.mutateAsync(castingId);
-                  toast.success();
+                  toast.success("Casting eliminato");
                   navigate("/owner/castings");
                 } catch (err: any) {
-                  toast.success();
+                  toast.error("Errore", { description: err?.message });
                 }
               }}
             >

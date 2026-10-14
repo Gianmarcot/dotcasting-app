@@ -87,14 +87,14 @@ export const OwnerCastings = () => {
 
       if (selectedCasting) {
         await updateMutation.mutateAsync({ id: selectedCasting.id, ...castingData });
-        toast.success();
+        toast.success("Casting aggiornato", { description: "Le modifiche sono state salvate" });
       } else {
         await createMutation.mutateAsync({ ...castingData, status: "draft" });
-        toast.success();
+        toast.success("Casting creato", { description: "Il nuovo casting è stato salvato come bozza" });
       }
       setFormOpen(false);
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile salvare il casting" });
     }
   };
 
@@ -102,10 +102,10 @@ export const OwnerCastings = () => {
     if (!selectedCasting) return;
     try {
       await deleteMutation.mutateAsync(selectedCasting.id);
-      toast.success();
+      toast.success("Casting eliminato", { description: "Il casting è stato eliminato con successo" });
       setDeleteOpen(false);
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile eliminare il casting" });
     }
   };
 

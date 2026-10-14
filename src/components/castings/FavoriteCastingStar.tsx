@@ -25,9 +25,9 @@ export const FavoriteCastingStar = ({
     e.preventDefault();
     try {
       await toggle.mutateAsync({ id: castingId, is_favorite: !isFavorite });
-      toast.success();
+      toast.success(!isFavorite ? "Aggiunto ai preferiti" : "Rimosso dai preferiti");
     } catch {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile aggiornare i preferiti" });
     }
   };
 

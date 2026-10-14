@@ -67,9 +67,9 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
     const url = `${window.location.origin}/round/${round.share_token}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success();
+      toast.success("Link copiato", { description: url });
     } catch {
-      toast.success();
+      toast.error("Impossibile copiare");
     }
   };
 
@@ -79,9 +79,9 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
       const res = await share.mutateAsync(round.id);
       const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
-      toast.success();
+      toast.success("Invio condiviso", { description: url });
     } catch (err: any) {
-      toast.success();
+      toast.error("Errore", { description: err.message });
     }
   };
 
@@ -240,10 +240,10 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
                     castingId,
                     castingRoleId: round.casting_role_id,
                   });
-                  toast.success();
+                  toast.success("Invio eliminato");
                   setConfirmDelete(false);
                 } catch (err: any) {
-                  toast.success();
+                  toast.error("Errore", { description: err?.message });
                 }
               }}
             >

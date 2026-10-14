@@ -73,7 +73,7 @@ export const TalentPdfWizard = ({
         const vids = t?.videos ?? [];
         setVideos(vids.length === 1 ? [vids[0].url] : []);
       })
-      .catch(() => toast.success())
+      .catch(() => toast.error("Impossibile caricare i dati del talent"))
       .finally(() => setLoading(false));
   }, [open, profileId]);
 
@@ -147,7 +147,7 @@ export const TalentPdfWizard = ({
         .map((r) => r.dataUrl)
         .filter((u): u is string => !!u);
       if (ordered.length < selectedUrls.length) {
-        toast.success();
+        toast.success("Alcune foto non sono state incluse", { description: "Il PDF è stato generato con le foto disponibili." });
       }
       const videoLinks = talentVideos
         .filter((v) => videos.includes(v.url))
@@ -173,7 +173,7 @@ export const TalentPdfWizard = ({
       URL.revokeObjectURL(url);
       onOpenChange(false);
     } catch (e) {
-      toast.success();
+      toast.error("Generazione PDF non riuscita");
     } finally {
       setGenerating(false);
     }

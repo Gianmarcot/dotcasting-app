@@ -21,15 +21,15 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
   const save = async () => {
     const pwd = value.trim();
     if (pwd.length < 4) {
-      toast.success();
+      toast.error("Password troppo corta", { description: "Usa almeno 4 caratteri." });
       return;
     }
     try {
       await setPwd.mutateAsync({ castingId, password: pwd });
       setValue("");
-      toast.success();
+      toast.success("Password salvata");
     } catch (e: any) {
-      toast.success();
+      toast.error("Errore", { description: e?.message });
     }
   };
 
@@ -37,9 +37,9 @@ export const ClientPasswordCard = ({ castingId }: Props) => {
     try {
       await setPwd.mutateAsync({ castingId, password: null });
       setValue("");
-      toast.success();
+      toast.success("Password rimossa");
     } catch (e: any) {
-      toast.success();
+      toast.error("Errore", { description: e?.message });
     }
   };
 

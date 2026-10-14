@@ -245,14 +245,14 @@ export const RoundWizardDialog = (props: Props) => {
         qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
         qc.invalidateQueries({ queryKey: ["rounds-by-role", castingId] });
         if (localErrors.length === 0) {
-          toast.success();
+          toast.success("Invio creato", { description: `${items.length} comp card generate` });
           if (localPhotoWarnings.length > 0) {
-            toast.success();
+            toast.error("Alcune foto non incluse nei PDF", { description: `${localPhotoWarnings.length} talent con foto mancanti: ${localPhotoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}` });
           }
           onOpenChange(false);
           navigate(`/owner/castings/${castingId}/rounds/${round.id}`);
         } else {
-          toast.success();
+          toast.error("Creato con errori", { description: `${localErrors.length} talent falliti su ${items.length}` });
         }
       } else {
         const e = props as EditProps;
@@ -275,17 +275,17 @@ export const RoundWizardDialog = (props: Props) => {
         });
         setErrors(res.errors);
         if (res.errors.length === 0) {
-          toast.success();
+          toast.success("Invio aggiornato", { description: `${res.added} aggiunti · ${res.removed} rimossi` });
           if (res.photoWarnings.length > 0) {
-            toast.success();
+            toast.error("Alcune foto non incluse nei PDF", { description: `${res.photoWarnings.length} talent con foto mancanti: ${res.photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}` });
           }
           onOpenChange(false);
         } else {
-          toast.success();
+          toast.error("Aggiornato con errori", { description: `${res.errors.length} PDF falliti` });
         }
       }
     } catch (err: any) {
-      toast.success();
+      toast.error("Errore", { description: err?.message ?? "Operazione fallita" });
     } finally {
       setIsBusy(false);
     }

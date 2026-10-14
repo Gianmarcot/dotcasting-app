@@ -57,7 +57,7 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
       .from("casting-pdfs")
       .createSignedUrl(path, 60 * 60);
     if (error) {
-      toast.success();
+      toast.error("Errore download", { description: error.message });
       return;
     }
     window.open(data.signedUrl, "_blank");
@@ -80,13 +80,13 @@ export const RoundHistoryItem = ({ round, castingId }: Props) => {
             photoWarnings.push({ talentName: w.talentName, expected: w.expected, included: w.included })
           );
         } catch (e: any) {
-          toast.success();
+          toast.error(`Errore ${talents[i].talent.nome}`, { description: e.message });
         }
         setRegenerating({ done: i + 1, total: talents.length });
       }
-      toast.success();
+      toast.success("Round rigenerato");
       if (photoWarnings.length > 0) {
-        toast.success();
+        toast.error("Alcune foto non incluse nei PDF", { description: `${photoWarnings.length} talent con foto mancanti: ${photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}` });
       }
       qc.invalidateQueries({ queryKey: ["round-detail", round.id] });
     } finally {

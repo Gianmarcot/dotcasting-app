@@ -52,9 +52,9 @@ export const TargetShortlist = ({
     if (!target) return;
     try {
       await removeFromShortlist.mutateAsync({ shortlistId, targetId: target.id });
-      toast.success();
+      toast.success("Rimosso dalla shortlist", { description: "Il talent è stato rimosso" });
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Si è verificato un errore" });
     }
   };
 
@@ -62,9 +62,9 @@ export const TargetShortlist = ({
     if (!target) return;
     try {
       await updateStatus.mutateAsync({ shortlistId, status, targetId: target.id });
-      toast.success();
+      toast.success("Stato aggiornato", { description: `Stato cambiato in "${SHORTLIST_STATUSES.find(s => s.value === status)?.label}"` });
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Si è verificato un errore" });
     }
   };
 
@@ -81,9 +81,9 @@ export const TargetShortlist = ({
         notes: notesValue,
         targetId: target.id,
       });
-      toast.success();
+      toast.success("Note salvate", { description: "Le note sono state aggiornate" });
     } catch (error) {
-      toast.success();
+      toast.error("Errore", { description: "Si è verificato un errore" });
     }
     setEditingNotesId(null);
     setNotesValue("");

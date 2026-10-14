@@ -97,10 +97,12 @@ export const useWithdrawApplication = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-applications"] });
-      toast.success();
+      toast.success(variables.withdraw ? "Candidatura ritirata" : "Candidatura riattivata", { description: variables.withdraw 
+          ? "Puoi riattivare la candidatura in qualsiasi momento."
+          : "La tua candidatura è stata riattivata con successo." });
     },
     onError: (error) => {
-      toast.success();
+      toast.error("Errore", { description: "Impossibile aggiornare la candidatura." });
       console.error("Error updating application:", error);
     },
   });
