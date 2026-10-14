@@ -36,7 +36,7 @@ import {
 
 import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
-import { RoleRoundsCompartment } from "@/components/castings/rounds/RoleRoundsCompartment";
+import { RoleCard, type RoleCounts } from "@/components/castings/rounds/RoleCard";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 
 const statusLabels: Record<string, string> = {
@@ -105,11 +105,12 @@ export const OwnerCastingDetail = () => {
     },
   });
 
-  const confirmedByRole: Record<string, number> = {};
+  const countsByRole: Record<string, RoleCounts> = {};
   for (const rt of allRoleTalents) {
-    if ((rt as any).company_status === "confirmed") {
-      confirmedByRole[rt.casting_role_id] = (confirmedByRole[rt.casting_role_id] || 0) + 1;
-    }
+    const c = (countsByRole[rt.casting_role_id] ??= { total: 0, confirmed: 0, published: 0 });
+    c.total += 1;
+    if ((rt as any).company_status === "confirmed") c.confirmed += 1;
+    if ((rt as any).published_to_talent === true) c.published += 1;
   }
 
   const handleEditRole = (role: Tables<"casting_roles">) => {
@@ -287,7 +288,7 @@ export const OwnerCastingDetail = () => {
           <RoundsByRoleBlock
             castingId={castingId!}
             roles={roles}
-            confirmedByRole={confirmedByRole}
+            countsByRole={countsByRole}
             onEditRole={handleEditRole}
           />
         )}
@@ -362,22 +363,22 @@ export const OwnerCastingDetail = () => {
 interface RoundsByRoleBlockProps {
   castingId: string;
   roles: Tables<"casting_roles">[];
-  confirmedByRole: Record<string, number>;
+  countsByRole: Record<string, RoleCounts>;
   onEditRole: (role: Tables<"casting_roles">) => void;
 }
 
-const RoundsByRoleBlock = ({ castingId, roles, confirmedByRole, onEditRole }: RoundsByRoleBlockProps) => {
+const RoundsByRoleBlock = ({ castingId, roles, countsByRole, onEditRole }: RoundsByRoleBlockProps) => {
   const { data: roundsMap } = useRoundsByRole(castingId);
   if (roles.length === 0) return null;
   return (
     <div className="space-y-4">
       {roles.map((role) => (
-        <RoleRoundsCompartment
+        <RoleCard
           key={role.id}
-          role={role as any}
+          role={role}
           castingId={castingId}
-          rounds={roundsMap?.get(role.id) ?? []}
-          confirmedCount={confirmedByRole[role.id] || 0}
+          counts={countsByRole[role.id] ?? { total: 0, confirmed: 0, published: 0 }}
+          roundsCount={roundsMap?.get(role.id)?.length ?? 0}
           onEditRole={onEditRole}
         />
       ))}

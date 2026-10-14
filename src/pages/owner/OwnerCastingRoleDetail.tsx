@@ -20,6 +20,7 @@ import { TalentPicker } from "@/components/talents/TalentPicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
+import { RoleRoundsPanel } from "@/components/castings/rounds/RoleRoundsPanel";
 import { toast } from "@/hooks/use-toast";
 
 const PHASES = ["shortlist", "invii", "ingaggi"] as const;
@@ -286,12 +287,12 @@ export const OwnerCastingRoleDetail = () => {
       )}
 
       {phase === "invii" && (
-        <div className="dc-card p-10 text-center text-muted-foreground">
-          <p>Nessun invio</p>
-          <p className="mt-2 text-sm">
-            Qui troverai le selezioni di talent inviate all'azienda per questo ruolo.
-          </p>
-        </div>
+        <RoleRoundsPanel
+          castingId={castingId!}
+          roleId={roleId!}
+          roleName={role.name}
+          rounds={roundsByRole?.get(roleId ?? "") ?? []}
+        />
       )}
 
       {phase === "ingaggi" && (
