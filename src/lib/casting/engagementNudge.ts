@@ -7,6 +7,8 @@ export interface NudgeCasting {
   start_date: string | null;
   call_datetime: string | null;
   venue_name: string | null;
+  venue_address: string | null;
+  talent_instructions: string | null;
 }
 
 /** Stessa chiave di deduplica usata da useCommunicationSync. */
@@ -68,7 +70,8 @@ export const nudgeEngagement = async ({
       : "da definire",
     location: casting.venue_name || casting.locations?.[0] || roleLocation || "da definire",
   };
-  // Nessuna firma: il sync la scriverà alla prima esecuzione senza generare "ingaggio modificato".
+  // Stessa firma del sync, così le modifiche successive vengono rilevate come "ingaggio modificato".
+  const signature = [dateISO, casting.venue_name, casting.venue_address, casting.talent_instructions].join("|");
   const { error } = await supabase.from("communications").insert({
     talent_user_id: profile.user_id,
     type: "engagement_new",
@@ -76,7 +79,7 @@ export const nudgeEngagement = async ({
     body: renderTemplate(template.body, vars),
     severity: "info",
     action_type: "link",
-    action_payload: { label: template.action_label, href: `/talent/applications/${roleTalentId}`, weight: 1 },
+    action_payload: { label: template.action_label, href: `/talent/applications/${roleTalentId}`, signature, weight: 1 },
     dedupe_key: key,
   });
   if (error) throw error;
