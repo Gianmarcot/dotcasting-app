@@ -24,7 +24,7 @@ interface DbAttrs {
   underwear_sizes: { bra?: string | null; cup?: string | null } | string | null;
   chest: number | null; waist: number | null; hips: number | null;
   shoulder_width: number | null; neck_size: number | null; shoe_size: number | null;
-  has_tattoos: boolean | null; has_piercings: boolean | null;
+  has_tattoos: boolean | null;
   has_freckles: boolean | null; has_diastema: boolean | null;
   has_vitiligo: boolean | null; has_albinism: boolean | null; has_dwarfism: boolean | null;
   ability_dance: boolean | null; ability_sing: boolean | null;
@@ -46,7 +46,6 @@ interface DbProfile {
   guardian_user_id: string | null;
   talent_categories: string[] | null;
   driving_licenses: string[] | null;
-  travel_availability: unknown; // jsonb in DB
   // PostgREST può restituire la riga singola come array o come oggetto
   attributes: DbAttrs[] | DbAttrs | null;
   media: DbMedia[] | null;
@@ -81,30 +80,6 @@ const GENDER_LABELS: Record<string, string> = {
   male: "Uomo", female: "Donna", M: "Uomo", F: "Donna",
 };
 
-const travelToText = (v: unknown): string | null => {
-  if (!v) return null;
-  if (typeof v === "string") return v;
-  if (typeof v === "object") {
-    const o = v as Record<string, unknown>;
-    const parts: string[] = [];
-    // Forma legacy: flag booleani
-    if (o.italy) parts.push("Italia");
-    if (o.europe) parts.push("Europa");
-    if (o.world) parts.push("Mondo");
-    // Forma corrente: liste continents + countries
-    if (Array.isArray(o.continents)) {
-      for (const c of o.continents) if (typeof c === "string" && c.trim()) parts.push(c);
-    }
-    if (Array.isArray(o.countries)) {
-      for (const c of o.countries) if (typeof c === "string" && c.trim()) parts.push(c);
-    }
-    const unique = Array.from(new Set(parts));
-    if (unique.length) return `Disponibile: ${unique.join(", ")}`;
-    if (typeof o.notes === "string" && o.notes.trim()) return o.notes;
-  }
-  return null;
-};
-
 /**
  * Reroute a Supabase Storage URL through the image transformation endpoint,
  * capping the longest side at ~1500px. Falls back to the original URL when
@@ -129,7 +104,6 @@ export function mapToTalent(p: DbProfile): Talent {
   // segni particolari: composito dai boolean
   const segni: string[] = [];
   if (a.has_tattoos) segni.push("Tatuaggi");
-  if (a.has_piercings) segni.push("Piercing");
   if (a.has_freckles) segni.push("Lentiggini");
   if (a.has_diastema) segni.push("Diastema");
   if (a.has_vitiligo) segni.push("Vitiligine");
@@ -180,7 +154,6 @@ export function mapToTalent(p: DbProfile): Talent {
     lingue: a.languages?.length ? a.languages : null,
     abilita: abilita.length ? abilita : null,
     patenti: p.driving_licenses?.length ? p.driving_licenses : null,
-    disponibilita_viaggio: travelToText(p.travel_availability),
     // Profilo tutelato: i contatti si risolvono al tutore. I renderer (PDF e
     // card web) restano puri e non sanno nulla della tutela.
     // Su un profilo tutelato l'account è del tutore: profiles.contact_email
@@ -267,12 +240,12 @@ export async function fetchRoundTalents(roleTalentIds: string[]): Promise<
         city, country, nationality, work_cities,
         phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
         website_url, contact_email, guardian_user_id, talent_categories,
-        driving_licenses, travel_availability,
+        driving_licenses,
         attributes:talent_attributes (
           height, weight, hair_color, eye_color, hair_length, hair_type,
           languages, abilities, shirt_size, pants_size, jacket_size,
           underwear_sizes, chest, waist, hips, shoulder_width, neck_size,
-          shoe_size, has_tattoos, has_piercings, has_freckles, has_diastema,
+          shoe_size, has_tattoos, has_freckles, has_diastema,
           has_vitiligo, has_albinism, has_dwarfism,
           ability_dance, ability_sing,
           ability_instruments, ability_instruments_detail,
@@ -308,12 +281,12 @@ export async function fetchTalentByProfileId(profileId: string): Promise<Talent 
       city, country, nationality, work_cities,
       phone_prefix, phone_number, whatsapp_prefix, whatsapp_number,
       website_url, contact_email, guardian_user_id, talent_categories,
-      driving_licenses, travel_availability,
+      driving_licenses,
       attributes:talent_attributes (
         height, weight, hair_color, eye_color, hair_length, hair_type,
         languages, abilities, shirt_size, pants_size, jacket_size,
         underwear_sizes, chest, waist, hips, shoulder_width, neck_size,
-        shoe_size, has_tattoos, has_piercings, has_freckles, has_diastema,
+        shoe_size, has_tattoos, has_freckles, has_diastema,
         has_vitiligo, has_albinism, has_dwarfism,
         ability_dance, ability_sing,
         ability_instruments, ability_instruments_detail,

@@ -446,7 +446,6 @@ function TalentDetailSheet({
                     <DetailRow label="Lingue" value={talent.lingue?.join(", ") ?? null} />
                     <DetailRow label="Abilità" value={talent.abilita?.join(", ") ?? null} />
                     <DetailRow label="Patenti" value={talent.patenti?.join(", ") ?? null} />
-                    <DetailRow label="Viaggi" value={talent.disponibilita_viaggio} />
                   </DetailSection>
                 </div>
               </div>

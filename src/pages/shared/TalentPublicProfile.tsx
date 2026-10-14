@@ -85,8 +85,6 @@ const TalentPublicProfile = () => {
   const residenceAddress = profile.residence_address as Record<string, string> | null;
   const domicileAddress = profile.domicile_address as Record<string, string> | null;
   const socialLinks = profile.social_links as Record<string, string> | null;
-  const travelAvailability = profile.travel_availability as Record<string, unknown> | null;
-  const visas = profile.visas as Array<Record<string, string>> | null;
 
   const photoMedia = media?.filter(m => m.media_type === "image") || [];
   const videoMedia = media?.filter(m => m.media_type === "video") || [];
@@ -213,7 +211,7 @@ const TalentPublicProfile = () => {
           )}
 
           {/* Physical Appearance */}
-          {attributes && (attributes.hair_color || attributes.eye_color || attributes.hair_length || attributes.hair_type || attributes.has_freckles || attributes.has_tattoos || attributes.has_piercings || attributes.has_diastema) && (
+          {attributes && (attributes.hair_color || attributes.eye_color || attributes.hair_length || attributes.hair_type || attributes.has_freckles || attributes.has_tattoos || attributes.has_diastema) && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -226,11 +224,10 @@ const TalentPublicProfile = () => {
                 <InfoRow label="Tipo capelli" value={attributes.hair_type} />
                 <InfoRow label="Lunghezza capelli" value={attributes.hair_length} />
                 <InfoRow label="Colore occhi" value={attributes.eye_color} />
-                {(attributes.has_freckles || attributes.has_tattoos || attributes.has_piercings || attributes.has_diastema) && (
+                {(attributes.has_freckles || attributes.has_tattoos || attributes.has_diastema) && (
                   <div className="flex flex-wrap gap-2 pt-3">
                     {attributes.has_freckles && <Badge variant="outline">Lentiggini</Badge>}
                     {attributes.has_tattoos && <Badge variant="outline">Tatuaggi</Badge>}
-                    {attributes.has_piercings && <Badge variant="outline">Piercing</Badge>}
                     {attributes.has_diastema && <Badge variant="outline">Diastema</Badge>}
                   </div>
                 )}
@@ -409,13 +406,13 @@ const TalentPublicProfile = () => {
             </Card>
           )}
 
-          {/* Travel */}
-          {(travelAvailability || visas?.length || profile.has_passport) && (
+          {/* Passaporto */}
+          {profile.has_passport && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Plane className="h-5 w-5" />
-                  Disponibilità Viaggi
+                  Passaporto
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-0">

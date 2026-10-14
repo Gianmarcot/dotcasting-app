@@ -16,7 +16,6 @@ export interface TargetCriteria {
   skills?: string[];
   languages?: string[];
   has_tattoos?: boolean;
-  has_piercings?: boolean;
 }
 
 export interface CastingTarget {

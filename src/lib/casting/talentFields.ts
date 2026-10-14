@@ -23,7 +23,7 @@ export interface Talent {
   capelli?: string | null;       // colore
   capelli_lunghezza?: string | null;
   capelli_tipo?: string | null;
-  segni_particolari?: string[] | null; // composito: tatuaggi, piercing, lentiggini, diastema…
+  segni_particolari?: string[] | null; // composito: tatuaggi, lentiggini, diastema…
   // --- misure e taglie
   taglia_maglia?: string | null;
   taglia_pantaloni?: string | null;
@@ -39,7 +39,6 @@ export interface Talent {
   lingue?: string[] | null;
   abilita?: string[] | null;     // composito: abilities + ability_* con dettagli
   patenti?: string[] | null;
-  disponibilita_viaggio?: string | null;
   // --- contatti
   email?: string | null;         // profiles.contact_email
   telefono?: string | null;
@@ -100,7 +99,6 @@ export const FIELD_REGISTRY: FieldDef[] = [
   { key: "lingue",            label: "Lingue",            group: "competenze", accessor: t => list(t.lingue) },
   { key: "abilita",           label: "Abilità",           group: "competenze", accessor: t => list(t.abilita) },
   { key: "patenti",           label: "Patenti",           group: "competenze", accessor: t => list(t.patenti) },
-  { key: "disponibilita_viaggio", label: "Disponibilità viaggio", group: "competenze", accessor: t => t.disponibilita_viaggio },
   // --- contatti --------------------------------------------------------
   { key: "email",             label: "Email",             group: "contatti", accessor: t => t.email },
   { key: "telefono",          label: "Telefono",          group: "contatti", accessor: t => t.telefono },

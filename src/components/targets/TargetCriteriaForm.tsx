@@ -238,18 +238,6 @@ export const TargetCriteriaForm = ({ criteria, onChange }: TargetCriteriaFormPro
               Senza tatuaggi
             </label>
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="no-piercings"
-              checked={criteria.has_piercings === false}
-              onCheckedChange={(checked) => 
-                updateCriteria("has_piercings", checked ? false : undefined)
-              }
-            />
-            <label htmlFor="no-piercings" className="text-sm cursor-pointer">
-              Senza piercing
-            </label>
-          </div>
         </div>
       </div>
     </div>

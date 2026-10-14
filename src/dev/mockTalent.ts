@@ -33,7 +33,6 @@ export const MOCK_TALENT: Talent = {
   lingue: ["Italiano (madrelingua)", "Inglese (C1)", "Francese (B2)", "Spagnolo (A2)"],
   abilita: ["Equitazione", "Yoga", "Nuoto", "Sci", "Recitazione"],
   patenti: ["B", "A2"],
-  disponibilita_viaggio: "Sì, anche all'estero",
   // contatti
   email: "giulia.ameglio@example.it",
   telefono: "+39 333 1234567",
