@@ -160,7 +160,7 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
     <div className="space-y-6">
       {/* Dettagli condivisi */}
       <div className="space-y-2">
-        <div className="flex flex-col gap-4 rounded-3xl bg-muted p-5 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-4 rounded-3xl bg-cream-dark p-5 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
             <span className="inline-flex items-center gap-2">
               <CalendarClock className="h-4 w-4" />
