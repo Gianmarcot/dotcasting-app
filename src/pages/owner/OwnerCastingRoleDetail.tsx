@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { PillTabs } from "@/components/ui/pill-tabs";
+import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus, Users, MapPin, Wallet } from "lucide-react";
@@ -17,10 +19,24 @@ import { AddTalentToRoleDialog } from "@/components/castings/AddTalentToRoleDial
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
 import { toast } from "@/hooks/use-toast";
 
+const PHASES = ["shortlist", "invii", "ingaggi"] as const;
+type Phase = (typeof PHASES)[number];
+const parsePhase = (v: string | null): Phase =>
+  (PHASES as readonly string[]).includes(v ?? "") ? (v as Phase) : "shortlist";
+
 export const OwnerCastingRoleDetail = () => {
   const { castingId, roleId } = useParams<{ castingId: string; roleId: string }>();
   const navigate = useNavigate();
   const [addTalentOpen, setAddTalentOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const phase = parsePhase(searchParams.get("fase"));
+  const setPhase = (next: Phase) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("fase", next);
+    setSearchParams(params, { replace: true });
+  };
+  const { data: roundsByRole } = useRoundsByRole(castingId);
+  const submissionsCount = roundsByRole?.get(roleId ?? "")?.length ?? 0;
 
   const { data: role, isLoading: roleLoading } = useCastingRole(roleId);
   const { data: talents = [], isLoading: talentsLoading } = useRoleTalents(roleId);
@@ -147,16 +163,36 @@ export const OwnerCastingRoleDetail = () => {
           </div>
         </div>
 
-        <div className="flex gap-2 shrink-0">
-          <Button size="lg" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
-            <Plus />
-            Aggiungi talent
-          </Button>
-        </div>
+      </div>
+
+      <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <PillTabs
+          ariaLabel="Fase del ruolo"
+          className="w-max"
+          value={phase}
+          onChange={setPhase}
+          options={[
+            { value: "shortlist", label: "Shortlist", count: talents.length },
+            { value: "invii", label: "Invii", count: submissionsCount },
+            {
+              value: "ingaggi",
+              label: "Ingaggi",
+              count: talents.filter((t) => t.published_to_talent).length,
+            },
+          ]}
+        />
       </div>
 
       <div className="border-t border-border" />
 
+      {phase === "shortlist" && (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <Button size="lg" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
+              <Plus />
+              Aggiungi talent
+            </Button>
+          </div>
       {/* Talent list */}
       {talentsLoading ? (
         <Skeleton className="h-48 w-full" />
@@ -192,6 +228,26 @@ export const OwnerCastingRoleDetail = () => {
               onRemove={handleRemove}
             />
           ))}
+        </div>
+      )}
+        </div>
+      )}
+
+      {phase === "invii" && (
+        <div className="dc-card p-10 text-center text-muted-foreground">
+          <p>Nessun invio</p>
+          <p className="mt-2 text-sm">
+            Qui troverai le selezioni di talent inviate all'azienda per questo ruolo.
+          </p>
+        </div>
+      )}
+
+      {phase === "ingaggi" && (
+        <div className="dc-card p-10 text-center text-muted-foreground">
+          <p>Nessun ingaggio</p>
+          <p className="mt-2 text-sm">
+            Qui troverai i talent confermati e pubblicati come ingaggio per questo ruolo.
+          </p>
         </div>
       )}
 
