@@ -256,7 +256,7 @@ export const OwnerCastingDetail = () => {
           </div>
         </div>
 
-        <CastingSidePanel>
+        <CastingSidePanel open={panel.open} wide={panel.wide} onToggle={panel.toggle}>
           <CastingDetailsPanel {...panelProps} className="h-full" />
         </CastingSidePanel>
       </div>
