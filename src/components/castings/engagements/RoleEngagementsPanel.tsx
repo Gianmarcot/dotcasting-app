@@ -35,7 +35,7 @@ import { useToggleEngagementPublished } from "@/hooks/useTalentEngagements";
 import { useCommunicationTemplates } from "@/hooks/useCommunicationTemplates";
 import type { RoleTalentWithProfile } from "@/hooks/useRoleTalents";
 import { nudgeEngagement } from "@/lib/casting/engagementNudge";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -116,14 +116,11 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
     setBusyId(rt.id);
     try {
       await togglePublished.mutateAsync({ id: rt.id, published, roleId });
-      toast({
-        title: published ? "Ingaggio pubblicato al talent" : "Ingaggio nascosto al talent",
-        description: published
+      toast.success(published ? "Ingaggio pubblicato al talent" : "Ingaggio nascosto al talent", { description: published
           ? "Ora compare in \"I miei casting\" del talent con data, luogo e istruzioni."
-          : "Non è più visibile in \"I miei casting\" del talent.",
-      });
+          : "Non è più visibile in \"I miei casting\" del talent." });
     } catch {
-      toast({ title: "Errore", variant: "destructive" });
+      toast.error("Errore");
     } finally {
       setBusyId(null);
     }
@@ -146,9 +143,9 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
         casting,
         template,
       });
-      toast({ title: "Sollecito inviato", description: "La comunicazione è di nuovo in cima, da leggere." });
+      toast.success("Sollecito inviato", { description: "La comunicazione è di nuovo in cima, da leggere." });
     } catch (e: any) {
-      toast({ title: "Errore", description: e?.message, variant: "destructive" });
+      toast.error("Errore", { description: e?.message });
     } finally {
       setBusyId(null);
     }
@@ -374,10 +371,10 @@ const EngagementDetailsDialog = ({
         talent_instructions: instructions.trim() || null,
       });
       onSaved();
-      toast({ title: "Dettagli ingaggio aggiornati" });
+      toast.success("Dettagli ingaggio aggiornati");
       onOpenChange(false);
     } catch {
-      toast({ title: "Errore", description: "Impossibile salvare", variant: "destructive" });
+      toast.error("Errore", { description: "Impossibile salvare" });
     }
   };
 

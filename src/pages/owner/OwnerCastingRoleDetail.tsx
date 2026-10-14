@@ -22,7 +22,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
 import { RoleEngagementsPanel, engagementRows } from "@/components/castings/engagements/RoleEngagementsPanel";
 import { RoleRoundsPanel } from "@/components/castings/rounds/RoleRoundsPanel";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const PHASES = ["shortlist", "invii", "ingaggi"] as const;
 type Phase = (typeof PHASES)[number];
@@ -89,9 +89,9 @@ export const OwnerCastingRoleDetail = () => {
       for (const rt of toRemove) {
         await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
       }
-      toast({ title: "Shortlist aggiornata" });
+      toast.success("Shortlist aggiornata");
     } catch (e) {
-      toast({ title: "Errore durante il salvataggio", variant: "destructive" });
+      toast.error("Errore durante il salvataggio");
       throw e;
     } finally {
       queryClient.invalidateQueries({ queryKey: ["role-talents", roleId] });
@@ -101,24 +101,24 @@ export const OwnerCastingRoleDetail = () => {
   const handleTalentStatusChange = async (rt: RoleTalentWithProfile, newStatus: TalentStatus) => {
     try {
       await updateTalentStatus.mutateAsync({ id: rt.id, talentStatus: newStatus, roleId: roleId! });
-      toast({ title: "Stato aggiornato" });
+      toast.success("Stato aggiornato");
     } catch {
-      toast({ title: "Errore", variant: "destructive" });
+      toast.error("Errore");
     }
   };
 
   const handleCompanyStatusChange = async (rt: RoleTalentWithProfile, newStatus: CompanyStatus) => {
     try {
       await updateCompanyStatus.mutateAsync({ id: rt.id, companyStatus: newStatus, roleId: roleId! });
-      toast({ title: "Stato aggiornato" });
+      toast.success("Stato aggiornato");
     } catch {
-      toast({ title: "Errore", variant: "destructive" });
+      toast.error("Errore");
     }
   };
 
   const handleSendInvite = async (rt: RoleTalentWithProfile) => {
     await handleTalentStatusChange(rt, "invited");
-    toast({ title: "Invito inviato" });
+    toast.success("Invito inviato");
   };
 
   const handleMessage = () => {
@@ -128,9 +128,9 @@ export const OwnerCastingRoleDetail = () => {
   const handleRemove = async (rt: RoleTalentWithProfile) => {
     try {
       await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
-      toast({ title: "Talent rimosso" });
+      toast.success("Talent rimosso");
     } catch {
-      toast({ title: "Errore", variant: "destructive" });
+      toast.error("Errore");
     }
   };
 

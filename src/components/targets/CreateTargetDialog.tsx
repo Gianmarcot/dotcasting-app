@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { FloatingInput, FloatingTextarea } from "@/components/ui/field";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useCreateTarget, useUpdateTarget, type TargetCriteria, type CastingTarget } from "@/hooks/useTargets";
 import { TargetCriteriaForm } from "./TargetCriteriaForm";
 
@@ -27,7 +27,6 @@ export const CreateTargetDialog = ({
   castingTitle,
   editTarget,
 }: CreateTargetDialogProps) => {
-  const { toast } = useToast();
   const createTarget = useCreateTarget();
   const updateTarget = useUpdateTarget();
   
@@ -52,11 +51,7 @@ export const CreateTargetDialog = ({
 
   const handleNextStep = () => {
     if (!name.trim()) {
-      toast({
-        title: "Errore",
-        description: "Il nome del target è obbligatorio",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Il nome del target è obbligatorio" });
       return;
     }
     setStep("criteria");
@@ -71,10 +66,7 @@ export const CreateTargetDialog = ({
           description: description.trim() || undefined,
           criteria_json: criteria,
         });
-        toast({
-          title: "Target aggiornato",
-          description: "Il target è stato modificato con successo",
-        });
+        toast.success("Target aggiornato", { description: "Il target è stato modificato con successo" });
       } else {
         await createTarget.mutateAsync({
           casting_id: castingId,
@@ -82,18 +74,11 @@ export const CreateTargetDialog = ({
           description: description.trim() || undefined,
           criteria_json: criteria,
         });
-        toast({
-          title: "Target creato",
-          description: "Il nuovo target è stato creato con successo",
-        });
+        toast.success("Target creato", { description: "Il nuovo target è stato creato con successo" });
       }
       handleClose();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Si è verificato un errore durante il salvataggio" });
     }
   };
 

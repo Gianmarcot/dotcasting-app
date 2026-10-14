@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useToggleCastingFavorite } from "@/hooks/useCastings";
 
@@ -25,15 +25,9 @@ export const FavoriteCastingStar = ({
     e.preventDefault();
     try {
       await toggle.mutateAsync({ id: castingId, is_favorite: !isFavorite });
-      toast({
-        title: !isFavorite ? "Aggiunto ai preferiti" : "Rimosso dai preferiti",
-      });
+      toast.success(!isFavorite ? "Aggiunto ai preferiti" : "Rimosso dai preferiti");
     } catch {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare i preferiti",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Impossibile aggiornare i preferiti" });
     }
   };
 

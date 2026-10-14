@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { UserPlus, Users, Search, Check } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { CastingTarget } from "@/hooks/useTargets";
 import { useTargetMatching, formatCriteriaSummary } from "@/hooks/useTargetMatching";
 import { useAddToShortlist } from "@/hooks/useShortlist";
@@ -30,7 +30,6 @@ export const TargetMatchResults = ({
   onOpenChange,
   target,
 }: TargetMatchResultsProps) => {
-  const { toast } = useToast();
   const [searchFilter, setSearchFilter] = useState("");
   const [addingIds, setAddingIds] = useState<Set<string>>(new Set());
   
@@ -70,22 +69,12 @@ export const TargetMatchResults = ({
         targetId: target.id,
         profileId,
       });
-      toast({
-        title: "Aggiunto alla shortlist",
-        description: "Il talent è stato aggiunto alla shortlist",
-      });
+      toast.success("Aggiunto alla shortlist", { description: "Il talent è stato aggiunto alla shortlist" });
     } catch (error: any) {
       if (error?.code === "23505") {
-        toast({
-          title: "Già presente",
-          description: "Questo talent è già nella shortlist",
-        });
+        toast.success("Già presente", { description: "Questo talent è già nella shortlist" });
       } else {
-        toast({
-          title: "Errore",
-          description: "Si è verificato un errore",
-          variant: "destructive",
-        });
+        toast.error("Errore", { description: "Si è verificato un errore" });
       }
     } finally {
       setAddingIds(prev => {

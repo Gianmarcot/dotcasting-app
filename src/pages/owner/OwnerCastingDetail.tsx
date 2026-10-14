@@ -34,7 +34,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleCard, type RoleCounts } from "@/components/castings/rounds/RoleCard";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
@@ -83,9 +83,9 @@ export const OwnerCastingDetail = () => {
     setStatusPopoverOpen(false);
     try {
       await updateStatus.mutateAsync({ id: castingId, status });
-      toast({ title: "Stato aggiornato" });
+      toast.success("Stato aggiornato");
     } catch {
-      toast({ title: "Errore", description: "Impossibile aggiornare lo stato", variant: "destructive" });
+      toast.error("Errore", { description: "Impossibile aggiornare lo stato" });
     }
   };
 
@@ -153,10 +153,10 @@ export const OwnerCastingDetail = () => {
         talent_instructions: (data.talent_instructions as string) || null,
         show_client_to_talent: !!data.show_client_to_talent,
       });
-      toast({ title: "Casting aggiornato" });
+      toast.success("Casting aggiornato");
       setEditDialogOpen(false);
     } catch {
-      toast({ title: "Errore", description: "Impossibile aggiornare il casting", variant: "destructive" });
+      toast.error("Errore", { description: "Impossibile aggiornare il casting" });
     }
   };
 
@@ -282,10 +282,10 @@ export const OwnerCastingDetail = () => {
                 if (!castingId) return;
                 try {
                   await deleteCasting.mutateAsync(castingId);
-                  toast({ title: "Casting eliminato" });
+                  toast.success("Casting eliminato");
                   navigate("/owner/castings");
                 } catch (err: any) {
-                  toast({ title: "Errore", description: err?.message, variant: "destructive" });
+                  toast.error("Errore", { description: err?.message });
                 }
               }}
             >

@@ -13,7 +13,7 @@ import { FloatingTextarea } from "@/components/ui/field";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTalents } from "@/hooks/useTalents";
 import { useFindOrCreateThread } from "@/hooks/useMessages";
 
@@ -28,7 +28,6 @@ export const NewThreadDialog = ({
   onOpenChange,
   onThreadCreated,
 }: NewThreadDialogProps) => {
-  const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -60,19 +59,12 @@ export const NewThreadDialog = ({
         }
       }
 
-      toast({
-        title: "Conversazione creata",
-        description: "Puoi ora iniziare a messaggiare",
-      });
+      toast.success("Conversazione creata", { description: "Puoi ora iniziare a messaggiare" });
       
       onThreadCreated(threadId);
       handleReset();
     } catch (error) {
-      toast({
-        title: "Errore",
-        description: "Impossibile creare la conversazione",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Impossibile creare la conversazione" });
     } finally {
       setIsCreating(false);
     }

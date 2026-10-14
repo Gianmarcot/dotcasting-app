@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export type ApplicationStatus = "submitted" | "shortlisted" | "hold" | "rejected" | "callback" | "booked";
 
@@ -127,17 +127,10 @@ export const useUpdateApplicationStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-applications"] });
-      toast({
-        title: "Stato aggiornato",
-        description: "Lo stato della candidatura è stato aggiornato con successo.",
-      });
+      toast.success("Stato aggiornato", { description: "Lo stato della candidatura è stato aggiornato con successo." });
     },
     onError: (error) => {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare lo stato della candidatura.",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Impossibile aggiornare lo stato della candidatura." });
       console.error("Error updating application status:", error);
     },
   });

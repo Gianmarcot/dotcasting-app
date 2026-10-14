@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type InvitationStatus = "pending" | "accepted" | "declined";
@@ -128,17 +128,10 @@ export const useCreateInvitation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["check-invitation", variables.castingId, variables.talentUserId] });
-      toast({
-        title: "Invito inviato",
-        description: "Il talent è stato invitato a candidarsi per il casting.",
-      });
+      toast.success("Invito inviato", { description: "Il talent è stato invitato a candidarsi per il casting." });
     },
     onError: (error: Error) => {
-      toast({
-        title: "Errore",
-        description: error.message || "Impossibile inviare l'invito.",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: error.message || "Impossibile inviare l'invito." });
     },
   });
 };
@@ -198,20 +191,12 @@ export const useRespondToInvitation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["casting-invitations"] });
       queryClient.invalidateQueries({ queryKey: ["owner-applications"] });
-      toast({
-        title: variables.status === "accepted" ? "Invito accettato" : "Invito rifiutato",
-        description:
-          variables.status === "accepted"
+      toast.success(variables.status === "accepted" ? "Invito accettato" : "Invito rifiutato", { description: variables.status === "accepted"
             ? "La tua candidatura è stata inviata automaticamente."
-            : "Hai rifiutato l'invito.",
-      });
+            : "Hai rifiutato l'invito." });
     },
     onError: () => {
-      toast({
-        title: "Errore",
-        description: "Impossibile rispondere all'invito.",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Impossibile rispondere all'invito." });
     },
   });
 };

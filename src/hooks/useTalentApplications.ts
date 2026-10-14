@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 export type TalentApplicationStatus = "submitted" | "shortlisted" | "hold" | "rejected" | "callback" | "booked" | "withdrawn";
 
@@ -97,19 +97,12 @@ export const useWithdrawApplication = () => {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["talent-applications"] });
-      toast({
-        title: variables.withdraw ? "Candidatura ritirata" : "Candidatura riattivata",
-        description: variables.withdraw 
+      toast.success(variables.withdraw ? "Candidatura ritirata" : "Candidatura riattivata", { description: variables.withdraw 
           ? "Puoi riattivare la candidatura in qualsiasi momento."
-          : "La tua candidatura è stata riattivata con successo.",
-      });
+          : "La tua candidatura è stata riattivata con successo." });
     },
     onError: (error) => {
-      toast({
-        title: "Errore",
-        description: "Impossibile aggiornare la candidatura.",
-        variant: "destructive",
-      });
+      toast.error("Errore", { description: "Impossibile aggiornare la candidatura." });
       console.error("Error updating application:", error);
     },
   });

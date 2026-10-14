@@ -22,7 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { CastingRound } from "@/hooks/useCastingRounds";
 import { useDeleteRound } from "@/hooks/useCastingRounds";
@@ -67,9 +67,9 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
     const url = `${window.location.origin}/round/${round.share_token}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast({ title: "Link copiato", description: url });
+      toast.success("Link copiato", { description: url });
     } catch {
-      toast({ title: "Impossibile copiare", variant: "destructive" });
+      toast.error("Impossibile copiare");
     }
   };
 
@@ -79,9 +79,9 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
       const res = await share.mutateAsync(round.id);
       const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
-      toast({ title: "Invio condiviso", description: url });
+      toast.success("Invio condiviso", { description: url });
     } catch (err: any) {
-      toast({ title: "Errore", description: err.message, variant: "destructive" });
+      toast.error("Errore", { description: err.message });
     }
   };
 
@@ -240,14 +240,10 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
                     castingId,
                     castingRoleId: round.casting_role_id,
                   });
-                  toast({ title: "Invio eliminato" });
+                  toast.success("Invio eliminato");
                   setConfirmDelete(false);
                 } catch (err: any) {
-                  toast({
-                    title: "Errore",
-                    description: err?.message,
-                    variant: "destructive",
-                  });
+                  toast.error("Errore", { description: err?.message });
                 }
               }}
             >
