@@ -39,7 +39,7 @@ import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleCard, type RoleCounts } from "@/components/castings/rounds/RoleCard";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
 import { CastingDetailsPanel } from "@/components/castings/CastingDetailsPanel";
-import { CastingSidePanel } from "@/components/castings/CastingSidePanel";
+import { CastingSidePanel, useCastingDetailsPanel } from "@/components/castings/CastingSidePanel";
 
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
