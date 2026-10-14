@@ -20,7 +20,7 @@ import { TalentPicker } from "@/components/talents/TalentPicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
-import { RoleEngagementsPanel } from "@/components/castings/engagements/RoleEngagementsPanel";
+import { RoleEngagementsPanel, engagementRows } from "@/components/castings/engagements/RoleEngagementsPanel";
 import { RoleRoundsPanel } from "@/components/castings/rounds/RoleRoundsPanel";
 import { toast } from "@/hooks/use-toast";
 
@@ -231,7 +231,7 @@ export const OwnerCastingRoleDetail = () => {
             {
               value: "ingaggi",
               label: "Ingaggi",
-              count: talents.filter((t) => t.published_to_talent).length,
+              count: engagementRows(talents).length,
             },
           ]}
         />
