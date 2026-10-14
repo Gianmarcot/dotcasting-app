@@ -102,18 +102,21 @@ export const OwnerCastingDetail = () => {
             id, first_name, last_name, profile_photo_url, birth_date, city, gender
           )
         `)
-        .in("casting_role_id", roleIds);
+        .in("casting_role_id", roleIds)
+        .order("created_at", { ascending: true });
       if (error) throw error;
       return data as RoleTalentWithProfile[];
     },
   });
 
   const countsByRole: Record<string, RoleCounts> = {};
+  const talentsByRole: Record<string, RoleTalentWithProfile[]> = {};
   for (const rt of allRoleTalents) {
     const c = (countsByRole[rt.casting_role_id] ??= { total: 0, confirmed: 0, published: 0 });
     c.total += 1;
     if ((rt as any).company_status === "confirmed") c.confirmed += 1;
     if ((rt as any).published_to_talent === true) c.published += 1;
+    (talentsByRole[rt.casting_role_id] ??= []).push(rt);
   }
 
   const handleEditRole = (role: Tables<"casting_roles">) => {
@@ -242,6 +245,7 @@ export const OwnerCastingDetail = () => {
                 castingId={castingId!}
                 roles={roles}
                 countsByRole={countsByRole}
+                talentsByRole={talentsByRole}
                 onEditRole={handleEditRole}
               />
             )}
@@ -318,10 +322,17 @@ interface RoundsByRoleBlockProps {
   castingId: string;
   roles: Tables<"casting_roles">[];
   countsByRole: Record<string, RoleCounts>;
+  talentsByRole: Record<string, RoleTalentWithProfile[]>;
   onEditRole: (role: Tables<"casting_roles">) => void;
 }
 
-const RoundsByRoleBlock = ({ castingId, roles, countsByRole, onEditRole }: RoundsByRoleBlockProps) => {
+const RoundsByRoleBlock = ({
+  castingId,
+  roles,
+  countsByRole,
+  talentsByRole,
+  onEditRole,
+}: RoundsByRoleBlockProps) => {
   const { data: roundsMap } = useRoundsByRole(castingId);
   if (roles.length === 0) return null;
   return (
@@ -332,6 +343,7 @@ const RoundsByRoleBlock = ({ castingId, roles, countsByRole, onEditRole }: Round
           role={role}
           castingId={castingId}
           counts={countsByRole[role.id] ?? { total: 0, confirmed: 0, published: 0 }}
+          talents={talentsByRole[role.id] ?? []}
           roundsCount={roundsMap?.get(role.id)?.length ?? 0}
           onEditRole={onEditRole}
         />
