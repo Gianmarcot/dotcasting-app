@@ -73,10 +73,12 @@ export const useCastingDetailsPanel = () => {
  * Nascosto su telefono, dove i dettagli stanno in pagina.
  */
 export const CastingSidePanel = ({
+  children,
   open,
   wide,
   onToggle,
 }: {
+  children: ReactNode;
   open: boolean;
   wide: boolean;
   onToggle: () => void;
