@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
-import { ArrowLeft, Plus, MapPin, Clock, Wallet, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -38,6 +38,8 @@ import { toast } from "@/hooks/use-toast";
 import { useRoundsByRole } from "@/hooks/useRoundsByRole";
 import { RoleCard, type RoleCounts } from "@/components/castings/rounds/RoleCard";
 import { FavoriteCastingStar } from "@/components/castings/FavoriteCastingStar";
+import { CastingDetailsPanel } from "@/components/castings/CastingDetailsPanel";
+import { CastingSidePanel } from "@/components/castings/CastingSidePanel";
 
 const statusLabels: Record<string, string> = {
   draft: "Bozza",
@@ -177,134 +179,70 @@ export const OwnerCastingDetail = () => {
     );
   }
 
-  const formatDates = () => {
-    if (!casting.start_date && !casting.end_date) return null;
-    const start = casting.start_date ? format(new Date(casting.start_date), "d MMM", { locale: itLocale }) : "";
-    const end = casting.end_date ? format(new Date(casting.end_date), "d MMM yyyy", { locale: itLocale }) : "";
-    if (start && end) return `${start} - ${end}`;
-    return start || end;
+  const panelProps = {
+    casting,
+    onStatusChange: handleStatusChange,
+    onEdit: () => setEditDialogOpen(true),
+    onDelete: () => setConfirmDeleteOpen(true),
   };
 
-  const currentStatus = casting.status || "draft";
-
   return (
-    <div className="space-y-8 animate-fade-up">
-      {/* Breadcrumb */}
-      <Button variant="ghost" size="sm" onClick={() => navigate("/owner/castings")} className="-ml-2">
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Tutti i casting
-      </Button>
-
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-        <div className="min-w-0 space-y-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <FavoriteCastingStar
-              castingId={casting.id}
-              isFavorite={Boolean((casting as any).is_favorite)}
-              size={22}
-            />
-            <h1 className="font-display uppercase text-3xl tracking-wide text-foreground">
-              {casting.title}
-            </h1>
+    <div className="animate-fade-up">
+      <div className="flex items-start">
+        <div className="min-w-0 flex-1 space-y-8">
+          {/* Intestazione */}
+          <div className="space-y-6">
+            <button type="button" onClick={() => navigate("/owner/castings")} className="dc-link-action">
+              <ArrowLeft className="h-5 w-5" />
+              Tutti i casting
+            </button>
+            <div className="flex items-center gap-3">
+              <FavoriteCastingStar
+                castingId={casting.id}
+                isFavorite={Boolean((casting as any).is_favorite)}
+                size={16}
+              />
+              <h1 className="font-display text-[21px] uppercase text-foreground">{casting.title}</h1>
+            </div>
           </div>
 
-          {casting.description && (
-            <p className="text-sm text-muted-foreground max-w-3xl whitespace-pre-wrap">
-              {casting.description}
-            </p>
-          )}
+          {/* Dettagli su telefono */}
+          <div className="rounded-3xl bg-cream-dark p-8 md:hidden">
+            <CastingDetailsPanel {...panelProps} />
+          </div>
 
-          {/* Metadata row */}
-          <Surface variant="raised" className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <Select value={currentStatus} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-40 rounded-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="draft">{statusLabels.draft}</SelectItem>
-                <SelectItem value="active">{statusLabels.active}</SelectItem>
-                <SelectItem value="closed">{statusLabels.closed}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {casting.company && <span>{casting.company.name}</span>}
-
-            {casting.compensation_amount && (
-              <span className="inline-flex items-center gap-1">
-                <Wallet className="h-4 w-4" />
-                {casting.compensation_amount} {casting.currency || "EUR"}
-              </span>
+          {/* RUOLI */}
+          <div className="flex flex-col gap-6 rounded-3xl bg-white p-8 shadow-sm">
+            <h2 className="font-display text-base uppercase text-foreground">Ruoli</h2>
+            {rolesLoading ? (
+              <div className="space-y-2">
+                <Skeleton className="h-11 w-full" />
+                <Skeleton className="h-11 w-full" />
+              </div>
+            ) : roles.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nessun ruolo definito</p>
+            ) : (
+              <RoundsByRoleBlock
+                castingId={castingId!}
+                roles={roles}
+                countsByRole={countsByRole}
+                onEditRole={handleEditRole}
+              />
             )}
-            {casting.locations && casting.locations.length > 0 && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                {casting.locations.join(", ")}
-              </span>
-            )}
-            {formatDates() && (
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                {formatDates()}
-              </span>
-            )}
-          </Surface>
+            <button
+              type="button"
+              onClick={() => setRoleDialogOpen(true)}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-transparent text-[15px] font-medium text-foreground"
+            >
+              <Plus className="h-5 w-5" />
+              {roles.length === 0 ? "Crea il primo ruolo" : "Aggiungi ruolo"}
+            </button>
+          </div>
         </div>
 
-        <div className="flex gap-2 shrink-0">
-          <Button variant="secondary" size="lg" iconPosition="left" onClick={() => setEditDialogOpen(true)}>
-            <Pencil />
-            Modifica
-          </Button>
-          <Button size="lg" iconPosition="left" onClick={() => setRoleDialogOpen(true)}>
-            <Plus />
-            Nuovo ruolo
-          </Button>
-        </div>
-      </div>
-
-      <div className="border-t border-border" />
-
-
-      {/* RUOLI */}
-      <div className="space-y-4">
-        <h2 className="text-base font-display uppercase tracking-wider text-foreground">
-          Ruoli
-        </h2>
-
-        {rolesLoading ? (
-          <div className="space-y-3">
-            <Skeleton className="h-40 w-full" />
-            <Skeleton className="h-40 w-full" />
-          </div>
-        ) : roles.length === 0 ? (
-          <div className="dc-card p-10 text-center text-muted-foreground">
-            <p>Nessun ruolo definito</p>
-            <Button variant="secondary" size="md" className="mt-4" onClick={() => setRoleDialogOpen(true)}>
-              Crea il primo ruolo
-            </Button>
-          </div>
-        ) : (
-          <RoundsByRoleBlock
-            castingId={castingId!}
-            roles={roles}
-            countsByRole={countsByRole}
-            onEditRole={handleEditRole}
-          />
-        )}
-      </div>
-
-      <div className="pt-4">
-        <Button
-          variant="ghost"
-          size="md"
-          iconPosition="left"
-          onClick={() => setConfirmDeleteOpen(true)}
-          className="text-[hsl(var(--destructive))] hover:text-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/10"
-        >
-          <Trash2 className="h-4 w-4" />
-          Elimina casting
-        </Button>
+        <CastingSidePanel>
+          <CastingDetailsPanel {...panelProps} className="h-full" />
+        </CastingSidePanel>
       </div>
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
@@ -371,7 +309,7 @@ const RoundsByRoleBlock = ({ castingId, roles, countsByRole, onEditRole }: Round
   const { data: roundsMap } = useRoundsByRole(castingId);
   if (roles.length === 0) return null;
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-2">
       {roles.map((role) => (
         <RoleCard
           key={role.id}
