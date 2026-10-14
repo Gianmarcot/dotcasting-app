@@ -10,7 +10,7 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import { parseSignupMode, type SignupMode } from "@/lib/signupMode";
 import { AuthShell, TERMS_URL } from "@/components/auth/AuthShell";
-import { getPendingSignupEmail, setPendingSignupEmail } from "@/lib/pendingSignup";
+import { clearPendingSignupEmail, getPendingSignupEmail, setPendingSignupEmail } from "@/lib/pendingSignup";
 
 import { it } from "@/lib/i18n";
 import { getAuthRedirectBase } from "@/lib/appUrl";
