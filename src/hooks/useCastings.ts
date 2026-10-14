@@ -146,6 +146,7 @@ export const useCreateCasting = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail"] });
     },
   });
 };
@@ -167,6 +168,7 @@ export const useUpdateCasting = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail"] });
     },
   });
 };
@@ -188,6 +190,7 @@ export const useUpdateCastingStatus = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail"] });
     },
   });
 };
@@ -206,6 +209,7 @@ export const useDeleteCasting = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail"] });
       queryClient.invalidateQueries({ queryKey: ["favorite-castings"] });
     },
   });
@@ -227,6 +231,7 @@ export const useToggleCastingFavorite = () => {
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["owner-castings"] });
+      queryClient.invalidateQueries({ queryKey: ["casting-detail"] });
       queryClient.invalidateQueries({ queryKey: ["favorite-castings"] });
       queryClient.invalidateQueries({ queryKey: ["casting-detail", variables.id] });
     },
