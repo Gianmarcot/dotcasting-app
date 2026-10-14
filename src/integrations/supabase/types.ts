@@ -330,20 +330,26 @@ export type Database = {
       }
       casting_round_talents: {
         Row: {
+          created_at: string
           generated_at: string | null
           pdf_path: string | null
+          position: number | null
           role_talent_id: string
           round_id: string
         }
         Insert: {
+          created_at?: string
           generated_at?: string | null
           pdf_path?: string | null
+          position?: number | null
           role_talent_id: string
           round_id: string
         }
         Update: {
+          created_at?: string
           generated_at?: string | null
           pdf_path?: string | null
+          position?: number | null
           role_talent_id?: string
           round_id?: string
         }
