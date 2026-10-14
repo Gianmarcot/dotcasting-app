@@ -20,6 +20,21 @@ export interface UpdateRoundInput {
   onProgress?: (done: number, total: number) => void;
 }
 
+/** Scrive la posizione dei talent nell'invio secondo l'ordine ricevuto. */
+export const writeRoundPositions = async (roundId: string, roleTalentIds: string[]) => {
+  const results = await Promise.all(
+    roleTalentIds.map((id, i) =>
+      supabase
+        .from("casting_round_talents")
+        .update({ position: i })
+        .eq("round_id", roundId)
+        .eq("role_talent_id", id)
+    )
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) throw failed.error;
+};
+
 export const useUpdateRound = () => {
   const qc = useQueryClient();
   return useMutation({
@@ -91,6 +106,9 @@ export const useUpdateRound = () => {
         }
         onProgress?.(i + 1, items.length);
       }
+
+      // 6. Posizioni secondo l'ordine scelto (anche se cambia solo l'ordine)
+      await writeRoundPositions(roundId, selectedRoleTalentIds);
 
       return { added: added.length, removed: removed.length, kept: kept.length, errors, photoWarnings };
     },

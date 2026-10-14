@@ -2,16 +2,18 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
+import { TalentSelectionPanel, type SelectionItem } from "@/components/talents/TalentSelectionPanel";
+import { useTalents, type TalentWithAttributes } from "@/hooks/useTalents";
+import { roleTalentStatusBadge } from "@/lib/casting/roleTalentStatus";
+import { writeRoundPositions } from "@/hooks/useUpdateRound";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -26,10 +28,8 @@ import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import { useCreateRound } from "@/hooks/useCastingRounds";
 import { useRoleTalentsForRound, RoleTalentRow } from "@/hooks/useRoleConfirmedTalents";
 import { useUpdateRound } from "@/hooks/useUpdateRound";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 
-type SelectionMode = "by_status" | "manual";
 type StatusFilterKey =
   | "company_confirmed"
   | "talent_confirmed"
@@ -52,22 +52,6 @@ const STATUS_FILTERS: {
   { key: "talent_invited", label: "Invitati", match: (r) => r.talentStatus === "invited" },
   { key: "company_pending", label: "In attesa azienda", match: (r) => r.companyStatus === "pending" },
 ];
-
-const statusBadge = (r: RoleTalentRow): { label: string; tone: string } | null => {
-  if (r.companyStatus === "confirmed" && r.talentStatus === "confirmed")
-    return { label: "Conf. entrambi", tone: "bg-[#729128]/15 text-[#729128]" };
-  if (r.companyStatus === "confirmed")
-    return { label: "Conf. azienda", tone: "bg-[#729128]/15 text-[#729128]" };
-  if (r.talentStatus === "confirmed")
-    return { label: "Conf. talent", tone: "bg-[#729128]/15 text-[#729128]" };
-  if (r.companyStatus === "pending")
-    return { label: "In attesa azienda", tone: "bg-[#C88500]/15 text-[#C88500]" };
-  if (r.talentStatus === "invited")
-    return { label: "Invitato", tone: "bg-[#C88500]/15 text-[#C88500]" };
-  if (r.talentStatus === "rejected")
-    return { label: "Rifiutato", tone: "bg-[#A30A2B]/15 text-[#A30A2B]" };
-  return null;
-};
 
 type WizardMode = "create" | "edit";
 
@@ -126,7 +110,7 @@ export const RoundWizardDialog = (props: Props) => {
   const [step, setStep] = useState(0);
   const [label, setLabel] = useState("");
   const [preset, setPreset] = useState<RoundPreset>(PRESET_ESSENZIALE);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [selected, setSelected] = useState<string[]>([]);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [errors, setErrors] = useState<string[]>([]);
   const [isBusy, setIsBusy] = useState(false);
@@ -143,61 +127,55 @@ export const RoundWizardDialog = (props: Props) => {
       const e = props as EditProps;
       setLabel(e.initialLabel);
       setPreset(e.initialPreset);
-      setSelected(new Set(e.initialRoleTalentIds));
+      setSelected([...e.initialRoleTalentIds]);
     } else {
       const c = props as CreateProps;
       const n = c.defaultRoundNumber ?? 1;
       setLabel(c.defaultLabel || `${n}° invio${roleName ? ` - ${roleName}` : ""}`);
       setPreset(PRESET_ESSENZIALE);
-      setSelected(new Set());
+      setSelected([]);
     }
+    setSearch("");
+    setStatusFilters(new Set());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const [selectionMode, setSelectionMode] = useState<SelectionMode>("by_status");
-  const [statusFilters, setStatusFilters] = useState<Set<StatusFilterKey>>(
-    new Set(["company_confirmed"]),
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    if (mode === "edit") {
-      setSelectionMode("manual");
-    } else {
-      setSelectionMode("by_status");
-      setStatusFilters(new Set(["company_confirmed"]));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  const [search, setSearch] = useState("");
+  const [statusFilters, setStatusFilters] = useState<Set<StatusFilterKey>>(new Set());
 
   const { data: roleTalents = [], isLoading: roleTalentsLoading } =
     useRoleTalentsForRound(roleId, open);
+  // Profili completi per le schede fotografiche, uniti alle righe della shortlist
+  const { data: allTalents = [], isLoading: talentsLoading } = useTalents({});
+  const profileById = useMemo(() => new Map(allTalents.map((t) => [t.id, t])), [allTalents]);
 
-  // Derive selection when filters change (by_status mode only)
-  useEffect(() => {
-    if (selectionMode !== "by_status") return;
-    const active = STATUS_FILTERS.filter((f) => statusFilters.has(f.key));
-    if (active.length === 0) {
-      setSelected(new Set());
-      return;
+  const rowById = useMemo(() => new Map(roleTalents.map((r) => [r.roleTalentId, r])), [roleTalents]);
+  const lookup = useMemo(() => {
+    const m = new Map<string, SelectionItem>();
+    for (const r of roleTalents) {
+      const talent =
+        profileById.get(r.profileId) ??
+        ({ id: r.profileId, stage_name: r.name, first_name: null, last_name: null, profile_photo_url: r.photoUrl, attributes: null } as unknown as TalentWithAttributes);
+      m.set(r.roleTalentId, { id: r.roleTalentId, talent });
     }
-    const next = new Set<string>();
-    roleTalents.forEach((r) => {
-      if (active.some((f) => f.match(r))) next.add(r.roleTalentId);
-    });
-    setSelected(next);
-  }, [selectionMode, statusFilters, roleTalents]);
+    return m;
+  }, [roleTalents, profileById]);
 
-  const allSelected = roleTalents.length > 0 && roleTalents.every((t) => selected.has(t.roleTalentId));
-  const toggleAll = () => {
-    if (allSelected) setSelected(new Set());
-    else setSelected(new Set(roleTalents.map((t) => t.roleTalentId)));
-  };
-  const toggle = (id: string) =>
+  const visibleItems = useMemo(() => {
+    const active = STATUS_FILTERS.filter((f) => statusFilters.has(f.key));
+    const q = search.trim().toLowerCase();
+    return roleTalents
+      .filter((r) => active.length === 0 || active.some((f) => f.match(r)))
+      .filter((r) => !q || r.name.toLowerCase().includes(q))
+      .map((r) => lookup.get(r.roleTalentId)!)
+      .filter(Boolean);
+  }, [roleTalents, statusFilters, search, lookup]);
+
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const selectAllVisible = () =>
     setSelected((prev) => {
-      const n = new Set(prev);
-      n.has(id) ? n.delete(id) : n.add(id);
-      return n;
+      const have = new Set(prev);
+      return [...prev, ...visibleItems.map((i) => i.id).filter((id) => !have.has(id))];
     });
   const toggleFilter = (key: StatusFilterKey) =>
     setStatusFilters((prev) => {
@@ -206,7 +184,7 @@ export const RoundWizardDialog = (props: Props) => {
       return n;
     });
 
-  const firstSelected = useMemo(() => Array.from(selected)[0], [selected]);
+  const firstSelected = selected[0];
   const { data: previewTalent } = useQuery({
     queryKey: ["round-preview", firstSelected],
     enabled: !!firstSelected && step >= 1,
@@ -232,7 +210,7 @@ export const RoundWizardDialog = (props: Props) => {
   }, []);
 
   const canNext =
-    (step === 0 && selected.size > 0) ||
+    (step === 0 && selected.length > 0) ||
     (step === 1 && label.trim().length > 0 && preset.fields.length > 0) ||
     step === 2;
 
@@ -244,7 +222,7 @@ export const RoundWizardDialog = (props: Props) => {
         const round = await createRound.mutateAsync({
           castingId, castingRoleId: roleId, label, preset,
         });
-        const items = await fetchRoundTalents(Array.from(selected));
+        const items = await fetchRoundTalents(selected);
         setProgress({ done: 0, total: items.length });
         const localErrors: string[] = [];
         const localPhotoWarnings: { talentName: string; expected: number; included: number }[] = [];
@@ -262,6 +240,7 @@ export const RoundWizardDialog = (props: Props) => {
           }
           setProgress({ done: i + 1, total: items.length });
         }
+        await writeRoundPositions(round.id, selected).catch(() => {});
         setErrors(localErrors);
         qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
         qc.invalidateQueries({ queryKey: ["rounds-by-role", castingId] });
@@ -286,7 +265,7 @@ export const RoundWizardDialog = (props: Props) => {
       } else {
         const e = props as EditProps;
         const presetChanged = !initialPreset || !presetEqual(initialPreset, preset);
-        const selectedIds = Array.from(selected);
+        const selectedIds = selected;
         const toRegen = presetChanged
           ? selectedIds.length
           : selectedIds.filter((id) => !initialRoleTalentIds!.includes(id)).length;
@@ -331,40 +310,23 @@ export const RoundWizardDialog = (props: Props) => {
     }
   };
 
-  const initials = (name: string) =>
-    name.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]?.toUpperCase()).join("");
 
   // ----- step content
   const Step1 = (
-    <div className="space-y-4">
-      {/* Mode switch */}
-      <div className="inline-flex rounded-full bg-muted p-1 text-sm">
-        <button
-          type="button"
-          onClick={() => setSelectionMode("by_status")}
-          className={`px-4 py-1.5 rounded-full transition-colors ${
-            selectionMode === "by_status" ? "bg-white shadow-sm" : "text-muted-foreground"
-          }`}
-        >
-          Per stato
-        </button>
-        <button
-          type="button"
-          onClick={() => setSelectionMode("manual")}
-          className={`px-4 py-1.5 rounded-full transition-colors ${
-            selectionMode === "manual" ? "bg-white shadow-sm" : "text-muted-foreground"
-          }`}
-        >
-          Manuale
-        </button>
-      </div>
-
-      {selectionMode === "by_status" && (
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Includi talent con
-          </p>
-          <div className="flex flex-wrap gap-2">
+    <TalentSelectionPanel
+      sourceLabel="Shortlist"
+      sourceTabLabel="Shortlist"
+      items={visibleItems}
+      lookup={lookup}
+      isLoading={roleTalentsLoading || talentsLoading}
+      emptyText={roleTalents.length === 0 ? "Nessun talent in questo ruolo." : "Nessun talent corrisponde ai filtri."}
+      toolbar={
+        <>
+          <div className="relative">
+            <FloatingInput label="Cerca per nome" value={search} onChange={setSearch} />
+            <Search className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             {STATUS_FILTERS.map((f) => {
               const active = statusFilters.has(f.key);
               const count = roleTalents.filter((r) => f.match(r)).length;
@@ -372,88 +334,45 @@ export const RoundWizardDialog = (props: Props) => {
                 <button
                   key={f.key}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => toggleFilter(f.key)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
-                    active
-                      ? "bg-foreground text-background border-foreground"
-                      : "bg-white text-foreground border-border hover:border-foreground/40"
-                  }`}
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-sm transition-colors",
+                    active ? "bg-ink text-white" : "bg-card text-foreground hover:bg-muted"
+                  )}
                 >
                   {f.label} <span className="opacity-60">· {count}</span>
                 </button>
               );
             })}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={selectAllVisible}
+              disabled={visibleItems.every((i) => selectedSet.has(i.id))}
+            >
+              Seleziona tutti i risultati
+            </Button>
           </div>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {selectionMode === "by_status"
-            ? "Talent inclusi automaticamente dai filtri"
-            : "Spunta i talent da includere"}
-        </p>
-        {selectionMode === "manual" && roleTalents.length > 0 && (
-          <Button type="button" variant="ghost" size="sm" onClick={toggleAll}>
-            {allSelected ? "Deseleziona tutti" : "Seleziona tutti"}
-          </Button>
-        )}
-      </div>
-
-      <div className="border rounded-lg max-h-[380px] overflow-y-auto divide-y">
-        {roleTalentsLoading && (
-          <div className="p-6 text-sm text-muted-foreground text-center">Caricamento…</div>
-        )}
-        {!roleTalentsLoading && roleTalents.length === 0 && (
-          <div className="p-8 text-sm text-muted-foreground text-center">
-            Nessun talent in questo ruolo.
-          </div>
-        )}
-        {(selectionMode === "by_status"
-          ? roleTalents.filter((r) => selected.has(r.roleTalentId))
-          : roleTalents
-        ).map((t) => {
-          const checked = selected.has(t.roleTalentId);
-          const badge = statusBadge(t);
-          const isManual = selectionMode === "manual";
-          const Row = (
-            <div className="flex items-center gap-3 px-3 py-2 w-full">
-              {isManual && (
-                <Checkbox checked={checked} onCheckedChange={() => toggle(t.roleTalentId)} />
-              )}
-              <Avatar className="h-10 w-10">
-                {t.photoUrl && <AvatarImage src={t.photoUrl} alt={t.name} />}
-                <AvatarFallback className="text-xs">{initials(t.name) || "?"}</AvatarFallback>
-              </Avatar>
-              <span className="text-sm flex-1 truncate">{t.name}</span>
-              {badge && (
-                <Badge
-                  variant="secondary"
-                  className={`text-[11px] font-normal pointer-events-none ${badge.tone}`}
-                >
-                  {badge.label}
-                </Badge>
-              )}
-            </div>
-          );
-          return isManual ? (
-            <label key={t.roleTalentId} className="flex cursor-pointer hover:bg-muted/40">
-              {Row}
-            </label>
-          ) : (
-            <div key={t.roleTalentId}>{Row}</div>
-          );
-        })}
-        {selectionMode === "by_status" && !roleTalentsLoading && selected.size === 0 && roleTalents.length > 0 && (
-          <div className="p-6 text-sm text-muted-foreground text-center">
-            Nessun talent corrisponde ai filtri selezionati.
-          </div>
-        )}
-      </div>
-      <p className="text-xs text-muted-foreground">{selected.size} talent selezionati</p>
-    </div>
+        </>
+      }
+      renderBadge={(item) => {
+        const r = rowById.get(item.id);
+        const badge = r ? roleTalentStatusBadge(r) : null;
+        return badge ? (
+          <span className={cn("inline-flex items-center rounded-full px-2 py-1 text-[12px] font-medium leading-[1.2] whitespace-nowrap", badge.tone)}>
+            {badge.label}
+          </span>
+        ) : null;
+      }}
+      selected={selected}
+      onSelectedChange={setSelected}
+      initialSelectedIds={initialRoleTalentIds ?? []}
+      selectionLabel="Invio"
+      reorderable
+    />
   );
-
 
   const FieldsPanel = (
     <div className="space-y-5">
@@ -555,20 +474,20 @@ export const RoundWizardDialog = (props: Props) => {
   const presetChanged = mode === "edit" && initialPreset ? !presetEqual(initialPreset, preset) : false;
   const addedCount =
     mode === "edit" && initialRoleTalentIds
-      ? Array.from(selected).filter((id) => !initialRoleTalentIds.includes(id)).length
-      : selected.size;
+      ? selected.filter((id) => !initialRoleTalentIds.includes(id)).length
+      : selected.length;
   const removedCount =
     mode === "edit" && initialRoleTalentIds
-      ? initialRoleTalentIds.filter((id) => !selected.has(id)).length
+      ? initialRoleTalentIds.filter((id) => !selectedSet.has(id)).length
       : 0;
-  const regenCount = mode === "edit" ? (presetChanged ? selected.size : addedCount) : selected.size;
+  const regenCount = mode === "edit" ? (presetChanged ? selected.length : addedCount) : selected.length;
 
   const Step3 = (
     <div className="space-y-4">
       <div className="rounded-lg border p-4 space-y-2 text-sm">
         <div className="flex justify-between"><span className="text-muted-foreground">Ruolo</span><span className="font-medium">{roleName ?? "—"}</span></div>
         <div className="flex justify-between"><span className="text-muted-foreground">Etichetta</span><span className="font-medium truncate ml-3">{label || "—"}</span></div>
-        <div className="flex justify-between"><span className="text-muted-foreground">Talent inclusi</span><span className="font-medium">{selected.size}</span></div>
+        <div className="flex justify-between"><span className="text-muted-foreground">Talent inclusi</span><span className="font-medium">{selected.length}</span></div>
         {mode === "edit" && (
           <>
             <div className="flex justify-between"><span className="text-muted-foreground">Aggiunti</span><span className="font-medium">{addedCount}</span></div>
@@ -611,66 +530,78 @@ export const RoundWizardDialog = (props: Props) => {
     </div>
   );
 
-  return (
-    <Dialog open={open} onOpenChange={(o) => !isBusy && onOpenChange(o)}>
-      <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {mode === "edit" ? "Modifica invio" : "Nuovo invio"}
-            {roleName && <span className="text-muted-foreground font-normal"> — {roleName}</span>}
-          </DialogTitle>
-        </DialogHeader>
-
-        {/* Stepper */}
-        <div className="flex items-center gap-2 pb-2">
-          {STEP_LABELS.map((lbl, i) => (
-            <div key={lbl} className="flex items-center gap-2 flex-1">
-              <div
-                className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium ${
-                  i === step
-                    ? "bg-primary text-primary-foreground"
-                    : i < step
-                    ? "bg-primary/20 text-primary"
-                    : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {i + 1}
-              </div>
-              <span className={`text-xs ${i === step ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-                {lbl}
-              </span>
-              {i < STEP_LABELS.length - 1 && <div className="flex-1 h-px bg-border" />}
-            </div>
-          ))}
+  const stepper = (
+    <div className="mt-4 flex max-w-3xl items-center gap-2">
+      {STEP_LABELS.map((lbl, i) => (
+        <div key={lbl} className="flex items-center gap-2 flex-1">
+          <div
+            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium ${
+              i === step
+                ? "bg-primary text-primary-foreground"
+                : i < step
+                ? "bg-primary/20 text-primary"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {i + 1}
+          </div>
+          <span className={`text-xs ${i === step ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+            {lbl}
+          </span>
+          {i < STEP_LABELS.length - 1 && <div className="flex-1 h-px bg-border" />}
         </div>
+      ))}
+    </div>
+  );
 
-        <div className="min-h-[300px]">
-          {step === 0 && Step1}
+  return (
+    <FullscreenSheet
+      open={open}
+      onRequestClose={() => !isBusy && onOpenChange(false)}
+      title={
+        <>
+          {mode === "edit" ? "Modifica invio" : "Nuovo invio"}
+          {roleName && <span className="text-muted-foreground"> — {roleName}</span>}
+        </>
+      }
+      headerExtra={stepper}
+    >
+      {step === 0 ? (
+        Step1
+      ) : (
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 lg:px-10">
           {step === 1 && Step2}
           {step === 2 && Step3}
         </div>
+      )}
 
-        <div className="flex items-center justify-between pt-4 border-t">
-          <Button
-            variant="ghost"
-            onClick={() => (step === 0 ? onOpenChange(false) : setStep(step - 1))}
-            disabled={isBusy}
-          >
-            {step === 0 ? "Annulla" : (<><ChevronLeft className="h-4 w-4 mr-1" />Indietro</>)}
-          </Button>
+      <div className="flex items-center justify-between gap-4 border-t border-border bg-background px-6 py-4 lg:px-10">
+        <Button
+          variant="ghost"
+          onClick={() => (step === 0 ? onOpenChange(false) : setStep(step - 1))}
+          disabled={isBusy}
+        >
+          {step === 0 ? "Annulla" : (<><ChevronLeft className="h-4 w-4 mr-1" />Indietro</>)}
+        </Button>
 
+        <div className="flex items-center gap-4">
+          {step === 0 && (
+            <span className="text-sm font-medium">
+              {selected.length} {selected.length === 1 ? "selezionato" : "selezionati"}
+            </span>
+          )}
           {step < 2 ? (
             <Button onClick={() => setStep(step + 1)} disabled={!canNext}>
               Avanti<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isBusy || selected.size === 0}>
+            <Button onClick={handleSubmit} disabled={isBusy || selected.length === 0}>
               {isBusy && <Loader2 className="h-4 w-4 animate-spin" />}
               {mode === "edit" ? "Salva modifiche" : "Crea invio e genera PDF"}
             </Button>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </FullscreenSheet>
   );
 };
