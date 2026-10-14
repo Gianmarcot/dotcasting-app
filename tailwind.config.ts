@@ -93,6 +93,7 @@ export default {
 
   			ink: 'var(--ink)',
   			'grey-600': 'var(--grey-600)',
+  			'grey-700': 'var(--grey-700)',
   			'brand-600': 'var(--brand-600)',
   			'profile-strength': 'hsl(var(--profile-strength))'
 

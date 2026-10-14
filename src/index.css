@@ -141,6 +141,7 @@
     --grey-200: #dddddd;
     --grey-400: #c7c7c7;
     --grey-600: #686868;
+    --grey-700: #484848;
     --grey-800: #383838;
     --grey-900: #2f2f2f;
     --ink: #1a1a1a;
@@ -351,7 +352,7 @@
 
 @layer components {
   .dc-link-action {
-    @apply inline-flex items-center gap-1 font-medium underline;
+    @apply inline-flex items-center gap-3 font-medium underline;
     color: #1A1A1A;
     font-size: 15px;
     text-decoration-style: solid;
@@ -359,6 +360,10 @@
     text-decoration-thickness: auto;
     text-underline-offset: auto;
     text-underline-position: from-font;
+  }
+
+  .dc-link-action-danger {
+    color: #A30A2B;
   }
 
   .dotcasting-sidebar {
