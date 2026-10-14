@@ -66,7 +66,7 @@ export const useCastingDetailsPanel = () => {
 };
 
 /**
- * Pannello laterale retrittile (desktop): il bordo sinistro del drawer è la
+ * Pannello laterale retrattile (desktop): il bordo sinistro del drawer è la
  * linea di separazione, il pannello tocca il bordo superiore, inferiore e
  * destro della finestra (senza angoli arrotondati, nemmeno in overlay).
  * ≥1280px affianca il contenuto, sotto si sovrappone e parte chiuso.

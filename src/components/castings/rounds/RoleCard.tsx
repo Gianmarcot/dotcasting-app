@@ -41,7 +41,7 @@ export const RoleCard = ({ role, castingId, counts, onEditRole }: Props) => {
           openRole();
         }
       }}
-      className="grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-lg py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
+      className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]"
     >
       <div className="flex min-w-0 items-center gap-4">
         <User className="h-5 w-5 shrink-0" />
