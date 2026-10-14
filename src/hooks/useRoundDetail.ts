@@ -57,7 +57,10 @@ export const useRoundDetail = (roundId: string | undefined) =>
             )
           )
         `)
-        .eq("round_id", roundId!);
+        .eq("round_id", roundId!)
+        .order("position", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: true })
+        .order("role_talent_id", { ascending: true });
       if (e2) throw e2;
 
       const talents: RoundTalentRow[] = ((rows ?? []) as any[])
