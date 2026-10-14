@@ -192,10 +192,15 @@ export const OwnerCastingDetail = () => {
         <div className="min-w-0 flex-1 space-y-8 md:pt-16">
           {/* Intestazione */}
           <div className="space-y-6">
-            <button type="button" onClick={() => navigate("/owner/castings")} className="dc-link-action">
-              <ArrowLeft className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/owner/castings")}
+              className="-ml-2"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1" />
               Tutti i casting
-            </button>
+            </Button>
             <div className="flex items-center gap-3">
               <FavoriteCastingStar
                 castingId={casting.id}
@@ -203,6 +208,16 @@ export const OwnerCastingDetail = () => {
                 size={16}
               />
               <h1 className="font-display text-[21px] uppercase text-foreground">{casting.title}</h1>
+              {!panel.open && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setEditDialogOpen(true)}
+                  className="ml-auto hidden md:inline-flex"
+                >
+                  Modifica
+                </Button>
+              )}
             </div>
           </div>
 
