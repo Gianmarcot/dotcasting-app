@@ -26,6 +26,8 @@ export const DocumentsCard = () => {
 
   const hasPassport = bool("p", "has_passport");
   const hasVat = bool("p", "has_vat_number");
+  const passportExpiry = str("p", "passport_expiry");
+  const passportExpired = !!passportExpiry && passportExpiry < new Date().toISOString().slice(0, 10);
 
   const hasFiscalCode = triState("p", "has_italian_fiscal_code");
   const fiscalCode = str("p", "fiscal_code");
@@ -183,7 +185,7 @@ export const DocumentsCard = () => {
           onCheckedChange={(checked) =>
             setMany("p", {
               has_passport: checked,
-              ...(checked ? {} : { passport_country: null }),
+              ...(checked ? {} : { passport_country: null, passport_expiry: null }),
             })
           }
           label="Ho un passaporto valido"
@@ -195,6 +197,19 @@ export const DocumentsCard = () => {
             onValueChange={(v) => set("p", "passport_country", v)}
             options={toOptions(COUNTRIES)}
           />
+        )}
+        {hasPassport && (
+          <div className="space-y-3">
+            <FloatingInput
+              label="Scadenza passaporto"
+              type="date"
+              value={str("p", "passport_expiry")}
+              onChange={(v) => set("p", "passport_expiry", v || null)}
+            />
+            {passportExpired && (
+              <NoticeBox>Il passaporto risulta scaduto: ricordati di rinnovarlo e aggiornare la data.</NoticeBox>
+            )}
+          </div>
         )}
 
         <ProfileCheckbox

@@ -85,15 +85,6 @@ export const EDUCATION_LEVELS = [
   "Altro"
 ];
 
-export const VAT_ACTIVITY_TYPES = [
-  "Spettacolo e intrattenimento",
-  "Moda e immagine",
-  "Servizi creativi",
-  "Servizi tecnici",
-  "Commercio",
-  "Altro"
-];
-
 export const VAT_REGIMES = [
   "Regime forfettario",
   "Regime ordinario",
@@ -261,15 +252,6 @@ export const PANTS_SIZES = [
   { value: "agency", label: "Sono rappresentato in esclusiva da una Agenzia" }
  ];
  
-export const CONTINENTS = [
-  "Europa",
-  "Nord America",
-  "Sud America",
-  "Asia",
-  "Africa",
-  "Oceania"
-];
-
 export const ETHNICITIES = [
   "Caucasica",
   "Africana",
@@ -345,23 +327,6 @@ export const NATIONALITIES = [
   "Cinese",
   "Russa",
   "Altra"
-];
-
-export const OCCUPATIONS = [
-  "Studente",
-  "Impiegato/a",
-  "Libero professionista",
-  "Artista",
-  "Modello/a",
-  "Attore/Attrice",
-  "Commerciante",
-  "Insegnante",
-  "Operaio/a",
-  "Manager",
-  "Imprenditore/Imprenditrice",
-  "Disoccupato/a",
-  "Pensionato/a",
-  "Altro"
 ];
 
 export const MONTHS = [

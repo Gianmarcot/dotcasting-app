@@ -102,7 +102,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
     aspetto: countGroup(filters, ["ethnicity", "eyeColor", "hairColor", "hairLength"]),
     misure: countGroup(filters, ["heightMin", "heightMax", "weightMin", "weightMax", "shirtSize", "shoeMin", "shoeMax", "chestMin", "chestMax", "hipsMin", "hipsMax"]),
     competenze: countGroup(filters, ["skillSearch", "language"]),
-    lavoro: countGroup(filters, ["hasVat", "travelAvailability", "fiscalStatus"]),
+    lavoro: countGroup(filters, ["hasVat", "fiscalStatus"]),
   };
 
   return (
@@ -214,17 +214,6 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
           value={filters.fiscalStatus || "__all"}
           onValueChange={(v) => set({ fiscalStatus: v === "__all" ? undefined : (v as FiscalStatus) })}
           options={[{ value: "__all", label: "Tutti" }, ...FISCAL_STATUS_FILTER_OPTIONS]}
-        />
-        <FloatingSelect
-          label="Disponibilità viaggi"
-          value={filters.travelAvailability || "__all"}
-          onValueChange={(v) => set({ travelAvailability: selectClear(v) })}
-          options={[
-            { value: "__all", label: "Tutte" },
-            { value: "local", label: "Locale" },
-            { value: "national", label: "Nazionale" },
-            { value: "international", label: "Internazionale" },
-          ]}
         />
       </FilterGroup>
 
