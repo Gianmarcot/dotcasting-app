@@ -11,11 +11,14 @@ import {
   useUpdateRoleTalentTalentStatus,
   useUpdateRoleTalentCompanyStatus,
   useRemoveRoleTalent,
+  useAddRoleTalent,
   type TalentStatus,
   type CompanyStatus,
   type RoleTalentWithProfile,
 } from "@/hooks/useRoleTalents";
-import { AddTalentToRoleDialog } from "@/components/castings/AddTalentToRoleDialog";
+import { TalentPicker } from "@/components/talents/TalentPicker";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
 import { toast } from "@/hooks/use-toast";
 
@@ -43,6 +46,55 @@ export const OwnerCastingRoleDetail = () => {
   const updateTalentStatus = useUpdateRoleTalentTalentStatus();
   const updateCompanyStatus = useUpdateRoleTalentCompanyStatus();
   const removeTalent = useRemoveRoleTalent();
+  const addRoleTalent = useAddRoleTalent();
+  const queryClient = useQueryClient();
+
+  // role_talent presenti in almeno un invio (per avvisare prima di rimuoverli)
+  const roleTalentIds = talents.map((t) => t.id);
+  const { data: sentRoleTalentIds } = useQuery({
+    queryKey: ["role-talents-in-rounds", roleId, roleTalentIds.join(",")],
+    enabled: addTalentOpen && roleTalentIds.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("casting_round_talents")
+        .select("role_talent_id")
+        .in("role_talent_id", roleTalentIds);
+      if (error) throw error;
+      return new Set((data ?? []).map((r) => r.role_talent_id));
+    },
+  });
+
+  const getRemovalWarning = (profileId: string) => {
+    const rt = talents.find((t) => t.profile_id === profileId);
+    if (!rt) return null;
+    const losses: string[] = [];
+    if (rt.talent_status !== "none") losses.push("lo stato con il talent");
+    if (rt.company_status !== "none") losses.push("lo stato con l'azienda");
+    if (sentRoleTalentIds?.has(rt.id)) losses.push("la sua presenza negli invii già creati");
+    if (losses.length === 0) return null;
+    return `Togliendolo dalla shortlist perderai ${losses.join(", ")}.`;
+  };
+
+  const handlePickerConfirm = async (ids: string[]) => {
+    const before = new Set(talents.map((t) => t.profile_id));
+    const after = new Set(ids);
+    const toAdd = ids.filter((id) => !before.has(id));
+    const toRemove = talents.filter((t) => !after.has(t.profile_id));
+    try {
+      for (const profileId of toAdd) {
+        await addRoleTalent.mutateAsync({ castingRoleId: roleId!, profileId });
+      }
+      for (const rt of toRemove) {
+        await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
+      }
+      toast({ title: "Shortlist aggiornata" });
+    } catch (e) {
+      toast({ title: "Errore durante il salvataggio", variant: "destructive" });
+      throw e;
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ["role-talents", roleId] });
+    }
+  };
 
   const handleTalentStatusChange = async (rt: RoleTalentWithProfile, newStatus: TalentStatus) => {
     try {
@@ -251,12 +303,17 @@ export const OwnerCastingRoleDetail = () => {
         </div>
       )}
 
-      <AddTalentToRoleDialog
+      <TalentPicker
         open={addTalentOpen}
         onOpenChange={setAddTalentOpen}
-        roleId={roleId!}
-        castingRoleId={roleId!}
-        existingProfileIds={talents.map((t) => t.profile_id)}
+        title="Aggiungi talent"
+        source={{ kind: "database" }}
+        roleId={roleId}
+        initialSelectedIds={talents.map((t) => t.profile_id)}
+        selectionLabel="Shortlist"
+        confirmLabel="Salva shortlist"
+        onConfirm={handlePickerConfirm}
+        getRemovalWarning={getRemovalWarning}
       />
     </div>
   );
