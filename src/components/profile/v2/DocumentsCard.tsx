@@ -207,7 +207,7 @@ export const DocumentsCard = () => {
               onChange={(v) => set("p", "passport_expiry", v || null)}
             />
             {passportExpired && (
-              <NoticeBox>Il passaporto risulta scaduto: ricordati di rinnovarlo e aggiornare la data.</NoticeBox>
+              <NoticeBox tone="warning" icon={<AlertTriangle strokeWidth={1} />}>Il passaporto risulta scaduto: ricordati di rinnovarlo e aggiornare la data.</NoticeBox>
             )}
           </div>
         )}
