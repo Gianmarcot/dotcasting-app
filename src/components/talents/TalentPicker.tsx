@@ -342,8 +342,8 @@ export const TalentPicker = ({
                   value={mobileTab}
                   onChange={setMobileTab}
                   options={[
-                    { value: "database", label: "Database" },
-                    { value: "selection", label: "Selezione", count: selected.length },
+                    { value: "database" as const, label: "Database" },
+                    { value: "selection" as const, label: "Selezione", count: selected.length },
                   ]}
                 />
               </div>
