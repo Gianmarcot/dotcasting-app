@@ -89,6 +89,22 @@ const DraggableCard = ({ id, children }: { id: string; children: ReactNode }) =>
   );
 };
 
+const DropZone = ({ enabled, dragging, children }: { enabled: boolean; dragging: boolean; children: ReactNode }) => {
+  const { setNodeRef, isOver } = useDroppable({ id: DROP_ID, disabled: !enabled });
+  return (
+    <section
+      ref={setNodeRef}
+      className={cn(
+        "flex min-h-[320px] flex-col gap-4 rounded-2xl p-4 transition-colors",
+        dragging && "bg-accent/40 outline-dashed outline-2 outline-primary",
+        isOver && "bg-accent"
+      )}
+    >
+      {children}
+    </section>
+  );
+};
+
 const MatchBadge = ({ score }: { score: MatchScore }) => {
   const full = score.matched === score.total;
   const none = score.matched === 0;
@@ -255,17 +271,8 @@ export const TalentPicker = ({
     </section>
   );
 
-  const RightColumn = () => {
-    const { setNodeRef, isOver } = useDroppable({ id: DROP_ID, disabled: !dragEnabled });
-    return (
-      <section
-        ref={setNodeRef}
-        className={cn(
-          "flex min-h-[320px] flex-col gap-4 rounded-2xl p-4 transition-colors",
-          draggingId && "bg-accent/40 ring-2 ring-dashed ring-primary",
-          isOver && "bg-accent"
-        )}
-      >
+  const rightColumn = (
+      <DropZone enabled={dragEnabled} dragging={!!draggingId}>
         <div className="flex items-baseline justify-between gap-4">
           <h3 className="font-display uppercase text-lg tracking-wide">{selectionLabel}</h3>
           <span className="text-sm text-muted-foreground">{selected.length}</span>
@@ -310,9 +317,8 @@ export const TalentPicker = ({
             })}
           </ul>
         )}
-      </section>
-    );
-  };
+      </DropZone>
+  );
 
   return (
     <>
@@ -349,7 +355,7 @@ export const TalentPicker = ({
                   {leftColumn}
                 </div>
                 <div className={cn("h-full overflow-y-auto pb-8", mobileTab !== "selection" && "hidden lg:block")}>
-                  <RightColumn />
+                  {rightColumn}
                 </div>
               </div>
               <DragOverlay>
