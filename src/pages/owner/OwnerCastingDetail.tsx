@@ -187,9 +187,9 @@ export const OwnerCastingDetail = () => {
   };
 
   return (
-    <div className="animate-fade-up">
+    <div className="animate-fade-up md:-mt-16 md:-mb-8">
       <div className="flex items-start">
-        <div className="min-w-0 flex-1 space-y-8">
+        <div className="min-w-0 flex-1 space-y-8 md:pt-16">
           {/* Intestazione */}
           <div className="space-y-6">
             <button type="button" onClick={() => navigate("/owner/castings")} className="dc-link-action">
