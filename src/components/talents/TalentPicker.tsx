@@ -340,7 +340,7 @@ export const TalentPicker = ({
                   ariaLabel="Colonna"
                   className="w-max"
                   value={mobileTab}
-                  onChange={setMobileTab}
+                  onChange={(v) => setMobileTab(v as "database" | "selection")}
                   options={[
                     { value: "database" as const, label: "Database" },
                     { value: "selection" as const, label: "Selezione", count: selected.length },
