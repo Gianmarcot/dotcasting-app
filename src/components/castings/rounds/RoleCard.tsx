@@ -27,7 +27,10 @@ interface Props {
   onEditRole: (role: Tables<"casting_roles">) => void;
 }
 
-/** Riga ruolo nella scheda "Ruoli" del dettaglio casting. */
+/**
+ * Riga ruolo nella scheda "Ruoli" del dettaglio casting.
+ * Sotto i 640px del contenitore le informazioni si impilano su tre righe.
+ */
 export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props) => {
   const navigate = useNavigate();
   const openRole = () => navigate(`/owner/castings/${castingId}/${role.id}`);
@@ -45,7 +48,7 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
           openRole();
         }
       }}
-      className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto]"
+      className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring @[640px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto]"
     >
       {/* Nome ruolo */}
       <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-4">
@@ -54,7 +57,7 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
       </div>
 
       {/* Shortlist: avatar dei talent + conteggio */}
-      <div className="col-start-1 row-start-2 flex items-center gap-3 pl-9 md:col-start-2 md:row-start-1 md:pl-0">
+      <div className="col-start-1 row-start-2 flex min-w-0 items-center gap-3 pl-9 @[640px]:col-start-2 @[640px]:row-start-1 @[640px]:pl-0">
         <TalentAvatarStack profiles={talents.map((t) => t.profile)} />
         <span
           className={cn(
@@ -67,20 +70,20 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
       </div>
 
       {/* Avanzamento selezioni */}
-      <div className="col-start-1 row-start-3 flex items-center gap-1.5 pl-9 md:col-start-3 md:row-start-1 md:pl-0">
+      <div className="col-start-1 row-start-3 flex min-w-0 items-center gap-1.5 pl-9 @[640px]:col-start-3 @[640px]:row-start-1 @[640px]:pl-0">
         <CheckCheck
           className={cn(
             "h-5 w-5 shrink-0",
             hasConfirmed ? "text-[hsl(var(--success))]" : "text-border",
           )}
         />
-        <span className="whitespace-nowrap text-sm font-medium leading-5 text-foreground">
+        <span className="min-w-0 truncate text-sm font-medium leading-5 text-foreground">
           {counts.confirmed} su {counts.total} selezionati
         </span>
       </div>
 
       {/* Azioni */}
-      <div className="col-start-2 row-span-3 row-start-1 flex items-center justify-end gap-6 md:col-start-4 md:row-span-1">
+      <div className="col-start-2 row-span-3 row-start-1 flex items-center justify-end gap-6 @[640px]:col-start-4 @[640px]:row-span-1">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
