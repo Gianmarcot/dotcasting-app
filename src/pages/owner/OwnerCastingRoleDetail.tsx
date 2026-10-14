@@ -20,6 +20,7 @@ import { TalentPicker } from "@/components/talents/TalentPicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { RoleTalentRow } from "@/components/castings/RoleTalentRow";
+import { RoleEngagementsPanel, engagementRows } from "@/components/castings/engagements/RoleEngagementsPanel";
 import { RoleRoundsPanel } from "@/components/castings/rounds/RoleRoundsPanel";
 import { toast } from "@/hooks/use-toast";
 
@@ -230,7 +231,7 @@ export const OwnerCastingRoleDetail = () => {
             {
               value: "ingaggi",
               label: "Ingaggi",
-              count: talents.filter((t) => t.published_to_talent).length,
+              count: engagementRows(talents).length,
             },
           ]}
         />
@@ -296,12 +297,14 @@ export const OwnerCastingRoleDetail = () => {
       )}
 
       {phase === "ingaggi" && (
-        <div className="dc-card p-10 text-center text-muted-foreground">
-          <p>Nessun ingaggio</p>
-          <p className="mt-2 text-sm">
-            Qui troverai i talent confermati e pubblicati come ingaggio per questo ruolo.
-          </p>
-        </div>
+        <RoleEngagementsPanel
+          castingId={castingId!}
+          roleId={roleId!}
+          roleName={role.name}
+          roleLocation={role.location ?? null}
+          talents={talents}
+          isLoading={talentsLoading}
+        />
       )}
 
       <TalentPicker
