@@ -71,10 +71,10 @@ export const CastingSidePanel = ({ children }: { children: ReactNode }) => {
         docked ? "w-[416px]" : "w-5",
       )}
     >
-      {/* Linea di separazione: coincide con il bordo sinistro del drawer */}
+      {/* Linea di separazione: un pixel a sinistra del drawer, così resta visibile */}
       <div
         className={cn(
-          "absolute bottom-0 left-8 top-0 w-px bg-border transition-opacity duration-300 motion-reduce:transition-none",
+          "absolute bottom-0 left-[31px] top-0 w-px bg-border transition-opacity duration-300 motion-reduce:transition-none",
           docked ? "opacity-100" : "opacity-0",
         )}
       />
