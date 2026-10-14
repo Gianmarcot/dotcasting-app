@@ -7,7 +7,7 @@ const WIDE_QUERY = "(min-width: 1280px)";
 
 /** Gioco tra il contenuto della pagina e la linea di separazione. */
 const GAP = 32;
-/** Larghezza del drawer, misurata dalla linea in poi. */
+/** Larghezza del drawer, misurata dal bordo sinistro in poi. */
 const PANEL = 384;
 /** Il testo non si allarga oltre, anche su finestre molto larghe. */
 const CONTENT = 352;
@@ -27,17 +27,16 @@ const readStored = () => {
   }
 };
 
+const readWide = () =>
+  typeof window !== "undefined" ? window.matchMedia(WIDE_QUERY).matches : true;
+
 /**
- * Pannello laterale retrattile (desktop): la linea è il bordo sinistro del
- * drawer, che tocca il bordo superiore, inferiore e destro della finestra.
- * ≥1280px affianca il contenuto, sotto si sovrappone e parte chiuso.
- * Nascosto su telefono, dove i dettagli stanno in pagina.
+ * Stato condiviso del drawer dettagli: la pagina lo usa per il pulsante
+ * "Modifica" nell'header, il pannello per la geometria.
  */
-export const CastingSidePanel = ({ children }: { children: ReactNode }) => {
-  const [wide, setWide] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(WIDE_QUERY).matches : true,
-  );
-  const [open, setOpen] = useState(() => (wide ? readStored() : false));
+export const useCastingDetailsPanel = () => {
+  const [wide, setWide] = useState(readWide);
+  const [open, setOpen] = useState(() => (readWide() ? readStored() : false));
 
   useEffect(() => {
     const mq = window.matchMedia(WIDE_QUERY);
@@ -50,17 +49,38 @@ export const CastingSidePanel = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const toggle = () => {
-    const next = !open;
-    setOpen(next);
-    if (wide) {
-      try {
-        localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-      } catch {
-        /* ignore */
+    setOpen((prev) => {
+      const next = !prev;
+      if (wide) {
+        try {
+          localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+        } catch {
+          /* ignore */
+        }
       }
-    }
+      return next;
+    });
   };
 
+  return { open, wide, toggle };
+};
+
+/**
+ * Pannello laterale retrittile (desktop): il bordo sinistro del drawer è la
+ * linea di separazione, il pannello tocca il bordo superiore, inferiore e
+ * destro della finestra (senza angoli arrotondati, nemmeno in overlay).
+ * ≥1280px affianca il contenuto, sotto si sovrappone e parte chiuso.
+ * Nascosto su telefono, dove i dettagli stanno in pagina.
+ */
+export const CastingSidePanel = ({
+  open,
+  wide,
+  onToggle,
+}: {
+  open: boolean;
+  wide: boolean;
+  onToggle: () => void;
+}) => {
   const docked = wide && open;
 
   return (
@@ -71,22 +91,14 @@ export const CastingSidePanel = ({ children }: { children: ReactNode }) => {
         docked ? "w-[416px]" : "w-5",
       )}
     >
-      {/* Linea di separazione: un pixel a sinistra del drawer, così resta visibile */}
-      <div
-        className={cn(
-          "absolute bottom-0 left-[31px] top-0 w-px bg-border transition-opacity duration-300 motion-reduce:transition-none",
-          docked ? "opacity-100" : "opacity-0",
-        )}
-      />
-
       <div
         style={{
           right: "calc(-1 * var(--panel-extra))",
           width: "calc(" + PANEL + "px + var(--panel-extra))",
         }}
         className={cn(
-          "absolute top-0 z-20 h-full overflow-y-auto bg-cream-dark p-8 transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none",
-          !wide && "rounded-l-3xl shadow-xl",
+          "absolute top-0 z-20 h-full overflow-y-auto border-l border-border bg-cream-dark p-8 transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none",
+          !wide && "shadow-xl",
           open ? "translate-x-0 opacity-100" : "pointer-events-none invisible translate-x-8 opacity-0",
         )}
         aria-hidden={!open}
@@ -98,7 +110,7 @@ export const CastingSidePanel = ({ children }: { children: ReactNode }) => {
 
       <button
         type="button"
-        onClick={toggle}
+        onClick={onToggle}
         aria-label={open ? "Chiudi dettagli" : "Apri dettagli"}
         aria-expanded={open}
         className={cn(
