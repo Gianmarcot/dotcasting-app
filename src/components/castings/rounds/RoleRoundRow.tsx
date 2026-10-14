@@ -33,6 +33,8 @@ interface Props {
   round: CastingRound;
   castingId: string;
   preview?: RoundPreviewPhotos;
+  /** Mostra solo "1° invio" senza il nome del ruolo (es. dentro il dettaglio ruolo). */
+  hideRoleName?: boolean;
 }
 
 const initialsOf = (name: string) => {
@@ -42,7 +44,7 @@ const initialsOf = (name: string) => {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 };
 
-export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
+export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }: Props) => {
   const navigate = useNavigate();
   const share = useShareRound();
   const deleteRound = useDeleteRound();
@@ -105,6 +107,7 @@ export const RoleRoundRow = ({ round, castingId, preview }: Props) => {
                 const idx = round.label.indexOf(sep[0]);
                 const first = round.label.slice(0, idx);
                 const rest = round.label.slice(idx);
+                if (hideRoleName) return <span className="font-semibold">{first}</span>;
                 return (
                   <>
                     <span className="font-semibold">{first}</span>
