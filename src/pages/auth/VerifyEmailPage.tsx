@@ -224,6 +224,20 @@ export const VerifyEmailPage = () => {
             statusMessage ?? <span className="sr-only">Puoi inviare di nuovo il link.</span>
           )}
         </p>
+
+        <p className="text-sm font-medium text-muted-foreground">
+          Hai già un account?{" "}
+          <button
+            type="button"
+            className="font-medium text-primary hover:underline"
+            onClick={() => {
+              clearPendingSignupEmail();
+              navigate("/auth", { replace: true, state: { email, login: true } });
+            }}
+          >
+            Accedi
+          </button>
+        </p>
       </div>
     </AuthShell>
   );

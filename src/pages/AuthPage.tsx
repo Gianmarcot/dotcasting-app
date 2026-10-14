@@ -25,10 +25,12 @@ export const AuthPage = () => {
   const accessAction = initialParams.get("accesso");
   const fromAccountExists = accessAction === "login" || accessAction === "reset";
   if (fromAccountExists) clearPendingSignupEmail();
+  const navState = (location.state ?? {}) as { email?: string; login?: boolean };
   const prefillEmail =
-    ((location.state ?? {}) as { email?: string }).email ??
-    (fromAccountExists ? initialParams.get("email") ?? "" : "");
-  const [isLogin, setIsLogin] = useState(fromAccountExists || !prefillEmail);
+    navState.email ?? (fromAccountExists ? initialParams.get("email") ?? "" : "");
+  const [isLogin, setIsLogin] = useState(
+    fromAccountExists || Boolean(navState.login) || !prefillEmail
+  );
   const [email, setEmail] = useState(prefillEmail);
   useEffect(() => {
     if (accessAction === "reset") {
