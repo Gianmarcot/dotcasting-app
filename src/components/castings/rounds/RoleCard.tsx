@@ -30,12 +30,14 @@ interface Props {
 /**
  * Riga ruolo nella scheda "Ruoli" del dettaglio casting.
  * La larghezza disponibile cambia con il drawer dei dettagli: sotto i 640px
- * effettivi le informazioni si impilano su tre righe.
+ * effettivi le informazioni si impilano su tre righe e gli avatar passano
+ * alla misura piccola.
  */
 export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props) => {
   const navigate = useNavigate();
   const openRole = () => navigate(`/owner/castings/${castingId}/${role.id}`);
   const hasConfirmed = counts.confirmed > 0;
+  const profiles = talents.map((t) => t.profile);
 
   return (
     <div className="@container">
@@ -50,7 +52,7 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
             openRole();
           }
         }}
-        className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring @[640px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto]"
+        className="group -mx-4 grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring @[640px]:grid-cols-[minmax(0,1fr)_auto_auto_auto] @[640px]:gap-x-8"
       >
         {/* Nome ruolo */}
         <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-4">
@@ -59,8 +61,17 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
         </div>
 
         {/* Shortlist: avatar dei talent + conteggio */}
-        <div className="col-start-1 row-start-2 flex items-center gap-3 pl-9 @[640px]:col-start-2 @[640px]:row-start-1 @[640px]:pl-0">
-          <TalentAvatarStack profiles={talents.map((t) => t.profile)} size="sm" />
+        <div className="col-start-1 row-start-2 flex items-center gap-1.5 pl-9 @[640px]:col-start-2 @[640px]:row-start-1 @[640px]:pl-0">
+          <TalentAvatarStack
+            profiles={profiles}
+            size="md"
+            className="hidden @[640px]:flex"
+          />
+          <TalentAvatarStack
+            profiles={profiles}
+            size="sm"
+            className="flex @[640px]:hidden"
+          />
           <span
             className={cn(
               "whitespace-nowrap text-sm font-medium leading-5",
