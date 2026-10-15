@@ -13,8 +13,11 @@ import {
   Star,
   ChevronRight,
   GripVertical,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
 import { FEATURE_FLAGS } from "@/lib/featureFlags";
