@@ -15,3 +15,5 @@
 - [x] Aggiungere dodici scenari interattivi nel Design System
 - [x] Verificare superfici, ricerca, selezione, tastiera, sottomenu e dialogo
 - [x] Campi beige nei pannelli filtri aperti su fondo bianco
+
+- [ ] Pulsante header "Modifica casting" / "Modifica ruolo" a pannello chiuso
