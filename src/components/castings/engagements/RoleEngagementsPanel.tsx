@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +35,7 @@ interface Props {
   roleLocation: string | null;
   talents: RoleTalentWithProfile[];
   isLoading?: boolean;
+  onAdd?: () => void;
 }
 
 /** Chi compare nella scheda: ingaggio pubblicato al talent. */
@@ -43,7 +44,7 @@ export const engagementRows = (talents: RoleTalentWithProfile[]) => talents.filt
 const ago = (iso: string) => formatDistanceToNow(new Date(iso), { locale: itLocale, addSuffix: true });
 
 /** Scheda "Ingaggi": elenco essenziale degli ingaggi pubblicati. */
-export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation, talents, isLoading }: Props) => {
+export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation, talents, isLoading, onAdd }: Props) => {
   const [unpublishFor, setUnpublishFor] = useState<RoleTalentWithProfile | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const togglePublished = useToggleEngagementPublished();
