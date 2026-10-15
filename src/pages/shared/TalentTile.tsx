@@ -74,7 +74,7 @@ export function TalentTileView({
   return (
     <div
       className={cn(
-        "group relative rounded-2xl transition-all",
+        "@container group relative min-w-0 rounded-2xl transition-all",
         selectable && "cursor-pointer",
         light
           ? cn("bg-cream shadow-sm", selected ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-[var(--grey-400)]")
@@ -107,7 +107,7 @@ export function TalentTileView({
         </button>
       )}
 
-      <div className="px-12 pb-0 pt-12">
+      <div className="px-4 pb-0 pt-12 @[260px]:px-12">
         <div className="aspect-[5/7] overflow-hidden">
           {photoUrl ? (
             <img
@@ -128,8 +128,8 @@ export function TalentTileView({
         </div>
       </div>
 
-      <div className="p-6 pr-16">
-        <p className={cn("truncate font-display text-[18px] uppercase leading-tight tracking-wide", light ? "text-ink" : "text-[#F5F0E8]")}>
+      <div className="p-4 pr-12 @[260px]:p-6 @[260px]:pr-16">
+        <p className={cn("truncate font-display text-[15px] @[260px]:text-[18px] uppercase leading-tight tracking-wide", light ? "text-ink" : "text-[#F5F0E8]")}>
           {name}
         </p>
         <p className={cn("mt-0.5 min-h-[18px] truncate text-[12px]", light ? "text-field-label" : "text-white/50")}>{meta}</p>
@@ -142,7 +142,7 @@ export function TalentTileView({
           onOpenDetails();
         }}
         className={cn(
-          "absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-transparent transition-colors",
+          "absolute bottom-2 right-2 flex h-11 w-11 @[260px]:bottom-4 @[260px]:right-4 @[260px]:h-12 @[260px]:w-12 items-center justify-center rounded-full bg-transparent transition-colors",
           light ? "text-ink hover:bg-white" : "text-white hover:bg-white/10",
         )}
         aria-label="Apri dettagli"
