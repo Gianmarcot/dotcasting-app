@@ -30,7 +30,6 @@ import {
   useRemoveRoleTalent,
   useAddRoleTalent,
   useSetRoleTalentsExcluded,
-  profileSkills,
   isEngaged,
   type RoleTalentWithProfile,
 } from "@/hooks/useRoleTalents";
@@ -49,7 +48,8 @@ import { RoleShortlistRow } from "@/components/castings/role/RoleShortlistRow";
 import { RoleDetailsPanel } from "@/components/castings/role/RoleDetailsPanel";
 import { EngageDialog } from "@/components/castings/role/EngageDialog";
 import { BulkMessageDialog } from "@/components/castings/role/BulkMessageDialog";
-import { evaluateRequirements } from "@/lib/roleMatch";
+import { compareRequirements, evaluateRequirements, toRequirementSubject } from "@/lib/roleMatch";
+import { readRoleRequirements } from "@/lib/roleRequirements";
 import type { RoundPreset } from "@/lib/casting/roundPreset";
 import { toast } from "sonner";
 
@@ -257,11 +257,9 @@ export const OwnerCastingRoleDetail = () => {
     return <p className="py-12 text-center text-muted-foreground">Ruolo non trovato</p>;
   }
 
+  const roleReqs = readRoleRequirements(role);
   const requirementsOf = (rt: RoleTalentWithProfile) =>
-    evaluateRequirements(
-      { gender: rt.profile?.gender ?? null, birth_date: rt.profile?.birth_date ?? null, skills: profileSkills(rt.profile) },
-      role,
-    );
+    evaluateRequirements(toRequirementSubject(rt.profile), roleReqs);
 
   const renderRow = (rt: RoleTalentWithProfile) => (
     <RoleShortlistRow
@@ -381,7 +379,10 @@ export const OwnerCastingRoleDetail = () => {
                   </div>
                 ) : (
                   <>
-                    {active.map(renderRow)}
+                    {[...active]
+                      .map((rt) => ({ rt, r: requirementsOf(rt) }))
+                      .sort((a, b) => compareRequirements(a.r, b.r))
+                      .map(({ rt }) => renderRow(rt))}
                     {excluded.length > 0 && (
                       <>
                         <p className="mb-1 mt-6 text-xs font-medium uppercase tracking-wider text-muted-foreground">

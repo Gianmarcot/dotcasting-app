@@ -17,7 +17,13 @@ export type RoleTalentWithProfile = Tables<"role_talents"> & {
     fiscal_code: string | null;
     fiscal_code_mismatch: boolean | null;
     fiscal_code_status: string | null;
-    talent_attributes?: { skills: string[] | null }[] | { skills: string[] | null } | null;
+    gender_identity?: string | null;
+    representation_type?: string | null;
+    nationality?: string | null;
+    ethnicity?: string | null;
+    has_vat_number?: boolean | null;
+    talent_categories?: string[] | null;
+    talent_attributes?: Record<string, any>[] | Record<string, any> | null;
   } | null;
 };
 
@@ -43,7 +49,8 @@ export const useRoleTalents = (roleId: string | undefined) => {
           profile:profiles!role_talents_profile_id_fkey(
             id, user_id, first_name, last_name, stage_name, profile_photo_url, birth_date, city, gender,
             has_italian_fiscal_code, fiscal_code, fiscal_code_mismatch, fiscal_code_status,
-            talent_attributes(skills)
+            gender_identity, representation_type, nationality, ethnicity, has_vat_number, talent_categories,
+            talent_attributes(skills, languages, height, weight, hair_color, hair_length, eye_color, chest, hips, shirt_size, shoe_size)
           )
         `)
         .eq("casting_role_id", roleId!)

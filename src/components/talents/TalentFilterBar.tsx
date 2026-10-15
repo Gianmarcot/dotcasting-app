@@ -98,11 +98,11 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   const selectClear = (val: string) => (val === "__all" ? undefined : val);
 
   const groupCounts = {
-    role: countGroup(filters, ["talentRole", "availability"]),
+    role: countGroup(filters, ["talentRole", "talentRoles", "availability"]),
     anagrafica: countGroup(filters, ["gender", "ageMin", "ageMax", "city", "region", "genderIdentity", "representationType", "nationality"]),
     aspetto: countGroup(filters, ["ethnicity", "eyeColor", "hairColor", "hairLength"]),
     misure: countGroup(filters, ["heightMin", "heightMax", "weightMin", "weightMax", "shirtSize", "shoeMin", "shoeMax", "chestMin", "chestMax", "hipsMin", "hipsMax"]),
-    competenze: countGroup(filters, ["skillSearch", "language"]),
+    competenze: countGroup(filters, ["skillSearch", "skills", "language", "languages"]),
     lavoro: countGroup(filters, ["hasVat", "fiscalStatus"]),
   };
 

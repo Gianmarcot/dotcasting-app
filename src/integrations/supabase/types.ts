@@ -282,6 +282,7 @@ export type Database = {
           notes: string | null
           phase: string
           required_skills: string[] | null
+          requirements: Json | null
           requirements_text: string | null
         }
         Insert: {
@@ -299,6 +300,7 @@ export type Database = {
           notes?: string | null
           phase?: string
           required_skills?: string[] | null
+          requirements?: Json | null
           requirements_text?: string | null
         }
         Update: {
@@ -316,6 +318,7 @@ export type Database = {
           notes?: string | null
           phase?: string
           required_skills?: string[] | null
+          requirements?: Json | null
           requirements_text?: string | null
         }
         Relationships: [

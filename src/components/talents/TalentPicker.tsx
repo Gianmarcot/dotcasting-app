@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { TalentSelectionPanel, type SelectionItem } from "@/components/talents/TalentSelectionPanel";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { FloatingInput } from "@/components/ui/field";
 import {
@@ -18,7 +17,8 @@ import {
 import { useTalents, type TalentFilters, type TalentWithAttributes } from "@/hooks/useTalents";
 import { useCastingRole } from "@/hooks/useCastingRoles";
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
-import { compareMatch, computeMatchScore, hasRoleRequirements, type MatchScore } from "@/lib/roleMatch";
+import { compareRequirements, evaluateRequirements, toRequirementSubject, type RequirementResult } from "@/lib/roleMatch";
+import { listRequirements, mandatoryFilters, readRoleRequirements } from "@/lib/roleRequirements";
 
 export type TalentPickerSource =
   | { kind: "database" }
@@ -41,21 +41,6 @@ export interface TalentPickerProps {
   getRemovalWarning?: (profileId: string) => string | null;
 }
 
-const MatchBadge = ({ score }: { score: MatchScore }) => {
-  const full = score.matched === score.total;
-  const none = score.matched === 0;
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-2 py-1 text-[12px] font-medium leading-[1.2] whitespace-nowrap text-white",
-        full ? "bg-[#729128]" : none ? "bg-[#333333]" : "bg-[#C88500]"
-      )}
-    >
-      {score.matched} requisiti su {score.total}
-    </span>
-  );
-};
-
 export const TalentPicker = ({
   open,
   onOpenChange,
@@ -74,34 +59,31 @@ export const TalentPicker = ({
   const [saving, setSaving] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
 
-  // reset all'apertura
+  const { data: role } = useCastingRole(roleId);
+  const roleReqs = useMemo(() => (role ? readRoleRequirements(role) : null), [role]);
+  const prefill = useMemo(() => (roleReqs ? mandatoryFilters(roleReqs) : {}), [roleReqs]);
+  const [prefilled, setPrefilled] = useState(false);
+
+  // reset all'apertura: i filtri partono dai requisiti obbligatori del ruolo
   useEffect(() => {
     if (open) {
       setSelected(initialSelectedIds);
-      setFilters({});
+      const hasPrefill = source.kind === "database" && Object.keys(prefill).length > 0;
+      setFilters(hasPrefill ? prefill : {});
+      setPrefilled(hasPrefill);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const { data: role } = useCastingRole(roleId);
+  }, [open, prefill]);
   const { data: filtered = [], isLoading } = useTalents(filters);
   const { data: all = [] } = useTalents({});
 
-  const withRequirements = hasRoleRequirements(role);
-  const scores = useMemo(() => {
-    const map = new Map<string, MatchScore>();
-    if (!role || !withRequirements) return map;
-    for (const t of filtered) {
-      map.set(
-        t.id,
-        computeMatchScore(
-          { gender: t.gender, birth_date: t.birth_date, skills: t.attributes?.skills },
-          role
-        )
-      );
-    }
+  const withRequirements = !!roleReqs && listRequirements(roleReqs).length > 0;
+  const results = useMemo(() => {
+    const map = new Map<string, RequirementResult[]>();
+    if (!roleReqs || !withRequirements) return map;
+    for (const t of filtered) map.set(t.id, evaluateRequirements(toRequirementSubject(t), roleReqs));
     return map;
-  }, [filtered, role, withRequirements]);
+  }, [filtered, roleReqs, withRequirements]);
 
   const shown = useMemo(() => {
     let list = filtered;
@@ -110,10 +92,10 @@ export const TalentPicker = ({
       list = list.filter((t) => allowed.has(t.id));
     }
     if (withRequirements) {
-      list = [...list].sort((a, b) => compareMatch(scores.get(a.id)!, scores.get(b.id)!));
+      list = [...list].sort((a, b) => compareRequirements(results.get(a.id) ?? [], results.get(b.id) ?? []));
     }
     return list;
-  }, [filtered, source, withRequirements, scores]);
+  }, [filtered, source, withRequirements, results]);
 
   const dirty =
     selected.length !== initialSelectedIds.length ||
@@ -166,14 +148,24 @@ export const TalentPicker = ({
             </>
           }
           note={
-            withRequirements ? (
-              <p className="text-xs text-muted-foreground">Ordinati per compatibilità con i requisiti del ruolo</p>
+            prefilled ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-cream-dark px-4 py-3 text-sm text-foreground">
+                <span>Filtri impostati sui requisiti obbligatori del ruolo</span>
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={() => {
+                    setFilters({ search: filters.search });
+                    setPrefilled(false);
+                  }}
+                >
+                  Azzera filtri
+                </Button>
+              </div>
+            ) : withRequirements ? (
+              <p className="text-xs text-muted-foreground">Ordinati per requisiti del ruolo soddisfatti</p>
             ) : null
           }
-          renderBadge={(item) => {
-            const s = scores.get(item.id);
-            return s && s.total > 0 ? <MatchBadge score={s} /> : null;
-          }}
           selected={selected}
           onSelectedChange={setSelected}
           initialSelectedIds={initialSelectedIds}

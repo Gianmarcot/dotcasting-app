@@ -1,101 +1,65 @@
 /**
- * Requisiti di un ruolo valutati uno per uno sul profilo di un talent.
- * Ogni requisito ha un valutatore in REQUIREMENT_EVALUATORS: per aggiungere
- * requisiti arbitrari (o la distinzione obbligatori/preferenziali) basta
- * aggiungere valutatori o un campo `kind` al risultato.
+ * Valutazione di un talent rispetto ai requisiti di un ruolo.
+ * A differenza del filtro del database, il dato vuoto non esclude:
+ * diventa "missing", perché porta a chiedere al talent, non a scartarlo.
  */
-export interface RoleRequirements {
-  gender: string | null;
-  age_min: number | null;
-  age_max: number | null;
-  required_skills: string[] | null;
-}
+import {
+  formatRequiredValue,
+  formatTalentValue,
+  listRequirements,
+  type RequirementSubject,
+  type RoleRequirementsData,
+} from "@/lib/roleRequirements";
 
-export interface MatchableProfile {
-  gender: string | null;
-  birth_date: string | null;
-  skills: string[] | null | undefined;
-}
+export { getAge } from "@/lib/roleRequirements";
 
 export type RequirementStatus = "met" | "unmet" | "missing";
 
 export interface RequirementResult {
   key: string;
   label: string;
+  mandatory: boolean;
   status: RequirementStatus;
   talentValue: string | null;
   requiredValue: string;
 }
 
-export interface MatchScore {
-  matched: number;
-  total: number;
-}
+const lower = (s: unknown) => String(s).toLowerCase();
 
-export function getAge(birthDate: string | null): number | null {
-  if (!birthDate) return null;
-  const today = new Date();
-  const birth = new Date(birthDate);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
-
-const genderLabel = (g: string | null) =>
-  g === "M" ? "Maschile" : g === "F" ? "Femminile" : g;
-
-type Evaluator = (p: MatchableProfile, r: RoleRequirements) => RequirementResult[];
-
-const evaluateGender: Evaluator = (p, r) => {
-  if (!r.gender || r.gender === "any") return [];
-  return [
-    {
-      key: "gender",
-      label: "Sesso",
-      requiredValue: genderLabel(r.gender) ?? r.gender,
-      talentValue: p.gender ? genderLabel(p.gender) : null,
-      status: !p.gender ? "missing" : p.gender === r.gender ? "met" : "unmet",
-    },
-  ];
-};
-
-const evaluateAge: Evaluator = (p, r) => {
-  if (!r.age_min && !r.age_max) return [];
-  const age = getAge(p.birth_date);
-  const ok = age !== null && (!r.age_min || age >= r.age_min) && (!r.age_max || age <= r.age_max);
-  return [
-    {
-      key: "age",
-      label: "Età",
-      requiredValue: `${r.age_min ?? "?"}–${r.age_max ?? "?"} anni`,
-      talentValue: age === null ? null : `${age} anni`,
-      status: age === null ? "missing" : ok ? "met" : "unmet",
-    },
-  ];
-};
-
-const evaluateSkills: Evaluator = (p, r) => {
-  const required = r.required_skills ?? [];
-  if (required.length === 0) return [];
-  const has = (p.skills ?? []).map((s) => s.toLowerCase());
-  const empty = has.length === 0;
-  return required.map((skill) => ({
-    key: `skill:${skill}`,
-    label: skill,
-    requiredValue: "Richiesta",
-    talentValue: empty ? null : has.includes(skill.toLowerCase()) ? "Sì" : "No",
-    status: empty ? "missing" : has.includes(skill.toLowerCase()) ? "met" : "unmet",
-  }));
-};
-
-const REQUIREMENT_EVALUATORS: Evaluator[] = [evaluateGender, evaluateAge, evaluateSkills];
-
-export function evaluateRequirements(
-  profile: MatchableProfile,
-  role: RoleRequirements,
-): RequirementResult[] {
-  return REQUIREMENT_EVALUATORS.flatMap((e) => e(profile, role));
+export function evaluateRequirements(subject: RequirementSubject, data: RoleRequirementsData): RequirementResult[] {
+  return listRequirements(data).map(({ field, required, mandatory }) => {
+    const raw = field.read(subject);
+    const empty = raw === null || raw === undefined || raw === "" || (Array.isArray(raw) && raw.length === 0);
+    let status: RequirementStatus = "missing";
+    if (!empty) {
+      switch (required.type) {
+        case "number": {
+          const n = Number(raw);
+          status = (required.min === null || n >= required.min) && (required.max === null || n <= required.max) ? "met" : "unmet";
+          break;
+        }
+        case "enum":
+          status = lower(raw) === lower(required.value) ? "met" : "unmet";
+          break;
+        case "list": {
+          const has = new Set((raw as string[]).map(lower));
+          status = required.values.some((v) => has.has(lower(v))) ? "met" : "unmet";
+          break;
+        }
+        case "boolean":
+          status = raw === required.value ? "met" : "unmet";
+          break;
+      }
+    }
+    return {
+      key: field.key,
+      label: field.label,
+      mandatory,
+      status,
+      talentValue: formatTalentValue(field, raw),
+      requiredValue: formatRequiredValue(field, required),
+    };
+  });
 }
 
 export type RequirementSummary =
@@ -105,29 +69,37 @@ export type RequirementSummary =
   | { kind: "ok" }
   | { kind: "none" };
 
-/** Etichetta della riga: mostra l'eccezione, non la regola. */
+/** Etichetta della riga: conta solo i requisiti obbligatori. */
 export function summarizeRequirements(results: RequirementResult[]): RequirementSummary {
-  if (results.length === 0) return { kind: "none" };
-  const unmet = results.filter((r) => r.status === "unmet");
+  const mandatory = results.filter((r) => r.mandatory);
+  if (mandatory.length === 0) return { kind: "none" };
+  const unmet = mandatory.filter((r) => r.status === "unmet");
   if (unmet.length === 1) return { kind: "unmet-one", label: unmet[0].label };
   if (unmet.length > 1) return { kind: "unmet-many", count: unmet.length };
-  const missing = results.filter((r) => r.status === "missing").length;
+  const missing = mandatory.filter((r) => r.status === "missing").length;
   if (missing > 0) return { kind: "missing", count: missing };
   return { kind: "ok" };
 }
 
-export function computeMatchScore(profile: MatchableProfile, role: RoleRequirements): MatchScore {
-  const results = evaluateRequirements(profile, role);
-  return { total: results.length, matched: results.filter((r) => r.status === "met").length };
+/** Ordine: più obbligatori soddisfatti, poi più preferenziali soddisfatti. */
+export function compareRequirements(a: RequirementResult[], b: RequirementResult[]) {
+  const count = (rs: RequirementResult[], mandatory: boolean) =>
+    rs.filter((r) => r.mandatory === mandatory && r.status === "met").length;
+  return count(b, true) - count(a, true) || count(b, false) - count(a, false);
 }
 
-export const hasRoleRequirements = (role: RoleRequirements | null | undefined) =>
-  !!role && evaluateRequirements({ gender: null, birth_date: null, skills: null }, role).length > 0;
-
-/** Ordina per rapporto di compatibilità decrescente, poi per requisiti soddisfatti. */
-export const compareMatch = (a: MatchScore, b: MatchScore) => {
-  const ratioA = a.total > 0 ? a.matched / a.total : 0;
-  const ratioB = b.total > 0 ? b.matched / b.total : 0;
-  if (ratioB !== ratioA) return ratioB - ratioA;
-  return b.matched - a.matched;
-};
+/** Normalizza un profilo (relazione talent_attributes come oggetto o array). */
+export function toRequirementSubject(p: Record<string, any> | null | undefined): RequirementSubject {
+  const a = p?.attributes ?? p?.talent_attributes;
+  return {
+    gender: p?.gender ?? null,
+    birth_date: p?.birth_date ?? null,
+    gender_identity: p?.gender_identity ?? null,
+    representation_type: p?.representation_type ?? null,
+    nationality: p?.nationality ?? null,
+    ethnicity: p?.ethnicity ?? null,
+    has_vat_number: p?.has_vat_number ?? null,
+    talent_categories: p?.talent_categories ?? null,
+    attributes: (Array.isArray(a) ? a[0] : a) ?? null,
+  };
+}

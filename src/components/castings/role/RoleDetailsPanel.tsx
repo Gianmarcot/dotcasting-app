@@ -8,6 +8,7 @@ import {
   hasRows,
   type DetailsRow,
 } from "@/components/castings/DetailsPanelParts";
+import { formatRequiredValue, listRequirements, readRoleRequirements } from "@/lib/roleRequirements";
 
 interface Props {
   role: Tables<"casting_roles">;
@@ -15,26 +16,15 @@ interface Props {
   onDelete: () => void;
 }
 
-const genderLabel = (g: string | null) => (g === "M" ? "Maschile" : g === "F" ? "Femminile" : g);
-
-/** Valore età formattato con l'operatore necessario a capirlo. */
-const ageValue = (min: number | null, max: number | null) => {
-  if (min && max) return `tra ${min} e ${max} anni`;
-  if (min) return `almeno ${min} anni`;
-  if (max) return `al massimo ${max} anni`;
-  return null;
-};
-
-/** Contenuto del pannello dettagli ruolo. */
+/** Contenuto del pannello dettagli ruolo: requisiti letti dal registro. */
 export const RoleDetailsPanel = ({ role, onEdit, onDelete }: Props) => {
-  const required: DetailsRow[] = [
-    { label: "Sesso", value: role.gender && role.gender !== "any" ? genderLabel(role.gender) : null },
-    { label: "Età", value: ageValue(role.age_min, role.age_max) },
-    { label: "Luogo", value: role.location },
-    { label: "Competenze", value: role.required_skills?.length ? role.required_skills.join(", ") : null },
-  ];
-  // I requisiti preferenziali non hanno ancora campi: il gruppo resta nascosto finché è vuoto.
-  const preferred: DetailsRow[] = [];
+  const reqs = listRequirements(readRoleRequirements(role));
+  const rows = (mandatory: boolean): DetailsRow[] =>
+    reqs
+      .filter((r) => r.mandatory === mandatory)
+      .map((r) => ({ label: r.field.label, value: formatRequiredValue(r.field, r.required) }));
+  const required = rows(true);
+  const preferred = rows(false);
 
   return (
     <DetailsPanelShell title="Dettagli ruolo">
@@ -43,13 +33,18 @@ export const RoleDetailsPanel = ({ role, onEdit, onDelete }: Props) => {
           <p className="whitespace-pre-wrap">{role.description}</p>
         </DetailsBlock>
       )}
+      {role.location && (
+        <DetailsBlock label="Luogo">
+          <p>{role.location}</p>
+        </DetailsBlock>
+      )}
       {hasRows(required) && (
-        <DetailsBlock label="Requisiti obbligatori">
+        <DetailsBlock label="Obbligatori">
           <DetailsRows rows={required} />
         </DetailsBlock>
       )}
       {hasRows(preferred) && (
-        <DetailsBlock label="Requisiti preferenziali">
+        <DetailsBlock label="Preferenziali">
           <DetailsRows rows={preferred} />
         </DetailsBlock>
       )}
