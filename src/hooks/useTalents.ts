@@ -34,6 +34,10 @@ export interface TalentFilters {
   hipsMax?: number;
   skillSearch?: string;
   language?: string;
+  /** Almeno una delle lingue */
+  languages?: string[];
+  /** Almeno uno dei ruoli talent */
+  talentRoles?: string[];
   hasVat?: boolean;
   fiscalStatus?: FiscalStatus;
   onlyValidCf?: boolean;
@@ -208,7 +212,9 @@ export const useTalents = (filters: TalentFilters = {}) => {
 
       if (filters.skills && filters.skills.length > 0) {
         filtered = filtered.filter((t) =>
-          filters.skills!.some((skill) => t.attributes?.skills?.includes(skill))
+          filters.skills!.some((skill) =>
+            t.attributes?.skills?.some((s) => s.toLowerCase() === skill.toLowerCase())
+          )
         );
       }
 
@@ -303,6 +309,17 @@ export const useTalents = (filters: TalentFilters = {}) => {
       if (filters.language) {
         filtered = filtered.filter((t) =>
           t.attributes?.languages?.includes(filters.language!)
+        );
+      }
+
+      if (filters.languages && filters.languages.length > 0) {
+        filtered = filtered.filter((t) =>
+          filters.languages!.some((l) => t.attributes?.languages?.includes(l))
+        );
+      }
+      if (filters.talentRoles && filters.talentRoles.length > 0) {
+        filtered = filtered.filter((t) =>
+          filters.talentRoles!.some((r) => t.talent_categories?.includes(r))
         );
       }
 
