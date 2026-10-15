@@ -202,7 +202,7 @@ function TalentDetailSheet({
           hideClose
           className="bg-background text-foreground"
           bodyClassName={cn(
-            "p-0 sm:p-0 pt-0 gap-0 overflow-hidden",
+            "p-0 sm:p-0 pt-0 sm:pt-0 gap-0 overflow-hidden content-stretch",
             showStrip
               ? "grid-rows-[auto_auto_1fr]"
               : "grid-rows-[auto_1fr]"
