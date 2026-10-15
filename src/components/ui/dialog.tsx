@@ -52,7 +52,7 @@ const DialogContent = React.forwardRef<
           aria-label="Chiudi"
           className={cn(
             "dc-dialog-close flex items-center gap-2 rounded-[100px] bg-ink text-white transition-opacity duration-200 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none",
-            size === "fullscreen" ? "py-2 pl-6 pr-2" : "p-2"
+            size === "fullscreen" ? "py-2 pl-6 pr-2" : size === "sm" ? "p-0" : "p-2"
           )}
         >
           {size === "fullscreen" && <span aria-hidden className="text-sm">Chiudi</span>}
