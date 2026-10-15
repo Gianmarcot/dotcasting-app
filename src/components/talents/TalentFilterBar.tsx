@@ -225,21 +225,21 @@ export const TalentFilterBar = ({ filters, onFiltersChange, surface = "raised", 
         />
       </FilterGroup>
 
-      {/* Reset */}
-      {(hasAny || forceReset) && (
-        <button type="button" onClick={clearAll} className="ml-2 text-sm font-medium text-primary hover:underline">
-          Reset
-        </button>
-      )}
-
-      {/* Solo CF validi */}
-      <label className="ml-auto flex items-center gap-3 cursor-pointer text-sm font-medium text-foreground">
-        <Switch
-          checked={!!filters.onlyValidCf}
-          onCheckedChange={(v) => set({ onlyValidCf: v || undefined })}
-        />
-        Solo CF validi
-      </label>
+      {/* Barra inferiore: "Solo CF validi" a sinistra, Reset a destra */}
+      <div className="flex w-full flex-wrap items-center gap-x-6 gap-y-2 pt-1">
+        <label className="flex cursor-pointer items-center gap-3 text-sm font-medium text-foreground">
+          <Switch
+            checked={!!filters.onlyValidCf}
+            onCheckedChange={(v) => set({ onlyValidCf: v || undefined })}
+          />
+          Solo CF validi
+        </label>
+        {(hasAny || forceReset) && (
+          <button type="button" onClick={clearAll} className="ml-auto text-sm font-medium text-primary hover:underline">
+            Reset
+          </button>
+        )}
+      </div>
     </Surface>
   );
 };
