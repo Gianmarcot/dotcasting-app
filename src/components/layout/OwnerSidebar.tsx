@@ -374,8 +374,11 @@ const NavItemLink = ({
   );
 };
 
+/** Array stabile: un [] letterale cambierebbe identità a ogni render, riavviando l'effetto. */
+const EMPTY_FAVORITES: FavoriteCasting[] = [];
+
 const FavoritesSection = () => {
-  const { data: favorites = [], isLoading } = useFavoriteCastings();
+  const { data: favorites = EMPTY_FAVORITES, isLoading } = useFavoriteCastings();
   const reorder = useReorderFavoriteCastings();
   const [items, setItems] = useState<FavoriteCasting[]>(favorites);
   const justDraggedRef = useRef(false);
