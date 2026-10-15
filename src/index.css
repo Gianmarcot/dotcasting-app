@@ -678,6 +678,11 @@
     --menu-item-size: 16px;
     --menu-item-py: 12px;
   }
+  /* Campi dentro i menu chiari: fondo beige, così si staccano dal bianco del menu. */
+  .dc-menu:not([data-surface="brand"]):not([data-surface="inverse"]):not([data-surface="dark"]) {
+    --field-bg: var(--cream);
+    --field-bg-disabled: var(--cream-dark);
+  }
   .dc-menu[data-surface="brand"], .dc-menu[data-surface="inverse"], .dc-menu[data-surface="dark"] {
     border: 1px solid var(--menu-border);
   }

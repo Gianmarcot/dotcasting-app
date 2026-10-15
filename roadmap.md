@@ -14,3 +14,4 @@
 - [x] Unificare token e anatomia dei menu in tutte le superfici
 - [x] Aggiungere dodici scenari interattivi nel Design System
 - [x] Verificare superfici, ricerca, selezione, tastiera, sottomenu e dialogo
+- [x] Campi beige nei pannelli filtri aperti su fondo bianco
