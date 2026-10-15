@@ -183,4 +183,4 @@ const RequirementLine = ({ r }: { r: RequirementResult }) => (
 );
 
 /** Casella 18px con raggio 5: bianca con bordo scuro, piena nel rosso del marchio se selezionata. */
-export const ROW_CHECKBOX = "h-[18px] w-[18px] rounded-[5px] border-ink bg-white data-[state=checked]:border-primary [&_svg]:h-3 [&_svg]:w-3";
+export const ROW_CHECKBOX = "h-[18px] w-[18px] rounded-[5px] border-ink bg-white data-[state=checked]:border-primary data-[state=indeterminate]:border-primary [&_svg]:h-3 [&_svg]:w-3";
