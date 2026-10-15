@@ -19,7 +19,6 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { FloatingInput, FloatingSelect, FloatingTextarea } from "@/components/ui/field";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { it } from "@/lib/i18n";
 import { useCompanies } from "@/hooks/useCastings";
@@ -288,24 +287,6 @@ export const CastingFormDialog = ({
                 name="talent_instructions"
                 render={({ field }) => (
                   <FormItem><FloatingTextarea label="Istruzioni per il talent" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="show_client_to_talent"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between gap-4">
-                    <div>
-                      <FormLabel>Mostra il nome del cliente ai talent</FormLabel>
-                      <p className="text-xs text-muted-foreground">
-                        Disattivato: i talent vedono solo il titolo del progetto.
-                      </p>
-                    </div>
-                    <FormControl>
-                      <Switch checked={!!field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
                 )}
               />
             </div>
