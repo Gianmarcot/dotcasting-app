@@ -211,7 +211,7 @@ export const OwnerCastingDetail = () => {
                   onClick={() => setEditDialogOpen(true)}
                   className="ml-auto hidden md:inline-flex"
                 >
-                  Modifica
+                  Modifica casting
                 </Button>
               )}
             </div>
