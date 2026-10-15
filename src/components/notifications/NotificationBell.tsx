@@ -75,7 +75,7 @@ const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps)
   return (
     <div
       className={cn(
-        "p-3 hover:bg-muted/50 transition-colors cursor-pointer",
+        "p-3 hover:bg-white/10 transition-colors cursor-pointer",
         isUnread && "bg-primary/5"
       )}
       onClick={() => isUnread && onMarkAsRead(notification.id)}
@@ -84,7 +84,7 @@ const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps)
         <div
           className={cn(
             "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center",
-            isUnread ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+            isUnread ? "bg-primary/10 text-primary" : "bg-white/10 text-white/60"
           )}
         >
           <Icon className="h-4 w-4" />
@@ -94,7 +94,7 @@ const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps)
             <p
               className={cn(
                 "text-sm truncate",
-                isUnread ? "font-medium text-foreground" : "text-muted-foreground"
+                isUnread ? "font-medium text-white" : "text-white/60"
               )}
             >
               {title}
@@ -104,11 +104,11 @@ const NotificationItem = ({ notification, onMarkAsRead }: NotificationItemProps)
             )}
           </div>
           {description && (
-            <p className="text-xs text-muted-foreground truncate mt-0.5">
+            <p className="text-xs text-white/60 truncate mt-0.5">
               {description}
             </p>
           )}
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-white/60 mt-1">
             {formatDistanceToNow(new Date(notification.sent_at), {
               addSuffix: true,
               locale: itLocale,
@@ -155,7 +155,7 @@ export const NotificationBell = () => {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 p-0">
-        <div className="flex items-center justify-between p-3 border-b">
+        <div className="flex items-center justify-between p-3 border-b border-white/10">
           <h3 className="font-semibold text-sm">
             {it.notifications?.title || "Notifiche"}
           </h3>
@@ -163,7 +163,7 @@ export const NotificationBell = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="h-auto py-1 px-2 text-xs"
+              className="h-auto py-1 px-2 text-xs hover:bg-white/10"
               onClick={handleMarkAllAsRead}
             >
               <Check className="h-3 w-3 mr-1" />
@@ -173,7 +173,7 @@ export const NotificationBell = () => {
         </div>
         <ScrollArea className="h-[300px]">
           {isLoading ? (
-            <div className="p-4 text-center text-sm text-muted-foreground">
+            <div className="p-4 text-center text-sm text-white/60">
               {it.common.loading}
             </div>
           ) : notifications && notifications.length > 0 ? (
@@ -188,8 +188,8 @@ export const NotificationBell = () => {
             </div>
           ) : (
             <div className="p-8 text-center">
-              <Bell className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
+              <Bell className="h-8 w-8 text-white/40 mx-auto mb-2" />
+              <p className="text-sm text-white/60">
                 {it.notifications?.empty || "Nessuna notifica"}
               </p>
             </div>

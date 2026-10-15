@@ -66,8 +66,8 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
         <ChevronDown className="h-5 w-5" />
       </button>
     </PopoverTrigger>
-    {/* Pannello bianco: i campi restano in superficie base (color crema),
-        così si leggono staccati dal fondo bianco del menu. */}
+    {/* Pannello scuro: i campi mantengono la loro superficie chiara
+        (--field-bg bianco), così risaltano sul fondo del menu. */}
     <PopoverContent
       align="start"
       className={cn(
