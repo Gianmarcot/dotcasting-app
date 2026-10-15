@@ -25,7 +25,7 @@ export function SearchSelect({ label, options, values, onValuesChange, multiple 
         aria-expanded={open}
         aria-label={label}
         disabled={disabled}
-        data-placeholder={!multiple && !selected && !values.length ? "" : undefined}
+        data-placeholder={values.length === 0 ? "" : undefined}
         className="dc-select-trigger w-full justify-between"
       >
         <span className="truncate">{multiple && values.length ? `${values.length} selezionati` : selected?.label ?? label}</span>
