@@ -7,9 +7,10 @@ import {
   useDroppable,
   useSensor,
   useSensors,
+  DragOverlay,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { ChevronDown, Eye, LayoutGrid, List, Search, X } from "lucide-react";
+import { ChevronDown, Eye, LayoutGrid, List, Plus, Search, X } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TalentTileView } from "@/pages/shared/TalentTile";
 import { toast } from "sonner";
@@ -81,7 +82,18 @@ const useDragEnabled = () => {
 const Draggable = ({ id, enabled, children }: { id: string; enabled: boolean; children: ReactNode }) => {
   const { setNodeRef, listeners, attributes, isDragging } = useDraggable({ id, disabled: !enabled });
   return (
-    <div ref={setNodeRef} {...listeners} {...attributes} role={undefined} tabIndex={undefined} className={cn(isDragging && "opacity-40")}>
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      role={undefined}
+      tabIndex={undefined}
+      className={cn(
+        "rounded-lg transition-all duration-150",
+        enabled && "cursor-grab active:cursor-grabbing",
+        isDragging && "scale-[0.98] opacity-25 ring-2 ring-dashed ring-primary/40",
+      )}
+    >
       {children}
     </div>
   );
@@ -93,12 +105,23 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
     <section
       ref={setNodeRef}
       className={cn(
-        "flex h-full min-h-0 flex-col gap-6 rounded-3xl border border-dashed border-grey-600 p-8 transition-colors",
-        dragging && "border-2 border-ink bg-field/40",
-        isOver && "bg-field",
+        "flex h-full min-h-0 flex-col gap-6 rounded-3xl border-2 border-dashed border-grey-600/50 p-8 transition-all duration-200",
+        dragging && "border-primary bg-primary/5",
+        isOver && "scale-[1.01] border-primary bg-primary/10 shadow-[0_0_0_6px_rgba(163,10,43,0.12)]",
       )}
     >
       {children}
+      {dragging && (
+        <div
+          className={cn(
+            "flex shrink-0 items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-3 text-sm font-medium transition-all duration-200",
+            isOver ? "border-primary bg-primary text-white" : "border-primary/50 text-primary",
+          )}
+        >
+          <Plus className="h-5 w-5" />
+          {isOver ? "Rilascia per aggiungere alla shortlist" : "Trascina qui per aggiungere alla shortlist"}
+        </div>
+      )}
     </section>
   );
 };
@@ -132,6 +155,7 @@ export const TalentPicker = ({
   }, [view]);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const dragEnabled = useDragEnabled();
 
   // Selezione locale: aggiornata subito, poi riallineata alla shortlist salvata.
@@ -305,9 +329,11 @@ export const TalentPicker = ({
   const sensors = useSensors(useSensor(MouseSensor, { activationConstraint: { distance: 8 } }));
   const onDragEnd = (e: DragEndEvent) => {
     setDragging(false);
+    setActiveId(null);
     if (e.over?.id === DROP_ID) void add(String(e.active.id));
   };
 
+  const activeTalent = activeId ? byId.get(activeId) ?? null : null;
   const previewList = useMemo(() => shown, [shown]);
   const previewTalent = previewId ? byId.get(previewId) ?? null : null;
 
@@ -542,14 +568,39 @@ export const TalentPicker = ({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
-          onDragStart={() => setDragging(true)}
+          onDragStart={(e) => {
+            setDragging(true);
+            setActiveId(String(e.active.id));
+          }}
           onDragEnd={onDragEnd}
-          onDragCancel={() => setDragging(false)}
+          onDragCancel={() => {
+            setDragging(false);
+            setActiveId(null);
+          }}
         >
           <div className="min-h-0 flex-1 overflow-hidden px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:gap-16 lg:px-10">
             <div className={cn("h-full overflow-y-auto pb-8", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
             <div className={cn("h-full pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
           </div>
+          <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1.2)" }}>
+            {activeTalent ? (
+              <div className="pointer-events-none flex w-[420px] max-w-[70vw] -rotate-2 items-center gap-3 rounded-2xl bg-white p-2 pr-4 shadow-2xl ring-2 ring-primary">
+                {activeTalent.profile_photo_url ? (
+                  <img
+                    src={activeTalent.profile_photo_url}
+                    alt=""
+                    className="h-12 w-12 shrink-0 rounded-xl object-cover object-[50%_25%]"
+                  />
+                ) : (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink text-sm font-medium text-white">
+                    {talentRowInitials(activeTalent)}
+                  </div>
+                )}
+                <span className="min-w-0 truncate text-sm font-medium text-ink">{talentRowName(activeTalent)}</span>
+                <Plus className="ml-auto h-5 w-5 shrink-0 text-primary" />
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </FullscreenSheet>
 
