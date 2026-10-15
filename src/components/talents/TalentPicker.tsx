@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   DndContext,
   MouseSensor,
-  closestCenter,
+  pointerWithin,
   useDraggable,
   useDroppable,
   useSensor,
@@ -107,7 +107,7 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
       className={cn(
         "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-2 border-dashed border-grey-600/50 p-8 transition-all duration-200",
         dragging && "border-primary bg-primary/5",
-        isOver && "border-primary bg-primary/10 shadow-[0_0_0_6px_rgba(163,10,43,0.12)]",
+        isOver && "border-primary bg-primary/10",
       )}
     >
       {/* Avviso di rilascio: sempre in vista, non in fondo al pannello. */}
@@ -568,7 +568,7 @@ export const TalentPicker = ({
         </div>
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={pointerWithin}
           onDragStart={(e) => {
             setDragging(true);
             setActiveId(String(e.active.id));
