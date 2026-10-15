@@ -15,6 +15,13 @@
       "when": 1791978107136,
       "tag": "0001_round_talents_position",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792051733686,
+      "tag": "0002_role_talents_excluded",
+      "breakpoints": true
     }
   ]
 }

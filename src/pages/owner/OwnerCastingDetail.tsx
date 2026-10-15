@@ -112,9 +112,8 @@ export const OwnerCastingDetail = () => {
   const countsByRole: Record<string, RoleCounts> = {};
   const talentsByRole: Record<string, RoleTalentWithProfile[]> = {};
   for (const rt of allRoleTalents) {
-    const c = (countsByRole[rt.casting_role_id] ??= { total: 0, confirmed: 0, published: 0 });
+    const c = (countsByRole[rt.casting_role_id] ??= { total: 0, published: 0 });
     c.total += 1;
-    if ((rt as any).company_status === "confirmed") c.confirmed += 1;
     if ((rt as any).published_to_talent === true) c.published += 1;
     (talentsByRole[rt.casting_role_id] ??= []).push(rt);
   }
@@ -342,7 +341,7 @@ const RoundsByRoleBlock = ({
           key={role.id}
           role={role}
           castingId={castingId}
-          counts={countsByRole[role.id] ?? { total: 0, confirmed: 0, published: 0 }}
+          counts={countsByRole[role.id] ?? { total: 0, published: 0 }}
           talents={talentsByRole[role.id] ?? []}
           roundsCount={roundsMap?.get(role.id)?.length ?? 0}
           onEditRole={onEditRole}

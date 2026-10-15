@@ -30,27 +30,15 @@ import { useRoleTalentsForRound, RoleTalentRow } from "@/hooks/useRoleConfirmedT
 import { useUpdateRound } from "@/hooks/useUpdateRound";
 import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
 
-type StatusFilterKey =
-  | "company_confirmed"
-  | "talent_confirmed"
-  | "both_confirmed"
-  | "talent_invited"
-  | "company_pending";
+type StatusFilterKey = "engaged" | "not_engaged";
 
 const STATUS_FILTERS: {
   key: StatusFilterKey;
   label: string;
   match: (r: RoleTalentRow) => boolean;
 }[] = [
-  { key: "company_confirmed", label: "Confermati azienda", match: (r) => r.companyStatus === "confirmed" },
-  { key: "talent_confirmed", label: "Confermati talent", match: (r) => r.talentStatus === "confirmed" },
-  {
-    key: "both_confirmed",
-    label: "Confermati su entrambi i lati",
-    match: (r) => r.companyStatus === "confirmed" && r.talentStatus === "confirmed",
-  },
-  { key: "talent_invited", label: "Invitati", match: (r) => r.talentStatus === "invited" },
-  { key: "company_pending", label: "In attesa azienda", match: (r) => r.companyStatus === "pending" },
+  { key: "engaged", label: "Ingaggiati", match: (r) => r.engaged },
+  { key: "not_engaged", label: "Non ingaggiati", match: (r) => !r.engaged },
 ];
 
 type WizardMode = "create" | "edit";
@@ -67,6 +55,10 @@ interface CreateProps extends BaseProps {
   mode?: "create";
   defaultLabel?: string;
   defaultRoundNumber?: number;
+  /** role_talent già scelti fuori dal wizard (es. azioni in blocco). */
+  initialSelectedIds?: string[];
+  /** Passo da cui partire: 1 salta la scelta dei talent. */
+  startStep?: number;
 }
 
 interface EditProps extends BaseProps {
@@ -76,6 +68,9 @@ interface EditProps extends BaseProps {
   initialPreset: RoundPreset;
   initialRoleTalentIds: string[];
   pdfPathByRoleTalentId: Record<string, string | null>;
+  /** role_talent da aggiungere alla selezione esistente (azioni in blocco). */
+  extraSelectedIds?: string[];
+  startStep?: number;
 }
 
 type Props = CreateProps | EditProps;
@@ -120,20 +115,21 @@ export const RoundWizardDialog = (props: Props) => {
 
   useEffect(() => {
     if (!open) return;
-    setStep(0);
+    setStep((props as CreateProps | EditProps).startStep ?? 0);
     setProgress(null);
     setErrors([]);
     if (mode === "edit") {
       const e = props as EditProps;
       setLabel(e.initialLabel);
       setPreset(e.initialPreset);
-      setSelected([...e.initialRoleTalentIds]);
+      const extra = (e.extraSelectedIds ?? []).filter((id) => !e.initialRoleTalentIds.includes(id));
+      setSelected([...e.initialRoleTalentIds, ...extra]);
     } else {
       const c = props as CreateProps;
       const n = c.defaultRoundNumber ?? 1;
       setLabel(c.defaultLabel || `${n}° invio${roleName ? ` - ${roleName}` : ""}`);
       setPreset(PRESET_ESSENZIALE);
-      setSelected([]);
+      setSelected([...(c.initialSelectedIds ?? [])]);
     }
     setSearch("");
     setStatusFilters(new Set());
@@ -161,17 +157,17 @@ export const RoundWizardDialog = (props: Props) => {
     return m;
   }, [roleTalents, profileById]);
 
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
   const visibleItems = useMemo(() => {
     const active = STATUS_FILTERS.filter((f) => statusFilters.has(f.key));
     const q = search.trim().toLowerCase();
     return roleTalents
+      .filter((r) => !r.excluded || selectedSet.has(r.roleTalentId))
       .filter((r) => active.length === 0 || active.some((f) => f.match(r)))
       .filter((r) => !q || r.name.toLowerCase().includes(q))
       .map((r) => lookup.get(r.roleTalentId)!)
       .filter(Boolean);
-  }, [roleTalents, statusFilters, search, lookup]);
-
-  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  }, [roleTalents, statusFilters, search, lookup, selectedSet]);
   const selectAllVisible = () =>
     setSelected((prev) => {
       const have = new Set(prev);

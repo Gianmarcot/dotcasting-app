@@ -19,41 +19,44 @@ const CONTENT = 352;
 const PANEL_EXTRA =
   "calc(" + GAP + "px + max(0px, (100vw - var(--owner-sidebar-w) - 1600px) / 2))";
 
-const readStored = () => {
+const readStored = (key: string) => {
   try {
-    return localStorage.getItem(STORAGE_KEY) !== "0";
+    return localStorage.getItem(key) !== "0";
   } catch {
     return true;
   }
 };
 
-const readWide = () =>
-  typeof window !== "undefined" ? window.matchMedia(WIDE_QUERY).matches : true;
+const readWide = (query: string) =>
+  typeof window !== "undefined" ? window.matchMedia(query).matches : true;
 
 /**
  * Stato condiviso del drawer dettagli: la pagina lo usa per il pulsante
  * "Modifica" nell'header, il pannello per la geometria.
  */
-export const useCastingDetailsPanel = () => {
-  const [wide, setWide] = useState(readWide);
-  const [open, setOpen] = useState(() => (readWide() ? readStored() : false));
+export const useCastingDetailsPanel = ({
+  storageKey = STORAGE_KEY,
+  wideQuery = WIDE_QUERY,
+}: { storageKey?: string; wideQuery?: string } = {}) => {
+  const [wide, setWide] = useState(() => readWide(wideQuery));
+  const [open, setOpen] = useState(() => (readWide(wideQuery) ? readStored(storageKey) : false));
 
   useEffect(() => {
-    const mq = window.matchMedia(WIDE_QUERY);
+    const mq = window.matchMedia(wideQuery);
     const onChange = () => {
       setWide(mq.matches);
-      setOpen(mq.matches ? readStored() : false);
+      setOpen(mq.matches ? readStored(storageKey) : false);
     };
     mq.addEventListener("change", onChange);
     return () => mq.removeEventListener("change", onChange);
-  }, []);
+  }, [storageKey, wideQuery]);
 
   const toggle = () => {
     setOpen((prev) => {
       const next = !prev;
       if (wide) {
         try {
-          localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+          localStorage.setItem(storageKey, next ? "1" : "0");
         } catch {
           /* ignore */
         }

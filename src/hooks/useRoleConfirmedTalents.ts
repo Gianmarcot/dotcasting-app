@@ -1,27 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type RoleTalentStatus = "none" | "invited" | "confirmed" | "rejected" | "pending" | string;
-
 export interface RoleTalentRow {
   roleTalentId: string;
   profileId: string;
   name: string;
   photoUrl: string | null;
-  talentStatus: RoleTalentStatus;
-  companyStatus: RoleTalentStatus;
-}
-
-// Backwards-compatible alias kept for components that only need the confirmed subset.
-export interface ConfirmedTalentRow {
-  roleTalentId: string;
-  profileId: string;
-  name: string;
-  photoUrl: string | null;
+  excluded: boolean;
+  engaged: boolean;
 }
 
 /**
- * All role talents for a casting role, including talent_status and company_status.
+ * All role talents for a casting role, with exclusion and engagement flags.
  * Single fetch; consumers can filter client-side.
  */
 export const useRoleTalentsForRound = (roleId: string | undefined, enabled = true) =>
@@ -32,7 +22,7 @@ export const useRoleTalentsForRound = (roleId: string | undefined, enabled = tru
       const { data, error } = await supabase
         .from("role_talents")
         .select(`
-          id, talent_status, company_status,
+          id, excluded, published_to_talent,
           profile:profiles!role_talents_profile_id_fkey(
             id, first_name, last_name, stage_name, profile_photo_url
           )
@@ -51,19 +41,9 @@ export const useRoleTalentsForRound = (roleId: string | undefined, enabled = tru
             [r.profile.first_name, r.profile.last_name].filter(Boolean).join(" ").trim() ||
             "Senza nome",
           photoUrl: r.profile.profile_photo_url ?? null,
-          talentStatus: (r.talent_status ?? "none") as RoleTalentStatus,
-          companyStatus: (r.company_status ?? "none") as RoleTalentStatus,
+          excluded: !!r.excluded,
+          engaged: !!r.published_to_talent,
         }));
     },
   });
 
-/**
- * Subset filtered to company_status = 'confirmed'. Preserved for existing consumers.
- */
-export const useRoleConfirmedTalents = (roleId: string | undefined, enabled = true) => {
-  const q = useRoleTalentsForRound(roleId, enabled);
-  return {
-    ...q,
-    data: (q.data ?? []).filter((r) => r.companyStatus === "confirmed") as ConfirmedTalentRow[],
-  };
-};

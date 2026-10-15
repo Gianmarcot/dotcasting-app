@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils";
 
 export interface RoleCounts {
   total: number;
-  confirmed: number;
   published: number;
 }
 
@@ -36,7 +35,7 @@ interface Props {
 export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props) => {
   const navigate = useNavigate();
   const openRole = () => navigate(`/owner/castings/${castingId}/${role.id}`);
-  const hasConfirmed = counts.confirmed > 0;
+  const hasEngaged = counts.published > 0;
   const profiles = talents.map((t) => t.profile);
 
   return (
@@ -87,11 +86,11 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
           <CheckCheck
             className={cn(
               "h-5 w-5 shrink-0",
-              hasConfirmed ? "text-[hsl(var(--success))]" : "text-border",
+              hasEngaged ? "text-[hsl(var(--success))]" : "text-border",
             )}
           />
           <span className="whitespace-nowrap text-sm font-medium leading-5 text-foreground">
-            {counts.confirmed} su {counts.total} selezionati
+            {counts.published} su {counts.total} ingaggiati
           </span>
         </div>
 

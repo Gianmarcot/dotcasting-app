@@ -29,7 +29,7 @@ import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialo
 import { ClientPasswordCard } from "@/components/castings/rounds/ClientPasswordCard";
 import { RoundTalentTile } from "@/components/castings/rounds/RoundTalentTile";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
-import { COMPANY_STATUS_OPTIONS } from "@/hooks/useRoleTalents";
+const GROUP_LABELS: Record<string, string> = { engaged: "Ingaggiati", excluded: "Esclusi dal ruolo", none: "In shortlist" };
 
 const buildName = (t: TalentWithAttributes) =>
   t.stage_name ||
@@ -84,7 +84,7 @@ export const OwnerRoundDetail = () => {
     if (!groupByStatus) return null;
     const map = new Map<string, typeof filtered>();
     for (const row of filtered) {
-      const key = row.companyStatus || "none";
+      const key = row.engaged ? "engaged" : row.excluded ? "excluded" : "none";
       const arr = map.get(key) ?? [];
       arr.push(row);
       map.set(key, arr);
@@ -332,11 +332,10 @@ export const OwnerRoundDetail = () => {
             ) : grouped ? (
               <div className="space-y-8">
                 {grouped.map(([statusKey, rows]) => {
-                  const meta = COMPANY_STATUS_OPTIONS.find((o) => o.value === statusKey);
                   return (
                     <div key={statusKey} className="space-y-3">
                       <h3 className="text-sm font-display uppercase tracking-wider text-muted-foreground">
-                        {meta?.label ?? "Senza stato"} ({rows.length})
+                        {GROUP_LABELS[statusKey] ?? "Senza stato"} ({rows.length})
                       </h3>
                       {renderGrid(rows)}
                     </div>

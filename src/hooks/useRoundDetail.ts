@@ -7,8 +7,8 @@ export interface RoundTalentRow {
   roleTalentId: string;
   pdfPath: string | null;
   generatedAt: string | null;
-  talentStatus: string | null;
-  companyStatus: string | null;
+  excluded: boolean;
+  engaged: boolean;
   talent: TalentWithAttributes;
   // counts
   photosCount: number;
@@ -41,7 +41,7 @@ export const useRoundDetail = (roundId: string | undefined) =>
         .select(`
           round_id, role_talent_id, pdf_path, generated_at,
           role_talent:role_talents!casting_round_talents_role_talent_id_fkey(
-            id, talent_status, company_status,
+            id, excluded, published_to_talent,
             profile:profiles!role_talents_profile_id_fkey(
               id, user_id, first_name, last_name, stage_name,
               city, country, gender, birth_date, profile_photo_url,
@@ -108,8 +108,8 @@ export const useRoundDetail = (roundId: string | undefined) =>
             roleTalentId: r.role_talent_id,
             pdfPath: r.pdf_path,
             generatedAt: r.generated_at,
-            talentStatus: r.role_talent.talent_status,
-            companyStatus: r.role_talent.company_status,
+            excluded: !!r.role_talent.excluded,
+            engaged: !!r.role_talent.published_to_talent,
             talent,
             photosCount: photos,
             videosCount: videos,
