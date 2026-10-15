@@ -11,6 +11,6 @@
 - [x] Colonna avatar con conteggio "N in shortlist" nelle righe dei ruoli
 - [x] Vista compressa della barra laterale admin (freccia sul bordo + trascinamento)
 
-- [ ] Unificare token e anatomia dei menu in tutte le superfici
-- [ ] Aggiungere dodici scenari interattivi nel Design System
-- [ ] Verificare superfici, ricerca, selezione, tastiera, sottomenu e dialogo
+- [x] Unificare token e anatomia dei menu in tutte le superfici
+- [x] Aggiungere dodici scenari interattivi nel Design System
+- [x] Verificare superfici, ricerca, selezione, tastiera, sottomenu e dialogo
