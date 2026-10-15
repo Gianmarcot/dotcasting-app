@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
+import { Eye, GripVertical, LayoutGrid, List, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -30,7 +30,11 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { TalentWithAttributes } from "@/hooks/useTalents";
-import { TalentBoardGrid } from "@/components/talents/TalentBoardGrid";
+import { TalentTileView } from "@/pages/shared/TalentTile";
+import { TalentRow, ROW_CHECKBOX } from "@/components/talents/TalentRow";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { buildDisplayName, buildInitials, buildMeta } from "@/components/talents/TalentBoardCard";
 
 /** Elemento selezionabile: `id` è l'identificatore della sorgente (profilo, role_talent, …). */
@@ -96,9 +100,9 @@ const DropZone = ({ enabled, dragging, children }: { enabled: boolean; dragging:
     <section
       ref={setNodeRef}
       className={cn(
-        "flex min-h-[320px] flex-col gap-4 rounded-2xl p-4 transition-colors",
-        dragging && "bg-accent/40 outline-dashed outline-2 outline-primary",
-        isOver && "bg-accent"
+        "flex h-full min-h-[320px] flex-col gap-6 overflow-hidden rounded-3xl border border-dashed border-grey-600 p-8 transition-colors",
+        dragging && "border-primary bg-primary/5",
+        isOver && "bg-primary/10"
       )}
     >
       {children}
@@ -120,38 +124,23 @@ const SelectedRow = ({
   const { setNodeRef, listeners, attributes, transform, transition, isDragging } = useSortable({ id, disabled: !sortable });
   const t = item?.talent;
   const name = t ? buildDisplayName(t) : "Talent";
-  const meta = t ? buildMeta(t) : "";
   return (
     <li
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={cn("flex items-center gap-3 bg-background py-3", isDragging && "relative z-10 opacity-80")}
+      className={cn("min-w-0", isDragging && "relative z-10 opacity-80")}
     >
-      {sortable && (
-        <button
-          type="button"
-          aria-label={`Sposta ${name}`}
-          className="flex h-10 w-6 shrink-0 cursor-grab touch-none items-center justify-center text-muted-foreground active:cursor-grabbing"
-          {...listeners}
-          {...attributes}
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-      )}
-      <div className="h-14 w-10 shrink-0 overflow-hidden rounded-md bg-ink">
-        {t?.profile_photo_url ? (
-          <img src={t.profile_photo_url} alt="" className="h-full w-full object-cover object-[50%_25%]" />
-        ) : (
-          <span className="flex h-full w-full items-center justify-center text-xs text-white">{t ? buildInitials(t) : "?"}</span>
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-base font-medium">{name}</p>
-        {meta && <p className="truncate text-sm text-muted-foreground">{meta}</p>}
-      </div>
-      <Button variant="ghost" size="sm" aria-label={`Togli ${name}`} onClick={onRemove}>
-        <X className="h-4 w-4" />
-      </Button>
+      <TalentRow
+        profile={t}
+        requirements={[]}
+        hideRequirements
+        leading={sortable ? (
+          <Button type="button" variant="ghost" size="icon-sm" aria-label={`Sposta ${name}`} className="w-6 cursor-grab touch-none active:cursor-grabbing" {...listeners} {...attributes}>
+            <GripVertical className="h-4 w-4" />
+          </Button>
+        ) : undefined}
+        trailing={<Button variant="ghost" size="icon-md" aria-label={`Togli ${name}`} onClick={onRemove}><X className="h-5 w-5" /></Button>}
+      />
     </li>
   );
 };
@@ -177,16 +166,14 @@ export const TalentSelectionPanel = ({
   const [mobileTab, setMobileTab] = useState<"source" | "selection">("source");
   const [pendingRemoval, setPendingRemoval] = useState<{ id: string; message: string } | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [view, setView] = useState<"list" | "grid">("list");
+  const [previewTalent, setPreviewTalent] = useState<TalentWithAttributes | null>(null);
   const dragEnabled = useDragEnabled();
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
   const initialSet = useMemo(() => new Set(initialSelectedIds), [initialSelectedIds]);
   // TalentBoardGrid ragiona per profilo: mappa profilo ↔ id sorgente
   const byProfile = useMemo(() => new Map(items.map((i) => [i.talent.id, i])), [items]);
-  const selectedProfileIds = useMemo(
-    () => new Set(selected.map((id) => lookup.get(id)?.talent.id).filter((x): x is string => !!x)),
-    [selected, lookup]
-  );
 
   const add = (id: string, atIndex?: number) => {
     if (selectedSet.has(id)) return;
@@ -232,15 +219,18 @@ export const TalentSelectionPanel = ({
   const draggingFromSource = !!draggingId && !selectedSet.has(draggingId);
 
   const leftColumn = (
-    <section className="flex min-h-0 flex-col gap-4">
-      <div className="flex items-baseline justify-between gap-4">
-        <h3 className="font-display uppercase text-lg tracking-wide">{sourceLabel}</h3>
-        <span className="text-sm text-muted-foreground">{items.length} talent</span>
-      </div>
+    <section aria-label={sourceLabel} className="flex min-h-0 min-w-0 flex-col gap-4">
       {toolbar}
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-sm text-muted-foreground">{items.length} talent</span>
+        <ToggleGroup type="single" value={view} onValueChange={(value) => { if (value === "list" || value === "grid") setView(value); }} className="gap-1">
+          <ToggleGroupItem value="list" aria-label="Vista lista" className="h-12 w-12 rounded-full p-0 hover:bg-field data-[state=on]:bg-field"><List className="h-5 w-5" /></ToggleGroupItem>
+          <ToggleGroupItem value="grid" aria-label="Vista griglia" className="h-12 w-12 rounded-full p-0 hover:bg-field data-[state=on]:bg-field"><LayoutGrid className="h-5 w-5" /></ToggleGroupItem>
+        </ToggleGroup>
+      </div>
       {note}
       {isLoading ? (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="aspect-[2/3] w-full rounded-xl" />
           ))}
@@ -248,23 +238,25 @@ export const TalentSelectionPanel = ({
       ) : items.length === 0 ? (
         <p className="py-12 text-center text-sm text-muted-foreground">{emptyText}</p>
       ) : (
-        <TalentBoardGrid
-          talents={items.map((i) => i.talent)}
-          onSelectTalent={toggle}
-          selectedIds={selectedProfileIds}
-          renderBadge={renderBadge ? (t) => {
-            const item = byProfile.get(t.id);
-            return item ? renderBadge(item) : null;
-          } : undefined}
-          wrapCard={
-            dragEnabled
-              ? (t, card) => {
-                  const item = byProfile.get(t.id);
-                  return !item || selectedSet.has(item.id) ? card : <DraggableCard id={item.id}>{card}</DraggableCard>;
-                }
-              : undefined
-          }
-        />
+        <div className="@container min-w-0 px-4">
+          <div className={view === "grid" ? "grid grid-cols-1 gap-4 @[480px]:grid-cols-2 @[720px]:grid-cols-3 @[1000px]:grid-cols-4 [&>*]:min-w-0" : "flex flex-col gap-2"}>
+            {items.map((item) => {
+              const t = item.talent;
+              const checked = selectedSet.has(item.id);
+              const height = t.attributes?.height;
+              const card = view === "grid" ? (
+                <TalentTileView tone="light" name={buildDisplayName(t)} initials={buildInitials(t)} photoUrl={t.profile_photo_url ?? null} meta={[height ? `${height} cm` : null, t.city].filter(Boolean).join(" • ")} selectable selected={checked} onToggle={() => toggle(t)} onOpenDetails={() => setPreviewTalent(t)} />
+              ) : (
+                <TalentRow profile={t} requirements={[]} hideRequirements onClick={() => toggle(t)} ariaPressed={checked}
+                  leading={<Checkbox className={ROW_CHECKBOX} checked={checked} onCheckedChange={() => toggle(t)} aria-label={`Seleziona ${buildDisplayName(t)}`} />}
+                  meta={renderBadge?.(item)}
+                  trailing={<Button variant="ghost" size="icon-md" aria-label={`Anteprima di ${buildDisplayName(t)}`} onClick={() => setPreviewTalent(t)}><Eye className="h-5 w-5" /></Button>}
+                />
+              );
+              return <div key={item.id} className="min-w-0">{dragEnabled && !checked ? <DraggableCard id={item.id}>{card}</DraggableCard> : card}</div>;
+            })}
+          </div>
+        </div>
       )}
     </section>
   );
@@ -272,18 +264,18 @@ export const TalentSelectionPanel = ({
   const rightColumn = (
     <DropZone enabled={dragEnabled} dragging={draggingFromSource}>
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className="font-display uppercase text-lg tracking-wide">{selectionLabel}</h3>
+        <h3 className="font-display uppercase text-base">{selectionLabel}</h3>
         <span className="text-sm text-muted-foreground">{selected.length}</span>
       </div>
       {selected.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center rounded-2xl border-2 border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+        <div className="flex flex-1 items-center justify-center text-center text-sm text-muted-foreground">
           {dragEnabled
             ? "Trascina qui una scheda o toccala per aggiungerla alla selezione"
             : "Tocca una scheda per aggiungerla alla selezione"}
         </div>
       ) : (
         <SortableContext items={selected} strategy={verticalListSortingStrategy}>
-          <ul className="divide-y divide-border">
+          <ul className="-mx-4 min-h-0 flex-1 space-y-2 overflow-y-auto px-4">
             {selected.map((id) => (
               <SelectedRow
                 key={id}
@@ -323,18 +315,19 @@ export const TalentSelectionPanel = ({
         onDragEnd={onDragEnd}
         onDragCancel={() => setDraggingId(null)}
       >
-        <div className="min-h-0 flex-1 overflow-hidden px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-8 lg:px-10">
-          <div className={cn("h-full overflow-y-auto pb-8", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
-          <div className={cn("h-full overflow-y-auto pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
+        <div className="px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:items-start lg:gap-16 lg:px-10">
+          <div className={cn("min-w-0 pb-32", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
+          <div className={cn("min-w-0 pb-32 lg:sticky lg:top-[80px] lg:h-[calc(100dvh-24px-80px)]", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
         </div>
         <DragOverlay>
           {dragging && draggingFromSource ? (
-            <div className="w-40 rounded-xl bg-ink px-4 py-3 text-sm text-white shadow-lg">
+            <div className="w-40 rounded-xl bg-ink px-4 py-3 text-sm text-cream shadow-lg">
               {buildDisplayName(dragging.talent)}
             </div>
           ) : null}
         </DragOverlay>
       </DndContext>
+      <TalentPreviewDrawer talent={previewTalent} open={!!previewTalent} onOpenChange={(open) => { if (!open) setPreviewTalent(null); }} />
 
       {actions && (
         <div className="flex items-center justify-between gap-4 border-t border-border bg-background px-6 py-4 lg:px-10">
