@@ -108,7 +108,7 @@ export const TalentPicker = ({
   onOpenChange,
   title,
   roleId,
-  shortlistIds,
+  shortlistIds = [],
   onAdd,
   onRemove,
   getRemovalWarning,
