@@ -55,11 +55,6 @@ const categories = [
   { value: "altro", label: "Altro" },
 ];
 
-const compensationTypes = [
-  { value: "daily", label: "Giornaliero" },
-  { value: "total", label: "Totale" },
-  { value: "hourly", label: "Orario" },
-];
 
 interface CastingFormDialogProps {
   casting: CastingWithRelations | null;
@@ -287,59 +282,7 @@ export const CastingFormDialog = ({
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={form.control}
-                name="compensation_amount"
-                render={({ field }) => (
-                  <FormItem><FloatingInput label="Compenso" type="number" inputMode="decimal" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="compensation_type"
-                render={({ field }) => (
-                  <FormItem><FloatingSelect label="Tipo compenso" value={field.value ?? ""} onValueChange={field.onChange} options={compensationTypes} /></FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="currency"
-                render={({ field }) => (
-                  <FormItem><FloatingSelect label="Valuta" value={field.value ?? ""} onValueChange={field.onChange} options={[{ value: "EUR", label: "EUR" }, { value: "USD", label: "USD" }, { value: "GBP", label: "GBP" }]} /></FormItem>
-                )}
-              />
-            </div>
-
             <div className="border-t border-divider pt-4 space-y-4">
-              <p className="text-sm font-medium text-foreground">Convocazione (visibile ai talent pubblicati)</p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="call_datetime"
-                  render={({ field }) => (
-                    <FormItem><FloatingInput label="Data e ora convocazione" type="datetime-local" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="venue_name"
-                  render={({ field }) => (
-                    <FormItem><FloatingInput label="Nome location" value={field.value ?? ""} onChange={field.onChange} maxLength={160} /></FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="venue_address"
-                render={({ field }) => (
-                  <FormItem><FloatingInput label="Indirizzo completo" value={field.value ?? ""} onChange={field.onChange} maxLength={300} /></FormItem>
-                )}
-              />
 
               <FormField
                 control={form.control}
