@@ -264,7 +264,7 @@ export const OwnerCastingDetail = () => {
               Eliminare il casting?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Il casting "{casting.title}" e tutti i ruoli/invii associati verranno eliminati.
+              Il casting "{casting.title}" e tutti i ruoli/selezioni associate verranno eliminati.
               Operazione irreversibile.
             </AlertDialogDescription>
           </AlertDialogHeader>

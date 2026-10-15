@@ -130,7 +130,7 @@ export async function fetchPhotoAsDataUrl(url: string, timeoutMs = 20000): Promi
  * Genera un PDF per ogni talent del round e lo carica su Storage.
  * Percorso: castings/{castingId}/rounds/{roundId}/{role_talent_id}.pdf
  * Ritorna anche un riepilogo dei talent con foto mancanti, così la
- * UI può avvisare l'admin prima di condividere l'invio.
+ * UI può avvisare l'admin prima di condividere la selezione.
  */
 export async function generateRoundPdfs(opts: {
   castingId: string;

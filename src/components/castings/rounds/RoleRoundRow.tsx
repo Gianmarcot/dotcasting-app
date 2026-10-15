@@ -33,7 +33,7 @@ interface Props {
   round: CastingRound;
   castingId: string;
   preview?: RoundPreviewPhotos;
-  /** Mostra solo "1° invio" senza il nome del ruolo (es. dentro il dettaglio ruolo). */
+  /** Mostra solo "1° selezione" senza il nome del ruolo (es. dentro il dettaglio ruolo). */
   hideRoleName?: boolean;
 }
 
@@ -78,7 +78,7 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
       const res = await share.mutateAsync(round.id);
       const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
-      toast.success("Invio condiviso", { description: url });
+      toast.success("Selezione condivisa", { description: url });
     } catch (err: any) {
       toast.error("Errore", { description: err.message });
     }
@@ -204,7 +204,7 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Elimina invio</TooltipContent>
+                <TooltipContent>Elimina selezione</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -216,10 +216,10 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
         <AlertDialogContent onClick={stop}>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display uppercase tracking-widest">
-              Eliminare l'invio?
+              Eliminare la selezione?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              L'invio "{round.label}" verrà eliminato insieme ai PDF e al link di condivisione.
+              La selezione "{round.label}" verrà eliminata insieme ai PDF e al link di condivisione.
               Lo stato dei talent (confermati/scartati) rimane invariato. Operazione irreversibile.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -236,7 +236,7 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
                     castingId,
                     castingRoleId: round.casting_role_id,
                   });
-                  toast.success("Invio eliminato");
+                  toast.success("Selezione eliminata");
                   setConfirmDelete(false);
                 } catch (err: any) {
                   toast.error("Errore", { description: err?.message });

@@ -113,7 +113,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
       const res = await share.mutateAsync(round.id);
       const url = `${window.location.origin}/round/${res.share_token}`;
       await navigator.clipboard.writeText(url).catch(() => {});
-      toast.success("Invio condiviso", { description: url });
+      toast.success("Selezione condivisa", { description: url });
     } catch (err: any) {
       toast.error("Errore", { description: err.message });
     }
@@ -202,7 +202,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
                   setConfirmDelete(true);
                 }}
               >
-                <Trash2 className="h-3.5 w-3.5 mr-2" /> Elimina invio
+                <Trash2 className="h-3.5 w-3.5 mr-2" /> Elimina selezione
               </DropdownMenuItem>
 
             </DropdownMenuContent>
@@ -301,10 +301,10 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
         <AlertDialogContent onClick={stop}>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-tenor uppercase tracking-widest">
-              Eliminare l'invio?
+              Eliminare la selezione?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              L'invio "{round.label}" verrà eliminato insieme ai PDF e al link di condivisione.
+              La selezione "{round.label}" verrà eliminata insieme ai PDF e al link di condivisione.
               Lo stato dei talent (confermati/scartati) rimane invariato. Operazione irreversibile.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -321,7 +321,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
                     castingId,
                     castingRoleId: round.casting_role_id,
                   });
-                  toast.success("Invio eliminato");
+                  toast.success("Selezione eliminata");
                   setConfirmDelete(false);
                 } catch (err: any) {
                   toast.error("Errore", { description: err?.message });

@@ -29,7 +29,7 @@ export interface Crumb {
 
 interface Props {
   castingId?: string;
-  /** Livelli successivi al casting (ruolo, scheda, invio…); l'ultimo è la pagina corrente. */
+  /** Livelli successivi al casting (ruolo, scheda, selezione…); l'ultimo è la pagina corrente. */
   trail?: Crumb[];
 }
 

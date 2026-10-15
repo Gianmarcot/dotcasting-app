@@ -12,7 +12,7 @@ interface Props {
   rounds: CastingRound[];
 }
 
-/** Scheda "Selezioni" del dettaglio ruolo: elenco invii in sola lettura + creazione. */
+/** Scheda "Selezioni" del dettaglio ruolo: elenco selezioni in sola lettura + creazione. */
 export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) => {
   const [createOpen, setCreateOpen] = useState(false);
   const roundIds = useMemo(() => rounds.map((r) => r.id), [rounds]);

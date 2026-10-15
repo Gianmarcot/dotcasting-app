@@ -112,7 +112,7 @@ export const BroadcastDialog = ({
               [
                 { key: "search" as Source, label: "Tutti i talent" },
                 { key: "role" as Source, label: "Talent di un ruolo" },
-                { key: "round" as Source, label: "Talent di un invio" },
+                { key: "round" as Source, label: "Talent di una selezione" },
               ]
             ).map((s) => (
               <Button
@@ -163,7 +163,7 @@ export const BroadcastDialog = ({
 
               {source === "round" && (
                 <FloatingSelect
-                  label="Invio"
+                  label="Selezione"
                   value={roundId ?? ""}
                   onValueChange={setRoundId}
                   disabled={!roleId}

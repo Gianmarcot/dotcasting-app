@@ -306,7 +306,7 @@ export const OwnerRoundDetail = () => {
           <div className="relative flex-1 min-w-[240px] max-w-[30rem]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
-              placeholder="Cerca un talent in questo invio"
+              placeholder="Cerca un talent in questa selezione"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-11 h-12 rounded-full"
@@ -366,7 +366,7 @@ export const OwnerRoundDetail = () => {
         extraAction={
           selectedRow?.pdfPath
             ? {
-                label: "Comp card di questo invio",
+                label: "Comp card di questa selezione",
                 icon: <FileText className="h-4 w-4" />,
                 onClick: () => openPdf(selectedRow.pdfPath),
               }
@@ -393,7 +393,7 @@ export const OwnerRoundDetail = () => {
       <AlertDialog open={regenOpen} onOpenChange={setRegenOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Rigenerare i PDF di questo invio?</AlertDialogTitle>
+            <AlertDialogTitle>Rigenerare i PDF di questa selezione?</AlertDialogTitle>
             <AlertDialogDescription>
               {data.talents.length} comp card verranno ricalcolate con i dati attuali dei
               talent e con lo stesso preset. La selezione dei talent e il link di
@@ -410,7 +410,7 @@ export const OwnerRoundDetail = () => {
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent size="sm">
           <DialogHeader>
-            <DialogTitle>Invio condiviso</DialogTitle>
+            <DialogTitle>Selezione condivisa</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">

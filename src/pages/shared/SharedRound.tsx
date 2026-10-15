@@ -599,12 +599,12 @@ export default function SharedRound() {
 
         {!isLatest && (
           <div className="mb-8 max-w-2xl mx-auto bg-[#1A1A1A] rounded-3xl p-5 text-center text-sm text-white/60 border border-white/5">
-            Selezione chiusa — questo invio è stato superato da uno più recente.
+            Selezione chiusa — questa selezione è stata superata da una più recente.
           </div>
         )}
 
         {talents.length === 0 ? (
-          <p className="text-center text-white/60 py-16">Nessun talent in questo invio.</p>
+          <p className="text-center text-white/60 py-16">Nessun talent in questa selezione.</p>
         ) : (
           <>
             {/* Counter row */}
