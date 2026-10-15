@@ -35,7 +35,7 @@ import { TalentRow, ROW_CHECKBOX } from "@/components/talents/TalentRow";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
-import { buildDisplayName, buildInitials, buildMeta } from "@/components/talents/TalentBoardCard";
+import { buildDisplayName, buildInitials } from "@/components/talents/TalentBoardCard";
 
 /** Elemento selezionabile: `id` è l'identificatore della sorgente (profilo, role_talent, …). */
 export interface SelectionItem {
