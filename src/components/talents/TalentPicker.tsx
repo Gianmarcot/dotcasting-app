@@ -15,6 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TalentTileView } from "@/pages/shared/TalentTile";
 import { toast } from "sonner";
 import { SaveBar } from "@/components/ui/save-bar";
+import { Button } from "@/components/ui/button";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PillTabs } from "@/components/ui/pill-tabs";
