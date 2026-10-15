@@ -56,7 +56,7 @@ export const RoleCard = ({ role, castingId, counts, talents, onEditRole }: Props
         {/* Nome ruolo */}
         <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-4">
           <User className="h-5 w-5 shrink-0" />
-          <span className="truncate text-sm font-bold leading-5 text-foreground">{role.name}</span>
+          <span className="truncate text-base font-medium text-foreground">{role.name}</span>
         </div>
 
         {/* Shortlist: avatar dei talent + conteggio */}
