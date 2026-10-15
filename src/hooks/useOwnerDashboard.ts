@@ -29,7 +29,8 @@ export const useOwnerActionableStats = () => {
         supabase
           .from("role_talents")
           .select("id", { count: "exact", head: true })
-          .eq("talent_status", "invited"),
+          .eq("published_to_talent", true)
+          .is("talent_opened_at", null),
       ]);
 
       return {
@@ -147,11 +148,11 @@ export const useActiveCastingsWithProgress = () => {
       if (roleIds.length > 0) {
         const { data: rts } = await supabase
           .from("role_talents")
-          .select("casting_role_id, company_status")
+          .select("casting_role_id, published_to_talent")
           .in("casting_role_id", roleIds);
         (rts || []).forEach((rt: any) => {
           totals.set(rt.casting_role_id, (totals.get(rt.casting_role_id) || 0) + 1);
-          if (rt.company_status === "confirmed") {
+          if (rt.published_to_talent === true) {
             confirmed.set(rt.casting_role_id, (confirmed.get(rt.casting_role_id) || 0) + 1);
           }
         });

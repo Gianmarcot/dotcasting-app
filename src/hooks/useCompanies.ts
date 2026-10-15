@@ -46,7 +46,7 @@ export const useCompaniesWithStats = (filters?: {
       const { data: roleTalents } = await supabase
         .from("role_talents")
         .select("profile_id, casting_role_id")
-        .eq("company_status", "confirmed");
+        .eq("published_to_talent", true);
 
       const { data: castingRoles } = await supabase
         .from("casting_roles")
@@ -166,7 +166,7 @@ export const useCompanyConfirmedTalents = (companyId: string | undefined) => {
         .from("role_talents")
         .select("profile_id")
         .in("casting_role_id", roleIds)
-        .eq("company_status", "confirmed");
+        .eq("published_to_talent", true);
 
       if (!roleTalents?.length) return [];
 

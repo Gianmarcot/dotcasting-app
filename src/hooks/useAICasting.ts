@@ -185,8 +185,6 @@ async function autoMatchTalentsForRoles(
       profile_id: m.talent.id,
       status: "shortlisted",
       added_by_user_id: userId,
-      talent_status: "none",
-      company_status: "none",
     }));
 
     await supabase.from("role_talents").insert(roleTalentInserts);
