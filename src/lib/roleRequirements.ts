@@ -57,7 +57,9 @@ export function getAge(birthDate: string | null | undefined): number | null {
 export const REQUIREMENT_FIELDS: RequirementField[] = [
   { key: "talentRoles", label: "Ruolo talent", group: "ruolo", type: "list", filterKey: "talentRoles",
     options: opts([...TALENT_ROLES.artistic, ...TALENT_ROLES.creative, ...TALENT_ROLES.production]), read: (t) => t.talent_categories },
-  { key: "gender", label: "Sesso", group: "anagrafica", type: "enum", filterKey: "gender", options: GENDERS, read: (t) => t.gender },
+  { key: "gender", label: "Sesso", group: "anagrafica", type: "enum", filterKey: "gender", options: GENDERS,
+    // l'onboarding storico salva male/female: stessi valori del profilo
+    read: (t) => (t.gender === "male" ? "M" : t.gender === "female" ? "F" : t.gender) },
   { key: "age", label: "Età", group: "anagrafica", type: "number", minKey: "ageMin", maxKey: "ageMax", unit: "anni", read: (t) => getAge(t.birth_date) },
   { key: "genderIdentity", label: "Identità di genere", group: "anagrafica", type: "enum", filterKey: "genderIdentity", options: opts(GENDER_IDENTITIES), read: (t) => t.gender_identity },
   { key: "representationType", label: "Rappresentanza", group: "anagrafica", type: "enum", filterKey: "representationType", options: REPRESENTATION_TYPES, read: (t) => t.representation_type },
