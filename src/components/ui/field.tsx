@@ -128,7 +128,9 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
   ) => {
     const [focused, setFocused] = useState(false);
     const [revealed, setRevealed] = useState(false);
-    const floating = focused || value !== "";
+    // Date/ora mostrano sempre il formato nativo: la label resta sollevata.
+    const isDateLike = ["date", "datetime-local", "time", "month", "week"].includes(type);
+    const floating = focused || value !== "" || isDateLike;
     const message = error?.trim() || warning?.trim() || null;
     const isPassword = type === "password";
     const inputType = isPassword && revealed ? "text" : type;
@@ -175,7 +177,11 @@ export const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
                 setFocused(false);
                 onBlur?.();
               }}
-              className="dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none"
+              className={cn(
+                "dc-autofill w-full border-0 bg-transparent p-0 text-base leading-[1.4] text-inherit outline-none",
+                isDateLike && "dc-date-input h-[22.4px]",
+                isDateLike && value === "" && "text-[var(--field-label)]"
+              )}
             />
           </div>
           {isPassword && !disabled && (
