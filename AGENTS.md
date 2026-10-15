@@ -22,3 +22,9 @@
 - List rows sharing the page with the casting details drawer (`RoleCard`) wrap in `@container` and switch stacked/inline layouts with `@[640px]:` variants, never `md:`. Why: the docked drawer halves the row's real width while the viewport stays wide. Avatar stacks come from the shared `TalentAvatarStack`: `md` inline, `sm` when stacked, toggled by `@[640px]:` display classes.
 - The owner sidebar has a collapsed mode (72px, icons with tooltips, favorites hidden) stored separately from the expanded width (256–384px) in `useOwnerSidebarWidth`; toggle via the edge chevron (`CastingSidePanel` style) or the 164px drag snap; double-click resets width. Why: states persist, so expanding restores the chosen width.
 - Shortlist state is derived: engaged = `published_to_talent`, excluded = `role_talents.excluded`; `talent_status`/`company_status` are deprecated. Requirements: per-item met/unmet/missing via `evaluateRequirements` (`roleMatch.ts`). Why: actions drive state.
+
+## Menu surfaces
+
+- All menu families use shared `.dc-menu` anatomy and explicit `data-surface` from React context on portal content; selects/filters are normal, actions/search compact. Why: portals must preserve the trigger surface.
+- Search/multiple values use `SearchSelect` (Popover + Command), never nested Select; action submenus use `MenuSubLevel` to cap depth at two levels. Why: preserve accessible selection and navigation semantics.
+- Interactive menu regression scenarios live in `MenuScenarios`, mounted in Design System. Why: exercise portals, dark surfaces, overflow and dialogs without changing live data.

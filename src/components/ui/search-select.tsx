@@ -25,7 +25,7 @@ export function SearchSelect({ label, options, values, onValuesChange, multiple 
       </Button>
     </PopoverTrigger>
     <PopoverContent align="start" className="dc-menu-compact w-[var(--radix-popover-trigger-width)]">
-      <Command className="border-0 p-0 shadow-none">
+      <Command className="dc-menu-flat">
         <CommandInput aria-label={`Cerca: ${label}`} placeholder="Cerca…" />
         <CommandList>
           <CommandEmpty>Nessun risultato</CommandEmpty>

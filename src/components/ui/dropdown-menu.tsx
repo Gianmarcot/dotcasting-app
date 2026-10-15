@@ -4,6 +4,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useSurface } from "./surface";
+import { MenuSubLevel } from "./menu-depth";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -13,7 +14,9 @@ const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 
 const DropdownMenuPortal = DropdownMenuPrimitive.Portal;
 
-const DropdownMenuSub = DropdownMenuPrimitive.Sub;
+const DropdownMenuSub = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Sub>) => (
+  <MenuSubLevel><DropdownMenuPrimitive.Sub {...props}>{children}</DropdownMenuPrimitive.Sub></MenuSubLevel>
+);
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 

@@ -4,6 +4,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useSurface } from "./surface";
+import { MenuSubLevel } from "./menu-depth";
 
 const ContextMenu = ContextMenuPrimitive.Root;
 
@@ -13,7 +14,9 @@ const ContextMenuGroup = ContextMenuPrimitive.Group;
 
 const ContextMenuPortal = ContextMenuPrimitive.Portal;
 
-const ContextMenuSub = ContextMenuPrimitive.Sub;
+const ContextMenuSub = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Sub>) => (
+  <MenuSubLevel><ContextMenuPrimitive.Sub {...props}>{children}</ContextMenuPrimitive.Sub></MenuSubLevel>
+);
 
 const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
 

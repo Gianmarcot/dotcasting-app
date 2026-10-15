@@ -734,6 +734,8 @@
   .dc-menu-description { display: block; font-size: 13px; line-height: 1.4; color: var(--menu-tertiary); }
   .dc-menu-trailing { margin-left: auto; color: var(--menu-tertiary); font-size: 12px; }
   .dc-menu-indicator { margin-left: auto; display: flex; flex-shrink: 0; align-items: center; }
+  .dc-menu-check-box { display: flex; width: 18px; height: 18px; align-items: center; justify-content: center; border: 1px solid var(--menu-tertiary); border-radius: 4px; }
+  .dc-menu.dc-menu-flat { padding: 0; border: 0; box-shadow: none; background: transparent; }
   .dc-menu-search { display: flex; align-items: center; gap: 12px; padding: 0 12px; border-bottom: 1px solid var(--menu-divider); }
   .dc-menu-search input { color: var(--menu-fg); }
   .dc-menu-search input::placeholder { color: var(--menu-tertiary); }
@@ -1004,39 +1006,6 @@
 
   .dc-scroll-viewport {
     @apply h-full w-full rounded-[inherit];
-  }
-
-  /* =====================
-     POPOVER
-     ===================== */
-  .dc-popover {
-    @apply z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none
-           data-[state=open]:animate-in data-[state=closed]:animate-out 
-           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
-           data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-           data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 
-           data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-  }
-
-  /* =====================
-     DROPDOWN MENU
-     ===================== */
-  .dc-dropdown-content {
-    @apply z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 
-           text-popover-foreground shadow-md 
-           data-[state=open]:animate-in data-[state=closed]:animate-out 
-           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 
-           data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 
-           data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 
-           data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-  }
-
-  .dc-dropdown-item {
-    @apply relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 
-           text-sm outline-none transition-colors 
-           focus:bg-accent focus:text-accent-foreground 
-           data-[disabled]:pointer-events-none data-[disabled]:opacity-50
-           [&>svg]:size-4 [&>svg]:shrink-0;
   }
 
   /* =====================

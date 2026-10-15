@@ -4,6 +4,7 @@ import { Check, ChevronRight, Circle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { useSurface } from "./surface";
+import { MenuSubLevel } from "./menu-depth";
 
 const MenubarMenu = MenubarPrimitive.Menu;
 
@@ -11,7 +12,9 @@ const MenubarGroup = MenubarPrimitive.Group;
 
 const MenubarPortal = MenubarPrimitive.Portal;
 
-const MenubarSub = MenubarPrimitive.Sub;
+const MenubarSub = ({ children, ...props }: React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Sub>) => (
+  <MenuSubLevel><MenubarPrimitive.Sub {...props}>{children}</MenubarPrimitive.Sub></MenuSubLevel>
+);
 
 const MenubarRadioGroup = MenubarPrimitive.RadioGroup;
 
