@@ -88,7 +88,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { TalentTile } from "@/pages/shared/TalentTile";
+import { TalentTile, TalentTileView } from "@/pages/shared/TalentTile";
 import { MOCK_SHARED_ROUND } from "@/pages/shared/sharedRoundMock";
 import { CastingFilters } from "@/components/castings/CastingFilters";
 import type { CastingSort } from "@/hooks/useCastings";
@@ -1536,6 +1536,25 @@ const BlocksSection = () => (
               selectable
               selected={idx === 1}
               showStatus={false}
+              onToggle={() => {}}
+              onOpenDetails={() => {}}
+            />
+          ))}
+        </div>
+      </div>
+      <p className="mt-6 mb-3 text-sm text-muted-foreground">Variante chiara (tone="light") — finestra Modifica shortlist</p>
+      <div className="rounded-3xl bg-cream p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {MOCK_SHARED_ROUND.talents.slice(0, 4).map((row, idx) => (
+            <TalentTileView
+              key={row.role_talent_id}
+              tone="light"
+              name={String((row.profile as any).stage_name || [(row.profile as any).first_name, (row.profile as any).last_name].filter(Boolean).join(" "))}
+              photoUrl={idx === 3 ? null : (row.media?.[0]?.url ?? null)}
+              initials="CB"
+              meta="176 cm • Milano"
+              selectable
+              selected={idx === 1}
               onToggle={() => {}}
               onOpenDetails={() => {}}
             />
