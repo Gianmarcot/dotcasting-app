@@ -214,7 +214,7 @@ export const OwnerRoundDetail = () => {
         trail={[
           ...(round.casting_role_id
             ? [
-                { label: roleName ?? "…", to: `/owner/castings/${castingId}/${round.casting_role_id}` },
+                { label: roleName, to: `/owner/castings/${castingId}/${round.casting_role_id}` },
                 { label: "Selezioni", to: `/owner/castings/${castingId}/${round.casting_role_id}?scheda=selezioni` },
               ]
             : []),
