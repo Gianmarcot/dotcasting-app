@@ -65,7 +65,7 @@ export const CastingDetailsPanel = ({ casting, onStatusChange, onEdit, onDelete,
   ];
 
   return (
-    <DetailsPanelShell title="Dettagli" className={className}>
+    <DetailsPanelShell title="Dettaglio casting" className={className}>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
