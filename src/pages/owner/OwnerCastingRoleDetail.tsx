@@ -294,7 +294,7 @@ export const OwnerCastingRoleDetail = () => {
                   onClick={() => setEditRoleOpen(true)}
                   className="ml-auto hidden md:inline-flex"
                 >
-                  Modifica
+                  Modifica ruolo
                 </Button>
               )}
             </div>
