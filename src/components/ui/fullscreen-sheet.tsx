@@ -39,8 +39,8 @@ export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, heade
           />
         </div>
         <div className="mx-auto w-full max-w-[1400px] px-6 pt-2 lg:px-10">
-          <DialogPrimitive.Title className={cn("font-display text-xl uppercase sm:text-2xl tracking-wide text-foreground", titleClassName)}>{title}</DialogPrimitive.Title>
           {headerExtra}
+          <DialogPrimitive.Title className={cn("font-display text-xl uppercase sm:text-2xl tracking-wide text-foreground", headerExtra && "mt-6", titleClassName)}>{title}</DialogPrimitive.Title>
         </div>
         {children}
       </DialogPrimitive.Content>
