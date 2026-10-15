@@ -16,6 +16,7 @@ import { TalentTileView } from "@/pages/shared/TalentTile";
 import { toast } from "sonner";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -604,18 +605,27 @@ export const TalentPicker = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
-        <AlertDialogContent className="z-[100]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Hai modifiche non salvate</AlertDialogTitle>
-            <AlertDialogDescription>
-              {dirtyCount} {dirtyCount === 1 ? "modifica" : "modifiche"} alla shortlist andranno perse se esci senza salvare.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Continua a modificare</AlertDialogCancel>
+      <Dialog open={confirmClose} onOpenChange={setConfirmClose}>
+        <DialogContent size="sm" className="z-[100]" overlayClassName="z-[100]">
+          <DialogHeader>
+            <DialogTitle>Salvare le modifiche alla shortlist?</DialogTitle>
+            <DialogDescription>
+              Hai {dirtyCount} {dirtyCount === 1 ? "modifica non salvata" : "modifiche non salvate"}. Se esci senza salvare andranno perse.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-2">
+            <Button
+              className="w-full"
+              onClick={() => {
+                setConfirmClose(false);
+                void save(true);
+              }}
+            >
+              Salva ed esci
+            </Button>
             <Button
               variant="secondary"
+              className="w-full"
               onClick={() => {
                 setConfirmClose(false);
                 setSelected(shortlistIds);
@@ -624,17 +634,9 @@ export const TalentPicker = ({
             >
               Esci senza salvare
             </Button>
-            <AlertDialogAction
-              onClick={() => {
-                setConfirmClose(false);
-                void save(true);
-              }}
-            >
-              Salva
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
