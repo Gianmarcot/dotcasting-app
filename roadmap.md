@@ -24,3 +24,4 @@
 - [x] Eliminare la nota "Il cliente consulta le selezioni in sola lettura…" dalla scheda Selezioni
 - [x] Etichette CF/Minore in shortlist: stile del Database talenti, variante senza icona
 - [x] Rifare la finestra di gestione della shortlist (righe, salvataggio immediato, pillole requisiti)
+- [x] Modifica shortlist: filtri richiudibili, Seleziona tutti, etichette solo CF/Minore a destra, segnaposto scuri
