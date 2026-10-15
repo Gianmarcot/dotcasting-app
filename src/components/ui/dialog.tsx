@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { ModalNavBar } from "@/components/ui/modal-nav-bar";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -45,12 +45,17 @@ const DialogContent = React.forwardRef<
     >
       <div className={cn("dc-dialog-body", bodyClassName)}>{children}</div>
       {!hideClose && (
-        <DialogPrimitive.Close asChild>
-          <ModalNavBar
-            className="dc-dialog-close"
-            showCloseLabel={size === "fullscreen"}
-            onClose={() => {}}
-          />
+        <DialogPrimitive.Close
+          aria-label="Chiudi"
+          className={cn(
+            "dc-dialog-close flex items-center gap-2 rounded-[100px] bg-ink text-white transition-opacity duration-200 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none",
+            size === "fullscreen" ? "py-2 pl-6 pr-2" : "p-2"
+          )}
+        >
+          {size === "fullscreen" && <span aria-hidden className="text-sm">Chiudi</span>}
+          <span aria-hidden className="flex h-10 w-10 items-center justify-center">
+            <X className="h-5 w-5" strokeWidth={1.5} />
+          </span>
         </DialogPrimitive.Close>
       )}
     </DialogPrimitive.Content>
