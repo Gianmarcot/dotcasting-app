@@ -19,6 +19,22 @@ export type TalentRowProfile = FiscalStatusSource & {
   profile_photo_url?: string | null;
 };
 
+export const talentRowInitials = (p: TalentRowProfile | null | undefined) => {
+  const words = (p?.stage_name?.trim() || [p?.first_name, p?.last_name].filter(Boolean).join(" ")).split(/\s+/).filter(Boolean);
+  return words.slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
+};
+
+/** Miniatura 54×80 delle liste: foto, oppure fondo scuro con le iniziali. */
+export const TalentThumb = ({ profile: p, className }: { profile: TalentRowProfile | null | undefined; className?: string }) => (
+  <div className={cn("flex h-20 w-[54px] shrink-0 items-center justify-center overflow-hidden rounded bg-ink", className)}>
+    {p?.profile_photo_url ? (
+      <img src={p.profile_photo_url} alt="" className="h-full w-full object-cover object-[50%_25%]" loading="lazy" />
+    ) : (
+      <span className="text-sm font-medium text-white">{talentRowInitials(p)}</span>
+    )}
+  </div>
+);
+
 export const talentRowName = (p: TalentRowProfile | null | undefined) =>
   p?.stage_name?.trim() || [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Senza nome";
 
@@ -34,15 +50,17 @@ interface Props {
   /** Clic sulla riga: anteprima nella pagina shortlist, selezione nel foglio. */
   onClick?: () => void;
   ariaPressed?: boolean;
+  /** Nasconde l'indicatore dei requisiti (es. colonna Shortlist del foglio). */
+  hideRequirements?: boolean;
   dimmed?: boolean;
   className?: string;
 }
 
 /** Riga talent condivisa: pagina shortlist e foglio di gestione della shortlist. */
-export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, onClick, ariaPressed, dimmed, className }: Props) => {
+export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, onClick, ariaPressed, hideRequirements, dimmed, className }: Props) => {
   const [detailOpen, setDetailOpen] = useState(false);
   const age = getAge(p?.birth_date ?? null);
-  const summary = summarizeRequirements(requirements);
+  const summary = summarizeRequirements(hideRequirements ? [] : requirements);
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
 
   const reqChip = (() => {
@@ -105,11 +123,7 @@ export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, o
           </div>
         )}
 
-        <div className="h-20 w-[54px] shrink-0 overflow-hidden rounded bg-muted">
-          {p?.profile_photo_url && (
-            <img src={p.profile_photo_url} alt="" className="h-full w-full object-cover object-[50%_25%]" loading="lazy" />
-          )}
-        </div>
+        <TalentThumb profile={p} />
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
