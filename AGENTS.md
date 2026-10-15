@@ -13,7 +13,7 @@
 ## Layout
 
 - Admin page content is capped at `max-w-[1600px]` on a wrapper that also carries `@container` (`OwnerLayout`). Responsive layouts inside admin pages choose column counts with container variants (`@[1280px]:grid-cols-5`, `@[960px]:grid-cols-4`) instead of viewport breakpoints. Why: actual content width governs layout.
-- `@container` and `@[…]:` variants need the `@tailwindcss/container-queries` plugin (registered in `tailwind.config.ts`); without it Tailwind 3.4 emits no `container-type` and they silently do nothing.
+- `@container`/`@[…]:` need the container-queries plugin in `tailwind.config.ts`, else they silently do nothing.
 - Talent profile previews share one detail implementation: fullscreen is side-by-side, the square-edged side drawer stacks `100dvh` media above data. The modal owns the fixed bottom bar and publishes its height as `--dc-bar-h` for bottom padding. Why: consistent previews and unobstructed thumbnails.
 - Talent and admin profile editing share the v2 single-column form; `ProfileFormProvider` selects self-service or external-profile data through an optional profile ID, while admin-only controls are layered onto the shared cards. Why: prevent role divergence.
 - Profile photos open through the shared `MediaLightbox`; owner/admin contexts enable its private rating panel, while talent contexts keep ratings hidden. Why: consistent inspection and private ratings.
@@ -22,7 +22,7 @@
 - List rows sharing the page with the casting details drawer (`RoleCard`) wrap in `@container` and switch stacked/inline layouts with `@[640px]:` variants, never `md:`. Why: drawer reduces row width. Avatar stacks come from the shared `TalentAvatarStack`: `md` inline, `sm` when stacked, toggled by `@[640px]:` display classes.
 - The owner sidebar has a collapsed mode (72px, icons with tooltips, favorites hidden) stored separately from the expanded width (256–384px) in `useOwnerSidebarWidth`; toggle via the edge chevron (`CastingSidePanel` style) or the 164px drag snap; double-click resets width. Why: states persist, so expanding restores the chosen width.
 - Shortlist state is derived: engaged = `published_to_talent`, excluded = `role_talents.excluded`; `talent_status`/`company_status` are deprecated. Why: actions drive state.
-- Role requirements live in `casting_roles.requirements` (`{values: TalentFilters shape, mandatory}`), source of truth; `gender/age_min/age_max/required_skills` are a mirror written on save. Fields come only from the registry `src/lib/roleRequirements.ts` (type decides the operator); evaluation (met/unmet/missing) in `roleMatch.ts`. Why: one definition for dialog, evaluation, panel and picker prefill.
+- Role requirements: `casting_roles.requirements` is truth (legacy gender/age/skills columns mirrored on save); fields only from registry `src/lib/roleRequirements.ts`, evaluation in `roleMatch.ts`. Why: one definition everywhere.
 
 ## Menu surfaces
 
