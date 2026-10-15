@@ -330,7 +330,7 @@ export const OwnerCastingRoleDetail = () => {
                     <>
                       <h2 className="font-display text-base uppercase text-foreground">Shortlist</h2>
                       <Button variant="secondary" size="md" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
-                        <Plus />
+                        <ListChecks />
                         Modifica shortlist
                       </Button>
                     </>

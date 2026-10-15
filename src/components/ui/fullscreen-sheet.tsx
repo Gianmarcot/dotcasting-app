@@ -31,7 +31,7 @@ export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, heade
         className={cn("dc-dialog-fullscreen z-[80]", className)}
         aria-describedby={undefined}
       >
-        <div className="sticky top-0 z-10 flex justify-end px-3 pt-8 sm:px-8">
+        <div className="sticky top-0 z-10 flex justify-end px-3 pt-6 sm:px-8">
           <ModalNavBar
             onClose={onRequestClose}
             showCloseLabel
