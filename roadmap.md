@@ -26,3 +26,4 @@
 - [x] Rifare la finestra di gestione della shortlist (righe, salvataggio immediato, pillole requisiti)
 - [x] Modifica shortlist: filtri richiudibili, Seleziona tutti, etichette solo CF/Minore a destra, segnaposto scuri
 - [x] Vista griglia (TalentTile chiara) in Modifica shortlist
+- [x] Tessere chiare con sfondo beige come la barra di ricerca, senza bordo se non selezionate
