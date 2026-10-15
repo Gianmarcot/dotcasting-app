@@ -13,8 +13,7 @@ import {
   Star,
   ChevronRight,
   GripVertical,
-  PanelLeftClose,
-  PanelLeftOpen,
+  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -160,30 +159,41 @@ export const OwnerSidebar = () => {
 
 
 
-      {/* Logo + collapse toggle */}
-      <div className={cn("dc-sidebar-header", collapsed && "justify-center px-2")}>
-        {!collapsed && (
+      {/* Logo */}
+      <div className="dc-sidebar-header">
+        {!collapsed ? (
           <Link to="/owner" className="flex items-center gap-3">
             <img src={logoWhite} alt="dotCasting" className="h-7" />
             <span className="text-xs font-display uppercase tracking-widest text-white/60">
               Admin
             </span>
           </Link>
+        ) : (
+          <span aria-hidden className="h-7 w-7" />
         )}
-        <button
-          type="button"
-          onClick={toggleCollapsed}
-          aria-label={collapsed ? "Espandi barra laterale" : "Comprimi barra laterale"}
-          aria-expanded={!collapsed}
-          className="rounded-md p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </button>
       </div>
+
+      {/* Espandi/comprimi: freccia a cavallo del bordo, come nel drawer dettagli casting */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-label={collapsed ? "Espandi barra laterale" : "Comprimi barra laterale"}
+            aria-expanded={!collapsed}
+            className="absolute top-[22px] -right-5 z-[60] flex h-10 w-10 items-center justify-center rounded-full bg-white text-foreground shadow-sm"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-5 w-5" />
+            ) : (
+              <ChevronLeft className="h-5 w-5" />
+            )}
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          {collapsed ? "Espandi barra laterale" : "Comprimi barra laterale"}
+        </TooltipContent>
+      </Tooltip>
 
       {/* Navigation */}
       <nav className="dc-sidebar-nav">
@@ -364,8 +374,11 @@ const NavItemLink = ({
   );
 };
 
+/** Array stabile: un [] letterale cambierebbe identità a ogni render, riavviando l'effetto. */
+const EMPTY_FAVORITES: FavoriteCasting[] = [];
+
 const FavoritesSection = () => {
-  const { data: favorites = [], isLoading } = useFavoriteCastings();
+  const { data: favorites = EMPTY_FAVORITES, isLoading } = useFavoriteCastings();
   const reorder = useReorderFavoriteCastings();
   const [items, setItems] = useState<FavoriteCasting[]>(favorites);
   const justDraggedRef = useRef(false);
