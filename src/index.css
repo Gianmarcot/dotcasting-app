@@ -779,6 +779,7 @@
   .dc-dialog-overlay[data-state="closed"], .dc-dialog[data-state="closed"],
   .dc-dialog-fullscreen[data-state="closed"] { animation-duration: 250ms; }
   .dc-dialog-sm { max-width: 440px; }
+  .dc-dialog-sm .dc-dialog-body { @apply gap-6 p-6 sm:p-8; }
   .dc-dialog-md { max-width: 600px; }
   .dc-dialog-lg { max-width: 880px; }
 
