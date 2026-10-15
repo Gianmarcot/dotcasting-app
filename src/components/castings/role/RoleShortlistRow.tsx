@@ -11,8 +11,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MinorBadge } from "@/components/talents/MinorBadge";
-import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
+import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
 import { getAge, summarizeRequirements, type RequirementResult } from "@/lib/roleMatch";
 import { roleTalentStatusBadge } from "@/lib/casting/roleTalentStatus";
 import { isEngaged, type RoleTalentWithProfile } from "@/hooks/useRoleTalents";
@@ -103,8 +102,8 @@ export const RoleShortlistRow = ({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate font-medium text-foreground">{talentName(p)}</span>
-            <MinorBadge birthDate={p?.birth_date} className="shrink-0" />
-            <FiscalStatusBadge profile={p} className="shrink-0" />
+            <MinorPill birthDate={p?.birth_date} className="shrink-0" withIcon={false} />
+            <FiscalPill profile={p} className="shrink-0" withIcon={false} />
           </div>
           <p className="truncate text-sm text-muted-foreground">
             {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
