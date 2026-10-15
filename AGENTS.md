@@ -32,4 +32,4 @@
 
 ## Modals
 
-- Modals pick a `size` on `DialogContent` (`sm` alerts/confirmations, `md` short forms, `lg` long forms/lists, `fullscreen` = media-manager sheet); no ad-hoc max-width/max-height. Content sits in `.dc-dialog-body` (scrolls, padding), the close is the ink ModalNavBar-style pill. Why: one modal anatomy.
+- Modals set `DialogContent` `size` (sm alerts, md short forms, lg long forms/lists, fullscreen = media-manager sheet), never ad-hoc widths. Why: one anatomy.
