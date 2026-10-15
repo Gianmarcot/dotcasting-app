@@ -19,13 +19,10 @@ const mainNavItems = [
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
 ];
 
-const allMoreNavItems = [
-  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
+const moreNavItems = [
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
   { icon: Settings, label: it.backoffice.settings, href: "/owner/settings" },
 ];
-
-const moreNavItems = allMoreNavItems.filter(item => !('flag' in item) || FEATURE_FLAGS[item.flag!]);
 
 export const MobileBottomNavOwner = () => {
   const location = useLocation();

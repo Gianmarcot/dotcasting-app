@@ -51,12 +51,11 @@ const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
   { icon: Users, label: it.backoffice.talentDatabase, href: "/owner/talents" },
   { icon: Film, label: it.backoffice.castings, href: "/owner/castings" },
-  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
 ];
 
-const navItems = allNavItems.filter((item) => !("flag" in item) || FEATURE_FLAGS[item.flag!]);
+const navItems = allNavItems;
 
 export const OwnerSidebar = () => {
   const location = useLocation();
