@@ -32,7 +32,7 @@ export function SearchSelect({ label, options, values, onValuesChange, multiple 
         <ChevronDown className="h-5 w-5 shrink-0" />
       </button>
     </PopoverTrigger>
-    <PopoverContent align="start" className="dc-menu-compact w-[var(--radix-popover-trigger-width)]">
+    <PopoverContent align="start" className="w-[var(--radix-popover-trigger-width)]">
       <Command className="dc-menu-flat">
         <CommandInput aria-label={`Cerca: ${label}`} placeholder="Cerca…" />
         <CommandList>
