@@ -18,7 +18,11 @@ interface Props {
   titleClassName?: string;
 }
 
-/** Foglio a tutto schermo con velo, entrata dal basso e ModalNavBar in alto a destra. */
+/**
+ * Foglio a tutto schermo con velo, entrata dal basso e ModalNavBar in alto a destra.
+ * Stessa anatomia della gestione media: barra di chiusura nel flusso (spinge il
+ * titolo alla stessa distanza dal bordo) e titolo allineato alla colonna interna.
+ */
 export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, headerExtra, children, className, titleClassName }: Props) => (
   <DialogPrimitive.Root open={open} onOpenChange={(o) => !o && onRequestClose()}>
     <DialogPrimitive.Portal>
@@ -27,13 +31,14 @@ export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, heade
         className={cn("dc-dialog-fullscreen z-[80]", className)}
         aria-describedby={undefined}
       >
-        <ModalNavBar
-          className="absolute right-3 top-8 z-[90] sm:right-8"
-          onClose={onRequestClose}
-          showCloseLabel
-          labels={closeLabel ? { close: closeLabel } : undefined}
-        />
-        <div className="px-6 pt-10 pb-6 pr-36 lg:px-10 lg:pr-40">
+        <div className="sticky top-0 z-10 flex justify-end px-3 pt-8 sm:px-8">
+          <ModalNavBar
+            onClose={onRequestClose}
+            showCloseLabel
+            labels={closeLabel ? { close: closeLabel } : undefined}
+          />
+        </div>
+        <div className="mx-auto w-full max-w-[1400px] px-6 pt-2 lg:px-10">
           <DialogPrimitive.Title className={cn("font-display text-xl uppercase sm:text-2xl tracking-wide text-foreground", titleClassName)}>{title}</DialogPrimitive.Title>
           {headerExtra}
         </div>
