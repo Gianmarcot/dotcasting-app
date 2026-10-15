@@ -47,6 +47,7 @@ const DropdownMenuSubContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const surface = useSurface();
   return (
+  <DropdownMenuPrimitive.Portal>
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     data-surface={surface}
@@ -57,6 +58,7 @@ const DropdownMenuSubContent = React.forwardRef<
     )}
     {...props}
   />
+  </DropdownMenuPrimitive.Portal>
 );
 });
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;

@@ -47,6 +47,7 @@ const ContextMenuSubContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const surface = useSurface();
   return (
+  <ContextMenuPrimitive.Portal>
   <ContextMenuPrimitive.SubContent
     ref={ref}
     data-surface={surface}
@@ -57,6 +58,7 @@ const ContextMenuSubContent = React.forwardRef<
     )}
     {...props}
   />
+  </ContextMenuPrimitive.Portal>
 );
 });
 ContextMenuSubContent.displayName = ContextMenuPrimitive.SubContent.displayName;

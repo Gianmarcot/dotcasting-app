@@ -72,6 +72,7 @@ const MenubarSubContent = React.forwardRef<
 >(({ className, ...props }, ref) => {
   const surface = useSurface();
   return (
+  <MenubarPrimitive.Portal>
   <MenubarPrimitive.SubContent
     ref={ref}
     data-surface={surface}
@@ -82,6 +83,7 @@ const MenubarSubContent = React.forwardRef<
     )}
     {...props}
   />
+  </MenubarPrimitive.Portal>
 );
 });
 MenubarSubContent.displayName = MenubarPrimitive.SubContent.displayName;
