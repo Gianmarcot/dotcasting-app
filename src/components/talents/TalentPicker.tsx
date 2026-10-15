@@ -10,7 +10,6 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 import { ChevronDown, Eye, Search, X } from "lucide-react";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -355,11 +354,14 @@ export const TalentPicker = ({
         </div>
       </div>
 
-      <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
-        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
+      <div
+        className={cn("grid transition-[grid-template-rows,opacity] duration-300 ease-out", filtersOpen ? "grid-rows-[1fr] opacity-100" : "-mt-4 grid-rows-[0fr] opacity-0")}
+        inert={!filtersOpen ? true : undefined}
+      >
+        <div className="min-h-0 overflow-hidden">
           <TalentFilterBar filters={filters} onFiltersChange={changeFilters} surface="base" onReset={resetAll} forceReset={pills.mandatory || pills.optional} />
-        </CollapsibleContent>
-      </Collapsible>
+        </div>
+      </div>
 
       {availablePills.length > 0 && (
         <div className="flex flex-wrap gap-2">
