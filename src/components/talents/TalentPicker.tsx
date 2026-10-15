@@ -105,12 +105,12 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
     <section
       ref={setNodeRef}
       className={cn(
-        "flex h-full min-h-0 flex-col gap-6 rounded-3xl border-2 border-dashed border-grey-600/50 p-8 transition-all duration-200",
+        "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-2 border-dashed border-grey-600/50 p-8 transition-all duration-200",
         dragging && "border-primary bg-primary/5",
-        isOver && "scale-[1.01] border-primary bg-primary/10 shadow-[0_0_0_6px_rgba(163,10,43,0.12)]",
+        isOver && "border-primary bg-primary/10 shadow-[0_0_0_6px_rgba(163,10,43,0.12)]",
       )}
     >
-      {children}
+      {/* Avviso di rilascio: sempre in vista, non in fondo al pannello. */}
       {dragging && (
         <div
           className={cn(
@@ -122,6 +122,7 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
           {isOver ? "Rilascia per aggiungere alla shortlist" : "Trascina qui per aggiungere alla shortlist"}
         </div>
       )}
+      {children}
     </section>
   );
 };
