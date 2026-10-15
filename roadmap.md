@@ -27,5 +27,5 @@
 - [x] Modifica shortlist: filtri richiudibili, Seleziona tutti, etichette solo CF/Minore a destra, segnaposto scuri
 - [x] Vista griglia (TalentTile chiara) in Modifica shortlist
 - [x] Tessere chiare con sfondo beige come la barra di ricerca, senza bordo se non selezionate
-- [ ] Rendere più visibile il trascinamento drag & drop nella shortlist
-- [ ] Spostare "Solo CF validi" in basso a sinistra nei filtri della shortlist
+- [x] Rendere più visibile il trascinamento drag & drop nella shortlist
+- [x] Spostare "Solo CF validi" in basso a sinistra nei filtri della shortlist
