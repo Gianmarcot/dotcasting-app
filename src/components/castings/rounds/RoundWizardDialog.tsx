@@ -543,14 +543,16 @@ export const RoundWizardDialog = (props: Props) => {
       }
       headerExtra={stepper}
     >
-      {step === 0 ? (
-        Step1
-      ) : (
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 lg:px-10">
-          {step === 1 && Step2}
-          {step === 2 && Step3}
-        </div>
-      )}
+      <div className="mx-auto mt-6 flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
+        {step === 0 ? (
+          Step1
+        ) : (
+          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 lg:px-10">
+            {step === 1 && Step2}
+            {step === 2 && Step3}
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center justify-between gap-4 border-t border-border bg-background px-6 py-4 lg:px-10">
         <Button

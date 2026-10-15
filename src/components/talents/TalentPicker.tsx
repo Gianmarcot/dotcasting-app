@@ -526,9 +526,8 @@ export const TalentPicker = ({
         onRequestClose={requestClose}
         title={title}
         closeLabel="Chiudi"
-        className="top-8"
-        titleClassName="text-[21px]"
       >
+        <div className="mx-auto mt-10 flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
         <div className="px-6 pb-4 lg:hidden">
           <PillTabs
             ariaLabel="Colonna"
@@ -578,6 +577,7 @@ export const TalentPicker = ({
             ) : null}
           </DragOverlay>
         </DndContext>
+        </div>
       <SaveBar
         dirty={dirtyCount > 0 && open}
         count={dirtyCount}
