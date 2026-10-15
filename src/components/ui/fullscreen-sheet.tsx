@@ -31,16 +31,19 @@ export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, heade
         className={cn("dc-dialog-fullscreen z-[80] overflow-y-auto", className)}
         aria-describedby={undefined}
       >
-        <div className="sticky top-0 z-10 flex justify-end px-3 pt-6 sm:px-8">
-          <ModalNavBar
-            onClose={onRequestClose}
-            showCloseLabel
-            labels={closeLabel ? { close: closeLabel } : undefined}
-          />
+        <div className="sticky top-0 z-10 bg-card pb-2 pt-6">
+          <div className="mx-auto flex w-full max-w-[1400px] flex-col items-end gap-4 px-6 sm:flex-row sm:items-center sm:gap-6 lg:px-10">
+            <ModalNavBar
+              className="shrink-0 sm:order-2"
+              onClose={onRequestClose}
+              showCloseLabel
+              labels={closeLabel ? { close: closeLabel } : undefined}
+            />
+            {headerExtra && <div className="w-full min-w-0 sm:order-1 sm:flex-1">{headerExtra}</div>}
+          </div>
         </div>
         <div className="mx-auto w-full max-w-[1400px] px-6 pt-2 lg:px-10">
-          {headerExtra}
-          <DialogPrimitive.Title className={cn("font-display text-xl uppercase sm:text-2xl tracking-wide text-foreground", headerExtra && "mt-6", titleClassName)}>{title}</DialogPrimitive.Title>
+          <DialogPrimitive.Title className={cn("font-display text-xl uppercase sm:text-2xl tracking-wide text-foreground", headerExtra && "mt-10", titleClassName)}>{title}</DialogPrimitive.Title>
         </div>
         {children}
       </DialogPrimitive.Content>
