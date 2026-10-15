@@ -21,3 +21,4 @@
 - [x] Rimuovere i divisori tra le righe di Shortlist, Selezioni e Ingaggi
 - [x] Allineare le schede Selezioni e Ingaggi alla Shortlist (titolo e azione in cima)
 - [x] Rimuovere il pulsante "Ingaggia talent" dalla scheda Ingaggi
+- [x] Eliminare la nota "Il cliente consulta le selezioni in sola lettura…" dalla scheda Selezioni

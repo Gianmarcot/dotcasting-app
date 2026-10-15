@@ -47,9 +47,6 @@ export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) 
         />
       ))}
 
-      <p className="mt-4 text-sm text-muted-foreground opacity-70">
-        Il cliente consulta le selezioni in sola lettura: registra il suo riscontro escludendo dal ruolo chi non va bene.
-      </p>
 
       <RoundWizardDialog
         open={createOpen}
