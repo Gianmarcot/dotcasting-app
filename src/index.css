@@ -704,13 +704,9 @@
   .dc-menu-item[data-state="checked"], .dc-menu-item[data-state="on"], .dc-menu-item[data-selected="true"] {
     background: var(--menu-highlight);
   }
-  .dc-menu-item:focus-visible, .dc-menu-item[data-highlighted]:focus { outline: none; }
-  .dc-menu:focus, .dc-menu:focus-visible,
+  .dc-menu-item, .dc-menu-item:focus, .dc-menu-item:focus-visible { outline: none; }
+  .dc-menu:focus, .dc-menu:focus-visible { outline: none; }
   .dc-menu [cmdk-input]:focus, .dc-menu [cmdk-input]:focus-visible { outline: none; box-shadow: none; }
-  .dc-menu-item:focus-visible:not(:hover), .dc-menu-item[data-highlighted]:focus:not(:hover) {
-    outline: 2px solid var(--menu-tertiary);
-    outline-offset: -2px;
-  }
   .dc-menu-item[data-disabled]:not([data-disabled="false"]) {
     opacity: 0.45;
     pointer-events: none;
