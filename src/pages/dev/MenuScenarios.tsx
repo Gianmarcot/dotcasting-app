@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Film, MoreHorizontal, Pencil, Copy, Trash2, Download, Users } from "lucide-react";
 import { Surface, type SurfaceVariant } from "@/components/ui/surface";
 import { Button } from "@/components/ui/button";
