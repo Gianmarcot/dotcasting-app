@@ -108,7 +108,7 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
     <section
       ref={setNodeRef}
       className={cn(
-        "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-2 border-dashed border-grey-600/50 p-8 transition-all duration-200",
+        "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-2 border-dashed border-grey-600/50 p-8 [border-width:2px] transition-all duration-200",
         dragging && "border-primary bg-primary/5",
         isOver && "border-primary bg-primary/10",
       )}
@@ -415,8 +415,8 @@ export const TalentPicker = ({
             Seleziona tutti ({shownIds.length})
           </label>
           {view === "grid" ? (
-            <div className="-mx-4 @container">
-              <div className="grid grid-cols-2 gap-4 @[720px]:grid-cols-3 @[1000px]:grid-cols-4">
+            <div className="@container min-w-0">
+              <div className="grid grid-cols-1 gap-4 @[480px]:grid-cols-2 @[720px]:grid-cols-3 @[1000px]:grid-cols-4 [&>*]:min-w-0">
                 {shown.map((t) => {
                   const isSel = selectedSet.has(t.id);
                   const height = (t.attributes as { height?: number | null } | null)?.height;
@@ -527,7 +527,7 @@ export const TalentPicker = ({
         title={title}
         closeLabel="Chiudi"
       >
-        <div className="mx-auto mt-10 flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
+        <div className="mx-auto mt-8 w-full max-w-[1400px]">
         <div className="px-6 pb-4 lg:hidden">
           <PillTabs
             ariaLabel="Colonna"
@@ -553,9 +553,9 @@ export const TalentPicker = ({
             setActiveId(null);
           }}
         >
-          <div className="min-h-0 flex-1 overflow-hidden px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:grid-rows-[minmax(0,1fr)] lg:gap-16 lg:px-10">
-            <div className={cn("h-full min-h-0 overflow-y-auto overflow-x-hidden pb-28", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
-            <div className={cn("h-full min-h-0 pb-28 lg:pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
+          <div className="px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:items-start lg:gap-16 lg:px-10">
+            <div className={cn("min-w-0 pb-28", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
+            <div className={cn("pb-28 lg:sticky lg:top-[80px] lg:h-[calc(100dvh-24px-80px)] lg:pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
           </div>
           <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1.2)" }}>
             {activeTalent ? (
