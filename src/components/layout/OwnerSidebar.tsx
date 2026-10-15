@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Users,
   Film,
-  FileText,
   MessageSquare,
   Building2,
   Settings,
@@ -19,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";
@@ -51,12 +49,11 @@ const allNavItems = [
   { icon: LayoutDashboard, label: it.backoffice.dashboard, href: "/owner" },
   { icon: Users, label: it.backoffice.talentDatabase, href: "/owner/talents" },
   { icon: Film, label: it.backoffice.castings, href: "/owner/castings" },
-  { icon: FileText, label: it.backoffice.applications, href: "/owner/applications", flag: "OWNER_APPLICATIONS" as const },
   { icon: MessageSquare, label: it.backoffice.messagingCenter, href: "/owner/messages" },
   { icon: Building2, label: it.backoffice.companiesCRM, href: "/owner/companies" },
 ];
 
-const navItems = allNavItems.filter((item) => !("flag" in item) || FEATURE_FLAGS[item.flag!]);
+const navItems = allNavItems;
 
 export const OwnerSidebar = () => {
   const location = useLocation();

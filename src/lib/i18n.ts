@@ -5,7 +5,6 @@ export const it = {
     home: "Home",
     myCastings: "I miei Casting",
     profile: "Profilo",
-    applications: "Candidature",
     messages: "Messaggi",
     communications: "Comunicazioni",
     
@@ -92,21 +91,6 @@ export const it = {
     education: "Formazione",
   },
 
-  // Applications
-  applications: {
-    title: "Le tue candidature",
-    status: {
-      submitted: "Inviata",
-      shortlisted: "Selezionata",
-      rejected: "Rifiutata",
-      hold: "In attesa",
-      callback: "Callback",
-      booked: "Confermata",
-    },
-    empty: "Non hai ancora inviato candidature",
-    coverNote: "Nota di presentazione",
-  },
-
   // Messages
   messages: {
     title: "Messaggi",
@@ -129,7 +113,7 @@ export const it = {
     talentDatabase: "Database Talenti",
     castings: "Casting",
     targets: "Target e Shortlist",
-    applications: "Candidature",
+
     
     messagingCenter: "Centro Messaggi",
     companiesCRM: "CRM Aziende",
