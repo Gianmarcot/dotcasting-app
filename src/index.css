@@ -819,6 +819,8 @@
     @apply text-lg font-medium leading-tight tracking-tight;
   }
 
+  .dc-dialog-fullscreen .dc-dialog-title { @apply text-2xl; }
+
   .dc-dialog-description {
     @apply text-sm text-muted-foreground;
   }
