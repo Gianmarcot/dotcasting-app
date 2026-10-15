@@ -362,7 +362,7 @@ export const OwnerCastingRoleDetail = () => {
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onSelect={() => setRemoveIds([...selected])}
-                              className="text-[#ff6b81] focus:text-[#ff6b81]"
+                              className="text-destructive"
                             >
                               Rimuovi dalla shortlist
                             </DropdownMenuItem>

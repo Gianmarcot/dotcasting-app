@@ -128,7 +128,7 @@ export const RoleShortlistRow = ({
               <DropdownMenuItem onSelect={onToggleExcluded}>
                 {rt.excluded ? "Reintegra nel ruolo" : "Escludi dal ruolo"}
               </DropdownMenuItem>
-              <DropdownMenuItem onSelect={onRemove} className="text-[#ff6b81] focus:text-[#ff6b81]">
+              <DropdownMenuItem onSelect={onRemove} className="text-destructive">
                 Rimuovi dalla shortlist
               </DropdownMenuItem>
             </DropdownMenuContent>

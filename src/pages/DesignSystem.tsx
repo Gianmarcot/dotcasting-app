@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Camera, Play } from "lucide-react";
 import { toast as sonnerToast } from "sonner";
 import { ModalNavBar } from "@/components/ui/modal-nav-bar";
+import { MenuScenarios } from "@/pages/dev/MenuScenarios";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
 
@@ -1550,6 +1551,7 @@ const sections = [
   { id: "tokens", label: "Tokens" },
   { id: "typography", label: "Typography" },
   { id: "primitives", label: "Primitive shadcn" },
+  { id: "menus", label: "Menu interattivi" },
   { id: "patterns", label: "Pattern dotCasting" },
   { id: "blocks", label: "Blocchi complessi" },
 ];
@@ -1597,6 +1599,7 @@ const DesignSystemContent = () => {
             <TokensSection />
             <TypographySection />
             <PrimitivesSection />
+            <MenuScenarios />
             <PatternsSection />
             <BlocksSection />
 

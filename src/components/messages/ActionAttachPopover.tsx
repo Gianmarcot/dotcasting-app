@@ -58,7 +58,8 @@ export const ActionAttachPopover = ({
             <Paperclip />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-[340px] space-y-4 p-4">
+        <PopoverContent align="start" className="w-[340px] dc-menu-filter">
+          <div className="space-y-4">
           <div className="space-y-2">
             <Label>Tipo di azione</Label>
             <Select
@@ -165,6 +166,7 @@ export const ActionAttachPopover = ({
           <Button type="button" size="sm" className="w-full" onClick={confirm}>
             Allega azione
           </Button>
+          </div>
         </PopoverContent>
       </Popover>
 
