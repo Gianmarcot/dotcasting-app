@@ -613,15 +613,15 @@
   }
 
   .dc-select-content {
-    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl shadow-md
+    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl shadow-lg
            data-[state=open]:animate-in data-[state=closed]:animate-out
            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
            data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
            data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-    border: 1px solid var(--field-border);
-    background-color: var(--field-bg);
-    color: var(--field-fg);
+    border: 0;
+    background-color: #0f0f0f;
+    color: #ffffff;
   }
 
   .dc-select-content-popper {
@@ -633,12 +633,12 @@
     @apply relative flex w-full cursor-default select-none items-center
            rounded-lg py-2.5 pl-8 pr-3 text-sm outline-none
            data-[disabled]:pointer-events-none data-[disabled]:opacity-50;
-    color: var(--field-fg);
+    color: #ffffff;
   }
 
   .dc-select-item[data-highlighted] {
-    background-color: color-mix(in srgb, var(--field-fg) 8%, var(--field-bg));
-    color: var(--field-fg);
+    background-color: rgb(255 255 255 / 0.1);
+    color: #ffffff;
   }
 
   .dc-label {
