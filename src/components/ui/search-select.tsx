@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
-import { Button } from "./button";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandItem } from "./command";
 
@@ -19,10 +18,19 @@ export function SearchSelect({ label, options, values, onValuesChange, multiple 
   const selected = options.find((option) => option.value === values[0]);
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild>
-      <Button variant="ghost" role="combobox" aria-expanded={open} aria-label={label} disabled={disabled} className="dc-select-trigger w-full justify-between">
+      {/* Campo nativo: nessun Button, le sue utility sovrascriverebbero .dc-select-trigger */}
+      <button
+        type="button"
+        role="combobox"
+        aria-expanded={open}
+        aria-label={label}
+        disabled={disabled}
+        data-placeholder={values.length === 0 ? "" : undefined}
+        className="dc-select-trigger w-full justify-between"
+      >
         <span className="truncate">{multiple && values.length ? `${values.length} selezionati` : selected?.label ?? label}</span>
         <ChevronDown className="h-5 w-5 shrink-0" />
-      </Button>
+      </button>
     </PopoverTrigger>
     <PopoverContent align="start" className="dc-menu-compact w-[var(--radix-popover-trigger-width)]">
       <Command className="dc-menu-flat">

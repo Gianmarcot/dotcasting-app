@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { Film, MoreHorizontal, Pencil, Copy, Trash2, Download, Users } from "lucide-react";
 import { Surface, type SurfaceVariant } from "@/components/ui/surface";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,11 @@ function ActionMenu({ label, destructive = false, nested = false, onAction }: { 
   </DropdownMenu>;
 }
 
+/** Trigger demo standard: campo nativo, identico agli altri campi della sezione. */
+function FieldTrigger({ label, className }: { label: string; className?: string }) {
+  return <button type="button" data-placeholder="" className={cn("dc-select-trigger", className)}>{label}</button>;
+}
+
 function Scenario({ number, title, component, children }: { number: number; title: string; component: string; children: ReactNode }) {
   return <div className="min-w-0 space-y-3 border-b border-border/30 pb-6">
     <div className="space-y-1"><h3 className="font-display text-sm uppercase">{number.toString().padStart(2, "0")} · {title}</h3><code className="block break-words text-xs opacity-70">{component}</code></div>
@@ -87,10 +93,10 @@ export function MenuScenarios() {
         </Scenario>
         <Scenario number={11} title="Selezionato e disabilitato" component="SelectItem disabled / Select disabled"><div className="space-y-3"><SimpleSelect label="Stati delle voci" states /><SimpleSelect label="Campo disabilitato" disabled /></div></Scenario>
         <Scenario number={12} title="Dentro una finestra" component="Dialog + Surface + SelectContent">
-          <Dialog><DialogTrigger asChild><Button variant="ghost" className="dc-select-trigger">Apri finestra</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Menu nella finestra</DialogTitle></DialogHeader><Surface variant={surface} className="space-y-4 rounded-2xl p-6"><SimpleSelect label="Città nella finestra" long /><SearchSelect label="Ricerca nella finestra" options={options} values={search} onValuesChange={setSearch} /></Surface></DialogContent></Dialog>
+          <Dialog><DialogTrigger asChild><FieldTrigger label="Apri finestra" className="w-full" /></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Menu nella finestra</DialogTitle></DialogHeader><Surface variant={surface} className="space-y-4 rounded-2xl p-6"><SimpleSelect label="Città nella finestra" long /><SearchSelect label="Ricerca nella finestra" options={options} values={search} onValuesChange={setSearch} /></Surface></DialogContent></Dialog>
         </Scenario>
       </div>
-      <div className="space-y-3"><h3 className="font-display text-sm uppercase">Pannello filtri · PopoverContent</h3><Popover><PopoverTrigger asChild><Button variant="ghost" className="dc-select-trigger w-full sm:w-72">Filtri</Button></PopoverTrigger><PopoverContent className="dc-menu-filter w-72" align="start"><div className="space-y-3"><FloatingInput label="Nome" value={filter} onChange={setFilter} /><SimpleSelect label="Città nel filtro" /></div></PopoverContent></Popover></div>
+      <div className="space-y-3"><h3 className="font-display text-sm uppercase">Pannello filtri · PopoverContent</h3><Popover><PopoverTrigger asChild><FieldTrigger label="Filtri" className="w-full sm:w-72" /></PopoverTrigger><PopoverContent className="dc-menu-filter w-72" align="start"><div className="space-y-3"><FloatingInput label="Nome" value={filter} onChange={setFilter} /><SimpleSelect label="Città nel filtro" /></div></PopoverContent></Popover></div>
       {action && <output aria-live="polite" className="block text-sm">Ultima azione: {action}</output>}
     </Surface>
     <div className="space-y-3"><h3 className="font-display text-sm uppercase">Database talenti · TalentFilterBar</h3><TalentFilterBar filters={talentFilters} onFiltersChange={setTalentFilters} /></div>
