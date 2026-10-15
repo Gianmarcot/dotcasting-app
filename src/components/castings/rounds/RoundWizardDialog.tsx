@@ -14,6 +14,9 @@ import { FloatingInput, FloatingSelect } from "@/components/ui/field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { Stepper } from "@/components/ui/stepper";
+import { Surface } from "@/components/ui/surface";
+import { TalentSearchField } from "@/components/talents/TalentSearchField";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import {
@@ -28,7 +31,7 @@ import { TalentCardWeb } from "@/lib/casting/TalentCardWeb";
 import { useCreateRound } from "@/hooks/useCastingRounds";
 import { useRoleTalentsForRound, RoleTalentRow } from "@/hooks/useRoleConfirmedTalents";
 import { useUpdateRound } from "@/hooks/useUpdateRound";
-import { ChevronLeft, ChevronRight, Loader2, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 
 type StatusFilterKey = "engaged" | "not_engaged";
 
@@ -299,27 +302,26 @@ export const RoundWizardDialog = (props: Props) => {
       emptyText={roleTalents.length === 0 ? "Nessun talent in questo ruolo." : "Nessun talent corrisponde ai filtri."}
       toolbar={
         <>
-          <div className="relative">
-            <FloatingInput label="Cerca per nome" value={search} onChange={setSearch} />
-            <Search className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-          </div>
+          <Surface variant="base"><TalentSearchField value={search} onChange={setSearch} className="w-full min-w-0" /></Surface>
           <div className="flex flex-wrap items-center gap-2">
             {STATUS_FILTERS.map((f) => {
               const active = statusFilters.has(f.key);
               const count = roleTalents.filter((r) => f.match(r)).length;
               return (
-                <button
+                <Button
                   key={f.key}
                   type="button"
                   aria-pressed={active}
                   onClick={() => toggleFilter(f.key)}
                   className={cn(
-                    "rounded-full px-3 py-1.5 text-sm transition-colors",
-                    active ? "bg-ink text-white" : "bg-card text-foreground hover:bg-muted"
+                    "px-4",
+                    active ? "bg-ink text-cream hover:bg-ink" : "bg-field text-foreground hover:bg-muted"
                   )}
+                  variant="ghost"
+                  size="sm"
                 >
                   {f.label} <span className="opacity-60">· {count}</span>
-                </button>
+                </Button>
               );
             })}
             <Button
@@ -391,7 +393,7 @@ export const RoundWizardDialog = (props: Props) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <FloatingSelect
           label="Foto extra"
           value={photoCountToValue(preset.photoCount)}
@@ -415,7 +417,7 @@ export const RoundWizardDialog = (props: Props) => {
   );
 
   const PreviewPanel = (
-    <div className="border rounded-lg p-3 bg-muted/30 max-h-[600px] overflow-y-auto">
+    <div className="rounded-3xl p-4 bg-field max-h-[600px] overflow-y-auto">
       {previewCard ? (
         <TalentCardWeb card={previewCard} />
       ) : (
@@ -460,8 +462,8 @@ export const RoundWizardDialog = (props: Props) => {
   const regenCount = mode === "edit" ? (presetChanged ? selected.length : addedCount) : selected.length;
 
   const Step3 = (
-    <div className="space-y-4">
-      <div className="rounded-lg border p-4 space-y-2 text-sm">
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div className="rounded-3xl bg-field p-6 space-y-4 text-sm">
         <div className="flex justify-between"><span className="text-muted-foreground">Ruolo</span><span className="font-medium">{roleName ?? "—"}</span></div>
         <div className="flex justify-between"><span className="text-muted-foreground">Etichetta</span><span className="font-medium truncate ml-3">{label || "—"}</span></div>
         <div className="flex justify-between"><span className="text-muted-foreground">Talent inclusi</span><span className="font-medium">{selected.length}</span></div>
@@ -507,30 +509,6 @@ export const RoundWizardDialog = (props: Props) => {
     </div>
   );
 
-  const stepper = (
-    <div className="mt-4 flex max-w-3xl items-center gap-2">
-      {STEP_LABELS.map((lbl, i) => (
-        <div key={lbl} className="flex items-center gap-2 flex-1">
-          <div
-            className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium ${
-              i === step
-                ? "bg-primary text-primary-foreground"
-                : i < step
-                ? "bg-primary/20 text-primary"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {i + 1}
-          </div>
-          <span className={`text-xs ${i === step ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-            {lbl}
-          </span>
-          {i < STEP_LABELS.length - 1 && <div className="flex-1 h-px bg-border" />}
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <FullscreenSheet
       open={open}
@@ -541,45 +519,48 @@ export const RoundWizardDialog = (props: Props) => {
           {roleName && <span className="text-muted-foreground"> — {roleName}</span>}
         </>
       }
-      headerExtra={stepper}
+      headerExtra={<Stepper steps={STEP_LABELS} currentStep={step} />}
     >
-      <div className="mx-auto mt-6 flex min-h-0 w-full max-w-[1400px] flex-1 flex-col">
+      <div className="mx-auto mt-8 w-full max-w-[1400px]">
         {step === 0 ? (
           Step1
         ) : (
-          <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-8 lg:px-10">
+          <Surface variant="base" className="px-6 pb-36 lg:px-10">
             {step === 1 && Step2}
             {step === 2 && Step3}
-          </div>
+          </Surface>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-4 border-t border-border bg-background px-6 py-4 lg:px-10">
+      <div className="pointer-events-none fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-4 right-4 z-[90] md:bottom-8 md:left-1/2 md:right-auto md:-translate-x-1/2">
+      <div className="pointer-events-auto flex w-full items-center justify-between gap-2 rounded-full bg-ink p-2 shadow-2xl md:min-h-20 md:w-[min(700px,calc(100vw-2rem))] md:gap-4 md:px-4">
         <Button
           variant="ghost"
+          className="shrink-0 text-cream hover:bg-transparent hover:text-cream"
           onClick={() => (step === 0 ? onOpenChange(false) : setStep(step - 1))}
           disabled={isBusy}
         >
           {step === 0 ? "Annulla" : (<><ChevronLeft className="h-4 w-4 mr-1" />Indietro</>)}
         </Button>
 
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-0 items-center gap-4">
           {step === 0 && (
-            <span className="text-sm font-medium">
+            <span className="hidden text-sm font-medium text-cream sm:block">
               {selected.length} {selected.length === 1 ? "selezionato" : "selezionati"}
             </span>
           )}
           {step < 2 ? (
-            <Button onClick={() => setStep(step + 1)} disabled={!canNext}>
+            <Button size="lg" onClick={() => setStep(step + 1)} disabled={!canNext}>
               Avanti<ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={isBusy || selected.length === 0}>
+            <Button size="lg" className="min-w-0 px-4 text-sm sm:px-6" onClick={handleSubmit} disabled={isBusy || selected.length === 0}>
               {isBusy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {mode === "edit" ? "Salva modifiche" : "Crea selezione e genera PDF"}
+              {mode === "edit" ? "Salva modifiche" : "Crea selezione"}
             </Button>
           )}
         </div>
+      </div>
       </div>
     </FullscreenSheet>
   );
