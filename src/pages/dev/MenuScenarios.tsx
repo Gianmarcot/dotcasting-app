@@ -53,10 +53,16 @@ function ActionMenu({ label, destructive = false, nested = false, onAction }: { 
   </DropdownMenu>;
 }
 
-/** Trigger demo standard: campo nativo, identico agli altri campi della sezione. */
-function FieldTrigger({ label, className }: { label: string; className?: string }) {
-  return <button type="button" data-placeholder="" className={cn("dc-select-trigger", className)}>{label}</button>;
-}
+/** Trigger demo standard: campo nativo, identico agli altri campi della sezione.
+    Forwarda ref e props così che Radix (asChild) possa agganciarvi click e aria-*. */
+const FieldTrigger = React.forwardRef<HTMLButtonElement, { label: string } & React.ComponentProps<"button">>(
+  ({ label, className, ...props }, ref) => (
+    <button ref={ref} type="button" data-placeholder="" className={cn("dc-select-trigger", className)} {...props}>
+      {label}
+    </button>
+  ),
+);
+FieldTrigger.displayName = "FieldTrigger";
 
 function Scenario({ number, title, component, children }: { number: number; title: string; component: string; children: ReactNode }) {
   return <div className="min-w-0 space-y-3 border-b border-border/30 pb-6">
