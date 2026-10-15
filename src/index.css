@@ -760,20 +760,25 @@
     @apply fixed inset-0 z-50 bg-foreground/30
            data-[state=open]:animate-in data-[state=closed]:animate-out
            data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0
-           data-[state=open]:duration-[400ms] data-[state=closed]:duration-[250ms]
-           data-[state=open]:ease-[cubic-bezier(0.23,1,0.32,1)];
+          ;
   }
 
   /* Centrate: sm/md/lg. Il contenitore non scorre, scorre .dc-dialog-body. */
   .dc-dialog {
     @apply fixed left-[50%] top-[50%] z-50 flex max-h-[90dvh] w-[calc(100%-2rem)]
            translate-x-[-50%] translate-y-[-50%] flex-col overflow-hidden rounded-3xl
-           bg-card shadow-2xl outline-none ease-[cubic-bezier(0.23,1,0.32,1)]
+           bg-card shadow-2xl outline-none
            data-[state=open]:animate-in data-[state=closed]:animate-out
-           data-[state=open]:duration-[400ms] data-[state=closed]:duration-[250ms]
+          
            data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95;
   }
+  .dc-dialog-overlay, .dc-dialog, .dc-dialog-fullscreen {
+    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .dc-dialog-overlay[data-state="open"], .dc-dialog[data-state="open"] { animation-duration: 400ms; }
+  .dc-dialog-overlay[data-state="closed"], .dc-dialog[data-state="closed"],
+  .dc-dialog-fullscreen[data-state="closed"] { animation-duration: 250ms; }
   .dc-dialog-sm { max-width: 440px; }
   .dc-dialog-md { max-width: 600px; }
   .dc-dialog-lg { max-width: 880px; }
@@ -781,10 +786,9 @@
   /* Fullscreen: come la gestione media del profilo talent. */
   .dc-dialog-fullscreen {
     @apply fixed inset-x-0 bottom-0 top-6 z-50 flex flex-col overflow-hidden rounded-t-3xl
-           bg-card shadow-2xl outline-none ease-[cubic-bezier(0.23,1,0.32,1)]
+           bg-card shadow-2xl outline-none
            data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out
-           data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8
-           data-[state=closed]:duration-[250ms] motion-reduce:data-[state=open]:animate-fade-in
+           data-[state=closed]:fade-out-0 data-[state=closed]:slide-out-to-bottom-8 motion-reduce:data-[state=open]:animate-fade-in
            motion-reduce:data-[state=closed]:slide-out-to-bottom-0;
   }
 
