@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ChevronDown, Plus } from "lucide-react";
+import { ArrowLeft, ChevronDown, ListChecks, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { Button } from "@/components/ui/button";

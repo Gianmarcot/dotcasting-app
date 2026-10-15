@@ -555,7 +555,7 @@ export const TalentPicker = ({
         >
           <div className="px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:items-start lg:gap-16 lg:px-10">
             <div className={cn("min-w-0 pb-28", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
-            <div className={cn("pb-28 lg:sticky lg:top-[88px] lg:h-[calc(100dvh-24px-88px)] lg:pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
+            <div className={cn("pb-28 lg:sticky lg:top-[80px] lg:h-[calc(100dvh-24px-80px)] lg:pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
           </div>
           <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1.2)" }}>
             {activeTalent ? (
