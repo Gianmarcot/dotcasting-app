@@ -115,7 +115,7 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
         const opened = !!rt.talent_opened_at;
         const busy = busyId === rt.id;
         return (
-          <div key={rt.id} className="flex items-center gap-4 py-4">
+          <div key={rt.id} className="-mx-4 flex items-center gap-4 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30">
             <div className="aspect-[2/3] w-12 shrink-0 overflow-hidden rounded-md bg-muted">
               {p?.profile_photo_url && (
                 <img src={p.profile_photo_url} alt="" className="h-full w-full object-cover object-[50%_25%]" loading="lazy" />
