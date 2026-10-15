@@ -98,17 +98,37 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
 
   if (rows.length === 0) {
     return (
+      <div>
+      <div className="mb-4 flex min-h-12 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-base uppercase text-foreground">Ingaggi</h2>
+        {onAdd && (
+          <Button variant="secondary" size="md" iconPosition="left" onClick={onAdd}>
+            <Plus />
+            Ingaggia talent
+          </Button>
+        )}
+      </div>
       <div className="py-10 text-center">
         <p className="font-medium text-foreground">Ancora nessun ingaggio</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Gli ingaggi compaiono qui quando, nella Shortlist, selezioni dei talent e usi l'azione Ingaggia.
         </p>
       </div>
+      </div>
     );
   }
 
   return (
     <div>
+      <div className="mb-4 flex min-h-12 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-base uppercase text-foreground">Ingaggi</h2>
+        {onAdd && (
+          <Button variant="secondary" size="md" iconPosition="left" onClick={onAdd}>
+            <Plus />
+            Ingaggia talent
+          </Button>
+        )}
+      </div>
       {rows.map((rt) => {
         const p = rt.profile;
         const name = p?.stage_name?.trim() || [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Talent";

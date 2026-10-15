@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import type { CastingRound } from "@/hooks/useCastingRounds";
@@ -24,6 +25,18 @@ export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) 
 
   return (
     <div>
+      <div className="mb-4 flex min-h-12 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-base uppercase text-foreground">Selezioni</h2>
+        <Button variant="secondary" size="md" iconPosition="left" onClick={() => setCreateOpen(true)}>
+          <Plus />
+          Nuova selezione
+        </Button>
+      </div>
+      {sortedRounds.length === 0 && (
+        <div className="py-10 text-center text-muted-foreground">
+          <p>Nessuna selezione</p>
+        </div>
+      )}
       {sortedRounds.map((r) => (
         <RoleRoundRow
           key={r.id}
@@ -33,17 +46,6 @@ export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) 
           hideRoleName
         />
       ))}
-
-      <button
-        type="button"
-        onClick={() => setCreateOpen(true)}
-        className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-[#1a1a1a] transition-colors flex items-center justify-center gap-2 text-muted-foreground"
-      >
-        <Plus className="h-4 w-4" />
-        <span className="text-sm">
-          {sortedRounds.length === 0 ? "Crea la prima selezione" : "Nuova selezione"}
-        </span>
-      </button>
 
       <p className="mt-4 text-sm text-muted-foreground opacity-70">
         Il cliente consulta le selezioni in sola lettura: registra il suo riscontro escludendo dal ruolo chi non va bene.
