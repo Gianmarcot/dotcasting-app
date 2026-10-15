@@ -577,6 +577,7 @@ export const TalentPicker = ({
             ) : null}
           </DragOverlay>
         </DndContext>
+        </div>
       <SaveBar
         dirty={dirtyCount > 0 && open}
         count={dirtyCount}
