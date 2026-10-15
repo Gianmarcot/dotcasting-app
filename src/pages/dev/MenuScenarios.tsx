@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { forwardRef, useState, type ComponentProps, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Film, MoreHorizontal, Pencil, Copy, Trash2, Download, Users } from "lucide-react";
 import { Surface, type SurfaceVariant } from "@/components/ui/surface";
@@ -55,7 +55,7 @@ function ActionMenu({ label, destructive = false, nested = false, onAction }: { 
 
 /** Trigger demo standard: campo nativo, identico agli altri campi della sezione.
     Forwarda ref e props così che Radix (asChild) possa agganciarvi click e aria-*. */
-const FieldTrigger = React.forwardRef<HTMLButtonElement, { label: string } & React.ComponentProps<"button">>(
+const FieldTrigger = forwardRef<HTMLButtonElement, { label: string } & ComponentProps<"button">>(
   ({ label, className, ...props }, ref) => (
     <button ref={ref} type="button" data-placeholder="" className={cn("dc-select-trigger", className)} {...props}>
       {label}
