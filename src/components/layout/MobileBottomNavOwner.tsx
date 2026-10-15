@@ -1,8 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, Users, Film, MessageSquare, MoreHorizontal, FileText, Building2, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Film, MessageSquare, MoreHorizontal, Building2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { it } from "@/lib/i18n";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import {
   Drawer,
   DrawerClose,

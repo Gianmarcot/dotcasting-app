@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Users,
   Film,
-  FileText,
   MessageSquare,
   Building2,
   Settings,
@@ -19,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAuth } from "@/contexts/AuthContext";
 import { it } from "@/lib/i18n";
-import { FEATURE_FLAGS } from "@/lib/featureFlags";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useUnreadNotificationsCount } from "@/hooks/useNotifications";
 import { useFavoriteCastings, useReorderFavoriteCastings, type FavoriteCasting } from "@/hooks/useFavoriteCastings";

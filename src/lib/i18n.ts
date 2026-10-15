@@ -5,7 +5,6 @@ export const it = {
     home: "Home",
     myCastings: "I miei Casting",
     profile: "Profilo",
-    applications: "Candidature",
     messages: "Messaggi",
     communications: "Comunicazioni",
     
