@@ -1040,7 +1040,7 @@ const PrimitivesSection = () => (
 
     <SubBlock
       title="Toast"
-      source="src/components/ui/sonner.tsx · top-center, fondo #0f0f0f, errore --brand-800"
+      source="src/components/ui/sonner.tsx · top-right, fondo #0f0f0f, errore --brand-800"
     >
       <div className="flex flex-wrap gap-3">
         <Button variant="outline" onClick={() => sonnerToast("Modifiche salvate")}>
