@@ -352,7 +352,7 @@ export const OwnerCastingRoleDetail = () => {
                         </Button>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <Button size="md" onClick={startNewRound}>
+                        <Button size="md" onClick={() => startNewRound()}>
                           Nuova selezione
                         </Button>
                         <Button variant="secondary" size="md" onClick={() => setEngageOpen(true)}>
