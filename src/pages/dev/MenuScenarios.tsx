@@ -69,7 +69,7 @@ export function MenuScenarios() {
   return <section id="menus" className="scroll-mt-8 space-y-6">
     <header className="border-b border-border/60 pb-3"><h2 className="font-display text-2xl uppercase">Menu · Scenari interattivi</h2></header>
     <div className="flex flex-wrap gap-2" role="group" aria-label="Superficie degli esempi">
-      {surfaces.map((entry) => <Button key={entry.value} variant={surface === entry.value ? "primary" : "outline"} size="sm" aria-pressed={surface === entry.value} onClick={() => setSurface(entry.value)}>{entry.label}</Button>)}
+      {surfaces.map((entry) => <Button key={entry.value} variant={surface === entry.value ? "default" : "outline"} size="sm" aria-pressed={surface === entry.value} onClick={() => setSurface(entry.value)}>{entry.label}</Button>)}
     </div>
     <Surface variant={surface} className="space-y-8 rounded-2xl p-4 sm:p-6">
       <div className="grid min-w-0 gap-x-8 gap-y-6 md:grid-cols-2">
@@ -87,7 +87,7 @@ export function MenuScenarios() {
         </Scenario>
         <Scenario number={11} title="Selezionato e disabilitato" component="SelectItem disabled / Select disabled"><div className="space-y-3"><SimpleSelect label="Stati delle voci" states /><SimpleSelect label="Campo disabilitato" disabled /></div></Scenario>
         <Scenario number={12} title="Dentro una finestra" component="Dialog + Surface + SelectContent">
-          <Dialog><DialogTrigger asChild><Button variant="outline">Apri finestra</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Menu nella finestra</DialogTitle></DialogHeader><Surface variant={surface} className="space-y-4 rounded-2xl p-6"><SimpleSelect label="Città nella finestra" long /><SearchSelect label="Ricerca nella finestra" options={options} values={search} onValuesChange={setSearch} /></Surface></DialogContent></Dialog>
+          <Dialog><DialogTrigger asChild><Button variant="ghost" className="dc-select-trigger">Apri finestra</Button></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Menu nella finestra</DialogTitle></DialogHeader><Surface variant={surface} className="space-y-4 rounded-2xl p-6"><SimpleSelect label="Città nella finestra" long /><SearchSelect label="Ricerca nella finestra" options={options} values={search} onValuesChange={setSearch} /></Surface></DialogContent></Dialog>
         </Scenario>
       </div>
       <div className="space-y-3"><h3 className="font-display text-sm uppercase">Pannello filtri · PopoverContent</h3><Popover><PopoverTrigger asChild><Button variant="ghost" className="dc-select-trigger w-full sm:w-72">Filtri</Button></PopoverTrigger><PopoverContent className="dc-menu-filter w-72" align="start"><div className="space-y-3"><FloatingInput label="Nome" value={filter} onChange={setFilter} /><SimpleSelect label="Città nel filtro" /></div></PopoverContent></Popover></div>
