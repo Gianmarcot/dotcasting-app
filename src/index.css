@@ -704,6 +704,7 @@
   .dc-menu-item[data-state="checked"], .dc-menu-item[data-state="on"], .dc-menu-item[data-selected="true"] {
     background: var(--menu-highlight);
   }
+  .dc-menu-item:focus-visible, .dc-menu-item[data-highlighted]:focus { outline: none; }
   .dc-menu-item:focus-visible:not(:hover), .dc-menu-item[data-highlighted]:focus:not(:hover),
   .dc-menu:focus-visible, .dc-menu [cmdk-input]:focus-visible {
     outline: 2px solid var(--menu-tertiary);
