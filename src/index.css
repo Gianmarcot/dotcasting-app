@@ -666,7 +666,7 @@
   /* Shared menu anatomy. Portalled components set data-surface explicitly. */
   .dc-menu {
     position: relative;
-    z-index: 50;
+    z-index: 95; /* sopra fogli e modali (z-80/90), sotto gli avvisi (z-100) */
     padding: 4px;
     border: 0;
     border-radius: 16px;
