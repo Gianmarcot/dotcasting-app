@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { FieldCluster, FloatingInput, FloatingSelect } from "@/components/ui/field";
@@ -54,7 +55,7 @@ interface FilterGroupProps {
 const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
   <Popover>
     <PopoverTrigger asChild>
-      <button type="button" className="dc-select-trigger w-auto gap-3 rounded-full">
+      <Button type="button" variant="ghost" className="dc-select-trigger w-auto gap-3 rounded-full">
         <span className="flex items-center gap-2">
           {label}
           {count > 0 && (
@@ -64,14 +65,14 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
           )}
         </span>
         <ChevronDown className="h-5 w-5" />
-      </button>
+      </Button>
     </PopoverTrigger>
     {/* Pannello scuro: i campi mantengono la loro superficie chiara
         (--field-bg bianco), così risaltano sul fondo del menu. */}
     <PopoverContent
       align="start"
       className={cn(
-        "rounded-2xl border-0 shadow-md p-4 max-w-[calc(100vw-32px)]",
+        "dc-menu-filter max-w-[calc(100vw-32px)]",
         wide ? "w-[460px]" : "w-[280px]"
       )}
     >
@@ -219,9 +220,9 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
 
       {/* Reset */}
       {hasAny && (
-        <button onClick={clearAll} className="text-sm text-primary hover:underline ml-1">
+        <Button variant="link" onClick={clearAll} className="ml-1">
           Reset
-        </button>
+        </Button>
       )}
 
       {/* Solo CF validi */}

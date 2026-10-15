@@ -136,7 +136,7 @@
        ===================== */
     --white: #ffffff;
     --cream: #f4f0ec;
-    --shadow-menu: 0 12px 40px -8px rgb(26 26 26 / 0.14), 0 2px 6px rgb(26 26 26 / 0.05);
+    --shadow-menu: 0 1px 1.5px rgb(0 0 0 / 0.1), 0 4px 12px rgb(0 0 0 / 0.1);
     --cream-dark: #ece5de;
     --grey-100: #f2f2f2;
     --grey-200: #dddddd;
@@ -156,6 +156,15 @@
      ===================== */
   :root,
   [data-surface="base"] {
+    --menu-bg: var(--white);
+    --menu-highlight: var(--cream);
+    --menu-fg: var(--ink);
+    --menu-tertiary: var(--grey-600);
+    --menu-border: transparent;
+    --menu-shadow: var(--shadow-menu);
+    --menu-divider: hsl(var(--border));
+    --menu-danger: var(--brand-600);
+    --menu-danger-highlight: #fbecef;
     --surface: var(--white);
     --surface-fg: var(--ink);
     --field-bg: var(--cream);
@@ -172,6 +181,15 @@
   }
 
   [data-surface="muted"] {
+    --menu-bg: var(--white);
+    --menu-highlight: var(--cream);
+    --menu-fg: var(--ink);
+    --menu-tertiary: var(--grey-600);
+    --menu-border: transparent;
+    --menu-shadow: var(--shadow-menu);
+    --menu-divider: hsl(var(--border));
+    --menu-danger: var(--brand-600);
+    --menu-danger-highlight: #fbecef;
     --surface: var(--cream);
     --surface-fg: var(--ink);
     --field-bg: var(--white);
@@ -190,6 +208,15 @@
   /* Campi bianchi in evidenza su sfondo cream (barre filtri admin).
      La superficie non dipinge nulla: cambia solo il colore dei campi. */
   [data-surface="raised"] {
+    --menu-bg: var(--white);
+    --menu-highlight: var(--cream);
+    --menu-fg: var(--ink);
+    --menu-tertiary: var(--grey-600);
+    --menu-border: transparent;
+    --menu-shadow: var(--shadow-menu);
+    --menu-divider: hsl(var(--border));
+    --menu-danger: var(--brand-600);
+    --menu-danger-highlight: #fbecef;
     --surface: transparent;
     --surface-fg: var(--ink);
     --field-bg: var(--white);
@@ -207,6 +234,15 @@
 
 
   [data-surface="brand"] {
+    --menu-bg: var(--brand-800);
+    --menu-highlight: var(--brand-700);
+    --menu-fg: var(--white);
+    --menu-tertiary: var(--grey-400);
+    --menu-border: rgb(255 255 255 / 0.1);
+    --menu-shadow: none;
+    --menu-divider: rgb(255 255 255 / 0.1);
+    --menu-danger: var(--brand-600);
+    --menu-danger-highlight: #fbecef;
     --surface: var(--brand-600);
     --surface-fg: var(--white);
     --field-bg: var(--brand-800);
@@ -223,7 +259,17 @@
   }
 
   .dark,
-  [data-surface="inverse"] {
+  [data-surface="inverse"],
+  [data-surface="dark"] {
+    --menu-bg: var(--grey-900);
+    --menu-highlight: var(--grey-800);
+    --menu-fg: var(--white);
+    --menu-tertiary: var(--grey-400);
+    --menu-border: rgb(255 255 255 / 0.1);
+    --menu-shadow: none;
+    --menu-divider: rgb(255 255 255 / 0.1);
+    --menu-danger: var(--brand-600);
+    --menu-danger-highlight: #fbecef;
     --surface: var(--ink);
     --surface-fg: var(--white);
     --field-bg: var(--grey-800);
@@ -613,36 +659,90 @@
     color: var(--field-icon-disabled);
   }
 
-  .dc-select-content {
-    @apply relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-2xl shadow-lg
-           data-[state=open]:animate-in data-[state=closed]:animate-out
-           data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
-           data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
-           data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
-           data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-    border: 1px solid hsl(var(--border) / 0.6);
-    background-color: hsl(var(--popover));
-    color: hsl(var(--popover-foreground));
-    box-shadow: var(--shadow-menu);
-    border-radius: 1.5rem;
+  /* Shared menu anatomy. Portalled components set data-surface explicitly. */
+  .dc-menu {
+    position: relative;
+    z-index: 50;
+    padding: 4px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--menu-bg);
+    color: var(--menu-fg);
+    box-shadow: var(--menu-shadow);
+    max-height: min(320px, var(--radix-popper-available-height, 320px));
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--menu-tertiary) transparent;
+    font-family: var(--font-sans);
+    --menu-item-size: 16px;
+    --menu-item-py: 12px;
   }
-
-  .dc-select-content-popper {
-    @apply data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1
-           data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1;
+  .dc-menu[data-surface="brand"], .dc-menu[data-surface="inverse"], .dc-menu[data-surface="dark"] {
+    border: 1px solid var(--menu-border);
   }
-
-  .dc-select-item {
-    @apply relative flex w-full cursor-default select-none items-center
-           rounded-2xl py-2.5 pl-8 pr-3 text-sm outline-none
-           data-[disabled]:pointer-events-none data-[disabled]:opacity-50;
-    color: hsl(var(--popover-foreground));
+  .dc-menu-compact { --menu-item-size: 14px; --menu-item-py: 8px; }
+  .dc-menu-stack, .dc-menu-group { display: flex; flex-direction: column; gap: 4px; }
+  .dc-menu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: var(--menu-item-py, 12px) 12px;
+    border-radius: 12px;
+    cursor: default;
+    user-select: none;
+    font-size: var(--menu-item-size, 16px);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--menu-fg);
+    flex-shrink: 0;
   }
-
-  .dc-select-item[data-highlighted] {
-    background-color: hsl(var(--muted));
-    color: hsl(var(--foreground));
+  .dc-menu-item > svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .dc-menu-item:hover, .dc-menu-item[data-highlighted], .dc-menu-item[data-state="open"],
+  .dc-menu-item[data-state="checked"], .dc-menu-item[data-state="on"], .dc-menu-item[data-selected="true"] {
+    background: var(--menu-highlight);
   }
+  .dc-menu-item:focus-visible, .dc-menu-item[data-highlighted]:focus, .dc-menu:focus-visible,
+  .dc-menu [cmdk-input]:focus-visible {
+    outline: 2px solid var(--menu-tertiary);
+    outline-offset: -2px;
+  }
+  .dc-menu-item[data-disabled]:not([data-disabled="false"]) {
+    opacity: 0.45;
+    pointer-events: none;
+    background: transparent;
+  }
+  .dc-menu-item.text-destructive, .dc-menu-item[data-destructive="true"] { color: var(--menu-danger); }
+  .dc-menu-item.text-destructive:hover, .dc-menu-item.text-destructive[data-highlighted],
+  .dc-menu-item[data-destructive="true"]:hover, .dc-menu-item[data-destructive="true"][data-highlighted] {
+    background: var(--menu-danger-highlight);
+    color: var(--menu-danger);
+  }
+  .dc-menu-label, .dc-menu [cmdk-group-heading] {
+    padding: 8px 12px 0;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--menu-tertiary);
+    user-select: none;
+  }
+  .dc-menu-separator { height: 1px; min-height: 1px; margin: 4px 8px; background: var(--menu-divider); }
+  .dc-menu-description { display: block; font-size: 13px; line-height: 1.4; color: var(--menu-tertiary); }
+  .dc-menu-trailing { margin-left: auto; color: var(--menu-tertiary); font-size: 12px; }
+  .dc-menu-indicator { margin-left: auto; display: flex; flex-shrink: 0; align-items: center; }
+  .dc-menu-search { display: flex; align-items: center; gap: 12px; padding: 0 12px; border-bottom: 1px solid var(--menu-divider); }
+  .dc-menu-search input { color: var(--menu-fg); }
+  .dc-menu-search input::placeholder { color: var(--menu-tertiary); }
+  .dc-menu-list { overflow: auto; max-height: 264px; padding-top: 4px; scrollbar-width: thin; }
+  .dc-menu-list [cmdk-group-items], .dc-menu > [role="group"] { display: flex; flex-direction: column; gap: 4px; }
+  .dc-menu-select { overflow: hidden; width: var(--radix-select-trigger-width); }
+  .dc-menu-select-viewport { width: 100%; max-height: 272px; }
+  .dc-menu-filter { padding: 4px; }
+  .dc-menu-filter > div { padding: 8px; }
 
   .dc-label {
     @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
