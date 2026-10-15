@@ -44,24 +44,11 @@ export const CastingDetailsPanel = ({ casting, onStatusChange, onEdit, onDelete,
   const status = casting.status || "draft";
   const isActive = status === "active";
 
-  const compensation = casting.compensation_amount
-    ? `${casting.compensation_amount} ${casting.currency || "EUR"}`
-    : null;
-  const call = casting.call_datetime
-    ? format(new Date(casting.call_datetime), "d MMM yyyy, HH:mm", { locale: itLocale })
-    : null;
-
   const project: DetailsRow[] = [
     { label: "Cliente", value: casting.company?.name },
     { label: "Luogo", value: casting.locations?.length ? casting.locations.join(", ") : null },
     { label: "Periodo", value: formatPeriod(casting.start_date, casting.end_date) },
-    { label: "Compenso", value: compensation },
     { label: "Categoria", value: casting.category },
-  ];
-  const convocation: DetailsRow[] = [
-    { label: "Data e ora", value: call },
-    { label: "Luogo", value: casting.venue_name },
-    { label: "Indirizzo", value: casting.venue_address },
   ];
 
   return (
@@ -99,11 +86,6 @@ export const CastingDetailsPanel = ({ casting, onStatusChange, onEdit, onDelete,
       {hasRows(project) && (
         <DetailsBlock label="Progetto">
           <DetailsRows rows={project} />
-        </DetailsBlock>
-      )}
-      {hasRows(convocation) && (
-        <DetailsBlock label="Convocazione">
-          <DetailsRows rows={convocation} />
         </DetailsBlock>
       )}
       {casting.talent_instructions && (
