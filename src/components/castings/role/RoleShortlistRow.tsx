@@ -155,13 +155,18 @@ export const RoleShortlistRow = ({
 
 const RequirementLine = ({ r }: { r: RequirementResult }) => (
   <>
-    <span className="flex items-center" aria-label={r.status === "met" ? "Soddisfatto" : r.status === "unmet" ? "Non soddisfatto" : "Dato mancante"}>
+    <span
+      className={cn(
+        "flex items-center",
+        r.status === "met" ? "text-[#729128]" : r.status === "unmet" ? "text-[#C88500]" : "text-muted-foreground",
+      )}
+      aria-label={r.status === "met" ? "Soddisfatto" : r.status === "unmet" ? "Non soddisfatto" : "Dato mancante"}>
       {r.status === "met" ? (
-        <Check className="h-4 w-4 text-[#729128]" />
+        <Check className="h-4 w-4" />
       ) : r.status === "unmet" ? (
-        <X className="h-4 w-4 text-[#C88500]" />
+        <X className="h-4 w-4" />
       ) : (
-        <HelpCircle className="h-4 w-4 text-muted-foreground" />
+        <HelpCircle className="h-4 w-4" />
       )}
     </span>
     <span className="truncate">{r.label}</span>
