@@ -68,6 +68,9 @@ interface EditProps extends BaseProps {
   initialPreset: RoundPreset;
   initialRoleTalentIds: string[];
   pdfPathByRoleTalentId: Record<string, string | null>;
+  /** role_talent da aggiungere alla selezione esistente (azioni in blocco). */
+  extraSelectedIds?: string[];
+  startStep?: number;
 }
 
 type Props = CreateProps | EditProps;
@@ -112,14 +115,15 @@ export const RoundWizardDialog = (props: Props) => {
 
   useEffect(() => {
     if (!open) return;
-    setStep(mode === "create" ? ((props as CreateProps).startStep ?? 0) : 0);
+    setStep((props as CreateProps | EditProps).startStep ?? 0);
     setProgress(null);
     setErrors([]);
     if (mode === "edit") {
       const e = props as EditProps;
       setLabel(e.initialLabel);
       setPreset(e.initialPreset);
-      setSelected([...e.initialRoleTalentIds]);
+      const extra = (e.extraSelectedIds ?? []).filter((id) => !e.initialRoleTalentIds.includes(id));
+      setSelected([...e.initialRoleTalentIds, ...extra]);
     } else {
       const c = props as CreateProps;
       const n = c.defaultRoundNumber ?? 1;
