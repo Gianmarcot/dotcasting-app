@@ -35,7 +35,7 @@ export const CastingDetailDialog = ({ open, onOpenChange, casting }: CastingDeta
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle className="text-xl">{casting.title}</DialogTitle>
         </DialogHeader>

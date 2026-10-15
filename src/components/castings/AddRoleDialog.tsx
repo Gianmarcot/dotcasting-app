@@ -173,7 +173,7 @@ export const AddRoleDialog = ({ open, onOpenChange, castingId, editRole }: AddRo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-[720px] overflow-y-auto">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>{editRole ? "Modifica ruolo" : "Aggiungi ruolo"}</DialogTitle>
         </DialogHeader>

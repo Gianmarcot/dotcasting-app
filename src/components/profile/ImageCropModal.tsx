@@ -170,7 +170,7 @@ export const ImageCropModal = ({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-lg">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>
             {ratioList.length > 1 ? "Ritaglia immagine" : `Ritaglia immagine (${ratioList[0]})`}

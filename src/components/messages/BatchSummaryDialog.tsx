@@ -71,7 +71,7 @@ export const BatchSummaryDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Riepilogo invio</DialogTitle>
           <DialogDescription>

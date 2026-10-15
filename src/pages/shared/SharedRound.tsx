@@ -689,7 +689,7 @@ export default function SharedRound() {
           if (!confirmMutation.isPending) setPwdOpen(o);
         }}
       >
-        <DialogContent className="max-w-sm rounded-3xl bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
+        <DialogContent size="sm" className="bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
           <DialogHeader>
             <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">
               Conferma selezione

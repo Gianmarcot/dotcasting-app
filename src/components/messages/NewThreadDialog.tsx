@@ -79,7 +79,7 @@ export const NewThreadDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleReset}>
-      <DialogContent className="max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Nuova conversazione</DialogTitle>
         </DialogHeader>
