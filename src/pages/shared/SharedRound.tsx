@@ -503,7 +503,6 @@ export default function SharedRound() {
 
   useEffect(() => {
     if (!data?.talents) return;
-    setSelected(new Set(data.talents.filter((t) => t.company_status === "confirmed").map((t) => t.role_talent_id)));
   }, [data?.talents]);
 
   const confirmMutation = useMutation({
@@ -577,7 +576,8 @@ export default function SharedRound() {
   const { round, casting, role, talents, branding } = data;
   const isLatest = data.is_latest_round !== false;
   const hasPassword = !!data.has_password;
-  const selectable = isLatest && hasPassword;
+  // Il cliente consulta la selezione in sola lettura: il riscontro si registra lato agenzia.
+  const selectable = false;
   const logoSrc = branding?.agency_logo_url || logo;
   const agencyLabel = branding?.agency_name || "dotCasting";
   const detailsRow = detailsId ? (talents.find((t) => t.role_talent_id === detailsId) ?? null) : null;

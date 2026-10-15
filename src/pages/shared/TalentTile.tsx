@@ -85,7 +85,6 @@ export function TalentTile({
 
       {showStatus && (
         <div className="absolute top-3 right-3 z-10">
-          <StatusPill status={row.company_status ?? null} />
         </div>
       )}
 
