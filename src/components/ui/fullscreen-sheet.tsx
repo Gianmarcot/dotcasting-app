@@ -31,8 +31,8 @@ export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, heade
         className={cn("dc-dialog-fullscreen z-[80] overflow-y-auto", className)}
         aria-describedby={undefined}
       >
-        <div className="sticky top-0 z-10 bg-card pb-6 pt-6">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-col items-end gap-4 px-6 sm:flex-row sm:items-center sm:gap-6 lg:px-10">
+        <div className={cn("sticky top-0 z-10 bg-card pt-6", headerExtra ? "pb-6" : "pb-2")}>
+          <div className="mx-auto flex w-full max-w-[1400px] flex-col items-end justify-end gap-4 px-6 sm:flex-row sm:items-center sm:gap-6 lg:px-10">
             <ModalNavBar
               className="shrink-0 sm:order-2"
               onClose={onRequestClose}
