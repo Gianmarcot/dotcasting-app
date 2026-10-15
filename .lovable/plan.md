@@ -2,7 +2,7 @@
 
 ## Cosa cambia per l'utente
 - Spunte, "Seleziona tutti", trascinamenti e rimozioni nella finestra non vengono salvati subito: diventano una **bozza**.
-- In fondo alla finestra compare una barra fissa (solo se ci sono modifiche): "**+N aggiunti, −M rimossi**", pulsante "Annulla modifiche" e pulsante principale "**Salva shortlist**".
+- In fondo alla finestra compare la **stessa barra di salvataggio del profilo talent** (pillola scura flottante che sale dal basso, solo se ci sono modifiche): "N modifiche non salvate", "Annulla" e "Salva".
 - I talent aggiunti nella bozza mostrano un piccolo segno "Nuovo"; quelli rimossi restano visibili barrati/opachi nella colonna Shortlist finché non salvi, così puoi ripensarci con un clic.
 - Chiudendo la finestra (Chiudi, Esc, clic fuori) con modifiche non salvate appare un avviso piccolo: "Hai modifiche non salvate" con "Salva", "Esci senza salvare", "Continua a modificare".
 - Al salvataggio: se tra i rimossi c'è chi è già in una selezione o ha un ingaggio pubblicato, compare la conferma che c'è già oggi (una sola, con l'elenco). Poi una notifica "Shortlist aggiornata".
