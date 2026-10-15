@@ -107,7 +107,7 @@ export function TalentTileView({
         </button>
       )}
 
-      <div className="px-4 pb-0 pt-12 @[260px]:px-12">
+      <div className="px-[16%] pb-0 pt-[16%]">
         <div className="aspect-[5/7] overflow-hidden">
           {photoUrl ? (
             <img
