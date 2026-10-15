@@ -13,7 +13,7 @@ export const DetailsPanelShell = ({
   className?: string;
 }) => (
   <div className={cn("flex min-h-full flex-col gap-8", className)}>
-    <h2 className="font-display text-base font-normal uppercase text-ink">{title}</h2>
+    <h2 className="font-display text-base font-normal normal-case text-ink">{title}</h2>
     {children}
   </div>
 );
@@ -21,7 +21,7 @@ export const DetailsPanelShell = ({
 /** Blocco con sopra-etichetta (14/20 grigio) e contenuto (14/20 ink), distanziati 4px. */
 export const DetailsBlock = ({ label, children }: { label: string; children: ReactNode }) => (
   <section className="flex flex-col gap-1">
-    <h3 className="font-sans text-sm font-normal leading-5 text-grey-600">{label}</h3>
+    <h3 className="font-sans text-sm font-normal normal-case leading-5 text-grey-600">{label}</h3>
     <div className="font-sans text-sm font-normal leading-5 text-ink">{children}</div>
   </section>
 );
