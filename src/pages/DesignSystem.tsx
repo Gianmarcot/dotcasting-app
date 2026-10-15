@@ -56,6 +56,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
+  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {

@@ -29,3 +29,7 @@
 - All menu families use shared `.dc-menu` anatomy and explicit `data-surface` from React context on portal content; selects, search and filters are normal, actions compact. Why: portals must preserve the trigger surface.
 - Search/multiple values use `SearchSelect` (Popover + Command), never nested Select; action submenus use `MenuSubLevel` to cap depth at two levels. Why: preserve accessible selection and navigation semantics.
 - Interactive menu regression scenarios live in `MenuScenarios`, mounted in Design System. Why: exercise portals, dark surfaces, overflow and dialogs without changing live data.
+
+## Modals
+
+- Modals pick a `size` on `DialogContent` (`sm` alerts/confirmations, `md` short forms, `lg` long forms/lists, `fullscreen` = media-manager sheet); no ad-hoc max-width/max-height. Content sits in `.dc-dialog-body` (scrolls, padding), the close is the ink ModalNavBar-style pill. Why: one modal anatomy.

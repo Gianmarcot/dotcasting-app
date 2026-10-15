@@ -18,18 +18,19 @@ interface Props {
 export const FullscreenSheet = ({ open, onRequestClose, title, closeLabel, headerExtra, children }: Props) => (
   <DialogPrimitive.Root open={open} onOpenChange={(o) => !o && onRequestClose()}>
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-foreground/30 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
+      <DialogPrimitive.Overlay className="dc-dialog-overlay z-[70]" />
       <DialogPrimitive.Content
-        className="fixed inset-0 z-[80] flex flex-col bg-background outline-none data-[state=open]:animate-slide-up-panel data-[state=closed]:animate-out data-[state=closed]:fade-out-0 motion-reduce:data-[state=open]:animate-fade-in"
+        className="dc-dialog-fullscreen z-[80]"
         aria-describedby={undefined}
       >
         <ModalNavBar
-          className="fixed right-8 top-8 z-[90]"
+          className="absolute right-3 top-8 z-[90] sm:right-8"
           onClose={onRequestClose}
+          showCloseLabel
           labels={closeLabel ? { close: closeLabel } : undefined}
         />
-        <div className="px-6 pt-10 pb-6 pr-28 lg:px-10">
-          <DialogPrimitive.Title className="font-display uppercase text-3xl tracking-wide">{title}</DialogPrimitive.Title>
+        <div className="px-5 pt-10 pb-6 pr-40 sm:px-10">
+          <DialogPrimitive.Title className="font-display text-2xl uppercase tracking-wide text-foreground">{title}</DialogPrimitive.Title>
           {headerExtra}
         </div>
         {children}
