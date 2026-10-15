@@ -108,7 +108,7 @@ const DropArea = ({ dragging, children }: { dragging: boolean; children: ReactNo
     <section
       ref={setNodeRef}
       className={cn(
-        "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border-2 border-dashed border-grey-600/50 p-8 [border-width:2px] transition-all duration-200",
+        "flex h-full min-h-0 flex-col gap-6 overflow-hidden rounded-3xl border border-dashed border-grey-600 p-8 transition-all duration-200",
         dragging && "border-primary bg-primary/5",
         isOver && "border-primary bg-primary/10",
       )}
