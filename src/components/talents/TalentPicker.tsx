@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTalents, type TalentFilters, type TalentWithAttributes } from "@/hooks/useTalents";
 import { useCastingRole } from "@/hooks/useCastingRoles";
+import { TalentSearchField } from "@/components/talents/TalentSearchField";
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
 import { ROW_CHECKBOX, TalentRow, talentRowName } from "@/components/talents/TalentRow";
@@ -303,17 +304,9 @@ export const TalentPicker = ({
   const leftColumn = (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-4">
-        <label className="flex h-12 min-w-[240px] max-w-[550px] flex-1 items-center gap-4 rounded-full bg-field px-5">
-          <Search className="h-5 w-5 shrink-0" />
-          <input
-            type="search"
-            value={filters.search || ""}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-            placeholder="Cerca per parola chiave"
-            aria-label="Cerca per parola chiave"
-            className="h-full min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-field-disabled-foreground"
-          />
-        </label>
+        <Surface variant="base" className="max-w-[550px] flex-1">
+          <TalentSearchField value={filters.search || ""} onChange={(v) => setFilters({ ...filters, search: v || undefined })} />
+        </Surface>
         <button
           type="button"
           aria-expanded={filtersOpen}

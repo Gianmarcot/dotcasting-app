@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { it } from "@/lib/i18n";
 import { useTalents, useTalentCount, TalentFilters, TalentWithAttributes } from "@/hooks/useTalents";
+import { TalentSearchField } from "@/components/talents/TalentSearchField";
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentBoardGrid } from "@/components/talents/TalentBoardGrid";
 import { TalentPortfolioList } from "@/components/talents/TalentPortfolioList";
@@ -135,15 +136,11 @@ export const OwnerTalents = () => {
       <div className="space-y-4">
       {/* Toolbar: search left, count + sort + view right */}
       <Surface variant="raised" className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
-        <div className="relative w-full sm:max-w-[450px] sm:flex-1">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Cerca per parola chiave"
-            value={filters.search || ""}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value || undefined })}
-            className="pl-12 rounded-full"
-          />
-        </div>
+        <TalentSearchField
+          className="w-full sm:max-w-[450px] sm:flex-1"
+          value={filters.search || ""}
+          onChange={(v) => setFilters({ ...filters, search: v || undefined })}
+        />
 
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
           <span className="text-sm text-muted-foreground whitespace-nowrap">{countLabel}</span>
