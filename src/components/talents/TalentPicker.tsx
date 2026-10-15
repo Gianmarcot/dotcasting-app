@@ -294,7 +294,19 @@ export const TalentPicker = ({
   const onDragEnd = (e: DragEndEvent) => {
     setDragging(false);
     setActiveId(null);
-    if (e.over?.id === DROP_ID) void add(String(e.active.id));
+    if (e.over?.id !== DROP_ID) return;
+    const id = String(e.active.id);
+    const name = talentRowName(byId.get(id));
+    if (selected.includes(id)) {
+      toast(`${name} è già in shortlist`, { position: "bottom-center" });
+      return;
+    }
+    add(id);
+    toast(`${name} aggiunto alla shortlist`, {
+      position: "bottom-center",
+      description: "Premi Salva per confermare",
+      action: { label: "Annulla", onClick: () => removeMany([id]) },
+    });
   };
 
   const activeTalent = activeId ? byId.get(activeId) ?? null : null;
