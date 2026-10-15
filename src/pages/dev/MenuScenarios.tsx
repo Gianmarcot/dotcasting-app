@@ -53,6 +53,11 @@ function ActionMenu({ label, destructive = false, nested = false, onAction }: { 
   </DropdownMenu>;
 }
 
+/** Trigger demo standard: campo nativo, identico agli altri campi della sezione. */
+function FieldTrigger({ label, className }: { label: string; className?: string }) {
+  return <button type="button" data-placeholder="" className={cn("dc-select-trigger", className)}>{label}</button>;
+}
+
 function Scenario({ number, title, component, children }: { number: number; title: string; component: string; children: ReactNode }) {
   return <div className="min-w-0 space-y-3 border-b border-border/30 pb-6">
     <div className="space-y-1"><h3 className="font-display text-sm uppercase">{number.toString().padStart(2, "0")} · {title}</h3><code className="block break-words text-xs opacity-70">{component}</code></div>
