@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -35,6 +35,7 @@ interface Props {
   roleLocation: string | null;
   talents: RoleTalentWithProfile[];
   isLoading?: boolean;
+  onAdd?: () => void;
 }
 
 /** Chi compare nella scheda: ingaggio pubblicato al talent. */
@@ -43,7 +44,7 @@ export const engagementRows = (talents: RoleTalentWithProfile[]) => talents.filt
 const ago = (iso: string) => formatDistanceToNow(new Date(iso), { locale: itLocale, addSuffix: true });
 
 /** Scheda "Ingaggi": elenco essenziale degli ingaggi pubblicati. */
-export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation, talents, isLoading }: Props) => {
+export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation, talents, isLoading, onAdd }: Props) => {
   const [unpublishFor, setUnpublishFor] = useState<RoleTalentWithProfile | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const togglePublished = useToggleEngagementPublished();
@@ -98,17 +99,37 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
 
   if (rows.length === 0) {
     return (
+      <div>
+      <div className="mb-4 flex min-h-12 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-base uppercase text-foreground">Ingaggi</h2>
+        {onAdd && (
+          <Button variant="secondary" size="md" iconPosition="left" onClick={onAdd}>
+            <Plus />
+            Ingaggia talent
+          </Button>
+        )}
+      </div>
       <div className="py-10 text-center">
         <p className="font-medium text-foreground">Ancora nessun ingaggio</p>
         <p className="mt-2 text-sm text-muted-foreground">
           Gli ingaggi compaiono qui quando, nella Shortlist, selezioni dei talent e usi l'azione Ingaggia.
         </p>
       </div>
+      </div>
     );
   }
 
   return (
     <div>
+      <div className="mb-4 flex min-h-12 flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-base uppercase text-foreground">Ingaggi</h2>
+        {onAdd && (
+          <Button variant="secondary" size="md" iconPosition="left" onClick={onAdd}>
+            <Plus />
+            Ingaggia talent
+          </Button>
+        )}
+      </div>
       {rows.map((rt) => {
         const p = rt.profile;
         const name = p?.stage_name?.trim() || [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Talent";
