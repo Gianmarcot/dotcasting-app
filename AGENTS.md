@@ -21,11 +21,15 @@
 - The casting details drawer (`CastingSidePanel`) is window-edge flush: its own `border-l border-border` is the separator (no rounded corners even in overlay), it spans `100dvh` and reaches the window's right edge via `--panel-extra`, with content capped at 352px. Open state lives in `useCastingDetailsPanel` so the host page can show a header action while closed; host pages cancel the admin wrapper padding (`md:-mt-16 md:-mb-8` root, `md:pt-16` content column). Why: the drawer must reach window edges.
 - List rows sharing the page with the casting details drawer (`RoleCard`) wrap in `@container` and switch stacked/inline layouts with `@[640px]:` variants, never `md:`. Why: drawer reduces row width. Avatar stacks come from the shared `TalentAvatarStack`: `md` inline, `sm` when stacked, toggled by `@[640px]:` display classes.
 - The owner sidebar has a collapsed mode (72px, icons with tooltips, favorites hidden) stored separately from the expanded width (256–384px) in `useOwnerSidebarWidth`; toggle via the edge chevron (`CastingSidePanel` style) or the 164px drag snap; double-click resets width. Why: states persist, so expanding restores the chosen width.
-- Shortlist state is derived: engaged = `published_to_talent`, excluded = `role_talents.excluded`; `talent_status`/`company_status` are deprecated. Why: actions drive state.
+- Shortlist state: engaged = `published_to_talent`, excluded = `role_talents.excluded`; `talent_status`/`company_status` deprecated.
 - Role requirements: `casting_roles.requirements` is truth (legacy gender/age/skills columns mirrored on save); fields only from registry `src/lib/roleRequirements.ts`, evaluation in `roleMatch.ts`. Why: one definition everywhere.
 
 ## Menu surfaces
 
 - All menu families use shared `.dc-menu` anatomy and explicit `data-surface` from React context on portal content; selects, search and filters are normal, actions compact. Why: portals must preserve the trigger surface.
 - Search/multiple values use `SearchSelect` (Popover + Command), never nested Select; action submenus use `MenuSubLevel` to cap depth at two levels. Why: preserve accessible selection and navigation semantics.
-- Interactive menu regression scenarios live in `MenuScenarios`, mounted in Design System. Why: exercise portals, dark surfaces, overflow and dialogs without changing live data.
+- Menu regression scenarios live in `MenuScenarios` (Design System). Why: test portals without live data.
+
+## Modals
+
+- Modals set `DialogContent` `size` (sm alerts, md short forms, lg long forms/lists, fullscreen = media-manager sheet), never ad-hoc widths. Why: one anatomy.

@@ -53,7 +53,7 @@ export const CompanyFormDialog = ({ company, open, onOpenChange, onSubmit, isSub
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>{company ? "Modifica Azienda" : "Nuova Azienda"}</DialogTitle>
         </DialogHeader>

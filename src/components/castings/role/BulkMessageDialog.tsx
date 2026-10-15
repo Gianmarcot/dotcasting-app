@@ -78,7 +78,7 @@ export const BulkMessageDialog = ({ open, onOpenChange, talents, roleName, casti
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Messaggio a {talents.length} talent</DialogTitle>
         </DialogHeader>

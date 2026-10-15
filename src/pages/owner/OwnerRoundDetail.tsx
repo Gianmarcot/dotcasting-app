@@ -408,7 +408,7 @@ export const OwnerRoundDetail = () => {
       </AlertDialog>
 
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-        <DialogContent>
+        <DialogContent size="sm">
           <DialogHeader>
             <DialogTitle>Invio condiviso</DialogTitle>
           </DialogHeader>

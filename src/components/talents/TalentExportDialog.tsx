@@ -393,7 +393,7 @@ export const TalentExportDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent size="md">
         <DialogHeader>
           <DialogTitle>Esporta profilo in PDF</DialogTitle>
         </DialogHeader>

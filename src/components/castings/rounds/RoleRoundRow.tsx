@@ -213,7 +213,7 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
       </div>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent onClick={stop} className="rounded-3xl">
+        <AlertDialogContent onClick={stop}>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display uppercase tracking-widest">
               Eliminare l'invio?

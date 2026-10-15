@@ -56,6 +56,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose,
+  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -1002,19 +1004,26 @@ const PrimitivesSection = () => (
             </PopoverContent>
           </Popover>
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">Dialog</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Titolo dialog</DialogTitle>
-                <DialogDescription>
-                  Descrizione del dialog di esempio.
-                </DialogDescription>
-              </DialogHeader>
-            </DialogContent>
-          </Dialog>
+          {(["sm", "md", "lg", "fullscreen"] as const).map((size) => (
+            <Dialog key={size}>
+              <DialogTrigger asChild>
+                <Button variant="outline">Modale {size === "sm" ? "small" : size === "md" ? "medium" : size === "lg" ? "large" : "fullscreen"}</Button>
+              </DialogTrigger>
+              <DialogContent size={size}>
+                <DialogHeader>
+                  <DialogTitle>Titolo modale</DialogTitle>
+                  <DialogDescription>
+                    {size === "sm" ? "Avvisi e conferme brevi." : size === "md" ? "Form brevi." : size === "lg" ? "Form lunghi e liste." : "Gestione di contenuti estesi, come i media."}
+                  </DialogDescription>
+                </DialogHeader>
+                <p className="text-sm">Contenuto della modale.</p>
+                <DialogFooter>
+                  <DialogClose asChild><Button variant="secondary">Annulla</Button></DialogClose>
+                  <DialogClose asChild><Button>Conferma</Button></DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          ))}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

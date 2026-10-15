@@ -198,7 +198,7 @@ export const TeamMembersSection = () => {
 
       {/* Invite dialog */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent>
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>Invita un nuovo membro</DialogTitle>
             <DialogDescription>
@@ -227,7 +227,7 @@ export const TeamMembersSection = () => {
 
       {/* Link dialog (post-invite) */}
       <Dialog open={!!linkDialog} onOpenChange={(o) => !o && setLinkDialog(null)}>
-        <DialogContent>
+        <DialogContent size="md">
           <DialogHeader>
             <DialogTitle>Invito creato</DialogTitle>
             <DialogDescription>

@@ -24,22 +24,40 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
+export type DialogSize = "sm" | "md" | "lg" | "fullscreen";
+
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { overlayClassName?: string }
->(({ className, overlayClassName, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    overlayClassName?: string;
+    /** sm = avvisi/conferme, md = form brevi, lg = form lunghi/liste, fullscreen = come gestione media. */
+    size?: DialogSize;
+    bodyClassName?: string;
+    hideClose?: boolean;
+  }
+>(({ className, overlayClassName, bodyClassName, size = "md", hideClose, children, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
       ref={ref}
-      className={cn("dc-dialog", className)}
+      className={cn(size === "fullscreen" ? "dc-dialog-fullscreen" : ["dc-dialog", `dc-dialog-${size}`], className)}
       {...props}
     >
-      {children}
-      <DialogPrimitive.Close className="dc-dialog-close">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
+      <div className={cn("dc-dialog-body", bodyClassName)}>{children}</div>
+      {!hideClose && (
+        <DialogPrimitive.Close
+          aria-label="Chiudi"
+          className={cn(
+            "dc-dialog-close flex items-center gap-2 rounded-[100px] bg-ink text-white transition-opacity duration-200 ease-out hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 motion-reduce:transition-none",
+            size === "fullscreen" ? "py-2 pl-6 pr-2" : "p-2"
+          )}
+        >
+          {size === "fullscreen" && <span aria-hidden className="text-sm">Chiudi</span>}
+          <span aria-hidden className="flex h-10 w-10 items-center justify-center">
+            <X className="h-5 w-5" strokeWidth={1.5} />
+          </span>
+        </DialogPrimitive.Close>
+      )}
     </DialogPrimitive.Content>
   </DialogPortal>
 ));

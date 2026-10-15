@@ -198,9 +198,11 @@ function TalentDetailSheet({
     <>
       <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
         <DialogContent
-          className={cn(
-            "max-w-6xl w-[95vw] h-[90vh] p-0 bg-background text-foreground rounded-3xl overflow-hidden gap-0 border-border",
-            "grid [&>.dc-dialog-close]:hidden",
+          size="fullscreen"
+          hideClose
+          className="bg-background text-foreground"
+          bodyClassName={cn(
+            "p-0 sm:p-0 pt-0 sm:pt-0 gap-0 overflow-hidden content-stretch",
             showStrip
               ? "grid-rows-[auto_auto_1fr]"
               : "grid-rows-[auto_1fr]"
@@ -689,7 +691,7 @@ export default function SharedRound() {
           if (!confirmMutation.isPending) setPwdOpen(o);
         }}
       >
-        <DialogContent className="max-w-sm rounded-3xl bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
+        <DialogContent size="sm" className="bg-[#0F0F0F] text-[#F5F0E8] border border-white/10">
           <DialogHeader>
             <DialogTitle className="font-tenor uppercase tracking-widest text-[#F5F0E8]">
               Conferma selezione
