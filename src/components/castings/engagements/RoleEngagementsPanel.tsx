@@ -127,7 +127,7 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
           <div key={rt.id} className="-mx-4 flex items-center gap-4 rounded-lg px-4 py-3 transition-colors hover:bg-muted/30">
             <TalentThumb profile={p} />
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{name}</p>
+              <p className="truncate text-base font-medium text-foreground">{name}</p>
               <p className="text-sm text-muted-foreground">
                 {rt.published_at ? `Pubblicato ${ago(rt.published_at)}` : "Pubblicato"}
                 {" · "}

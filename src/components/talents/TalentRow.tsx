@@ -127,7 +127,7 @@ export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, o
 
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
-            <span className="truncate text-sm font-bold text-foreground">{talentRowName(p)}</span>
+            <span className="truncate text-base font-medium text-foreground">{talentRowName(p)}</span>
             {hasPills && <span className="hidden shrink-0 items-center gap-2 @[640px]:flex">{pills}</span>}
           </div>
           <p className="min-w-0 truncate text-sm text-field-label">

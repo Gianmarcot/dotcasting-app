@@ -99,17 +99,17 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
         <div className="min-w-0 flex items-center gap-3">
           <Folder className="h-5 w-5 text-muted-foreground shrink-0" />
           <div className="min-w-0">
-            <div className="text-foreground truncate">
+            <div className="text-base font-medium text-foreground truncate">
               {(() => {
                 const sep = round.label.match(/\s[-–]\s/);
                 if (!sep) return <span>{round.label}</span>;
                 const idx = round.label.indexOf(sep[0]);
                 const first = round.label.slice(0, idx);
                 const rest = round.label.slice(idx);
-                if (hideRoleName) return <span className="font-semibold">{first}</span>;
+                if (hideRoleName) return <span className="font-medium">{first}</span>;
                 return (
                   <>
-                    <span className="font-semibold">{first}</span>
+                    <span className="font-medium">{first}</span>
                     <span className="font-normal">{rest}</span>
                   </>
                 );
