@@ -349,6 +349,10 @@
   * {
     @apply border-border;
   }
+  /* HDR photos (e.g. iPhone gain maps) must not glow brighter than UI white. */
+  img, video, picture {
+    dynamic-range-limit: standard;
+  }
 
   body {
     @apply bg-background text-foreground antialiased overflow-x-hidden;
