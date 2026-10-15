@@ -518,7 +518,7 @@ export const RoundWizardDialog = (props: Props) => {
           {roleName && <span className="text-muted-foreground"> — {roleName}</span>}
         </>
       }
-      headerExtra={<Stepper steps={STEP_LABELS} currentStep={step} />}
+      headerExtra={<Stepper steps={STEP_LABELS} currentStep={step} onStepSelect={setStep} />}
     >
       <div className="mx-auto mt-8 w-full max-w-[1400px]">
         {step === 0 ? (
