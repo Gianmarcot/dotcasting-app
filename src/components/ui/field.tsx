@@ -321,7 +321,7 @@ export const FloatingSelect = ({
           )}
         </SelectTrigger>
 
-        <SelectContent className={cn("max-h-72", contentClassName)}>
+        <SelectContent className={contentClassName}>
           {options.map((o) => (
             <SelectItem key={o.value} value={o.value}>
               {o.label}

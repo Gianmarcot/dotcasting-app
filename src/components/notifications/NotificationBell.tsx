@@ -154,7 +154,7 @@ export const NotificationBell = () => {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-80 dc-menu-compact">
         <div className="flex items-center justify-between p-3 border-b border-border">
           <h3 className="font-semibold text-sm">
             {it.notifications?.title || "Notifiche"}

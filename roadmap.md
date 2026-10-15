@@ -10,3 +10,7 @@
 - [x] Allineare ModalNavBar al design aggiornato (padding 8px, 56x56 / 160x56, fondo #1a1a1a)
 - [x] Colonna avatar con conteggio "N in shortlist" nelle righe dei ruoli
 - [x] Vista compressa della barra laterale admin (freccia sul bordo + trascinamento)
+
+- [x] Unificare token e anatomia dei menu in tutte le superfici
+- [x] Aggiungere dodici scenari interattivi nel Design System
+- [x] Verificare superfici, ricerca, selezione, tastiera, sottomenu e dialogo
