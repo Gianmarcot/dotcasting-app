@@ -144,23 +144,14 @@ export const OwnerCastingRoleDetail = () => {
   );
   const previewTalent = previewTalents.find((t) => t.id === previewId) ?? null;
 
-  const handlePickerConfirm = async (ids: string[]) => {
-    const before = new Set(talents.map((t) => t.profile_id));
-    const after = new Set(ids);
-    try {
-      for (const profileId of ids.filter((id) => !before.has(id))) {
-        await addRoleTalent.mutateAsync({ castingRoleId: roleId!, profileId });
-      }
-      for (const rt of talents.filter((t) => !after.has(t.profile_id))) {
-        await removeTalent.mutateAsync({ id: rt.id, roleId: roleId! });
-      }
-      toast.success("Shortlist aggiornata");
-    } catch (e) {
-      toast.error("Errore durante il salvataggio");
-      throw e;
-    } finally {
-      qc.invalidateQueries({ queryKey: ["role-talents", roleId] });
-    }
+  const pickerAdd = async (profileId: string) => {
+    await addRoleTalent.mutateAsync({ castingRoleId: roleId!, profileId });
+  };
+  const pickerRemove = async (profileId: string) => {
+    const { error } = await supabase.from("role_talents").delete().eq("casting_role_id", roleId!).eq("profile_id", profileId);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: ["role-talents", roleId] });
+    qc.invalidateQueries({ queryKey: ["casting-roles"] });
   };
 
   const getRemovalWarning = (profileId: string) => {
@@ -448,12 +439,10 @@ export const OwnerCastingRoleDetail = () => {
         open={addTalentOpen}
         onOpenChange={setAddTalentOpen}
         title="Aggiungi talent"
-        source={{ kind: "database" }}
         roleId={roleId}
-        initialSelectedIds={talents.map((t) => t.profile_id)}
-        selectionLabel="Shortlist"
-        confirmLabel="Salva shortlist"
-        onConfirm={handlePickerConfirm}
+        shortlistIds={talents.map((t) => t.profile_id)}
+        onAdd={pickerAdd}
+        onRemove={pickerRemove}
         getRemovalWarning={getRemovalWarning}
       />
 

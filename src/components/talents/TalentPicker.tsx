@@ -207,9 +207,11 @@ export const TalentPicker = ({
   }, [filtered, sort, withRequirements, roleReqs]);
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
 
   const add = async (id: string, undoable = true) => {
-    if (selectedSet.has(id)) return;
+    if (selectedRef.current.includes(id)) return;
     setSelected((s) => [...s, id]);
     try {
       await onAdd(id);
