@@ -17,3 +17,5 @@
 - [x] Campi beige nei pannelli filtri aperti su fondo bianco
 
 - [x] Pulsante header "Modifica casting" / "Modifica ruolo" a pannello chiuso
+
+- [x] Rimuovere i divisori tra le righe di Shortlist, Selezioni e Ingaggi

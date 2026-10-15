@@ -108,7 +108,7 @@ export const RoleEngagementsPanel = ({ castingId, roleId, roleName, roleLocation
   }
 
   return (
-    <div className="divide-y divide-border/40">
+    <div>
       {rows.map((rt) => {
         const p = rt.profile;
         const name = p?.stage_name?.trim() || [p?.first_name, p?.last_name].filter(Boolean).join(" ") || "Talent";
