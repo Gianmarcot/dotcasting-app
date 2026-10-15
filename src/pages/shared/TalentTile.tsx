@@ -77,7 +77,7 @@ export function TalentTileView({
         "group relative rounded-2xl transition-all",
         selectable && "cursor-pointer",
         light
-          ? cn("bg-cream shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-[var(--grey-400)]")
+          ? cn("bg-cream shadow-sm", selected ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-[var(--grey-400)]")
           : cn("bg-[#1A1A1A]", selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"),
       )}
       onClick={selectable ? onToggle : undefined}
