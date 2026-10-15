@@ -298,7 +298,7 @@ export const RoundFolderCard = ({ round, castingId, preview }: Props) => {
       </div>
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent onClick={stop} className="rounded-3xl">
+        <AlertDialogContent onClick={stop}>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-tenor uppercase tracking-widest">
               Eliminare l'invio?

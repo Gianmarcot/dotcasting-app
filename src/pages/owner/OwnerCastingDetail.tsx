@@ -258,7 +258,7 @@ export const OwnerCastingDetail = () => {
       </div>
 
       <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
-        <AlertDialogContent className="rounded-3xl">
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="font-display uppercase tracking-widest">
               Eliminare il casting?

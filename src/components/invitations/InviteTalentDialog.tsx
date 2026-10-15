@@ -54,7 +54,8 @@ export const InviteTalentDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         overlayClassName={elevated ? "z-[100]" : undefined}
-        className={elevated ? "z-[110] sm:max-w-md" : "sm:max-w-md"}
+        size="md"
+        className={elevated ? "z-[110]" : undefined}
       >
         <DialogHeader>
           <DialogTitle>Invita {talentName}</DialogTitle>
