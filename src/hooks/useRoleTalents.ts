@@ -2,31 +2,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type TalentStatus = "none" | "invited" | "confirmed" | "rejected";
-export type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
-
-export const TALENT_STATUS_OPTIONS: { value: TalentStatus; label: string; color: string }[] = [
-  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "invited", label: "Invitato", color: "bg-muted text-foreground" },
-  { value: "confirmed", label: "Confermato", color: "bg-[#729128]/15 text-[#729128]" },
-  { value: "rejected", label: "Rifiutato", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
-];
-
-export const COMPANY_STATUS_OPTIONS: { value: CompanyStatus; label: string; color: string }[] = [
-  { value: "none", label: "—", color: "bg-muted text-muted-foreground" },
-  { value: "pending", label: "In attesa", color: "bg-muted text-foreground" },
-  { value: "proposed", label: "Proposto", color: "bg-muted text-foreground" },
-  { value: "confirmed", label: "Confermato", color: "bg-[#729128]/15 text-[#729128]" },
-  { value: "rejected", label: "Scartato", color: "bg-[#A30A2B]/15 text-[#A30A2B]" },
-];
-
 export type RoleTalentWithProfile = Tables<"role_talents"> & {
-  talent_status: TalentStatus;
-  company_status: CompanyStatus;
   profile: {
     id: string;
+    user_id: string | null;
     first_name: string | null;
     last_name: string | null;
+    stage_name?: string | null;
     profile_photo_url: string | null;
     birth_date: string | null;
     city: string | null;
@@ -35,8 +17,19 @@ export type RoleTalentWithProfile = Tables<"role_talents"> & {
     fiscal_code: string | null;
     fiscal_code_mismatch: boolean | null;
     fiscal_code_status: string | null;
+    talent_attributes?: { skills: string[] | null }[] | { skills: string[] | null } | null;
   } | null;
 };
+
+/** Competenze del profilo (la relazione può arrivare come oggetto o array). */
+export const profileSkills = (p: RoleTalentWithProfile["profile"]): string[] => {
+  const a = p?.talent_attributes;
+  if (!a) return [];
+  return (Array.isArray(a) ? a[0]?.skills : a.skills) ?? [];
+};
+
+/** Ingaggiato = ingaggio pubblicato al talent. */
+export const isEngaged = (rt: Pick<RoleTalentWithProfile, "published_to_talent">) => !!rt.published_to_talent;
 
 export const useRoleTalents = (roleId: string | undefined) => {
   return useQuery({
@@ -48,15 +41,16 @@ export const useRoleTalents = (roleId: string | undefined) => {
         .select(`
           *,
           profile:profiles!role_talents_profile_id_fkey(
-            id, first_name, last_name, profile_photo_url, birth_date, city, gender,
-            has_italian_fiscal_code, fiscal_code, fiscal_code_mismatch, fiscal_code_status
+            id, user_id, first_name, last_name, stage_name, profile_photo_url, birth_date, city, gender,
+            has_italian_fiscal_code, fiscal_code, fiscal_code_mismatch, fiscal_code_status,
+            talent_attributes(skills)
           )
         `)
         .eq("casting_role_id", roleId!)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as RoleTalentWithProfile[];
+      return data as unknown as RoleTalentWithProfile[];
     },
   });
 };
@@ -73,8 +67,6 @@ export const useAddRoleTalent = () => {
           profile_id: profileId,
           added_by_user_id: user?.id,
           status: "shortlisted",
-          talent_status: "none",
-          company_status: "none",
         })
         .select()
         .single();
@@ -88,42 +80,20 @@ export const useAddRoleTalent = () => {
   });
 };
 
-export const useUpdateRoleTalentTalentStatus = () => {
+export const useSetRoleTalentsExcluded = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, talentStatus, roleId }: { id: string; talentStatus: TalentStatus; roleId: string }) => {
-      const { data, error } = await supabase
+    mutationFn: async ({ ids, excluded }: { ids: string[]; excluded: boolean; roleId: string }) => {
+      const { error } = await supabase
         .from("role_talents")
-        .update({ talent_status: talentStatus, status_changed_at: new Date().toISOString() } as any)
-        .eq("id", id)
-        .select()
-        .single();
+        .update({ excluded, excluded_at: excluded ? new Date().toISOString() : null })
+        .in("id", ids);
       if (error) throw error;
-      return { ...data, roleId };
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["role-talents", data.roleId] });
-      queryClient.invalidateQueries({ queryKey: ["casting-roles"] });
-    },
-  });
-};
-
-export const useUpdateRoleTalentCompanyStatus = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, companyStatus, roleId }: { id: string; companyStatus: CompanyStatus; roleId: string }) => {
-      const { data, error } = await supabase
-        .from("role_talents")
-        .update({ company_status: companyStatus, status_changed_at: new Date().toISOString() } as any)
-        .eq("id", id)
-        .select()
-        .single();
-      if (error) throw error;
-      return { ...data, roleId };
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["role-talents", data.roleId] });
-      queryClient.invalidateQueries({ queryKey: ["casting-roles"] });
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["role-talents", vars.roleId] });
+      queryClient.invalidateQueries({ queryKey: ["role-talents-for-round", vars.roleId] });
+      queryClient.invalidateQueries({ queryKey: ["casting-role-talents"] });
     },
   });
 };
@@ -132,10 +102,7 @@ export const useRemoveRoleTalent = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, roleId }: { id: string; roleId: string }) => {
-      const { error } = await supabase
-        .from("role_talents")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("role_talents").delete().eq("id", id);
       if (error) throw error;
       return { roleId };
     },
