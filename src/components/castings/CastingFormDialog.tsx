@@ -283,7 +283,6 @@ export const CastingFormDialog = ({
             </div>
 
             <div className="border-t border-divider pt-4 space-y-4">
-
               <FormField
                 control={form.control}
                 name="talent_instructions"
