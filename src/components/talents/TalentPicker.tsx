@@ -356,7 +356,7 @@ export const TalentPicker = ({
 
       <div
         className={cn("grid transition-[grid-template-rows,opacity] duration-300 ease-out", filtersOpen ? "grid-rows-[1fr] opacity-100" : "-mt-4 grid-rows-[0fr] opacity-0")}
-        inert={!filtersOpen ? true : undefined}
+        {...(!filtersOpen ? { inert: "" } : {})}
       >
         <div className="min-h-0 overflow-hidden">
           <TalentFilterBar filters={filters} onFiltersChange={changeFilters} surface="base" onReset={resetAll} forceReset={pills.mandatory || pills.optional} />
