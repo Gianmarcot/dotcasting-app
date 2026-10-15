@@ -124,6 +124,8 @@ export const OwnerCastingRoleDetail = () => {
   const active = talents.filter((t) => !t.excluded);
   const excluded = talents.filter((t) => t.excluded);
   const selectedRows = talents.filter((t) => selected.has(t.id));
+  const [targetIds, setTargetIds] = useState<string[] | null>(null);
+  const targetRows = targetIds ? talents.filter((t) => targetIds.includes(t.id)) : selectedRows;
   const allSelectedExcluded = selectedRows.length > 0 && selectedRows.every((t) => t.excluded);
   const setOne = (id: string, v: boolean) =>
     setSelected((prev) => {
@@ -178,14 +180,14 @@ export const OwnerCastingRoleDetail = () => {
     return kept;
   };
 
-  const startNewRound = () => {
-    const ids = withoutExcluded([...selected]);
+  const startNewRound = (only?: string[]) => {
+    const ids = withoutExcluded(only ?? [...selected]);
     if (ids.length === 0) return;
     setNewRoundIds(ids);
   };
 
-  const addToRound = async (roundId: string) => {
-    const ids = withoutExcluded([...selected]);
+  const addToRound = async (roundId: string, only?: string[]) => {
+    const ids = withoutExcluded(only ?? [...selected]);
     const round = rounds.find((r) => r.id === roundId);
     if (!round || ids.length === 0) return;
     const rows = membership.filter((m) => m.round_id === roundId);
@@ -212,11 +214,12 @@ export const OwnerCastingRoleDetail = () => {
   };
 
   const doEngage = async () => {
-    const targets = selectedRows.filter((t) => !isEngaged(t));
+    const targets = targetRows.filter((t) => !isEngaged(t));
     try {
       for (const t of targets) await togglePublished.mutateAsync({ id: t.id, published: true, roleId: roleId! });
       toast.success(`${targets.length} ${targets.length === 1 ? "ingaggio pubblicato" : "ingaggi pubblicati"}`);
-      clearSelection();
+      if (!targetIds) clearSelection();
+      setTargetIds(null);
     } catch {
       toast.error("Errore durante l'ingaggio");
     }
@@ -272,6 +275,17 @@ export const OwnerCastingRoleDetail = () => {
       onOpen={() => setPreviewId(rt.profile_id)}
       onToggleExcluded={() => toggleExcluded([rt.id], !rt.excluded)}
       onRemove={() => setRemoveIds([rt.id])}
+      onNewRound={() => startNewRound([rt.id])}
+      onEngage={() => {
+        setTargetIds([rt.id]);
+        setEngageOpen(true);
+      }}
+      onMessage={() => {
+        setTargetIds([rt.id]);
+        setMessageOpen(true);
+      }}
+      rounds={rounds.map((r) => ({ id: r.id, label: r.label, size: roundSize(r.id) }))}
+      onAddToRound={(roundId) => addToRound(roundId, [rt.id])}
     />
   );
 
@@ -338,7 +352,7 @@ export const OwnerCastingRoleDetail = () => {
                         </Button>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <Button size="md" onClick={startNewRound}>
+                        <Button size="md" onClick={() => startNewRound()}>
                           Nuova selezione
                         </Button>
                         <Button variant="secondary" size="md" onClick={() => setEngageOpen(true)}>
@@ -493,12 +507,23 @@ export const OwnerCastingRoleDetail = () => {
         />
       )}
 
-      <EngageDialog talents={selectedRows} open={engageOpen} onOpenChange={setEngageOpen} onConfirm={doEngage} />
+      <EngageDialog
+        talents={targetRows}
+        open={engageOpen}
+        onOpenChange={(o) => {
+          setEngageOpen(o);
+          if (!o) setTargetIds(null);
+        }}
+        onConfirm={doEngage}
+      />
 
       <BulkMessageDialog
         open={messageOpen}
-        onOpenChange={setMessageOpen}
-        talents={selectedRows}
+        onOpenChange={(o) => {
+          setMessageOpen(o);
+          if (!o) setTargetIds(null);
+        }}
+        talents={targetRows}
         roleName={role.name}
         castingId={castingId!}
       />

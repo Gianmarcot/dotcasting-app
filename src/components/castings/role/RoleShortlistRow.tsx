@@ -5,6 +5,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MinorBadge } from "@/components/talents/MinorBadge";
@@ -27,6 +31,11 @@ interface Props {
   onOpen: () => void;
   onToggleExcluded: () => void;
   onRemove: () => void;
+  onNewRound: () => void;
+  onEngage: () => void;
+  onMessage: () => void;
+  rounds: { id: string; label: string; size: number }[];
+  onAddToRound: (roundId: string) => void;
 }
 
 export const talentName = (p: RoleTalentWithProfile["profile"]) =>
@@ -42,6 +51,11 @@ export const RoleShortlistRow = ({
   onOpen,
   onToggleExcluded,
   onRemove,
+  onNewRound,
+  onEngage,
+  onMessage,
+  rounds,
+  onAddToRound,
 }: Props) => {
   const [detailOpen, setDetailOpen] = useState(false);
   const p = rt.profile;
@@ -124,7 +138,29 @@ export const RoleShortlistRow = ({
                 <MoreHorizontal className="h-5 w-5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuItem onSelect={onNewRound} disabled={rt.excluded}>
+                Nuova selezione
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={onEngage}>Ingaggia</DropdownMenuItem>
+              <DropdownMenuItem onSelect={onMessage}>Messaggio</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger disabled={rt.excluded}>Aggiungi a una selezione</DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className="w-64">
+                  {rounds.length === 0 ? (
+                    <DropdownMenuItem disabled>Nessuna selezione</DropdownMenuItem>
+                  ) : (
+                    rounds.map((r) => (
+                      <DropdownMenuItem key={r.id} onSelect={() => onAddToRound(r.id)}>
+                        <span className="flex-1 truncate">{r.label}</span>
+                        <span className="opacity-50">{r.size}</span>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={onToggleExcluded}>
                 {rt.excluded ? "Reintegra nel ruolo" : "Escludi dal ruolo"}
               </DropdownMenuItem>
