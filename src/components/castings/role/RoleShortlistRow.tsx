@@ -11,8 +11,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MinorBadge } from "@/components/talents/MinorBadge";
-import { FiscalStatusBadge } from "@/components/talents/FiscalStatusBadge";
+import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
+import { isMinorBirthDate } from "@/lib/guardianship";
+import { fiscalStatusOf } from "@/lib/fiscalStatus";
 import { getAge, summarizeRequirements, type RequirementResult } from "@/lib/roleMatch";
 import { roleTalentStatusBadge } from "@/lib/casting/roleTalentStatus";
 import { isEngaged, type RoleTalentWithProfile } from "@/hooks/useRoleTalents";
@@ -79,8 +80,18 @@ export const RoleShortlistRow = ({
     }
   })();
 
+  const pills = (
+    <>
+      <MinorPill birthDate={p?.birth_date} className="shrink-0" withIcon={false} />
+      <FiscalPill profile={p} className="shrink-0" withIcon={false} />
+    </>
+  );
+  const hasPills = isMinorBirthDate(p?.birth_date) || fiscalStatusOf(p) !== "ok";
+
+
   return (
-    <div className={cn(rt.excluded && "opacity-50")}>
+    <div className={cn("@container", rt.excluded && "opacity-50")}>
+
       <div
         role="button"
         tabIndex={0}
@@ -103,13 +114,15 @@ export const RoleShortlistRow = ({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate font-medium text-foreground">{talentName(p)}</span>
-            <MinorBadge birthDate={p?.birth_date} className="shrink-0" />
-            <FiscalStatusBadge profile={p} className="shrink-0" />
+            {hasPills && <span className="hidden shrink-0 items-center gap-2 @[640px]:flex">{pills}</span>}
           </div>
-          <p className="truncate text-sm text-muted-foreground">
+          <p className="min-w-0 truncate text-sm text-muted-foreground">
             {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
           </p>
+          {hasPills && <span className="mt-1.5 flex flex-wrap items-center gap-2 @[640px]:hidden">{pills}</span>}
         </div>
+
+
 
         {badge && <span className={cn(CHIP, badge.tone, "shrink-0")}>{badge.label}</span>}
 

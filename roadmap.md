@@ -22,3 +22,4 @@
 - [x] Allineare le schede Selezioni e Ingaggi alla Shortlist (titolo e azione in cima)
 - [x] Rimuovere il pulsante "Ingaggia talent" dalla scheda Ingaggi
 - [x] Eliminare la nota "Il cliente consulta le selezioni in sola lettura…" dalla scheda Selezioni
+- [x] Etichette CF/Minore in shortlist: stile del Database talenti, variante senza icona
