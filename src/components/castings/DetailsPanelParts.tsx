@@ -45,16 +45,25 @@ export const DetailsRows = ({ rows }: { rows: DetailsRow[] }) => (
 
 export const hasRows = (rows: DetailsRow[]) => rows.some((r) => !!r.value);
 
+/** Azione "Modifica" del pannello: pulsante secondario del design system, come quello in header. */
 export const DetailsEditLink = ({ label, onClick }: { label: string; onClick: () => void }) => (
-  <button type="button" onClick={onClick} className="dc-link-action w-fit gap-3">
-    <Pencil className="h-5 w-5" />
+  <Button type="button" variant="secondary" size="md" iconPosition="left" onClick={onClick} className="w-fit">
+    <Pencil />
     {label}
-  </button>
+  </Button>
 );
 
+/** Azione distruttiva del pannello: pulsante leggero con solo testo bordeaux, ancorato in fondo. */
 export const DetailsDeleteLink = ({ label, onClick }: { label: string; onClick: () => void }) => (
-  <button type="button" onClick={onClick} className="dc-link-action dc-link-action-danger mt-auto w-fit gap-3">
-    <Trash2 className="h-5 w-5" />
+  <Button
+    type="button"
+    variant="ghost"
+    size="md"
+    iconPosition="left"
+    onClick={onClick}
+    className="mt-auto w-fit text-brand-600 hover:text-brand-600"
+  >
+    <Trash2 />
     {label}
-  </button>
+  </Button>
 );
