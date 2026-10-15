@@ -264,10 +264,10 @@ export const TalentPicker = ({
     for (const id of removedIds) await onRemove(id).catch(() => failed++);
     setSaving(false);
     if (failed) {
-      toast.error(`${failed} modifiche non salvate, riprova`);
+      toast.error(`${failed} modifiche non salvate, riprova`, { position: "bottom-center" });
       return false;
     }
-    toast("Shortlist aggiornata");
+    toast("Shortlist aggiornata", { position: "bottom-center" });
     return true;
   };
   const save = async (closeAfter = false) => {
@@ -565,6 +565,14 @@ export const TalentPicker = ({
             ) : null}
           </DragOverlay>
         </DndContext>
+      <SaveBar
+        dirty={dirtyCount > 0 && open}
+        count={dirtyCount}
+        saving={saving}
+        onReset={() => setSelected(shortlistIds)}
+        onSave={() => void save()}
+        className="z-[90] md:left-1/2 md:bottom-8"
+      />
       </FullscreenSheet>
 
       <TalentPreviewDrawer
@@ -574,14 +582,6 @@ export const TalentPicker = ({
         onOpenChange={(o) => !o && setPreviewId(null)}
       />
 
-      <SaveBar
-        dirty={dirtyCount > 0 && open}
-        count={dirtyCount}
-        saving={saving}
-        onReset={() => setSelected(shortlistIds)}
-        onSave={() => void save()}
-        className="z-[90] md:left-1/2"
-      />
 
       <AlertDialog open={!!pendingRemoval} onOpenChange={(o) => !o && setPendingRemoval(null)}>
         <AlertDialogContent className="z-[100]">
