@@ -279,15 +279,6 @@ export const CastingFormDialog = ({
               />
             </div>
 
-            <div className="border-t border-divider pt-4 space-y-4">
-              <FormField
-                control={form.control}
-                name="talent_instructions"
-                render={({ field }) => (
-                  <FormItem><FloatingTextarea label="Istruzioni per il talent" value={field.value ?? ""} onChange={field.onChange} /></FormItem>
-                )}
-              />
-            </div>
 
 
             <div className="flex justify-end gap-3 pt-4">
