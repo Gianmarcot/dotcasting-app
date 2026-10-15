@@ -136,6 +136,7 @@
        ===================== */
     --white: #ffffff;
     --cream: #f4f0ec;
+    --shadow-menu: 0 12px 40px -8px rgb(26 26 26 / 0.14), 0 2px 6px rgb(26 26 26 / 0.05);
     --cream-dark: #ece5de;
     --grey-100: #f2f2f2;
     --grey-200: #dddddd;
@@ -619,9 +620,11 @@
            data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95
            data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2
            data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2;
-    border: 0;
-    background-color: #0f0f0f;
-    color: #ffffff;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+    box-shadow: var(--shadow-menu);
+    border-radius: 1.5rem;
   }
 
   .dc-select-content-popper {
@@ -631,14 +634,14 @@
 
   .dc-select-item {
     @apply relative flex w-full cursor-default select-none items-center
-           rounded-lg py-2.5 pl-8 pr-3 text-sm outline-none
+           rounded-2xl py-2.5 pl-8 pr-3 text-sm outline-none
            data-[disabled]:pointer-events-none data-[disabled]:opacity-50;
-    color: #ffffff;
+    color: hsl(var(--popover-foreground));
   }
 
   .dc-select-item[data-highlighted] {
-    background-color: rgb(255 255 255 / 0.1);
-    color: #ffffff;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
   }
 
   .dc-label {
