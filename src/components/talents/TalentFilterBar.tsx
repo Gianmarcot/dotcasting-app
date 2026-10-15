@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { FieldCluster, FloatingInput, FloatingSelect } from "@/components/ui/field";
 import {
@@ -30,6 +28,12 @@ import {
 interface TalentFilterBarProps {
   filters: TalentFilters;
   onFiltersChange: (filters: TalentFilters) => void;
+  /** "raised" su fondo crema (campi bianchi), "base" su fondo bianco (campi crema). */
+  surface?: "raised" | "base";
+  /** Reset personalizzato (es. per spegnere anche le pillole dei requisiti). */
+  onReset?: () => void;
+  /** Mostra Reset anche senza filtri attivi. */
+  forceReset?: boolean;
 }
 
 const ALL_ROLES = [
@@ -55,17 +59,20 @@ interface FilterGroupProps {
 const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
   <Popover>
     <PopoverTrigger asChild>
-      <Button type="button" variant="ghost" className="dc-select-trigger w-auto gap-3 rounded-full">
-        <span className="flex items-center gap-2">
+      <button
+        type="button"
+        className="flex h-12 items-center gap-3 rounded-full bg-[var(--field-bg)] pl-5 pr-3.5 text-sm text-ink transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground"
+      >
+        <span className="flex items-center gap-1.5">
           {label}
           {count > 0 && (
-            <Badge className="h-5 min-w-[20px] px-1.5 text-[10px] bg-primary text-primary-foreground">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[12px] font-medium leading-none text-white">
               {count}
-            </Badge>
+            </span>
           )}
         </span>
         <ChevronDown className="h-5 w-5" />
-      </Button>
+      </button>
     </PopoverTrigger>
     {/* Menu chiaro: i campi prendono il fondo beige (--field-bg) definito in
         .dc-menu, così risaltano sul bianco del pannello. */}
@@ -84,11 +91,11 @@ const FilterGroup = ({ label, count, children, wide }: FilterGroupProps) => (
 );
 
 
-export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarProps) => {
+export const TalentFilterBar = ({ filters, onFiltersChange, surface = "raised", onReset, forceReset }: TalentFilterBarProps) => {
   const set = (partial: Partial<TalentFilters>) =>
     onFiltersChange({ ...filters, ...partial });
 
-  const clearAll = () => onFiltersChange({ search: filters.search });
+  const clearAll = () => (onReset ? onReset() : onFiltersChange({ search: filters.search }));
 
   const hasAny =
     Object.entries(filters).filter(
@@ -107,7 +114,7 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
   };
 
   return (
-    <Surface variant="raised" className="flex flex-wrap items-center gap-x-2 gap-y-2">
+    <Surface variant={surface} className="flex flex-wrap items-center gap-x-2 gap-y-2">
 
 
       {/* Ruolo */}
@@ -219,10 +226,10 @@ export const TalentFilterBar = ({ filters, onFiltersChange }: TalentFilterBarPro
       </FilterGroup>
 
       {/* Reset */}
-      {hasAny && (
-        <Button variant="link" onClick={clearAll} className="ml-1">
+      {(hasAny || forceReset) && (
+        <button type="button" onClick={clearAll} className="ml-2 text-sm font-medium text-primary hover:underline">
           Reset
-        </Button>
+        </button>
       )}
 
       {/* Solo CF validi */}
