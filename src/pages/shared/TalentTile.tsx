@@ -19,22 +19,6 @@ const buildTalent = (row: TalentTileRow) =>
     media: row.media ?? [],
   } as unknown as Parameters<typeof mapToTalent>[0]);
 
-const StatusPill = ({ status }: { status: CompanyStatus | null }) => {
-  if (status === "confirmed")
-    return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#729128]/25 text-[#A8C76E]">
-        <Check className="h-3 w-3" /> Confermato
-      </span>
-    );
-  if (status === "rejected")
-    return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[#A30A2B]/25 text-[#E88599]">
-        Scartato
-      </span>
-    );
-  return null;
-};
-
 export interface TalentTileProps {
   row: TalentTileRow;
   selectable: boolean;
