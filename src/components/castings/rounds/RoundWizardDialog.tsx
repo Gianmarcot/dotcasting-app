@@ -127,7 +127,7 @@ export const RoundWizardDialog = (props: Props) => {
     } else {
       const c = props as CreateProps;
       const n = c.defaultRoundNumber ?? 1;
-      setLabel(c.defaultLabel || `${n}° invio${roleName ? ` - ${roleName}` : ""}`);
+      setLabel(c.defaultLabel || `${n}° selezione${roleName ? ` - ${roleName}` : ""}`);
       setPreset(PRESET_ESSENZIALE);
       setSelected([...(c.initialSelectedIds ?? [])]);
     }
@@ -241,7 +241,7 @@ export const RoundWizardDialog = (props: Props) => {
         qc.invalidateQueries({ queryKey: ["casting-rounds", castingId] });
         qc.invalidateQueries({ queryKey: ["rounds-by-role", castingId] });
         if (localErrors.length === 0) {
-          toast.success("Invio creato", { description: `${items.length} comp card generate` });
+          toast.success("Selezione creata", { description: `${items.length} comp card generate` });
           if (localPhotoWarnings.length > 0) {
             toast.error("Alcune foto non incluse nei PDF", { description: `${localPhotoWarnings.length} talent con foto mancanti: ${localPhotoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}` });
           }
@@ -271,7 +271,7 @@ export const RoundWizardDialog = (props: Props) => {
         });
         setErrors(res.errors);
         if (res.errors.length === 0) {
-          toast.success("Invio aggiornato", { description: `${res.added} aggiunti · ${res.removed} rimossi` });
+          toast.success("Selezione aggiornata", { description: `${res.added} aggiunti · ${res.removed} rimossi` });
           if (res.photoWarnings.length > 0) {
             toast.error("Alcune foto non incluse nei PDF", { description: `${res.photoWarnings.length} talent con foto mancanti: ${res.photoWarnings.map(w => `${w.talentName} (${w.included}/${w.expected})`).join(", ")}` });
           }
@@ -346,14 +346,14 @@ export const RoundWizardDialog = (props: Props) => {
       selected={selected}
       onSelectedChange={setSelected}
       initialSelectedIds={initialRoleTalentIds ?? []}
-      selectionLabel="Invio"
+      selectionLabel="Selezione"
       reorderable
     />
   );
 
   const FieldsPanel = (
     <div className="space-y-5">
-      <FloatingInput label="Etichetta invio" value={label} onChange={setLabel} maxLength={160} />
+      <FloatingInput label="Etichetta selezione" value={label} onChange={setLabel} maxLength={160} />
 
       <div className="space-y-2">
         <Label>Preset rapidi</Label>
@@ -482,7 +482,7 @@ export const RoundWizardDialog = (props: Props) => {
 
       {removedCount > 0 && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-muted-foreground">
-          {removedCount} talent verranno rimossi dall'invio e i loro PDF eliminati dallo storage.
+          {removedCount} talent verranno rimossi dalla selezione e i loro PDF eliminati dallo storage.
         </div>
       )}
 
@@ -537,7 +537,7 @@ export const RoundWizardDialog = (props: Props) => {
       onRequestClose={() => !isBusy && onOpenChange(false)}
       title={
         <>
-          {mode === "edit" ? "Modifica invio" : "Nuovo invio"}
+          {mode === "edit" ? "Modifica selezione" : "Nuova selezione"}
           {roleName && <span className="text-muted-foreground"> — {roleName}</span>}
         </>
       }
@@ -574,7 +574,7 @@ export const RoundWizardDialog = (props: Props) => {
           ) : (
             <Button onClick={handleSubmit} disabled={isBusy || selected.length === 0}>
               {isBusy && <Loader2 className="h-4 w-4 animate-spin" />}
-              {mode === "edit" ? "Salva modifiche" : "Crea invio e genera PDF"}
+              {mode === "edit" ? "Salva modifiche" : "Crea selezione e genera PDF"}
             </Button>
           )}
         </div>

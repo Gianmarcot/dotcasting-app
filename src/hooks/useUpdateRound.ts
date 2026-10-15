@@ -20,7 +20,7 @@ export interface UpdateRoundInput {
   onProgress?: (done: number, total: number) => void;
 }
 
-/** Scrive la posizione dei talent nell'invio secondo l'ordine ricevuto. */
+/** Scrive la posizione dei talent nella selezione secondo l'ordine ricevuto. */
 export const writeRoundPositions = async (roundId: string, roleTalentIds: string[]) => {
   const results = await Promise.all(
     roleTalentIds.map((id, i) =>

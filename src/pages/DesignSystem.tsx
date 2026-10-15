@@ -1438,9 +1438,9 @@ const BlocksSection = () => (
           </div>
 
           {[
-            { label: "1° invio", date: "12 mar 2026", shared: true, count: 6 },
-            { label: "2° invio", date: "18 mar 2026", shared: true, count: 4 },
-            { label: "3° invio", date: "25 mar 2026", shared: false, count: 0 },
+            { label: "1° selezione", date: "12 mar 2026", shared: true, count: 6 },
+            { label: "2° selezione", date: "18 mar 2026", shared: true, count: 4 },
+            { label: "3° selezione", date: "25 mar 2026", shared: false, count: 0 },
           ].map((r) => {
             const shown = Math.min(r.count, 3);
             const extra = Math.max(0, r.count - shown);
@@ -1510,7 +1510,7 @@ const BlocksSection = () => (
             type="button"
             className="mt-3 w-full h-14 rounded-2xl border-2 border-dashed border-border bg-transparent hover:bg-muted/30 hover:border-primary/40 transition-colors flex items-center justify-center gap-2 text-muted-foreground text-sm"
           >
-            + Aggiungi invio
+            + Aggiungi selezione
           </button>
         </div>
       </div>
