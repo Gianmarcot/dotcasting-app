@@ -51,7 +51,6 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isShared = round.status === "shared";
-  const hasClientSelection = preview?.hasClientSelection ?? false;
   const total = preview?.total ?? round.talents_count ?? 0;
   const items = preview?.items ?? [];
   const shown = items.slice(0, 3);
@@ -122,15 +121,12 @@ export const RoleRoundRow = ({ round, castingId, preview, hideRoleName = false }
 
         {/* Status */}
         <div className="flex items-center gap-2 text-sm">
-          {isShared && hasClientSelection ? (
-            <>
-              <CheckCheck className="h-5 w-5 text-[hsl(var(--success))]" />
-              <span className="text-foreground">Selezionati</span>
-            </>
-          ) : isShared ? (
+          {isShared ? (
             <>
               <CheckCheck className="h-5 w-5 text-[#C7C7C7]" />
-              <span className="text-foreground">Condiviso</span>
+              <span className="text-foreground">
+                Condiviso{round.shared_at ? ` il ${format(new Date(round.shared_at), "d MMM", { locale: itLocale })}` : ""}
+              </span>
             </>
           ) : (
             <span className="text-muted-foreground">Non condiviso</span>
