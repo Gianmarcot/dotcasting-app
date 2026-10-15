@@ -30,3 +30,5 @@
 - [x] Rendere più visibile il trascinamento drag & drop nella shortlist
 - [x] Spostare "Solo CF validi" in basso a sinistra nei filtri della shortlist
 - [x] Modifica shortlist: bozza con barra di salvataggio del profilo e avviso in uscita
+- [ ] Allineare Nuova selezione alla finestra Shortlist
+- [ ] Ridisegnare lo stepper con riferimenti aggiornati e verificare i tre passaggi
