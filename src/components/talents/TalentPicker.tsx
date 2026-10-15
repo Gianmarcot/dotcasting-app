@@ -9,7 +9,9 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { ChevronDown, Eye, Search, X } from "lucide-react";
+import { ChevronDown, Eye, LayoutGrid, List, Search, X } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TalentTileView } from "@/pages/shared/TalentTile";
 import { toast } from "sonner";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -31,7 +33,7 @@ import { useCastingRole } from "@/hooks/useCastingRoles";
 import { TalentSearchField } from "@/components/talents/TalentSearchField";
 import { TalentFilterBar } from "@/components/talents/TalentFilterBar";
 import { TalentPreviewDrawer } from "@/components/talents/TalentPreviewDrawer";
-import { ROW_CHECKBOX, TalentRow, talentRowName } from "@/components/talents/TalentRow";
+import { ROW_CHECKBOX, TalentRow, talentRowInitials, talentRowName } from "@/components/talents/TalentRow";
 import { compareRequirements, evaluateRequirements, getAge, toRequirementSubject, type RequirementResult } from "@/lib/roleMatch";
 import { listRequirements, readRoleRequirements, requirementFilters } from "@/lib/roleRequirements";
 import { pillOff, pillOn, pillsAfterManualChange, type PillKind, type PillState } from "@/lib/requirementPills";
@@ -61,6 +63,8 @@ const SORT_LABELS: Record<SortKey, string> = {
 };
 const DROP_ID = "shortlist-drop";
 const EMPTY: TalentFilters = {};
+const VIEW_KEY = "dc-shortlist-picker-view";
+const VIEW_ITEM = "h-12 w-12 rounded-full p-0 hover:bg-field data-[state=on]:bg-field";
 
 const useDragEnabled = () => {
   const query = "(min-width: 1024px) and (pointer: fine)";
@@ -120,6 +124,12 @@ export const TalentPicker = ({
   const [mobileTab, setMobileTab] = useState<"source" | "selection">("source");
   const [pendingRemoval, setPendingRemoval] = useState<{ ids: string[]; message: string } | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [view, setView] = useState<"list" | "grid">(() =>
+    typeof window !== "undefined" && window.localStorage.getItem(VIEW_KEY) === "grid" ? "grid" : "list",
+  );
+  useEffect(() => {
+    window.localStorage.setItem(VIEW_KEY, view);
+  }, [view]);
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const dragEnabled = useDragEnabled();
@@ -344,6 +354,14 @@ export const TalentPicker = ({
               </SelectContent>
             </Select>
           </Surface>
+          <ToggleGroup type="single" value={view} onValueChange={(v) => v && setView(v as "list" | "grid")} className="gap-1">
+            <ToggleGroupItem value="list" aria-label="Vista lista" className={VIEW_ITEM}>
+              <List className="h-5 w-5" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="grid" aria-label="Vista griglia" className={VIEW_ITEM}>
+              <LayoutGrid className="h-5 w-5" />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
@@ -394,6 +412,32 @@ export const TalentPicker = ({
             />
             Seleziona tutti ({shownIds.length})
           </label>
+          {view === "grid" ? (
+            <div className="@container">
+              <div className="grid grid-cols-2 gap-4 @[720px]:grid-cols-3 @[1000px]:grid-cols-4">
+                {shown.map((t) => {
+                  const isSel = selectedSet.has(t.id);
+                  const height = (t.attributes as { height?: number | null } | null)?.height;
+                  return (
+                    <Draggable key={t.id} id={t.id} enabled={dragEnabled && !isSel}>
+                      <TalentTileView
+                        tone="light"
+                        name={talentRowName(t)}
+                        initials={talentRowInitials(t)}
+                        photoUrl={t.profile_photo_url ?? null}
+                        meta={[height ? `${height} cm` : null, t.city].filter(Boolean).join(" • ")}
+                        selectable
+                        selected={isSel}
+                        onToggle={() => toggle(t.id)}
+                        onOpenDetails={() => setPreviewId(t.id)}
+                      />
+                    </Draggable>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <>
           {shown.map((t) => {
             const isSel = selectedSet.has(t.id);
             return (
@@ -425,6 +469,8 @@ export const TalentPicker = ({
               </Draggable>
             );
           })}
+            </>
+          )}
         </div>
       )}
     </section>

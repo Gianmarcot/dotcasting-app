@@ -1,4 +1,5 @@
 import { Check, ImageOff, Maximize2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { mapToTalent } from "@/lib/casting/fetchRoundTalents";
 
 type CompanyStatus = "none" | "pending" | "proposed" | "confirmed" | "rejected";
@@ -28,74 +29,110 @@ export interface TalentTileProps {
   onOpenDetails: () => void;
 }
 
-export function TalentTile({
-  row,
+export function TalentTile({ row, selectable, selected, onToggle, onOpenDetails }: TalentTileProps) {
+  const talent = buildTalent(row);
+  return (
+    <TalentTileView
+      name={talent.nome}
+      photoUrl={talent.photos?.[0] ?? null}
+      meta={[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
+      selectable={selectable}
+      selected={selected}
+      onToggle={onToggle}
+      onOpenDetails={onOpenDetails}
+    />
+  );
+}
+
+export interface TalentTileViewProps {
+  name: string;
+  photoUrl: string | null;
+  meta: string;
+  /** Iniziali per chi non ha foto (variante chiara). */
+  initials?: string;
+  selectable: boolean;
+  selected: boolean;
+  onToggle: () => void;
+  onOpenDetails: () => void;
+  /** "dark" = pagina cliente, "light" = superfici bianche/crema dell'admin. */
+  tone?: "dark" | "light";
+}
+
+/** Tessera talent: foto 5:7, nome Tenor maiuscolo, meta, cerchio di selezione e pulsante dettagli. */
+export function TalentTileView({
+  name,
+  photoUrl,
+  meta,
+  initials,
   selectable,
   selected,
-  showStatus,
   onToggle,
   onOpenDetails,
-}: TalentTileProps) {
-  const talent = buildTalent(row);
-  const photo = talent.photos?.[0];
-
+  tone = "dark",
+}: TalentTileViewProps) {
+  const light = tone === "light";
   return (
     <div
-      className={`group relative bg-[#1A1A1A] rounded-2xl transition-all ${
-        selectable ? "cursor-pointer" : ""
-      } ${selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"}`}
+      className={cn(
+        "group relative rounded-2xl transition-all",
+        selectable && "cursor-pointer",
+        light
+          ? cn("bg-white shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-[var(--grey-400)]")
+          : cn("bg-[#1A1A1A]", selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"),
+      )}
       onClick={selectable ? onToggle : undefined}
     >
       {selectable && (
-        <div
-          className="absolute top-3 left-3 z-10"
+        <button
+          type="button"
+          role="checkbox"
+          aria-checked={selected}
+          aria-label={`Seleziona ${name}`}
+          className="absolute left-3 top-3 z-10"
           onClick={(e) => {
             e.stopPropagation();
             onToggle();
           }}
         >
-          <div
-            className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
-              selected ? "bg-[#A30A2B] border-[#A30A2B]" : "bg-[#1A1A1A] border-white/30"
-            }`}
+          <span
+            className={cn(
+              "flex h-7 w-7 items-center justify-center rounded-full border-2 transition-all",
+              selected
+                ? light ? "border-primary bg-primary" : "border-[#A30A2B] bg-[#A30A2B]"
+                : light ? "border-[var(--grey-400)] bg-white" : "border-white/30 bg-[#1A1A1A]",
+            )}
           >
-            <Check
-              className={`h-4 w-4 text-white transition-opacity ${selected ? "opacity-100" : "opacity-0"}`}
-              strokeWidth={3}
-            />
-          </div>
-        </div>
+            <Check className={cn("h-4 w-4 text-white transition-opacity", selected ? "opacity-100" : "opacity-0")} strokeWidth={3} />
+          </span>
+        </button>
       )}
 
-      {showStatus && (
-        <div className="absolute top-3 right-3 z-10">
-        </div>
-      )}
-
-      <div className="px-12 pt-12 pb-0">
-        <div className="overflow-hidden aspect-[5/7]">
-          {photo ? (
+      <div className="px-12 pb-0 pt-12">
+        <div className="aspect-[5/7] overflow-hidden">
+          {photoUrl ? (
             <img
-              src={photo}
-              alt={talent.nome}
+              src={photoUrl}
+              alt={name}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
+          ) : light ? (
+            <div className="flex h-full w-full items-center justify-center bg-ink text-2xl font-medium text-white">
+              {initials ?? "?"}
+            </div>
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/20 bg-[#0F0F0F]">
+            <div className="flex h-full w-full items-center justify-center bg-[#0F0F0F] text-white/20">
               <ImageOff className="h-6 w-6" />
             </div>
           )}
         </div>
       </div>
 
-      <div className="p-6">
-        <p className="font-display uppercase text-[18px] tracking-wide text-[#F5F0E8] leading-tight truncate">
-          {talent.nome}
+      <div className="p-6 pr-16">
+        <p className={cn("truncate font-display text-[18px] uppercase leading-tight tracking-wide", light ? "text-ink" : "text-[#F5F0E8]")}>
+          {name}
         </p>
-        <p className="text-[12px] text-white/50 mt-0.5 truncate">
-          {[talent.altezza_cm ? `${talent.altezza_cm} cm` : null, talent.citta].filter(Boolean).join(" • ")}
-        </p>
+        <p className={cn("mt-0.5 min-h-[18px] truncate text-[12px]", light ? "text-field-label" : "text-white/50")}>{meta}</p>
       </div>
 
       <button
@@ -104,10 +141,13 @@ export function TalentTile({
           e.stopPropagation();
           onOpenDetails();
         }}
-        className="absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center bg-transparent hover:bg-white/10 transition-colors"
+        className={cn(
+          "absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-transparent transition-colors",
+          light ? "text-ink hover:bg-field" : "text-white hover:bg-white/10",
+        )}
         aria-label="Apri dettagli"
       >
-        <Maximize2 className="h-6 w-6 text-white" />
+        <Maximize2 className="h-6 w-6" />
       </button>
     </div>
   );
