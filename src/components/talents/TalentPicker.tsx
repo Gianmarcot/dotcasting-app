@@ -367,7 +367,7 @@ export const TalentPicker = ({
         </p>
       ) : (
         <div className="-mx-4 min-h-0 flex-1 overflow-y-auto px-4">
-          <div className="flex flex-col gap-2 px-4">
+          <div className="flex flex-col gap-2">
             {selected.map((id) => {
               const t = byId.get(id);
               return (

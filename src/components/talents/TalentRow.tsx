@@ -67,6 +67,21 @@ export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, o
     </>
   );
   const hasPills = isMinorBirthDate(p?.birth_date) || fiscalStatusOf(p) !== "ok";
+  const reqButton = (className: string) =>
+    reqChip && (
+      <button
+        type="button"
+        onClick={(e) => {
+          stop(e);
+          setDetailOpen((o) => !o);
+        }}
+        onKeyDown={stop}
+        aria-expanded={detailOpen}
+        className={cn("shrink-0", className)}
+      >
+        {reqChip}
+      </button>
+    );
 
   return (
     <div className={cn("@container", dimmed && "opacity-50", className)}>
@@ -105,24 +120,12 @@ export const TalentRow = ({ profile: p, requirements, leading, meta, trailing, o
             {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
           </p>
           {hasPills && <span className="mt-1.5 flex flex-wrap items-center gap-2 @[640px]:hidden">{pills}</span>}
+          {reqChip && <span className="mt-1.5 flex @[440px]:hidden">{reqButton("")}</span>}
         </div>
 
         {meta}
 
-        {reqChip && (
-          <button
-            type="button"
-            onClick={(e) => {
-              stop(e);
-              setDetailOpen((o) => !o);
-            }}
-            onKeyDown={stop}
-            aria-expanded={detailOpen}
-            className="shrink-0"
-          >
-            {reqChip}
-          </button>
-        )}
+        {reqButton("hidden @[440px]:inline-flex")}
 
         {trailing && (
           <div onClick={stop} onKeyDown={stop} className="flex shrink-0 items-center gap-1">
