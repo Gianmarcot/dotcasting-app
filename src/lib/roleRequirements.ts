@@ -164,10 +164,16 @@ export function normalizeRequirements(data: RoleRequirementsData) {
 
 /** Filtri del Database Talenti corrispondenti ai requisiti obbligatori. */
 export function mandatoryFilters(data: RoleRequirementsData): TalentFilters {
+  return requirementFilters(data, true);
+}
+
+/** Filtri corrispondenti ai requisiti obbligatori (true) o facoltativi (false). */
+export function requirementFilters(data: RoleRequirementsData, mandatory: boolean): TalentFilters {
   const { requirements } = normalizeRequirements(data);
   const out: Record<string, unknown> = {};
   for (const f of REQUIREMENT_FIELDS) {
-    if (!requirements.mandatory[f.key]) continue;
+    const rv = requiredValueOf(f, requirements.values);
+    if (!rv || !!requirements.mandatory[f.key] !== mandatory) continue;
     const keys = f.type === "number" ? [f.minKey, f.maxKey] : [f.filterKey];
     for (const k of keys) {
       const v = (requirements.values as Record<string, unknown>)[k];
