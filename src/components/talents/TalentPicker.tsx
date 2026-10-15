@@ -265,10 +265,10 @@ export const TalentPicker = ({
     for (const id of removedIds) await onRemove(id).catch(() => failed++);
     setSaving(false);
     if (failed) {
-      toast.error(`${failed} modifiche non salvate, riprova`, { position: "bottom-center" });
+      toast.error(`${failed} modifiche non salvate, riprova`);
       return false;
     }
-    toast("Shortlist aggiornata", { position: "bottom-center" });
+    toast("Shortlist aggiornata");
     return true;
   };
   const save = async (closeAfter = false) => {
@@ -298,12 +298,11 @@ export const TalentPicker = ({
     const id = String(e.active.id);
     const name = talentRowName(byId.get(id));
     if (selected.includes(id)) {
-      toast(`${name} è già in shortlist`, { position: "bottom-center" });
+      toast(`${name} è già in shortlist`);
       return;
     }
     add(id);
     toast(`${name} aggiunto alla shortlist`, {
-      position: "bottom-center",
       description: "Premi Salva per confermare",
       action: { label: "Annulla", onClick: () => removeMany([id]) },
     });
