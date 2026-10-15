@@ -60,7 +60,7 @@ function FieldTrigger({ label, className }: { label: string; className?: string 
 
 function Scenario({ number, title, component, children }: { number: number; title: string; component: string; children: ReactNode }) {
   return <div className="min-w-0 space-y-3 border-b border-border/30 pb-6">
-    <div className="space-y-1"><h3 className="font-sans text-base font-semibold">{number.toString().padStart(2, "0")} · {title}</h3><code className="block break-words text-xs text-muted-foreground">{component}</code></div>
+    <div className="space-y-1"><h3 className="font-display text-sm uppercase">{number.toString().padStart(2, "0")} · {title}</h3><code className="block break-words text-xs opacity-70">{component}</code></div>
     {children}
   </div>;
 }
@@ -73,7 +73,7 @@ export function MenuScenarios() {
   const [filter, setFilter] = useState("");
   const [talentFilters, setTalentFilters] = useState<TalentFilters>({});
   return <section id="menus" className="scroll-mt-8 space-y-6">
-    <header className="border-b border-border/60 pb-3"><h2 className="font-sans text-2xl font-semibold">Menu · Scenari interattivi</h2></header>
+    <header className="border-b border-border/60 pb-3"><h2 className="font-display text-2xl uppercase">Menu · Scenari interattivi</h2></header>
     <div className="flex flex-wrap gap-2" role="group" aria-label="Superficie degli esempi">
       {surfaces.map((entry) => <Button key={entry.value} variant={surface === entry.value ? "default" : "outline"} size="sm" aria-pressed={surface === entry.value} onClick={() => setSurface(entry.value)}>{entry.label}</Button>)}
     </div>
@@ -96,9 +96,9 @@ export function MenuScenarios() {
           <Dialog><DialogTrigger asChild><FieldTrigger label="Apri finestra" className="w-full" /></DialogTrigger><DialogContent><DialogHeader><DialogTitle>Menu nella finestra</DialogTitle></DialogHeader><Surface variant={surface} className="space-y-4 rounded-2xl p-6"><SimpleSelect label="Città nella finestra" long /><SearchSelect label="Ricerca nella finestra" options={options} values={search} onValuesChange={setSearch} /></Surface></DialogContent></Dialog>
         </Scenario>
       </div>
-      <div className="space-y-3"><h3 className="font-sans text-base font-semibold">Pannello filtri · PopoverContent</h3><Popover><PopoverTrigger asChild><FieldTrigger label="Filtri" className="w-full sm:w-72" /></PopoverTrigger><PopoverContent className="dc-menu-filter w-72" align="start"><div className="space-y-3"><FloatingInput label="Nome" value={filter} onChange={setFilter} /><SimpleSelect label="Città nel filtro" /></div></PopoverContent></Popover></div>
+      <div className="space-y-3"><h3 className="font-display text-sm uppercase">Pannello filtri · PopoverContent</h3><Popover><PopoverTrigger asChild><FieldTrigger label="Filtri" className="w-full sm:w-72" /></PopoverTrigger><PopoverContent className="dc-menu-filter w-72" align="start"><div className="space-y-3"><FloatingInput label="Nome" value={filter} onChange={setFilter} /><SimpleSelect label="Città nel filtro" /></div></PopoverContent></Popover></div>
       {action && <output aria-live="polite" className="block text-sm">Ultima azione: {action}</output>}
     </Surface>
-    <div className="space-y-3"><h3 className="font-sans text-base font-semibold">Database talenti · TalentFilterBar</h3><TalentFilterBar filters={talentFilters} onFiltersChange={setTalentFilters} /></div>
+    <div className="space-y-3"><h3 className="font-display text-sm uppercase">Database talenti · TalentFilterBar</h3><TalentFilterBar filters={talentFilters} onFiltersChange={setTalentFilters} /></div>
   </section>;
 }
