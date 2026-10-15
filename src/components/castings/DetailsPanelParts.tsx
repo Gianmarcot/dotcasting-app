@@ -13,7 +13,7 @@ export const DetailsPanelShell = ({
   className?: string;
 }) => (
   <div className={cn("flex min-h-full flex-col gap-8", className)}>
-    <h2 className="font-display text-base font-normal normal-case text-ink">{title}</h2>
+    <h2 className="font-display text-base font-normal uppercase text-ink">{title}</h2>
     {children}
   </div>
 );
