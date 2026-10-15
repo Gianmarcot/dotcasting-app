@@ -32,3 +32,4 @@
 - [x] Modifica shortlist: bozza con barra di salvataggio del profilo e avviso in uscita
 - [x] Allineare Nuova selezione alla finestra Shortlist
 - [x] Ridisegnare lo stepper con riferimenti aggiornati e verificare i tre passaggi
+- [x] Stepper in linea con il pulsante Chiudi e più distante dal titolo
