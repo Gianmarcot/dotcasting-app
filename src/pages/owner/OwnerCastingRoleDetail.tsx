@@ -434,7 +434,6 @@ export const OwnerCastingRoleDetail = () => {
                 roleLocation={role.location ?? null}
                 talents={talents}
                 isLoading={talentsLoading}
-                onAdd={() => setTab("shortlist")}
               />
             )}
           </div>
