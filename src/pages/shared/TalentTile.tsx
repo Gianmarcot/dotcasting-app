@@ -77,7 +77,7 @@ export function TalentTileView({
         "group relative rounded-2xl transition-all",
         selectable && "cursor-pointer",
         light
-          ? cn("bg-white shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-transparent hover:ring-border")
+          ? cn("bg-white shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-[var(--grey-400)]")
           : cn("bg-[#1A1A1A]", selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"),
       )}
       onClick={selectable ? onToggle : undefined}
@@ -132,7 +132,7 @@ export function TalentTileView({
         <p className={cn("truncate font-display text-[18px] uppercase leading-tight tracking-wide", light ? "text-ink" : "text-[#F5F0E8]")}>
           {name}
         </p>
-        <p className={cn("mt-0.5 truncate text-[12px]", light ? "text-field-label" : "text-white/50")}>{meta}</p>
+        <p className={cn("mt-0.5 min-h-[18px] truncate text-[12px]", light ? "text-field-label" : "text-white/50")}>{meta}</p>
       </div>
 
       <button
