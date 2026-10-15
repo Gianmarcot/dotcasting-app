@@ -14,6 +14,8 @@ import { ChevronDown, Eye, LayoutGrid, List, Plus, Search, X } from "lucide-reac
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TalentTileView } from "@/pages/shared/TalentTile";
 import { toast } from "sonner";
+import { SaveBar } from "@/components/ui/save-bar";
+import { Button } from "@/components/ui/button";
 import { FullscreenSheet } from "@/components/ui/fullscreen-sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PillTabs } from "@/components/ui/pill-tabs";
@@ -159,13 +161,14 @@ export const TalentPicker = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const dragEnabled = useDragEnabled();
 
-  // Selezione locale: aggiornata subito, poi riallineata alla shortlist salvata.
+  // Bozza locale: nulla viene salvato finché non si preme "Salva".
   const [selected, setSelected] = useState<string[]>(shortlistIds);
-  const shortlistKey = shortlistIds.join(",");
-  useEffect(() => {
-    setSelected(shortlistIds);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shortlistKey]);
+  const [saving, setSaving] = useState(false);
+  const [confirmClose, setConfirmClose] = useState(false);
+  const savedSet = useMemo(() => new Set(shortlistIds), [shortlistIds]);
+  const addedIds = selected.filter((id) => !savedSet.has(id));
+  const removedIds = shortlistIds.filter((id) => !selected.includes(id));
+  const dirtyCount = addedIds.length + removedIds.length;
 
   const { data: role } = useCastingRole(roleId);
   const roleReqs = useMemo(() => (role ? readRoleRequirements(role) : null), [role]);
@@ -248,78 +251,37 @@ export const TalentPicker = ({
   const selectedRef = useRef(selected);
   selectedRef.current = selected;
 
-  const add = async (id: string, undoable = true) => {
-    if (selectedRef.current.includes(id)) return;
-    setSelected((s) => [...s, id]);
-    try {
-      await onAdd(id);
-      const name = talentRowName(byId.get(id));
-      if (undoable) toast(`${name} aggiunto alla shortlist`, { action: { label: "Annulla", onClick: () => void removeNow(id, false) } });
-    } catch {
-      setSelected((s) => s.filter((x) => x !== id));
-      toast.error("Non è stato possibile aggiungere il talent");
-    }
-  };
-  const removeNow = async (id: string, undoable = true) => {
-    setSelected((s) => s.filter((x) => x !== id));
-    try {
-      await onRemove(id);
-      const name = talentRowName(byId.get(id));
-      if (undoable) toast(`${name} tolto dalla shortlist`, { action: { label: "Annulla", onClick: () => void add(id, false) } });
-    } catch {
-      setSelected((s) => (s.includes(id) ? s : [...s, id]));
-      toast.error("Non è stato possibile togliere il talent");
-    }
-  };
-  const requestRemove = (id: string) => {
-    const message = getRemovalWarning?.(id) ?? null;
-    if (message) setPendingRemoval({ ids: [id], message });
-    else void removeNow(id);
-  };
+  const add = (id: string) => setSelected((s) => (s.includes(id) ? s : [...s, id]));
+  const addMany = (ids: string[]) => setSelected((s) => [...s, ...ids.filter((id) => !s.includes(id))]);
+  const removeMany = (ids: string[]) => setSelected((s) => s.filter((x) => !ids.includes(x)));
+  const requestRemove = (id: string) => removeMany([id]);
+  const requestRemoveMany = removeMany;
 
-  const addMany = async (ids: string[], undoable = true) => {
-    const todo = ids.filter((id) => !selectedRef.current.includes(id));
-    if (!todo.length) return;
-    setSelected((s) => [...s, ...todo.filter((id) => !s.includes(id))]);
-    const done: string[] = [];
-    for (const id of todo) {
-      try {
-        await onAdd(id);
-        done.push(id);
-      } catch {
-        setSelected((s) => s.filter((x) => x !== id));
-      }
+  const commit = async (): Promise<boolean> => {
+    setSaving(true);
+    let failed = 0;
+    for (const id of addedIds) await onAdd(id).catch(() => failed++);
+    for (const id of removedIds) await onRemove(id).catch(() => failed++);
+    setSaving(false);
+    if (failed) {
+      toast.error(`${failed} modifiche non salvate, riprova`);
+      return false;
     }
-    if (done.length < todo.length) toast.error(`${todo.length - done.length} talent non aggiunti`);
-    if (undoable && done.length)
-      toast(`${done.length} talent aggiunti alla shortlist`, { action: { label: "Annulla", onClick: () => void removeMany(done, false) } });
+    toast("Shortlist aggiornata");
+    return true;
   };
-  const removeMany = async (ids: string[], undoable = true) => {
-    const todo = ids.filter((id) => selectedRef.current.includes(id));
-    if (!todo.length) return;
-    setSelected((s) => s.filter((x) => !todo.includes(x)));
-    const done: string[] = [];
-    for (const id of todo) {
-      try {
-        await onRemove(id);
-        done.push(id);
-      } catch {
-        setSelected((s) => (s.includes(id) ? s : [...s, id]));
-      }
-    }
-    if (done.length < todo.length) toast.error(`${todo.length - done.length} talent non tolti`);
-    if (undoable && done.length)
-      toast(`${done.length} talent tolti dalla shortlist`, { action: { label: "Annulla", onClick: () => void addMany(done, false) } });
-  };
-  const requestRemoveMany = (ids: string[]) => {
-    const risky = ids.filter((id) => selectedRef.current.includes(id) && getRemovalWarning?.(id));
-    if (risky.length)
+  const save = async (closeAfter = false) => {
+    const risky = removedIds.filter((id) => getRemovalWarning?.(id));
+    if (risky.length) {
       setPendingRemoval({
-        ids,
+        ids: closeAfter ? ["__close"] : [],
         message: `${risky.length} ${risky.length === 1 ? "talent è" : "talent sono"} in una selezione o hanno un ingaggio pubblicato: togliendoli dalla shortlist perderai queste informazioni.`,
       });
-    else void removeMany(ids);
+      return;
+    }
+    if ((await commit()) && closeAfter) onOpenChange(false);
   };
+  const requestClose = () => (dirtyCount ? setConfirmClose(true) : onOpenChange(false));
   const shownIds = shown.map((t) => t.id);
   const shownSelected = shownIds.filter((id) => selectedSet.has(id)).length;
   const allState: boolean | "indeterminate" =
@@ -548,7 +510,7 @@ export const TalentPicker = ({
     <>
       <FullscreenSheet
         open={open}
-        onRequestClose={() => onOpenChange(false)}
+        onRequestClose={requestClose}
         title={title}
         closeLabel="Chiudi"
         className="top-8"
@@ -612,22 +574,63 @@ export const TalentPicker = ({
         onOpenChange={(o) => !o && setPreviewId(null)}
       />
 
+      <SaveBar
+        dirty={dirtyCount > 0 && open}
+        count={dirtyCount}
+        saving={saving}
+        onReset={() => setSelected(shortlistIds)}
+        onSave={() => void save()}
+        className="z-[90] md:left-1/2"
+      />
+
       <AlertDialog open={!!pendingRemoval} onOpenChange={(o) => !o && setPendingRemoval(null)}>
         <AlertDialogContent className="z-[100]">
           <AlertDialogHeader>
-            <AlertDialogTitle>Togliere questo talent?</AlertDialogTitle>
+            <AlertDialogTitle>Salvare la shortlist?</AlertDialogTitle>
             <AlertDialogDescription>{pendingRemoval?.message}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annulla</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                if (pendingRemoval)
-                  pendingRemoval.ids.length === 1 ? void removeNow(pendingRemoval.ids[0]) : void removeMany(pendingRemoval.ids);
+                const close = pendingRemoval?.ids[0] === "__close";
                 setPendingRemoval(null);
+                void commit().then((ok) => ok && close && onOpenChange(false));
               }}
             >
-              Togli
+              Salva
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
+        <AlertDialogContent className="z-[100]">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hai modifiche non salvate</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dirtyCount} {dirtyCount === 1 ? "modifica" : "modifiche"} alla shortlist andranno perse se esci senza salvare.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continua a modificare</AlertDialogCancel>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setConfirmClose(false);
+                setSelected(shortlistIds);
+                onOpenChange(false);
+              }}
+            >
+              Esci senza salvare
+            </Button>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmClose(false);
+                void save(true);
+              }}
+            >
+              Salva
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
