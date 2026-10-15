@@ -1,3 +1,4 @@
+import { CastingBreadcrumbs } from "@/components/castings/CastingBreadcrumbs";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -195,15 +196,7 @@ export const OwnerCastingDetail = () => {
         <div className="min-w-0 flex-1 space-y-8 md:pt-16">
           {/* Intestazione */}
           <div className="space-y-6">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/owner/castings")}
-              className="-ml-2"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Tutti i casting
-            </Button>
+            <CastingBreadcrumbs castingId={casting.id} />
             <div className="flex items-center gap-3">
               <FavoriteCastingStar
                 castingId={casting.id}
