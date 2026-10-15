@@ -76,25 +76,48 @@ export const OwnerSidebar = () => {
     user?.email?.charAt(0).toUpperCase() ||
     "A";
 
-  const { width, setWidth, resetWidth, min, max } = useOwnerSidebarWidth();
+  const {
+    width,
+    collapsed,
+    setWidth,
+    setCollapsed,
+    toggleCollapsed,
+    resetWidth,
+    min,
+    max,
+    snap,
+  } = useOwnerSidebarWidth();
   const dragState = useRef<{ startX: number; startWidth: number } | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
     e.preventDefault();
     (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
     dragState.current = { startX: e.clientX, startWidth: width };
+    setDragging(true);
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
   };
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const s = dragState.current;
     if (!s) return;
-    setWidth(s.startWidth + (e.clientX - s.startX));
+    const candidate = s.startWidth + (e.clientX - s.startX);
+    if (collapsed) {
+      if (candidate >= snap) {
+        setCollapsed(false);
+        setWidth(candidate);
+      }
+    } else if (candidate < snap) {
+      setCollapsed(true);
+    } else {
+      setWidth(candidate);
+    }
   };
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!dragState.current) return;
     dragState.current = null;
+    setDragging(false);
     try {
       (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
     } catch {
@@ -105,7 +128,14 @@ export const OwnerSidebar = () => {
   };
 
   return (
-    <aside className="dc-sidebar-admin" style={{ width: `${width}px` }}>
+    <aside
+      className={cn(
+        "dc-sidebar-admin",
+        !dragging &&
+          "transition-[width] duration-300 ease-out motion-reduce:transition-none",
+      )}
+      style={{ width: `${width}px` }}
+    >
       {/* Resize handle */}
       <div
         role="separator"
@@ -130,14 +160,29 @@ export const OwnerSidebar = () => {
 
 
 
-      {/* Logo */}
-      <div className="dc-sidebar-header">
-        <Link to="/owner" className="flex items-center gap-3">
-          <img src={logoWhite} alt="dotCasting" className="h-7" />
-          <span className="text-xs font-display uppercase tracking-widest text-white/60">
-            Admin
-          </span>
-        </Link>
+      {/* Logo + collapse toggle */}
+      <div className={cn("dc-sidebar-header", collapsed && "justify-center px-2")}>
+        {!collapsed && (
+          <Link to="/owner" className="flex items-center gap-3">
+            <img src={logoWhite} alt="dotCasting" className="h-7" />
+            <span className="text-xs font-display uppercase tracking-widest text-white/60">
+              Admin
+            </span>
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={toggleCollapsed}
+          aria-label={collapsed ? "Espandi barra laterale" : "Comprimi barra laterale"}
+          aria-expanded={!collapsed}
+          className="rounded-md p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="h-4 w-4" />
+          ) : (
+            <PanelLeftClose className="h-4 w-4" />
+          )}
+        </button>
       </div>
 
       {/* Navigation */}
@@ -149,26 +194,20 @@ export const OwnerSidebar = () => {
               (item.href !== "/owner" && location.pathname.startsWith(item.href));
             return (
               <li key={item.href}>
-                <Link
-                  to={item.href}
-                  className={isActive ? "dc-sidebar-admin-nav-item-active" : "dc-sidebar-admin-nav-item-inactive"}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
+                <NavItemLink item={item} isActive={isActive} collapsed={collapsed} />
               </li>
             );
           })}
         </ul>
 
-        <FavoritesSection />
+        {!collapsed && <FavoritesSection />}
       </nav>
 
       {/* User section */}
       <div className="dc-sidebar-footer">
         <div className="dc-sidebar-admin-divider" />
-        <div className="dc-sidebar-admin-user">
-          <Avatar size="lg">
+        <div className={cn("flex items-center mb-3", collapsed ? "justify-center" : "gap-3 px-2")}>
+          <Avatar size={collapsed ? "sm" : "lg"}>
             {profile?.profile_photo_url ? (
               <AvatarImage src={profile.profile_photo_url} alt="" />
             ) : null}
@@ -176,55 +215,152 @@ export const OwnerSidebar = () => {
               {displayInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0 leading-tight">
-            {firstName || lastName ? (
-              <>
-                <p className="font-display uppercase font-normal text-[15px] text-white truncate">{firstName}</p>
-                <p className="font-display uppercase font-normal text-[15px] text-white truncate">{lastName}</p>
-              </>
-            ) : (
-              <p className="font-display uppercase font-normal text-[15px] text-white truncate">
-                {user?.email?.split("@")[0] || "Admin"}
-              </p>
-            )}
-          </div>
+          {!collapsed && (
+            <div className="flex-1 min-w-0 leading-tight">
+              {firstName || lastName ? (
+                <>
+                  <p className="font-display uppercase font-normal text-[15px] text-white truncate">{firstName}</p>
+                  <p className="font-display uppercase font-normal text-[15px] text-white truncate">{lastName}</p>
+                </>
+              ) : (
+                <p className="font-display uppercase font-normal text-[15px] text-white truncate">
+                  {user?.email?.split("@")[0] || "Admin"}
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
-        <Link
-          to="/owner/notifications"
-          className={
-            location.pathname.startsWith("/owner/notifications")
-              ? "dc-sidebar-admin-nav-item-active"
-              : "dc-sidebar-admin-nav-item-inactive"
-          }
-        >
-          <Bell className="h-4 w-4" />
-          <span className="flex-1">Notifiche</span>
-          {unreadCount > 0 && (
-            <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
-              {unreadCount > 99 ? "99+" : unreadCount}
-            </span>
-          )}
-        </Link>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/owner/notifications"
+                aria-label="Notifiche"
+                className={cn(
+                  "relative mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200",
+                  location.pathname.startsWith("/owner/notifications")
+                    ? "bg-primary text-primary-foreground"
+                    : "text-white/70 hover:bg-white/10 hover:text-white",
+                )}
+              >
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-medium text-primary-foreground ring-2 ring-ink">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Notifiche</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Link
+            to="/owner/notifications"
+            className={
+              location.pathname.startsWith("/owner/notifications")
+                ? "dc-sidebar-admin-nav-item-active"
+                : "dc-sidebar-admin-nav-item-inactive"
+            }
+          >
+            <Bell className="h-4 w-4" />
+            <span className="flex-1">Notifiche</span>
+            {unreadCount > 0 && (
+              <span className="ml-auto inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-medium">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </Link>
+        )}
 
-        <Link
-          to="/owner/settings"
-          className={
-            location.pathname.startsWith("/owner/settings")
-              ? "dc-sidebar-admin-nav-item-active"
-              : "dc-sidebar-admin-nav-item-inactive"
-          }
-        >
-          <Settings className="h-4 w-4" />
-          {it.backoffice.settings}
-        </Link>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                to="/owner/settings"
+                aria-label={it.backoffice.settings}
+                className={cn(
+                  "mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200",
+                  location.pathname.startsWith("/owner/settings")
+                    ? "bg-primary text-primary-foreground"
+                    : "text-white/70 hover:bg-white/10 hover:text-white",
+                )}
+              >
+                <Settings className="h-4 w-4" />
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">{it.backoffice.settings}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <Link
+            to="/owner/settings"
+            className={
+              location.pathname.startsWith("/owner/settings")
+                ? "dc-sidebar-admin-nav-item-active"
+                : "dc-sidebar-admin-nav-item-inactive"
+            }
+          >
+            <Settings className="h-4 w-4" />
+            {it.backoffice.settings}
+          </Link>
+        )}
 
-        <button onClick={handleLogout} className="dc-sidebar-admin-action">
-          <LogOut className="h-4 w-4" />
-          {it.nav.logout}
-        </button>
+        {collapsed ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={handleLogout}
+                aria-label={it.nav.logout}
+                className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">{it.nav.logout}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <button onClick={handleLogout} className="dc-sidebar-admin-action">
+            <LogOut className="h-4 w-4" />
+            {it.nav.logout}
+          </button>
+        )}
       </div>
     </aside>
+  );
+};
+
+const NavItemLink = ({
+  item,
+  isActive,
+  collapsed,
+}: {
+  item: (typeof navItems)[number];
+  isActive: boolean;
+  collapsed: boolean;
+}) => {
+  const link = (
+    <Link
+      to={item.href}
+      aria-label={collapsed ? item.label : undefined}
+      className={cn(
+        "flex items-center rounded-lg text-sm font-medium transition-all duration-200",
+        collapsed ? "mx-auto h-10 w-10 justify-center" : "gap-3 px-4 py-2.5",
+        isActive
+          ? "bg-primary text-primary-foreground"
+          : "text-white/70 hover:bg-white/10 hover:text-white",
+      )}
+    >
+      <item.icon className="h-4 w-4 shrink-0" />
+      {!collapsed && item.label}
+    </Link>
+  );
+
+  if (!collapsed) return link;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{link}</TooltipTrigger>
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
   );
 };
 
