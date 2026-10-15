@@ -555,8 +555,8 @@ export const TalentPicker = ({
           }}
         >
           <div className="min-h-0 flex-1 overflow-hidden px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_427px] lg:grid-rows-[minmax(0,1fr)] lg:gap-16 lg:px-10">
-            <div className={cn("h-full min-h-0 overflow-y-auto overflow-x-hidden pb-8", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
-            <div className={cn("h-full min-h-0 pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
+            <div className={cn("h-full min-h-0 overflow-y-auto overflow-x-hidden pb-28", mobileTab !== "source" && "hidden lg:block")}>{leftColumn}</div>
+            <div className={cn("h-full min-h-0 pb-28 lg:pb-8", mobileTab !== "selection" && "hidden lg:block")}>{rightColumn}</div>
           </div>
           <DragOverlay dropAnimation={{ duration: 200, easing: "cubic-bezier(0.2, 0, 0, 1.2)" }}>
             {activeTalent ? (
@@ -584,7 +584,7 @@ export const TalentPicker = ({
         saving={saving}
         onReset={() => setSelected(shortlistIds)}
         onSave={() => void save()}
-        className="z-[90] md:left-1/2 md:bottom-8"
+        className="z-[90] bottom-[max(0.5rem,env(safe-area-inset-bottom))] md:left-1/2 md:bottom-8"
       />
       </FullscreenSheet>
 
