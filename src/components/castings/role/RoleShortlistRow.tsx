@@ -78,8 +78,16 @@ export const RoleShortlistRow = ({
     }
   })();
 
+  const pills = (
+    <>
+      <MinorPill birthDate={p?.birth_date} className="shrink-0" withIcon={false} />
+      <FiscalPill profile={p} className="shrink-0" withIcon={false} />
+    </>
+  );
+
   return (
-    <div className={cn(rt.excluded && "opacity-50")}>
+    <div className={cn("@container", rt.excluded && "opacity-50")}>
+
       <div
         role="button"
         tabIndex={0}
@@ -102,13 +110,16 @@ export const RoleShortlistRow = ({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate font-medium text-foreground">{talentName(p)}</span>
-            <MinorPill birthDate={p?.birth_date} className="shrink-0" withIcon={false} />
-            <FiscalPill profile={p} className="shrink-0" withIcon={false} />
+            <span className="hidden shrink-0 items-center gap-2 @[640px]:flex">{pills}</span>
           </div>
-          <p className="truncate text-sm text-muted-foreground">
-            {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
-          </p>
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="min-w-0 truncate text-sm text-muted-foreground">
+              {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
+            </p>
+            <span className="flex shrink-0 items-center gap-2 @[640px]:hidden">{pills}</span>
+          </div>
         </div>
+
 
         {badge && <span className={cn(CHIP, badge.tone, "shrink-0")}>{badge.label}</span>}
 
