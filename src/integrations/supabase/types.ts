@@ -1235,6 +1235,8 @@ export type Database = {
           casting_role_id: string
           company_status: string
           created_at: string
+          excluded: boolean
+          excluded_at: string | null
           id: string
           notes: string | null
           profile_id: string
@@ -1251,6 +1253,8 @@ export type Database = {
           casting_role_id: string
           company_status?: string
           created_at?: string
+          excluded?: boolean
+          excluded_at?: string | null
           id?: string
           notes?: string | null
           profile_id: string
@@ -1267,6 +1271,8 @@ export type Database = {
           casting_role_id?: string
           company_status?: string
           created_at?: string
+          excluded?: boolean
+          excluded_at?: string | null
           id?: string
           notes?: string | null
           profile_id?: string
