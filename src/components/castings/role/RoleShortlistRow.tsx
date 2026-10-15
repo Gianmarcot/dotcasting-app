@@ -66,7 +66,7 @@ export const RoleShortlistRow = ({
   })();
 
   return (
-    <div className={cn("border-b border-border/40 last:border-b-0", rt.excluded && "opacity-50")}>
+    <div className={cn(rt.excluded && "opacity-50")}>
       <div
         role="button"
         tabIndex={0}
