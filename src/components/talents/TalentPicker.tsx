@@ -91,7 +91,7 @@ const Draggable = ({ id, enabled, children }: { id: string; enabled: boolean; ch
       className={cn(
         "rounded-lg transition-all duration-150",
         enabled && "cursor-grab active:cursor-grabbing",
-        isDragging && "scale-[0.98] opacity-25 ring-2 ring-dashed ring-primary/40",
+        isDragging && "scale-[0.98] opacity-25 outline-2 outline-dashed outline-offset-[-4px] outline-primary/40",
       )}
     >
       {children}
