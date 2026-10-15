@@ -335,8 +335,8 @@ export const TalentPicker = ({
           </span>
           <ChevronDown className={cn("h-5 w-5 transition-transform duration-200", filtersOpen && "rotate-180")} />
         </button>
-        <div className="ml-auto flex items-center gap-4">
-          <span className="whitespace-nowrap text-sm text-field-disabled-foreground">
+        <div className="ml-auto flex min-w-0 max-w-full items-center gap-2 sm:gap-4">
+          <span className="min-w-0 truncate text-sm text-field-disabled-foreground">
             {shown.length} di {all.length} risultati
           </span>
           <Surface variant="base">
