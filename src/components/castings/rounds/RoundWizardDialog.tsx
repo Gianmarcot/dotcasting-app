@@ -306,7 +306,6 @@ export const RoundWizardDialog = (props: Props) => {
           <div className="flex flex-wrap items-center gap-2">
             {STATUS_FILTERS.map((f) => {
               const active = statusFilters.has(f.key);
-              const count = roleTalents.filter((r) => f.match(r)).length;
               return (
                 <Button
                   key={f.key}
@@ -320,7 +319,7 @@ export const RoundWizardDialog = (props: Props) => {
                   variant="ghost"
                   size="sm"
                 >
-                  {f.label} <span className="opacity-60">· {count}</span>
+                  {f.label}
                 </Button>
               );
             })}
