@@ -331,7 +331,7 @@ export const OwnerCastingRoleDetail = () => {
                       <h2 className="font-display text-base uppercase text-foreground">Shortlist</h2>
                       <Button variant="secondary" size="md" iconPosition="left" onClick={() => setAddTalentOpen(true)}>
                         <Plus />
-                        Aggiungi talent
+                        Modifica shortlist
                       </Button>
                     </>
                   ) : (
@@ -438,7 +438,7 @@ export const OwnerCastingRoleDetail = () => {
       <TalentPicker
         open={addTalentOpen}
         onOpenChange={setAddTalentOpen}
-        title="Aggiungi talent"
+        title="Modifica shortlist"
         roleId={roleId}
         shortlistIds={talents.map((t) => t.profile_id)}
         onAdd={pickerAdd}
