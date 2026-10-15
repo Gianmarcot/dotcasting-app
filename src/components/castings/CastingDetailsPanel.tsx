@@ -1,4 +1,13 @@
-import { ChevronDown, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import {
+  DetailsBlock,
+  DetailsDeleteLink,
+  DetailsEditLink,
+  DetailsPanelShell,
+  DetailsRows,
+  hasRows,
+  type DetailsRow,
+} from "@/components/castings/DetailsPanelParts";
 import { format } from "date-fns";
 import { it as itLocale } from "date-fns/locale";
 import {
@@ -41,22 +50,22 @@ export const CastingDetailsPanel = ({ casting, onStatusChange, onEdit, onDelete,
   const call = casting.call_datetime
     ? format(new Date(casting.call_datetime), "d MMM yyyy, HH:mm", { locale: itLocale })
     : null;
-  const venue = [casting.venue_name, casting.venue_address].filter(Boolean).join(", ") || null;
 
-  const rows: [string, string | null | undefined][] = [
-    ["Cliente", casting.company?.name],
-    ["Luogo", casting.locations?.length ? casting.locations.join(", ") : null],
-    ["Periodo", formatPeriod(casting.start_date, casting.end_date)],
-    ["Compenso", compensation],
-    ["Categoria", casting.category],
-    ["Convocazione", call],
-    ["Luogo della convocazione", venue],
+  const project: DetailsRow[] = [
+    { label: "Cliente", value: casting.company?.name },
+    { label: "Luogo", value: casting.locations?.length ? casting.locations.join(", ") : null },
+    { label: "Periodo", value: formatPeriod(casting.start_date, casting.end_date) },
+    { label: "Compenso", value: compensation },
+    { label: "Categoria", value: casting.category },
   ];
-  const filled = rows.filter(([, v]) => !!v) as [string, string][];
+  const convocation: DetailsRow[] = [
+    { label: "Data e ora", value: call },
+    { label: "Luogo", value: casting.venue_name },
+    { label: "Indirizzo", value: casting.venue_address },
+  ];
 
   return (
-    <div className={cn("flex flex-col gap-8", className)}>
-      <h2 className="font-display text-base uppercase text-foreground">Dettagli</h2>
+    <DetailsPanelShell title="Dettagli" className={className}>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -83,46 +92,27 @@ export const CastingDetailsPanel = ({ casting, onStatusChange, onEdit, onDelete,
       </DropdownMenu>
 
       {casting.description && (
-        <p className="whitespace-pre-wrap text-sm leading-5 text-grey-700">{casting.description}</p>
+        <DetailsBlock label="Descrizione">
+          <p className="whitespace-pre-wrap">{casting.description}</p>
+        </DetailsBlock>
       )}
-
-      {(filled.length > 0 || casting.talent_instructions) && (
-        <div className="flex flex-col gap-4">
-          {filled.length > 0 && (
-            <dl>
-              {filled.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="flex justify-between gap-4 border-b border-border py-2 text-sm leading-5 text-foreground"
-                >
-                  <dt className="shrink-0">{label}</dt>
-                  <dd className="min-w-0 text-right">{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          {casting.talent_instructions && (
-            <div className="space-y-1 text-sm leading-5 text-foreground">
-              <p>Istruzioni per il talent</p>
-              <p className="whitespace-pre-wrap text-grey-700">{casting.talent_instructions}</p>
-            </div>
-          )}
-        </div>
+      {hasRows(project) && (
+        <DetailsBlock label="Progetto">
+          <DetailsRows rows={project} />
+        </DetailsBlock>
       )}
-
-      <button type="button" onClick={onEdit} className="dc-link-action w-fit">
-        <Pencil className="h-5 w-5" />
-        Modifica
-      </button>
-
-      <button
-        type="button"
-        onClick={onDelete}
-        className="dc-link-action dc-link-action-danger mt-auto w-fit"
-      >
-        <Trash2 className="h-5 w-5" />
-        Elimina casting
-      </button>
-    </div>
+      {hasRows(convocation) && (
+        <DetailsBlock label="Convocazione">
+          <DetailsRows rows={convocation} />
+        </DetailsBlock>
+      )}
+      {casting.talent_instructions && (
+        <DetailsBlock label="Istruzioni per il talent">
+          <p className="whitespace-pre-wrap">{casting.talent_instructions}</p>
+        </DetailsBlock>
+      )}
+      <DetailsEditLink label="Modifica" onClick={onEdit} />
+      <DetailsDeleteLink label="Elimina casting" onClick={onDelete} />
+    </DetailsPanelShell>
   );
 };
