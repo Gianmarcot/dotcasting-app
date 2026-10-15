@@ -1543,7 +1543,7 @@ const BlocksSection = () => (
         </div>
       </div>
       <p className="mt-6 mb-3 text-sm text-muted-foreground">Variante chiara (tone="light") — finestra Modifica shortlist</p>
-      <div className="rounded-3xl bg-cream p-6">
+      <div className="rounded-3xl bg-white p-6 ring-1 ring-border">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {MOCK_SHARED_ROUND.talents.slice(0, 4).map((row, idx) => (
             <TalentTileView

@@ -77,7 +77,7 @@ export function TalentTileView({
         "group relative rounded-2xl transition-all",
         selectable && "cursor-pointer",
         light
-          ? cn("bg-white shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-[var(--grey-400)]")
+          ? cn("bg-cream shadow-sm", selected ? "ring-2 ring-primary" : "ring-1 ring-border hover:ring-[var(--grey-400)]")
           : cn("bg-[#1A1A1A]", selected ? "ring-2 ring-[#A30A2B]" : "ring-1 ring-white/5 hover:ring-white/15"),
       )}
       onClick={selectable ? onToggle : undefined}
@@ -143,7 +143,7 @@ export function TalentTileView({
         }}
         className={cn(
           "absolute bottom-4 right-4 flex h-12 w-12 items-center justify-center rounded-full bg-transparent transition-colors",
-          light ? "text-ink hover:bg-field" : "text-white hover:bg-white/10",
+          light ? "text-ink hover:bg-white" : "text-white hover:bg-white/10",
         )}
         aria-label="Apri dettagli"
       >
