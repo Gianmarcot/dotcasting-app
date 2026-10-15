@@ -415,7 +415,7 @@ export const TalentPicker = ({
             Seleziona tutti ({shownIds.length})
           </label>
           {view === "grid" ? (
-            <div className="@container">
+            <div className="-mx-4 @container">
               <div className="grid grid-cols-2 gap-4 @[720px]:grid-cols-3 @[1000px]:grid-cols-4">
                 {shown.map((t) => {
                   const isSel = selectedSet.has(t.id);
