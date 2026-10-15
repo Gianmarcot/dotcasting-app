@@ -6,7 +6,7 @@
 
 ## Styling
 
-- Primitive colors declared as raw CSS variables (`--ink`, `--cream`, `--cream-dark`, `--grey-*`, `--brand-*`, mapped in `tailwind.config.ts` as `var(--x)`) generate `text-cream`, `bg-ink`, etc. but NOT the slash opacity variants (`text-cream/70` is never emitted, so the element silently falls back to inherited color). Use a plain token class plus an `opacity-*` utility (`text-cream opacity-70 hover:opacity-100`) or a real Tailwind color (`text-white/70`, as `ModalNavBar` does). Why: raw variables cannot generate alpha modifiers.
+- Raw color variables (`--ink`, `--cream`, `--cream-dark`, `--grey-*`, `--brand-*`, mapped as `var(--x)` in `tailwind.config.ts`) support plain classes but NOT slash opacity (`text-cream/70` silently fails). Use token classes with `opacity-*` or parseable Tailwind colors. Why: raw variables cannot generate alpha modifiers.
 - Admin toolbars/filter bars sitting directly on the cream page background wrap their fields in `<Surface variant="raised">` (white `--field-bg`, transparent wrapper). Use it for any field that would otherwise be cream-on-cream; inside white cards keep the default surface. Why: contrast and portal consistency.
 - Round avatars crop with `object-[50%_25%]` (`AvatarImage` default; also use on raw avatars). Why: faces usually sit above the photo centre.
 
