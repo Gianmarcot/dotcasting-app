@@ -77,7 +77,7 @@ export const OwnerCastingRoleDetail = () => {
     setSearchParams(params, { replace: true });
   };
 
-  const panel = useCastingDetailsPanel({ storageKey: "dc-role-details-panel-open", wideQuery: "(min-width: 1440px)" });
+  const panel = useCastingDetailsPanel({ storageKey: "dc-role-details-panel-open" });
   const [addTalentOpen, setAddTalentOpen] = useState(false);
   const [editRoleOpen, setEditRoleOpen] = useState(false);
   const [deleteRoleOpen, setDeleteRoleOpen] = useState(false);
@@ -285,10 +285,22 @@ export const OwnerCastingRoleDetail = () => {
         <div className="min-w-0 flex-1 space-y-6 md:pt-16">
           <div className="space-y-6">
             <CastingBreadcrumbs castingId={castingId} trail={[{ label: role.name }]} />
-            <h1 className="font-display text-[21px] uppercase text-foreground">{role.name}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="font-display text-[21px] uppercase text-foreground">{role.name}</h1>
+              {!panel.open && (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setEditRoleOpen(true)}
+                  className="ml-auto hidden md:inline-flex"
+                >
+                  Modifica
+                </Button>
+              )}
+            </div>
           </div>
 
-          <div className="dc-card p-6 md:hidden">{details}</div>
+          <div className="rounded-3xl bg-cream-dark p-8 md:hidden">{details}</div>
 
           <div className="-mx-4 overflow-x-auto px-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <PillTabs
