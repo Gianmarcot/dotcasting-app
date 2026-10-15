@@ -208,15 +208,18 @@ export const OwnerRoundDetail = () => {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => navigate(`/owner/castings/${castingId}`)}
-        className="-ml-2"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Torna al casting
-      </Button>
+      <CastingBreadcrumbs
+        castingId={castingId}
+        trail={[
+          ...(round.casting_role_id
+            ? [
+                { label: roleName ?? "…", to: `/owner/castings/${castingId}/${round.casting_role_id}` },
+                { label: "Selezioni", to: `/owner/castings/${castingId}/${round.casting_role_id}?scheda=selezioni` },
+              ]
+            : []),
+          { label: round.label },
+        ]}
+      />
 
       <div className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="font-display uppercase text-3xl tracking-wide text-foreground">

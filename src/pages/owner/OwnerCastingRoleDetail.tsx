@@ -43,6 +43,7 @@ import { RoleEngagementsPanel, engagementRows } from "@/components/castings/enga
 import { RoleRoundsPanel } from "@/components/castings/rounds/RoleRoundsPanel";
 import { RoundWizardDialog } from "@/components/castings/rounds/RoundWizardDialog";
 import { CastingSidePanel, useCastingDetailsPanel } from "@/components/castings/CastingSidePanel";
+import { CastingBreadcrumbs } from "@/components/castings/CastingBreadcrumbs";
 import { AddRoleDialog } from "@/components/castings/AddRoleDialog";
 import { RoleShortlistRow } from "@/components/castings/role/RoleShortlistRow";
 import { RoleDetailsPanel } from "@/components/castings/role/RoleDetailsPanel";
@@ -285,10 +286,7 @@ export const OwnerCastingRoleDetail = () => {
       <div className="flex items-start">
         <div className="min-w-0 flex-1 space-y-6 md:pt-16">
           <div className="space-y-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate(`/owner/castings/${castingId}`)} className="-ml-2">
-              <ArrowLeft className="mr-1 h-4 w-4" />
-              Torna al casting
-            </Button>
+            <CastingBreadcrumbs castingId={castingId} trail={[{ label: role.name }]} />
             <h1 className="font-display text-[21px] uppercase text-foreground">{role.name}</h1>
           </div>
 
