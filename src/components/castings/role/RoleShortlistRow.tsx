@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FiscalPill, MinorPill } from "@/components/talents/TalentStatusPill";
+import { isMinorBirthDate } from "@/lib/guardianship";
+import { fiscalStatusOf } from "@/lib/fiscalStatus";
 import { getAge, summarizeRequirements, type RequirementResult } from "@/lib/roleMatch";
 import { roleTalentStatusBadge } from "@/lib/casting/roleTalentStatus";
 import { isEngaged, type RoleTalentWithProfile } from "@/hooks/useRoleTalents";
@@ -84,6 +86,8 @@ export const RoleShortlistRow = ({
       <FiscalPill profile={p} className="shrink-0" withIcon={false} />
     </>
   );
+  const hasPills = isMinorBirthDate(p?.birth_date) || fiscalStatusOf(p) !== "ok";
+
 
   return (
     <div className={cn("@container", rt.excluded && "opacity-50")}>
@@ -110,15 +114,14 @@ export const RoleShortlistRow = ({
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             <span className="truncate font-medium text-foreground">{talentName(p)}</span>
-            <span className="hidden shrink-0 items-center gap-2 @[640px]:flex">{pills}</span>
+            {hasPills && <span className="hidden shrink-0 items-center gap-2 @[640px]:flex">{pills}</span>}
           </div>
-          <div className="flex min-w-0 items-center gap-2">
-            <p className="min-w-0 truncate text-sm text-muted-foreground">
-              {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
-            </p>
-            <span className="flex shrink-0 items-center gap-2 @[640px]:hidden">{pills}</span>
-          </div>
+          <p className="min-w-0 truncate text-sm text-muted-foreground">
+            {[p?.city, age !== null ? `${age} anni` : null].filter(Boolean).join(" · ")}
+          </p>
+          {hasPills && <span className="mt-1.5 flex flex-wrap items-center gap-2 @[640px]:hidden">{pills}</span>}
         </div>
+
 
 
         {badge && <span className={cn(CHIP, badge.tone, "shrink-0")}>{badge.label}</span>}
