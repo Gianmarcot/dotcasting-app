@@ -12,7 +12,7 @@ interface Props {
   rounds: CastingRound[];
 }
 
-/** Scheda "Invii" del dettaglio ruolo: elenco invii + creazione. */
+/** Scheda "Selezioni" del dettaglio ruolo: elenco invii in sola lettura + creazione. */
 export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) => {
   const [createOpen, setCreateOpen] = useState(false);
   const roundIds = useMemo(() => rounds.map((r) => r.id), [rounds]);
@@ -41,9 +41,13 @@ export const RoleRoundsPanel = ({ castingId, roleId, roleName, rounds }: Props) 
       >
         <Plus className="h-4 w-4" />
         <span className="text-sm">
-          {sortedRounds.length === 0 ? "Crea il primo invio" : "Aggiungi invio"}
+          {sortedRounds.length === 0 ? "Crea la prima selezione" : "Nuova selezione"}
         </span>
       </button>
+
+      <p className="mt-4 text-sm text-muted-foreground opacity-70">
+        Il cliente consulta le selezioni in sola lettura: registra il suo riscontro escludendo dal ruolo chi non va bene.
+      </p>
 
       <RoundWizardDialog
         open={createOpen}
