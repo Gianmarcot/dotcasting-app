@@ -112,7 +112,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         redirectTo: redirectUrl,
       },
     });
-    return { error: error ? new Error(error.message) : null };
+    if (!error) return { error: null };
+    // invoke conserva il corpo della risposta HTTP nel context dell'errore.
+    // Non mostrare il generico messaggio "non-2xx" al posto della validazione.
+    let message = "Non è stato possibile completare la registrazione. Riprova tra qualche minuto.";
+    if (error.context instanceof Response) {
+      try {
+        const body = await error.context.json();
+        if (typeof body?.error === "string") message = body.error;
+      } catch {
+        // Mantieni il messaggio neutro se la risposta non è JSON.
+      }
+    }
+    return { error: new Error(message) };
   };
 
 
