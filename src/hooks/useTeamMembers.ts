@@ -51,7 +51,18 @@ export const useInviteMember = () => {
       const { data, error } = await supabase.functions.invoke("invite-team-member", {
         body: input,
       });
-      if (error) throw error;
+      if (error) {
+        let message = "Non è stato possibile creare l’invito. Riprova tra qualche minuto.";
+        if (error.context instanceof Response) {
+          try {
+            const body = await error.context.json();
+            if (typeof body?.error === "string") message = body.error;
+          } catch {
+            // Keep a readable fallback for non-JSON responses.
+          }
+        }
+        throw new Error(message);
+      }
       if ((data as any)?.error) throw new Error((data as any).error);
       return data as { ok: true; accept_url: string; token: string; expires_at: string };
     },
