@@ -62,11 +62,15 @@ export const TeamMembersSection = () => {
 
   const handleInvite = async () => {
     if (!email.trim()) return;
-    const res = await invite.mutateAsync({ email: email.trim(), role });
-    setEmail("");
-    setRole("owner");
-    setInviteOpen(false);
-    setLinkDialog(res.accept_url);
+    try {
+      const res = await invite.mutateAsync({ email: email.trim(), role });
+      setEmail("");
+      setRole("owner");
+      setInviteOpen(false);
+      setLinkDialog(res.accept_url);
+    } catch {
+      // The mutation displays the error; keep the dialog and input intact.
+    }
   };
 
   const copyLink = (url: string) => {
