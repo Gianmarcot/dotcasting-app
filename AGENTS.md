@@ -2,6 +2,8 @@
 
 ## Toasts
 
+- Signup requests propagate safe validation and delivery failures through AuthContext; only successful requests enter the email-verification screen, and account-existence responses remain neutral. Why: rejected passwords must not look like sent confirmation emails.
+
 - All toasts use sonner (`import { toast } from "sonner"`), styled globally in `src/components/ui/sonner.tsx` (dark top-right, red variant for errors); the legacy shadcn `use-toast`/`toaster`/`toast` files are deleted and must not be reintroduced. Why: consistent toasts across roles.
 
 ## Styling

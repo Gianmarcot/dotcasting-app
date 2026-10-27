@@ -22,11 +22,11 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   const startedAt = Date.now()
-  const settle = async (status = 200) => {
+  const settle = async (status = 200, body: unknown = OK) => {
     // Tempi di risposta uniformi tra i tre casi.
     const elapsed = Date.now() - startedAt
     if (elapsed < 900) await new Promise((r) => setTimeout(r, 900 - elapsed))
-    return json(OK, status)
+    return json(body, status)
   }
 
   let email = ''
@@ -84,14 +84,24 @@ Deno.serve(async (req) => {
           data: { signup_mode: signupMode },
         },
       })
-      if (error) { console.error('signUp error', error.status, error.code, error.message) }
+      if (error) {
+        console.error('signUp error', error.status, error.code, error.message)
+        if (error.code === 'weak_password') {
+          return await settle(422, {
+            code: 'weak_password',
+            error: 'Questa password è troppo comune o facile da indovinare. Scegli una password più sicura e riprova.',
+          })
+        }
+        // Mantieni una risposta neutra senza fingere che l'invio sia riuscito.
+        if (error.code !== 'user_already_exists') throw error
+      }
     } else if (state === 'unconfirmed') {
       const { error } = await anonClient.auth.resend({
         type: 'signup',
         email,
         options: { emailRedirectTo },
       })
-      if (error) console.error('resend error', error.status, error.code, error.message)
+      if (error) throw error
     } else {
       // Account già confermato: avvisa il proprietario della casella, max 1 volta all'ora.
       const { data: row } = await admin
@@ -118,11 +128,15 @@ Deno.serve(async (req) => {
           })
         } catch (err) {
           console.error('account-exists email failed', err)
+          throw err
         }
       }
     }
   } catch (err) {
     console.error('signup-request error', err)
+    return await settle(503, {
+      error: 'Non è stato possibile completare la richiesta. Riprova tra qualche minuto.',
+    })
   }
 
   return await settle()
