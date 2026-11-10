@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Camera, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -55,6 +55,40 @@ export const PhotoStep = ({
       />
 
       {error && <p className="mt-10 text-xs text-destructive">{error}</p>}
+
+      <PhotoHelp />
+    </div>
+  );
+};
+
+const PhotoHelp = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-6 w-full max-w-sm text-center">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="text-sm text-muted-foreground underline underline-offset-4"
+      >
+        Non riesci a caricare la foto?
+      </button>
+      {open && (
+        <div className="mt-3 rounded-2xl bg-muted p-4 text-left text-sm text-muted-foreground space-y-2">
+          <p>
+            Il sito non usa fotocamera né microfono: serve solo che il browser possa leggere le foto del
+            telefono.
+          </p>
+          <p>
+            Se compare un avviso di permesso, apri <strong>Impostazioni → App → il tuo browser
+            (es. Mi Browser) → Autorizzazioni</strong> e attiva <strong>«File e contenuti multimediali»</strong>{" "}
+            (o «Foto e video» / «Memoria»).
+          </p>
+          <p>
+            Poi torna qui e premi di nuovo «Foto profilo». In alternativa, apri questa pagina con Chrome.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
