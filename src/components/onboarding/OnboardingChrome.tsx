@@ -29,13 +29,13 @@ export const OnboardingHeader = ({ onExit }: { onExit: () => void }) => (
 /* Banda dello stepper: prosegue 57px sotto la barra + 32px di crema visibile,
    così la card bianca (che le sta sopra) non lascia affiorare il fondo pagina. */
 export const OnboardingStepper = ({ current }: { current: number }) => (
-  <div className="relative rounded-[24px] bg-cream-dark px-8 pt-8 pb-[89px]">
+  <div className="relative rounded-[24px] bg-cream-dark px-4 pt-6 pb-[89px] sm:px-8 sm:pt-8">
     <div className="flex gap-1">
       {ONBOARDING_STEPS.map((label, index) => {
         const reached = index + 1 <= current;
         return (
-          <div key={label} className="flex flex-1 flex-col items-center gap-2">
-            <div className="flex items-center gap-2">
+          <div key={label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+            <div className="flex min-w-0 max-w-full items-center gap-2">
               <span
                 className={cn(
                   "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-medium leading-none",
@@ -44,7 +44,14 @@ export const OnboardingStepper = ({ current }: { current: number }) => (
               >
                 {index + 1}
               </span>
-              <span className="truncate text-[15px] font-medium text-ink">{label}</span>
+              <span
+                className={cn(
+                  "min-w-0 truncate text-[15px] font-medium text-ink",
+                  index + 1 !== current && "hidden sm:inline"
+                )}
+              >
+                {label}
+              </span>
             </div>
             <span
               className={cn(

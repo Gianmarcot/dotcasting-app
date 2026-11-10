@@ -288,7 +288,7 @@ export const ValueChip = ({
 }) => (
   <span className="flex h-10 items-center gap-2 rounded-full border border-border pl-5 pr-3 text-[15px] text-foreground">
     {children}
-    <button type="button" onClick={onRemove} aria-label="Rimuovi" className="opacity-70 hover:opacity-100">
+    <button type="button" onClick={onRemove} aria-label="Rimuovi" className="-m-3 p-3 opacity-70 hover:opacity-100">
       <X className="h-4 w-4" />
     </button>
   </span>

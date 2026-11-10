@@ -150,6 +150,9 @@ export const AddressBlock = ({
       />
       <FloatingInput
         label="CAP"
+        inputMode="numeric"
+        autoComplete="postal-code"
+        maxLength={10}
         value={value.postal_code ?? ""}
         onChange={(v) => onChange({ ...value, postal_code: v })}
         onBlur={onCommit}

@@ -126,7 +126,7 @@ export const ProfileStrengthCard = ({ initiallyCollapsed = false }: { initiallyC
           type="button"
           onClick={() => setCollapsed((v) => !v)}
           aria-label={collapsed ? "Espandi" : "Comprimi"}
-          className="text-foreground"
+          className="-m-3 p-3 text-foreground"
         >
           <ChevronDown className={cn("h-5 w-5 transition-transform", !collapsed && "rotate-180")} />
         </button>
