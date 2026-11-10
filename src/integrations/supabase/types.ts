@@ -1708,6 +1708,10 @@ export type Database = {
         Args: { p_casting_id: string; p_password: string }
         Returns: undefined
       }
+      storage_upload_allowed: {
+        Args: { _bucket: string; _mime: string; _name: string }
+        Returns: boolean
+      }
       talent_can_view_casting: {
         Args: { _casting_id: string }
         Returns: boolean

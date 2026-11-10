@@ -33,6 +33,12 @@ export const UploadBlock = ({
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file || !user?.id) return;
+    const allowed = accept.split(",").map((t) => t.trim());
+    const extOk = /\.(pdf|jpe?g|png)$/i.test(file.name);
+    if (!allowed.includes(file.type) || !extOk) {
+      toast.error("Formato non supportato: usa JPG, PNG o PDF");
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       toast.error("Il file non può superare i 10MB");
       return;

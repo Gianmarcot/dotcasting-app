@@ -29,6 +29,20 @@
       "when": 1792058056457,
       "tag": "0003_casting_roles_requirements",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794315887049,
+      "tag": "0004_validate_phone_numbers",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794315905239,
+      "tag": "0005_restrict_upload_file_types",
+      "breakpoints": true
     }
   ]
 }

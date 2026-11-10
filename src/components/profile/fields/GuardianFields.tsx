@@ -1,3 +1,4 @@
+import { validatePhoneNumber } from "@/lib/phone";
 import { GroupLabel, ProfileCheckbox } from "@/components/profile/fields/FormFields";
 import { AccountEmailField } from "@/components/profile/fields/AccountEmailField";
 import {
@@ -48,9 +49,8 @@ export const validateGuardian = (value: GuardianValue): GuardianErrors => {
   if (!value.birth_date) errors.birth_date = "Inserisci la data di nascita del tutore";
   else if (!isAdultBirthDate(value.birth_date))
     errors.birth_date = "Il tutore deve essere maggiorenne";
-  if (!value.phone_number.trim()) errors.phone_number = "Inserisci un numero di telefono";
-  else if (value.phone_number.replace(/\D/g, "").length < 6)
-    errors.phone_number = "Numero di telefono non valido";
+  const phoneError = validatePhoneNumber(value.phone_prefix, value.phone_number);
+  if (phoneError) errors.phone_number = phoneError;
   return errors;
 };
 

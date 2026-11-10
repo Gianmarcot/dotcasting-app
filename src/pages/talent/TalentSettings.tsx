@@ -1,4 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +19,27 @@ import { useAuth } from "@/contexts/AuthContext";
 export const TalentSettings = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    setDeleting(true);
+    const { error } = await supabase.functions.invoke("delete-account");
+    if (error) {
+      let msg = "Non è stato possibile eliminare l'account. Riprova più tardi.";
+      try {
+        const body = await (error as { context?: Response }).context?.json();
+        if (body?.error) msg = body.error;
+      } catch { /* risposta non leggibile */ }
+      toast.error(msg);
+      setDeleting(false);
+      return;
+    }
+    await supabase.auth.signOut();
+    toast.success("Account eliminato");
+    navigate("/auth", { replace: true });
+  };
 
 
   return (
@@ -133,7 +161,36 @@ export const TalentSettings = () => {
                 Elimina permanentemente il tuo account e tutti i dati associati
               </p>
             </div>
-            <Button variant="destructive" className="w-full sm:w-auto">Elimina account</Button>
+            <AlertDialog onOpenChange={(o) => !o && setConfirmText("")}>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full sm:w-auto">Elimina account</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Eliminare l'account?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Profilo, foto, documenti e candidature verranno cancellati definitivamente.
+                    Scrivi ELIMINA per confermare.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <Input
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="ELIMINA"
+                  aria-label="Conferma eliminazione"
+                />
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deleting}>Annulla</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={confirmText.trim().toUpperCase() !== "ELIMINA" || deleting}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    {deleting ? "Eliminazione…" : "Elimina definitivamente"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </CardContent>
       </Card>

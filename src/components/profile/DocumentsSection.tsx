@@ -52,6 +52,13 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
     const targetUserId = externalProfileId ? profile?.user_id : user?.id;
     if (!file || !targetUserId) return;
 
+    if (
+      !["image/jpeg", "image/png", "application/pdf"].includes(file.type) ||
+      !/\.(pdf|jpe?g|png)$/i.test(file.name)
+    ) {
+      toast.error("Formato non supportato: usa JPG, PNG o PDF");
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       toast.error("Il file non può superare i 10MB");
       return;
@@ -307,7 +314,7 @@ export const DocumentsSection = ({ externalProfileId }: DocumentsSectionProps) =
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*,application/pdf"
+            accept="image/jpeg,image/png,application/pdf"
             onChange={handleDocumentSelected}
             className="hidden"
           />

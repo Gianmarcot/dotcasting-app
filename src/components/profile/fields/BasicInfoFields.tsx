@@ -1,3 +1,4 @@
+import { validatePhoneNumber } from "@/lib/phone";
 import { useEffect, useRef, useState } from "react";
 import { GENDER_IDENTITIES, MONTHS, PHONE_PREFIXES } from "@/lib/profileOptions";
 import {
@@ -68,9 +69,8 @@ export const validateBasicInfo = (value: BasicInfoValue): BasicInfoErrors => {
   if (!value.birth_date) errors.birth_date = "Inserisci la tua data di nascita";
   if (!value.gender) errors.gender = "Seleziona un'opzione";
   if (!value.city.trim()) errors.city = "Inserisci la città in cui vivi";
-  if (!value.phone_number.trim()) errors.phone_number = "Inserisci un numero di telefono";
-  else if (value.phone_number.replace(/\D/g, "").length < 6)
-    errors.phone_number = "Numero di telefono non valido";
+  const phoneError = validatePhoneNumber(value.phone_prefix, value.phone_number);
+  if (phoneError) errors.phone_number = phoneError;
   return errors;
 };
 
